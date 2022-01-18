@@ -1,0 +1,81 @@
+board:
+  buy_url_cn: http://www.hpmicro.com
+  buy_url_global: http://www.hpmicro.com
+  debug_interface: JTAG
+  debugger: FT2232
+  description_en: HPM6750EVKMINI is a development board based on the RISC-V core launched by HPMicro, with rich on-board resources and on-chip resources for Display, Audio and motor control applications.
+  description_zh: HPM6750EVKMINI 是由先楫半导体推出的一款基于RISCV内核的开发板，带有丰富的片上资源和板上资源，可用于显示、音频和电机控制应用。
+  emulator_machine: ''
+  large_image: documents/images/board_large.png
+  name: HPM6750EVKMINI
+  price_cn: 268.00 CNY
+  price_global: 42.00 USD
+  sale_contact_cn: http://www.hpmicro.com/
+  sale_contact_global: http://www.hpmicro.com/
+  small_image: documents/images/board_small.png
+  vendor: HPMicro
+  version: Rev.A
+chip:
+  chip_name: HPM6750
+  clock_source: HSE
+  device_vendor: HPMicro
+  family_name: HPM6000
+  rx_name: PY07
+  series_name: HPM6000
+  source_freq: '24000000'
+  sub_series_name: HPM6750
+  target_freq: '8160000000'
+  tx_name: PY06
+  uart_name: UART0
+
+docs:
+- category: manual
+  file: documents/manuals/HPM6750EVKMINI_UG.pdf
+  title: HPM6750EVKMINI 快速上手指南
+- category: sheet
+  file: documents/sheet/HPM6750_Fact_Sheet_V1_1.pdf
+  title: HPM6750 Factsheet
+example_projects: []
+features:
+- 'MCU: HPM6750, main frequency 816MHz, 2MBytes SRAM'
+- 'RGB LEDs'
+- 'On-Board 16MBytes QSPI NOR FLASH， On-Board 16MBytes 16-bit SDRAM'
+- 'Buttons: 3, RESET, WBUTN, PBUTN'
+- 'Debug Interface: On-board FT2232'
+- 'On-board SPI WIFI: RW007'
+features_zh:
+- 'MCU: HPM6750, 主频 816MHz, 2MBytes SRAM'
+- 'RGB LED灯'
+- '按键： 3, RESET, WBUTN, PBUTN'
+- '板载 16MB QSPI NOR 闪存，板载 16MB 16-bit SDRAM'
+- '调试接口: 板载FT2232'
+- '板载SPI WIFI: RW007'
+pkg_type: Board_Support_Packages
+pkg_vendor: HPMicro
+pkg_version: 0.1.0
+
+template_projects:
+- builtin_files:
+  - files_and_folders:
+    - applications
+    - board
+    - Kconfig
+    - rtconfig.h
+    - rtconfig.py
+    - libraries
+    - rt-thread
+    - SConscript
+    - SConstruct
+    - startup
+    - .cproject
+    - .project
+    - makefile.targets
+    - .settings
+    - .config
+    source_path_offset: rtt_default_project_0
+    target_path_offset: ''
+  external_files: []
+  project_description: ''
+  project_name: hpm6750-evk-mini
+  project_type: rt-thread|@full|@4.0.4
+yaml_version: 3
