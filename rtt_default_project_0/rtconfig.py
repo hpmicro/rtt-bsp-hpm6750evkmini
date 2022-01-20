@@ -20,9 +20,12 @@ if  CROSS_TOOL == 'gcc':
     if os.getenv('RTT_RISCV_TOOLCHAIN'):
         EXEC_PATH = os.getenv('RTT_RISCV_TOOLCHAIN')
     else:
-        EXEC_PATH   = r'/opt/nds32le-elf-newlib-v5/bin'
+        EXEC_PATH   = r'/opt/riscv-gnu-gcc/bin'
 else:
     print("CROSS_TOOL = {} not yet supported" % CROSS_TOOL)
+
+if os.getenv('RTT_EXEC_PATH'):
+    EXEC_PATH = os.getenv('RTT_EXEC_PATH')
 
 
 BUILD = 'ram_debug'
@@ -45,7 +48,7 @@ if PLATFORM == 'gcc':
     ARCH_ABI = ' -march=rv32imac -mabi=ilp32 -mcmodel=medlow '
     CFLAGS = DEVICE + ARCH_ABI + ' -ffunction-sections -fdata-sections -fno-common'
     AFLAGS = CFLAGS
-    LFLAGS  = ARCH_ABI + ' --specs=nano.specs --specs=nosys.specs -nostartfiles -Wl,--gc-sections '
+    LFLAGS  = ARCH_ABI + ' --specs=nosys.specs -nostartfiles -Wl,--gc-sections '
 
     CPATH = ''
     LPATH = ''
