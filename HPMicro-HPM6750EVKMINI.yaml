@@ -91,5 +91,5 @@ template_projects:
     files_and_folders: []
   project_description: ''
   project_name: hpm6750-evk-mini
-  project_type: rt-thread|@full|@4.0.4
+  project_type: rt-thread|@full|@4.0.5
 yaml_version: 3
