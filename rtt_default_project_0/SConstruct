@@ -8,7 +8,7 @@ else:
     RTT_ROOT = os.path.normpath(os.getcwd() + '/../../..')
 
 # set RTT_ROOT
-if not os.getenv("RTT_ROOT"): 
+if not os.getenv("RTT_ROOT"):
     RTT_ROOT="rt-thread"
 
 sys.path = sys.path + [os.path.join(RTT_ROOT, 'tools')]
@@ -56,11 +56,14 @@ objs = PrepareBuilding(env, RTT_ROOT, has_libcpu=False)
 hpm_library = 'hpm-sdk'
 rtconfig.BSP_LIBRARY_TYPE = hpm_library
 
-# include soc 
+# include soc
 objs.extend(SConscript(os.path.join(libraries_path_prefix, 'hpm-sdk','soc', 'HPM6750', 'SConscript')))
 
 # include libraries
 objs.extend(SConscript(os.path.join(libraries_path_prefix, 'hpm-sdk', 'SConscript')))
+
+# include components
+objs.extend(SConscript(os.path.join(libraries_path_prefix, 'hpm-sdk', 'components', 'SConscript')))
 
 # includes rtt drivers
 objs.extend(SConscript(os.path.join(libraries_path_prefix, 'drivers',  'SConscript')))

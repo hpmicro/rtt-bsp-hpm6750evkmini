@@ -1,9 +1,3 @@
-/**
- * @file
- * @brief I2C driver public API file
- *
- */
-
 /*
  * Copyright (c) 2021 hpmicro
  *
@@ -24,6 +18,9 @@
  * @{
  */
 
+/**
+ * @brief I2C status
+ */
 enum {
     status_i2c_no_ack = MAKE_STATUS(status_group_i2c, 1),
     status_i2c_invalid_data = MAKE_STATUS(status_group_i2c, 2),
@@ -32,6 +29,9 @@ enum {
     status_i2c_not_supported = MAKE_STATUS(status_group_i2c, 9),
 };
 
+/**
+ * @brief I2C CMD
+ */
 #define I2C_CMD_NO_ACTION (I2C_CMD_CMD_SET(0))
 #define I2C_CMD_ISSUE_DATA_TRANSMISSION (I2C_CMD_CMD_SET(1))
 #define I2C_CMD_ACK (I2C_CMD_CMD_SET(2))
@@ -39,6 +39,9 @@ enum {
 #define I2C_CMD_CLEAR_FIFO (I2C_CMD_CMD_SET(4))
 #define I2C_CMD_RESET (I2C_CMD_CMD_SET(5))
 
+/**
+ * @brief I2C data direction
+ */
 #define I2C_DIR_MASTER_WRITE (0U)
 #define I2C_DIR_MASTER_READ (1U)
 #define I2C_DIR_SLAVE_READ (0U)
@@ -77,11 +80,17 @@ enum {
 #define I2C_STATUS_BUS_BUSY             I2C_STATUS_BUSBUSY_MASK
 #define I2C_STATUS_ACK                  I2C_STATUS_ACK_MASK
 
+/**
+ * @brief I2C config
+ */
 typedef struct {
     bool is_10bit_addressing;
     uint8_t i2c_mode;
 } i2c_config_t;
 
+/**
+ * @brief I2C mode
+ */
 typedef enum i2c_mode {
     i2c_mode_normal,
     i2c_mode_fast,
@@ -95,7 +104,7 @@ extern "C" {
 /**
  * @brief respond NACK
  *
- * @param ptr I2C base address
+ * @param [in] ptr I2C base address
  */
 static inline void i2c_respond_Nack(I2C_Type *ptr)
 {
@@ -105,7 +114,7 @@ static inline void i2c_respond_Nack(I2C_Type *ptr)
 /**
  * @brief respond ACK
  *
- * @param ptr I2C base address
+ * @param [in] ptr I2C base address
  */
 static inline void i2c_respond_ack(I2C_Type *ptr)
 {
@@ -115,7 +124,7 @@ static inline void i2c_respond_ack(I2C_Type *ptr)
 /**
  * @brief clear I2C fifo
  *
- * @param ptr I2C base address
+ * @param [in] ptr I2C base address
  */
 static inline void i2c_clear_fifo(I2C_Type *ptr)
 {
@@ -125,21 +134,21 @@ static inline void i2c_clear_fifo(I2C_Type *ptr)
 /**
  * @brief check data count
  *
- * It indicates number of bytes to transfer
+ * @details It indicates number of bytes to transfer
  *
- * @param ptr I2C base address
- * @return true if FIFO is full
+ * @param [in] ptr I2C base address
+ * @retval data count value in byte
  */
 static inline uint8_t i2c_get_data_count(I2C_Type *ptr)
 {
     return I2C_CTRL_DATACNT_GET(ptr->CTRL);
 }
-#if 0
+
 /**
  * @brief check if I2C FIFO is full 
  *
- * @param ptr I2C base address
- * @return true if FIFO is full
+ * @param [in] ptr I2C base address
+ * @retval true if FIFO is full
  */
 static inline bool i2c_fifo_is_full(I2C_Type *ptr)
 {
@@ -149,11 +158,11 @@ static inline bool i2c_fifo_is_full(I2C_Type *ptr)
 /**
  * @brief check if I2C FIFO is half 
  *
- * When I2C is transmitting data, it indicates if fifo is half-empty;
- * When I2C is receiving data, it indicates if fifo is half full. 
+ * @note When I2C is transmitting data, it indicates if fifo is half-empty;
+ * @note When I2C is receiving data, it indicates if fifo is half full.
  * 
- * @param ptr I2C base address
- * @return true if FIFO is half empty or full
+ * @param [in] ptr I2C base address
+ * @retval true if FIFO is half empty or full
  */
 static inline bool i2c_fifo_is_half(I2C_Type *ptr)
 {
@@ -163,19 +172,21 @@ static inline bool i2c_fifo_is_half(I2C_Type *ptr)
 /**
  * @brief check if I2C FIFO is empty
  * 
- * @param ptr I2C base address
- * @return true if FIFO is empty
+ * @param [in] ptr I2C base address
+ * @retval true if FIFO is empty
  */
 static inline bool i2c_fifo_is_empty(I2C_Type *ptr)
 {
     return ptr->STATUS & I2C_STATUS_FIFOEMPTY_MASK;
 }
-#endif
 
 /**
  * @brief check if I2C is writing
- * 
- * @param ptr I2C base address
+ *
+ * @param [in] ptr I2C base address
+ * @retval bool value
+ *  @arg true: receive data if master mode, send data in slave mode
+ *  @arg false: send data if master mode, reveive data in slave mode
  *
  */
 static inline bool i2c_is_writing(I2C_Type *ptr)
@@ -186,7 +197,10 @@ static inline bool i2c_is_writing(I2C_Type *ptr)
 /**
  * @brief check if I2C is reading
  * 
- * @param ptr I2C base address
+ * @param [in] ptr I2C base address
+ * @retval bool value
+ *  @arg true: send data if master mode, receive data in slave mode
+ *  @arg false: receive data if master mode, send data in slave mode
  *
  */
 static inline bool i2c_is_reading(I2C_Type *ptr)
@@ -197,10 +211,10 @@ static inline bool i2c_is_reading(I2C_Type *ptr)
 /**
  * @brief clear status
  * 
- * Clear status based on mask
+ * @details Clear status based on mask
  *
- * @param ptr I2C base address
- * @param mask mask to clear status
+ * @param [in] ptr I2C base address
+ * @param [in] mask mask to clear status
  */
 static inline void i2c_clear_status(I2C_Type *ptr, uint32_t mask)
 {
@@ -210,10 +224,10 @@ static inline void i2c_clear_status(I2C_Type *ptr, uint32_t mask)
 /**
  * @brief get status
  *
- * Get current I2C status bits
+ * @details Get current I2C status bits
  *
- * @param ptr I2C base address
- * @return current I2C status
+ * @param [in] ptr I2C base address
+ * @retval current I2C status
  */
 static inline uint32_t i2c_get_status(I2C_Type *ptr)
 {
@@ -223,10 +237,10 @@ static inline uint32_t i2c_get_status(I2C_Type *ptr)
 /**
  * @brief disable interrupts
  *
- * Disable interrupts based on given mask
+ * @details Disable interrupts based on given mask
  *
- * @param ptr I2C base address
- * @param mask interrupt mask to be disabled
+ * @param [in] ptr I2C base address
+ * @param [in] mask interrupt mask to be disabled
  */
 static inline void i2c_disable_irq(I2C_Type *ptr, uint32_t mask)
 {
@@ -236,10 +250,10 @@ static inline void i2c_disable_irq(I2C_Type *ptr, uint32_t mask)
 /**
  * @brief enable interrupts
  *
- * Enable interrupts based on given mask
+ * @details Enable interrupts based on given mask
  *
- * @param ptr I2C base address
- * @param mask interrupt mask to be enabled
+ * @param [in] ptr I2C base address
+ * @param [in] mask interrupt mask to be enabled
  */
 static inline void i2c_enable_irq(I2C_Type *ptr, uint32_t mask)
 {
@@ -249,12 +263,12 @@ static inline void i2c_enable_irq(I2C_Type *ptr, uint32_t mask)
 /**
  * @brief I2C master initialization
  *
- * Initialized I2C controller working at master mode
+ * @details Initialized I2C controller working at master mode
  *
- * @param ptr I2C base address
- * @param src_clk_in_hz I2C controller source clock source frequency in Hz
- * @param config I2C configuration structure
- * @return status_success if initialization is completed without any error
+ * @param [in] ptr I2C base address
+ * @param [in] src_clk_in_hz I2C controller source clock source frequency in Hz
+ * @param [in] config i2c_config_t
+ * @retval hpm_stat_t: status_success if initialization is completed without any error
  */
 hpm_stat_t i2c_init_master(I2C_Type *ptr,
                            uint32_t src_clk_in_hz,
@@ -263,14 +277,15 @@ hpm_stat_t i2c_init_master(I2C_Type *ptr,
 /**
  * @brief I2C master write data to specific address of certain slave device 
  *
- * Write to certain I2C device at specific address within that device
+ * @details Write to certain I2C device at specific address within that device
  *
- * @param ptr I2C base address
- * @param device_address I2C slave address
- * @param addr address in that I2C device
- * @param buf pointer of the data to be sent
- * @param size size of data to be sent in bytes
- * @return status_success if writing is completed without any error
+ * @param [in] ptr I2C base address
+ * @param [in] device_address I2C slave address
+ * @param [in] addr address in that I2C device
+ * @param [in] addr_size_in_byte I2C address in byte
+ * @param [in] buf pointer of the data to be sent
+ * @param [in] size_in_byte size of data to be sent in bytes
+ * @retval hpm_stat_t: status_success if writing is completed without any error
  */
 hpm_stat_t i2c_master_address_write(I2C_Type *ptr,
                             const uint16_t device_address,
@@ -282,14 +297,15 @@ hpm_stat_t i2c_master_address_write(I2C_Type *ptr,
 /**
  * @brief I2C master read data from specific address of certain slave device 
  *
- * Read fram certain I2C device at specific address within that device
+ * @details Read fram certain I2C device at specific address within that device
  *
- * @param ptr I2C base address
- * @param device_address I2C slave address
- * @param addr address in that I2C device
- * @param buf pointer of the buffer to receive data read from the device
- * @param size size of data to be read in bytes
- * @return status_success if reading is completed without any error
+ * @param [in] ptr I2C base address
+ * @param [in] device_address I2C slave address
+ * @param [in] addr address in that I2C device
+ * @param [in] addr_size_in_byte I2C address in byte
+ * @param [out] buf pointer of the buffer to receive data read from the device
+ * @param [in] size size of data to be read in bytes
+ * @retval hpm_stat_t: status_success if reading is completed without any error
  */
 hpm_stat_t i2c_master_address_read(I2C_Type *ptr,
                            const uint16_t device_address,
@@ -301,13 +317,13 @@ hpm_stat_t i2c_master_address_read(I2C_Type *ptr,
 /**
  * @brief I2C master write data to certain slave device 
  *
- * Write data to I2C device
+ * @details Write data to I2C device
  *
- * @param ptr I2C base address
- * @param device_address I2C slave address
- * @param buf pointer of the data to be sent
- * @param size size of data to be sent in bytes
- * @return status_success if writing is completed without any error
+ * @param [in] ptr I2C base address
+ * @param [in] device_address I2C slave address
+ * @param [in] buf pointer of the data to be sent
+ * @param [in] size size of data to be sent in bytes
+ * @retval hpm_stat_t: status_success if writing is completed without any error
  */
 hpm_stat_t i2c_master_write(I2C_Type *ptr,
                             const uint16_t device_address,
@@ -317,13 +333,13 @@ hpm_stat_t i2c_master_write(I2C_Type *ptr,
 /**
  * @brief I2C master read data from certain slave device 
  *
- * Read data from I2C device
+ * @details Read data from I2C device
  *
- * @param ptr I2C base address
- * @param device_address I2C slave address
- * @param buf pointer of the buffer to store data read from device
- * @param size size of data to be read in bytes
- * @return status_success if reading is completed without any error
+ * @param [in] ptr I2C base address
+ * @param [in] device_address I2C slave address
+ * @param [out] buf pointer of the buffer to store data read from device
+ * @param [in] size size of data to be read in bytes
+ * @retval hpm_stat_t: status_success if reading is completed without any error
  */
 hpm_stat_t i2c_master_read(I2C_Type *ptr,
                            const uint16_t device_address,
@@ -332,13 +348,13 @@ hpm_stat_t i2c_master_read(I2C_Type *ptr,
 /**
  * @brief I2C slave initialization
  *
- * Initialize I2C controller working at slave mode
+ * @details Initialize I2C controller working at slave mode
  *
- * @param ptr I2C base address
- * @param src_clk_in_hz I2C controller source clock source frequency in Hz
- * @param config I2C configuration structure
- * @param slave_address I2C address to be used at slave mode 
- * @return status_success if initialization is completed without any error
+ * @param [in] ptr I2C base address
+ * @param [in] src_clk_in_hz I2C controller source clock source frequency in Hz
+ * @param [in] config I2C configuration structure
+ * @param [in] slave_address I2C address to be used at slave mode
+ * @retval hpm_stat_t: status_success if initialization is completed without any error
  */
 hpm_stat_t i2c_init_slave(I2C_Type *ptr, uint32_t src_clk_in_hz,
                           i2c_config_t *config, const uint16_t slave_address);
@@ -346,12 +362,12 @@ hpm_stat_t i2c_init_slave(I2C_Type *ptr, uint32_t src_clk_in_hz,
 /**
  * @brief I2C slave read data
  *
- * Read data at slave mode
+ * @details Read data at slave mode
  *
- * @param ptr I2C base address
- * @param buf pointer of the buffer to store data read from device
- * @param size size of data to be read in bytes
- * @return status_success if reading is completed without any error
+ * @param [in] ptr I2C base address
+ * @param [in] buf pointer of the buffer to store data read from device
+ * @param [in] size size of data to be read in bytes
+ * @retval hpm_stat_t: status_success if reading is completed without any error
  */
 hpm_stat_t i2c_slave_read(I2C_Type *ptr, uint8_t *buf, const uint32_t size);
 
@@ -359,27 +375,29 @@ hpm_stat_t i2c_slave_read(I2C_Type *ptr, uint8_t *buf, const uint32_t size);
 /**
  * @brief I2C slave write data
  *
- * Write one byte at slave mode. Slave sends one byte every write, since it
+ * @details Write one byte at slave mode. Slave sends one byte every write, since it
  * does not know how much data master is requesting.
  *
- * @param ptr I2C base address
- * @param buf the data to be sent
- * @return status_success if writing is completed without any error
+ * @param [in] ptr I2C base address
+ * @param [in] buf the data to be sent
+ * @retval hpm_stat_t status_success if writing is completed without any error
  */
 hpm_stat_t i2c_slave_write(I2C_Type *ptr, uint8_t buf);
 
 /**
  * @brief reset I2C 
  *
- * @param ptr I2C base address
+ * @param [in] ptr I2C base address
  */
 void i2c_reset(I2C_Type *ptr);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }
 #endif
-/**
- * @}
- */
+
 #endif /* HPM_I2C_DRV_H */
 

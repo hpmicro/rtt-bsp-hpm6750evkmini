@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -13,8 +13,8 @@ typedef struct {
     struct {
         __RW uint32_t CTRL0;                   /* 0x0: Control Register 0 */
         __RW uint32_t CTRL1;                   /* 0x4: Control Register 1 */
-        __RW uint32_t TIMEH;                   /* 0x8: timestamp high */
-        __RW uint32_t TIMEL;                   /* 0xC: timestamp low */
+        __R  uint32_t TIMEH;                   /* 0x8: timestamp high */
+        __R  uint32_t TIMEL;                   /* 0xC: timestamp low */
         __RW uint32_t TS_UPDTH;                /* 0x10: timestamp update high */
         __RW uint32_t TS_UPDTL;                /* 0x14: timestamp update low */
         __RW uint32_t ADDEND;                  /* 0x18:  */
@@ -22,7 +22,7 @@ typedef struct {
         __RW uint32_t TARL;                    /* 0x20:  */
         __R  uint8_t  RESERVED0[8];            /* 0x24 - 0x2B: Reserved */
         __RW uint32_t PPS_CTRL;                /* 0x2C:  */
-        __RW uint32_t CAPT_SNAPH;              /* 0x30:  */
+        __R  uint32_t CAPT_SNAPH;              /* 0x30:  */
         __RW uint32_t CAPT_SNAPL;              /* 0x34:  */
         __R  uint8_t  RESERVED1[4040];         /* 0x38 - 0xFFF: Reserved */
     } PTPC[2];
@@ -36,8 +36,8 @@ typedef struct {
 /*
  * SUBSEC_DIGITAL_ROLLOVER (RW)
  *
- * Format for ns counter rollover, 
- * 1-digital, overflow time 1000000000/0x3B9ACA00 
+ * Format for ns counter rollover,
+ * 1-digital, overflow time 1000000000/0x3B9ACA00
  * 0-binary, overflow time  0x7FFFFFFF
  */
 #define PTPC_PTPC_CTRL0_SUBSEC_DIGITAL_ROLLOVER_MASK (0x200U)
@@ -50,7 +50,7 @@ typedef struct {
  *
  * set  will keep capture snap till software read capt_snapl.
  * If this bit is set, software should read capt_snaph first to avoid wrong result.
- * If this bit is cleard, capture result will be updated at each capture event
+ * If this bit is cleared, capture result will be updated at each capture event
  */
 #define PTPC_PTPC_CTRL0_CAPT_SNAP_KEEP_MASK (0x100U)
 #define PTPC_PTPC_CTRL0_CAPT_SNAP_KEEP_SHIFT (8U)
@@ -70,7 +70,6 @@ typedef struct {
 /*
  * CAPT_SNAP_NEG_EN (RW)
  *
- * 
  */
 #define PTPC_PTPC_CTRL0_CAPT_SNAP_NEG_EN_MASK (0x40U)
 #define PTPC_PTPC_CTRL0_CAPT_SNAP_NEG_EN_SHIFT (6U)
@@ -121,7 +120,6 @@ typedef struct {
 /*
  * TIMER_ENABLE (RW)
  *
- * 
  */
 #define PTPC_PTPC_CTRL0_TIMER_ENABLE_MASK (0x1U)
 #define PTPC_PTPC_CTRL0_TIMER_ENABLE_SHIFT (0U)
@@ -142,24 +140,20 @@ typedef struct {
 
 /* Bitfield definition for register of struct array PTPC: TIMEH */
 /*
- * TIMESTAMP_HIGH (RW)
+ * TIMESTAMP_HIGH (RO)
  *
- * 
  */
 #define PTPC_PTPC_TIMEH_TIMESTAMP_HIGH_MASK (0xFFFFFFFFUL)
 #define PTPC_PTPC_TIMEH_TIMESTAMP_HIGH_SHIFT (0U)
-#define PTPC_PTPC_TIMEH_TIMESTAMP_HIGH_SET(x) (((uint32_t)(x) << PTPC_PTPC_TIMEH_TIMESTAMP_HIGH_SHIFT) & PTPC_PTPC_TIMEH_TIMESTAMP_HIGH_MASK)
 #define PTPC_PTPC_TIMEH_TIMESTAMP_HIGH_GET(x) (((uint32_t)(x) & PTPC_PTPC_TIMEH_TIMESTAMP_HIGH_MASK) >> PTPC_PTPC_TIMEH_TIMESTAMP_HIGH_SHIFT)
 
 /* Bitfield definition for register of struct array PTPC: TIMEL */
 /*
- * TIMESTAMP_LOW (RW)
+ * TIMESTAMP_LOW (RO)
  *
- * 
  */
 #define PTPC_PTPC_TIMEL_TIMESTAMP_LOW_MASK (0xFFFFFFFFUL)
 #define PTPC_PTPC_TIMEL_TIMESTAMP_LOW_SHIFT (0U)
-#define PTPC_PTPC_TIMEL_TIMESTAMP_LOW_SET(x) (((uint32_t)(x) << PTPC_PTPC_TIMEL_TIMESTAMP_LOW_SHIFT) & PTPC_PTPC_TIMEL_TIMESTAMP_LOW_MASK)
 #define PTPC_PTPC_TIMEL_TIMESTAMP_LOW_GET(x) (((uint32_t)(x) & PTPC_PTPC_TIMEL_TIMESTAMP_LOW_MASK) >> PTPC_PTPC_TIMEL_TIMESTAMP_LOW_SHIFT)
 
 /* Bitfield definition for register of struct array PTPC: TS_UPDTH */
@@ -187,7 +181,6 @@ typedef struct {
 /*
  * NS_UPDATE (RW)
  *
- * 
  */
 #define PTPC_PTPC_TS_UPDTL_NS_UPDATE_MASK (0x7FFFFFFFUL)
 #define PTPC_PTPC_TS_UPDTL_NS_UPDATE_SHIFT (0U)
@@ -220,7 +213,6 @@ typedef struct {
 /*
  * TARGET_TIME_LOW (RW)
  *
- * 
  */
 #define PTPC_PTPC_TARL_TARGET_TIME_LOW_MASK (0xFFFFFFFFUL)
 #define PTPC_PTPC_TARL_TARGET_TIME_LOW_SHIFT (0U)
@@ -231,7 +223,6 @@ typedef struct {
 /*
  * PPS_CTRL (RW)
  *
- * 
  */
 #define PTPC_PTPC_PPS_CTRL_PPS_CTRL_MASK (0xFU)
 #define PTPC_PTPC_PPS_CTRL_PPS_CTRL_SHIFT (0U)
@@ -240,21 +231,19 @@ typedef struct {
 
 /* Bitfield definition for register of struct array PTPC: CAPT_SNAPH */
 /*
- * CAPT_SNAP_HIGH (RW)
+ * CAPT_SNAP_HIGH (RO)
  *
  * take snapshot for input capture signal, at pos or neg or both;
  * the result can be kept or updated at each event according to cfg0.bit8
  */
 #define PTPC_PTPC_CAPT_SNAPH_CAPT_SNAP_HIGH_MASK (0xFFFFFFFFUL)
 #define PTPC_PTPC_CAPT_SNAPH_CAPT_SNAP_HIGH_SHIFT (0U)
-#define PTPC_PTPC_CAPT_SNAPH_CAPT_SNAP_HIGH_SET(x) (((uint32_t)(x) << PTPC_PTPC_CAPT_SNAPH_CAPT_SNAP_HIGH_SHIFT) & PTPC_PTPC_CAPT_SNAPH_CAPT_SNAP_HIGH_MASK)
 #define PTPC_PTPC_CAPT_SNAPH_CAPT_SNAP_HIGH_GET(x) (((uint32_t)(x) & PTPC_PTPC_CAPT_SNAPH_CAPT_SNAP_HIGH_MASK) >> PTPC_PTPC_CAPT_SNAPH_CAPT_SNAP_HIGH_SHIFT)
 
 /* Bitfield definition for register of struct array PTPC: CAPT_SNAPL */
 /*
- * CAPT_SNAP_LOW (rw)
+ * CAPT_SNAP_LOW (RW)
  *
- * 
  */
 #define PTPC_PTPC_CAPT_SNAPL_CAPT_SNAP_LOW_MASK (0xFFFFFFFFUL)
 #define PTPC_PTPC_CAPT_SNAPL_CAPT_SNAP_LOW_SHIFT (0U)
@@ -265,7 +254,6 @@ typedef struct {
 /*
  * CAN3_TIME_SEL (RW)
  *
- * 
  */
 #define PTPC_TIME_SEL_CAN3_TIME_SEL_MASK (0x8U)
 #define PTPC_TIME_SEL_CAN3_TIME_SEL_SHIFT (3U)
@@ -275,7 +263,6 @@ typedef struct {
 /*
  * CAN2_TIME_SEL (RW)
  *
- * 
  */
 #define PTPC_TIME_SEL_CAN2_TIME_SEL_MASK (0x4U)
 #define PTPC_TIME_SEL_CAN2_TIME_SEL_SHIFT (2U)
@@ -285,7 +272,6 @@ typedef struct {
 /*
  * CAN1_TIME_SEL (RW)
  *
- * 
  */
 #define PTPC_TIME_SEL_CAN1_TIME_SEL_MASK (0x2U)
 #define PTPC_TIME_SEL_CAN1_TIME_SEL_SHIFT (1U)
@@ -307,7 +293,6 @@ typedef struct {
 /*
  * COMP_INT_STS1 (W1C)
  *
- * 
  */
 #define PTPC_INT_STS_COMP_INT_STS1_MASK (0x40000UL)
 #define PTPC_INT_STS_COMP_INT_STS1_SHIFT (18U)
@@ -317,7 +302,6 @@ typedef struct {
 /*
  * CAPTURE_INT_STS1 (W1C)
  *
- * 
  */
 #define PTPC_INT_STS_CAPTURE_INT_STS1_MASK (0x20000UL)
 #define PTPC_INT_STS_CAPTURE_INT_STS1_SHIFT (17U)
@@ -327,7 +311,6 @@ typedef struct {
 /*
  * PPS_INT_STS1 (W1C)
  *
- * 
  */
 #define PTPC_INT_STS_PPS_INT_STS1_MASK (0x10000UL)
 #define PTPC_INT_STS_PPS_INT_STS1_SHIFT (16U)
@@ -337,7 +320,6 @@ typedef struct {
 /*
  * COMP_INT_STS0 (W1C)
  *
- * 
  */
 #define PTPC_INT_STS_COMP_INT_STS0_MASK (0x4U)
 #define PTPC_INT_STS_COMP_INT_STS0_SHIFT (2U)
@@ -347,7 +329,6 @@ typedef struct {
 /*
  * CAPTURE_INT_STS0 (W1C)
  *
- * 
  */
 #define PTPC_INT_STS_CAPTURE_INT_STS0_MASK (0x2U)
 #define PTPC_INT_STS_CAPTURE_INT_STS0_SHIFT (1U)
@@ -357,7 +338,6 @@ typedef struct {
 /*
  * PPS_INT_STS0 (W1C)
  *
- * 
  */
 #define PTPC_INT_STS_PPS_INT_STS0_MASK (0x1U)
 #define PTPC_INT_STS_PPS_INT_STS0_SHIFT (0U)
@@ -368,7 +348,6 @@ typedef struct {
 /*
  * COMP_INT_STS1 (RW)
  *
- * 
  */
 #define PTPC_INT_EN_COMP_INT_STS1_MASK (0x40000UL)
 #define PTPC_INT_EN_COMP_INT_STS1_SHIFT (18U)
@@ -378,7 +357,6 @@ typedef struct {
 /*
  * CAPTURE_INT_STS1 (RW)
  *
- * 
  */
 #define PTPC_INT_EN_CAPTURE_INT_STS1_MASK (0x20000UL)
 #define PTPC_INT_EN_CAPTURE_INT_STS1_SHIFT (17U)
@@ -388,7 +366,6 @@ typedef struct {
 /*
  * PPS_INT_STS1 (RW)
  *
- * 
  */
 #define PTPC_INT_EN_PPS_INT_STS1_MASK (0x10000UL)
 #define PTPC_INT_EN_PPS_INT_STS1_SHIFT (16U)
@@ -398,7 +375,6 @@ typedef struct {
 /*
  * COMP_INT_STS0 (RW)
  *
- * 
  */
 #define PTPC_INT_EN_COMP_INT_STS0_MASK (0x4U)
 #define PTPC_INT_EN_COMP_INT_STS0_SHIFT (2U)
@@ -408,7 +384,6 @@ typedef struct {
 /*
  * CAPTURE_INT_STS0 (RW)
  *
- * 
  */
 #define PTPC_INT_EN_CAPTURE_INT_STS0_MASK (0x2U)
 #define PTPC_INT_EN_CAPTURE_INT_STS0_SHIFT (1U)
@@ -418,7 +393,6 @@ typedef struct {
 /*
  * PPS_INT_STS0 (RW)
  *
- * 
  */
 #define PTPC_INT_EN_PPS_INT_STS0_MASK (0x1U)
 #define PTPC_INT_EN_PPS_INT_STS0_SHIFT (0U)

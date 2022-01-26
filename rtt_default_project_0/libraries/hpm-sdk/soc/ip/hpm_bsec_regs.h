@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -15,7 +15,6 @@ typedef struct {
     __RW uint32_t VIOLATION_CONFIG;            /* 0x8: Security violation config */
     __RW uint32_t ESCALATE_CONFIG;             /* 0xC: Escalate behavior on security event */
     __R  uint32_t EVENT;                       /* 0x10: Event and escalate status */
-    __R  uint32_t LIFECYCLE;                   /* 0x14: Lifecycle */
 } BSEC_Type;
 
 
@@ -193,8 +192,7 @@ typedef struct {
  * LOCK_SEC (RW)
  *
  * Lock bit secure escalate setting, once locked, lock bit itself and configuration will keep value until next reset
- * 0: not locked, configuration can be modified
- * 1: register locked, write access to the configuration is ignored
+ * 0: not locked, configuration can be modified1: register locked, write access to the configuration is ignored
  */
 #define BSEC_ESCALATE_CONFIG_LOCK_SEC_MASK (0x8000U)
 #define BSEC_ESCALATE_CONFIG_LOCK_SEC_SHIFT (15U)
@@ -240,24 +238,6 @@ typedef struct {
 #define BSEC_EVENT_BATT_ESC_SEC_MASK (0x1U)
 #define BSEC_EVENT_BATT_ESC_SEC_SHIFT (0U)
 #define BSEC_EVENT_BATT_ESC_SEC_GET(x) (((uint32_t)(x) & BSEC_EVENT_BATT_ESC_SEC_MASK) >> BSEC_EVENT_BATT_ESC_SEC_SHIFT)
-
-/* Bitfield definition for register: LIFECYCLE */
-/*
- * LIFECYCLE (RO)
- *
- * lifecycle status,  for PMIC state machine only
- * bit7: lifecycle_debate, 
- * bit6: lifecycle_scribe, 
- * bit5: lifecycle_no_ret, 
- * bit4: lifecycle_return, 
- * bit3: lifecycle_secure, 
- * bit2: lifecycle_nonsec, 
- * bit1: lifecycle_create, 
- * bit0: lifecycle_unknow
- */
-#define BSEC_LIFECYCLE_LIFECYCLE_MASK (0xFFU)
-#define BSEC_LIFECYCLE_LIFECYCLE_SHIFT (0U)
-#define BSEC_LIFECYCLE_LIFECYCLE_GET(x) (((uint32_t)(x) & BSEC_LIFECYCLE_LIFECYCLE_MASK) >> BSEC_LIFECYCLE_LIFECYCLE_SHIFT)
 
 
 

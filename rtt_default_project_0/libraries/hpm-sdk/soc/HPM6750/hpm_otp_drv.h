@@ -7,11 +7,20 @@
 #ifndef HPM_OTP_DRV_H
 #define HPM_OTP_DRV_H
 
+/**
+ * @brief OTP APIs
+ * @defgroup otp_interface OTP driver APIs
+ * @{
+ */
+
 #include "hpm_common.h"
 
 /***********************************************************************************************************************
  * Definitions
  **********************************************************************************************************************/
+/**
+ * @brief OTP region definitions
+ */
 typedef enum {
     otp_region0_mask = 1U,  /*!< Address range: [0, 7]  */
     otp_region1_mask = 2U,  /*!< Address range: [8, 15] */
@@ -19,6 +28,9 @@ typedef enum {
     otp_region3_mask = 8U,  /*!< Address range: user defined */
 }otp_region_t;
 
+/**
+ * @brief OTP lock options
+ */
 typedef enum {
     otp_no_lock = 0,
     otp_read_only = 1,
@@ -51,69 +63,76 @@ extern "C" {
     void otp_deinit(void);
 
     /**
-     * @brief Read the FUSE world from shadow register
-     * @param index
-     * @param word
-     * @return
+     * @brief Read the OTP word from shadow register
+     * @param [in] addr OTP word index
+     * @retval OTP word value
      */
      uint32_t otp_read_from_shadow(uint32_t addr);
 
     /**
      * @brief Read the specified OTP word from OTP IP bus
-     * @param index
-     * @param word
-     * @return
+     * @param [in] addr OTP word index
+     * @retval OTP word value
      */
     uint32_t otp_read_from_ip(uint32_t addr);
 
     /**
      * @brief Program a word to specified OTP field
-     * @param index
-     * @param word
-     * @return
+     * @param [in] addr OTP word index
+     * @param [in] src Pointer to the data to be programmed
+     * @param [in] num_of_words Number of words to be programmed, only 1 is allowed
+     * @return API execution status
      */
     hpm_stat_t otp_program(uint32_t addr, const uint32_t *src, uint32_t num_of_words);
 
     /**
      * @brief Reload a OTP region
-     * @param region
-     * @return
+     * @param [in] region OTP region option
+     * @return API execution status
      */
     hpm_stat_t otp_reload(otp_region_t region);
 
     /**
      * @brief Change the Software lock permission
-     * @param addr
-     * @param lock_option
-     * @return
+     * @param [in] addr OTP word index
+     * @param [in] lock_option OTP lcok option
+     * @return API execution status
      */
     hpm_stat_t otp_lock_otp(uint32_t addr, otp_lock_option_t lock_option);
 
 
+    /**
+     * @brief OTP lock shadow
+     * @param [in] addr OTP word index
+     * @param [in] lock_option OTP lock option
+     * @return API execution status
+     */
     hpm_stat_t otp_lock_shadow(uint32_t addr, otp_lock_option_t lock_option);
 
     /**
      * @brief Set the configurable region range
-     * @param start
-     * @param num_of_words
-     * @return status_out_of_range - Invalid range
-     *         status_success - Operation is successful
+     * @param [in] start OTP word start index
+     * @param [in] num_of_words Number of words in configuration region
+     * @retval status_out_of_range Invalid range
+     * @retval status_success Operation is successful
      */
     hpm_stat_t otp_set_configurable_region(uint32_t start, uint32_t num_of_words);
 
     /**
      * @return Write data to OTP shadow register
-     * @param addr
-     * @param val
-     * @return
+     * @param [in] addr OTP word index
+     * @param [val] val Data to be written
+     * @return API execution status
      */
     hpm_stat_t otp_write_shadow_register(uint32_t addr, uint32_t val);
 
 
 #ifdef __cpluscplus
-};
+}
 #endif
-
+/**
+ * @}
+ */
 
 
 

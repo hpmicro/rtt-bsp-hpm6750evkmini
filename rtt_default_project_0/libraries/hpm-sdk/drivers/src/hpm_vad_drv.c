@@ -10,7 +10,6 @@
 void vad_get_default_config(VAD_Type *ptr, vad_config_t *config)
 {
     config->enable_buffer = true;
-    config->enable_dma_request = false;
     config->enable_pdm_clock_out = true;
     config->enable_two_channels = true;
     config->capture_delay = 1;
@@ -25,7 +24,6 @@ void vad_init(VAD_Type *ptr, vad_config_t *config)
 {
     vad_reset(ptr);
     ptr->CTRL = VAD_CTRL_PDM_CLK_HFDIV_SET(config->pdm_half_div)
-        | VAD_CTRL_DMA_EN_SET(config->enable_dma_request)
         | VAD_CTRL_PDM_CLK_OE_SET(config->enable_pdm_clock_out)
         | VAD_CTRL_MEMBUF_DISABLE_SET(!config->enable_buffer)
         | VAD_CTRL_FIFO_THRSH_SET(config->fifo_threshold)
@@ -35,9 +33,8 @@ void vad_init(VAD_Type *ptr, vad_config_t *config)
                 | config->channel_polarity_high[0]);
     ptr->FILTCTRL = VAD_FILTCTRL_DECRATIO_SET(2)
         | VAD_FILTCTRL_IIR_SLOT_EN_SET(0xff);
-    ptr->CIC_CFG = VAD_CIC_CFG_POST_SCALE_SET(config->post_scale)
-        | VAD_CIC_CFG_SGD_SET(1)
-        | VAD_CIC_CFG_CIC_DEC_RATIO_SET(64);
+    ptr->CIC_CFG = (ptr->CIC_CFG & ~VAD_CIC_CFG_POST_SCALE_MASK)
+        | VAD_CIC_CFG_POST_SCALE_SET(config->post_scale);
 
     vad_enable_fifo(ptr);
 }

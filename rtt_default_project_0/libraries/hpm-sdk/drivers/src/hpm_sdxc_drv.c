@@ -566,8 +566,9 @@ hpm_stat_t sdxc_set_dma_config(SDXC_Type *base, sdxc_adma_config_t *dma_cfg, con
     }
 
     // Set DMA mode
+    uint32_t sys_ctl = base->SYS_CTRL;
     base->PROT_CTRL = (base->PROT_CTRL & ~SDXC_PROT_CTRL_DMA_SEL_MASK) | SDXC_PROT_CTRL_DMA_SEL_SET(dma_cfg->dma_type);
-
+    base->SYS_CTRL = sys_ctl;
     return status_success;
 }
 
@@ -727,8 +728,6 @@ void sdxc_select_voltage(SDXC_Type *base, sdxc_bus_voltage_option_t option)
 
     base->PROT_CTRL = (base->PROT_CTRL & ~SDXC_PROT_CTRL_SD_BUS_VOL_VDD1_MASK) |
                       SDXC_PROT_CTRL_SD_BUS_VOL_VDD1_SET(option_u32);
-
-    base->PROT_CTRL |= SDXC_PROT_CTRL_SD_BUS_PWR_VDD1_MASK;
 
     if ((option == sdxc_bus_voltage_sd_1v8) || (option == sdxc_bus_voltage_emmc_1v8)) {
         base->AC_HOST_CTRL |= SDXC_AC_HOST_CTRL_SIGNALING_EN_MASK;

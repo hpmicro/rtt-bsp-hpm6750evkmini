@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -10,12 +10,12 @@
 #define HPM_TRGM_H
 
 typedef struct {
-    __RW uint32_t FILTCFG[24];                 /* 0x0 - 0x5C: Filter configure register */
-    __R  uint8_t  RESERVED0[160];              /* 0x60 - 0xFF: Reserved */
+    __RW uint32_t FILTCFG[20];                 /* 0x0 - 0x4C: Filter configure register */
+    __R  uint8_t  RESERVED0[176];              /* 0x50 - 0xFF: Reserved */
     __RW uint32_t TRGOCFG[64];                 /* 0x100 - 0x1FC: Trigger manager output configure register */
     __RW uint32_t DMACFG[4];                   /* 0x200 - 0x20C: DMA request configure register */
     __R  uint8_t  RESERVED1[496];              /* 0x210 - 0x3FF: Reserved */
-    __RW uint32_t GCR;                         /* 0x400:  */
+    __RW uint32_t GCR;                         /* 0x400: General Control Register */
 } TRGM_Type;
 
 
@@ -35,10 +35,10 @@ typedef struct {
  * MODE (rw)
  *
  * This bitfields defines the filter mode
- * 000-bypass; 
- * 100-rapid change mode;  
- * 101-delay filter mode; 
- * 110-stalbe low mode;  
+ * 000-bypass;
+ * 100-rapid change mode;
+ * 101-delay filter mode;
+ * 110-stalbe low mode;
  * 111-stable high mode
  */
 #define TRGM_FILTCFG_MODE_MASK (0xE000U)
@@ -70,7 +70,7 @@ typedef struct {
 /*
  * OUTINV (rw)
  *
- * 
+ * 1- Invert the output
  */
 #define TRGM_TRGOCFG_OUTINV_MASK (0x100U)
 #define TRGM_TRGOCFG_OUTINV_SHIFT (8U)
@@ -132,30 +132,26 @@ typedef struct {
 
 
 /* FILTCFG register group index macro definition */
-#define TRGM_FILTCFG_PWM_FAULTI0 (0UL)
-#define TRGM_FILTCFG_PWM_FAULTI1 (1UL)
-#define TRGM_FILTCFG_PWM_FAULTI2 (2UL)
-#define TRGM_FILTCFG_PWM_FAULTI3 (3UL)
-#define TRGM_FILTCFG_PWM_IN0 (4UL)
-#define TRGM_FILTCFG_PWM_IN1 (5UL)
-#define TRGM_FILTCFG_PWM_IN2 (6UL)
-#define TRGM_FILTCFG_PWM_IN3 (7UL)
-#define TRGM_FILTCFG_PWM_IN4 (8UL)
-#define TRGM_FILTCFG_PWM_IN5 (9UL)
-#define TRGM_FILTCFG_PWM_IN6 (10UL)
-#define TRGM_FILTCFG_PWM_IN7 (11UL)
-#define TRGM_FILTCFG_TRGM_IN0 (12UL)
-#define TRGM_FILTCFG_TRGM_IN1 (13UL)
-#define TRGM_FILTCFG_TRGM_IN2 (14UL)
-#define TRGM_FILTCFG_TRGM_IN3 (15UL)
-#define TRGM_FILTCFG_TRGM_IN4 (16UL)
-#define TRGM_FILTCFG_TRGM_IN5 (17UL)
-#define TRGM_FILTCFG_TRGM_IN6 (18UL)
-#define TRGM_FILTCFG_TRGM_IN7 (19UL)
-#define TRGM_FILTCFG_TRGM_IN8 (20UL)
-#define TRGM_FILTCFG_TRGM_IN9 (21UL)
-#define TRGM_FILTCFG_TRGM_IN10 (22UL)
-#define TRGM_FILTCFG_TRGM_IN11 (23UL)
+#define TRGM_FILTCFG_PWM_IN0 (0UL)
+#define TRGM_FILTCFG_PWM_IN1 (1UL)
+#define TRGM_FILTCFG_PWM_IN2 (2UL)
+#define TRGM_FILTCFG_PWM_IN3 (3UL)
+#define TRGM_FILTCFG_PWM_IN4 (4UL)
+#define TRGM_FILTCFG_PWM_IN5 (5UL)
+#define TRGM_FILTCFG_PWM_IN6 (6UL)
+#define TRGM_FILTCFG_PWM_IN7 (7UL)
+#define TRGM_FILTCFG_TRGM_IN0 (8UL)
+#define TRGM_FILTCFG_TRGM_IN1 (9UL)
+#define TRGM_FILTCFG_TRGM_IN2 (10UL)
+#define TRGM_FILTCFG_TRGM_IN3 (11UL)
+#define TRGM_FILTCFG_TRGM_IN4 (12UL)
+#define TRGM_FILTCFG_TRGM_IN5 (13UL)
+#define TRGM_FILTCFG_TRGM_IN6 (14UL)
+#define TRGM_FILTCFG_TRGM_IN7 (15UL)
+#define TRGM_FILTCFG_TRGM_IN8 (16UL)
+#define TRGM_FILTCFG_TRGM_IN9 (17UL)
+#define TRGM_FILTCFG_TRGM_IN10 (18UL)
+#define TRGM_FILTCFG_TRGM_IN11 (19UL)
 
 /* TRGOCFG register group index macro definition */
 #define TRGM_TRGOCFG_TRGM_OUT0 (0UL)
@@ -213,13 +209,13 @@ typedef struct {
 #define TRGM_TRGOCFG_ADCX_PTRGI0A (52UL)
 #define TRGM_TRGOCFG_ADCX_PTRGI0B (53UL)
 #define TRGM_TRGOCFG_ADCX_PTRGI0C (54UL)
-#define TRGM_TRGOCFG_GTMR0_SYNCI (55UL)
-#define TRGM_TRGOCFG_GTMR0_IN2 (56UL)
-#define TRGM_TRGOCFG_GTMR0_IN3 (57UL)
-#define TRGM_TRGOCFG_GTRM1_SYNCI (58UL)
-#define TRGM_TRGOCFG_GTRM1_IN (59UL)
-#define TRGM_TRGOCFG_GTRM1_IN3 (60UL)
-#define TRGM_TRGOCFG_CMP0_WIN (61UL)
+#define TRGM_TRGOCFG_GPTMRA_SYNCI (55UL)
+#define TRGM_TRGOCFG_GPTMRA_IN2 (56UL)
+#define TRGM_TRGOCFG_GPTMRA_IN3 (57UL)
+#define TRGM_TRGOCFG_GPTMRB_SYNCI (58UL)
+#define TRGM_TRGOCFG_GPTMRB_IN2 (59UL)
+#define TRGM_TRGOCFG_GPTMRB_IN3 (60UL)
+#define TRGM_TRGOCFG_CMPX_WIN (61UL)
 #define TRGM_TRGOCFG_CAN_PTPC0_CAP (62UL)
 #define TRGM_TRGOCFG_CAN_PTPC1_CAP (63UL)
 

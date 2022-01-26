@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -10,34 +10,18 @@
 #define HPM_USB_H
 
 typedef struct {
-    __R  uint32_t ID;                          /* 0x0: Identification Register */
-    __R  uint32_t HWGENERAL;                   /* 0x4: Hardware General Register */
-    __R  uint32_t HWHOST;                      /* 0x8: Host Hardware Parameter Register */
-    __R  uint32_t HWDEVICE;                    /* 0xC: Device Hardware Parameter Register */
-    __R  uint32_t HWTXBUF;                     /* 0x10: TX Buffer Hardware Parameter Register */
-    __R  uint32_t HWRXBUF;                     /* 0x14: RX Buffer Hardware Parameter Register */
-    __R  uint8_t  RESERVED0[104];              /* 0x18 - 0x7F: Reserved */
+    __R  uint8_t  RESERVED0[128];              /* 0x0 - 0x7F: Reserved */
     __RW uint32_t GPTIMER0LD;                  /* 0x80: General Purpose Timer #0 Load Register */
     __RW uint32_t GPTIMER0CTRL;                /* 0x84: General Purpose Timer #0 Controller Register */
     __RW uint32_t GPTIMER1LD;                  /* 0x88: General Purpose Timer #1 Load Register */
     __RW uint32_t GPTIMER1CTRL;                /* 0x8C: General Purpose Timer #1 Controller Register */
     __RW uint32_t SBUSCFG;                     /* 0x90: System Bus Config Register */
-    __R  uint8_t  RESERVED1[108];              /* 0x94 - 0xFF: Reserved */
-    __R  uint8_t  CAPLENGTH;                   /* 0x100: Capability Registers Length Register */
-    __R  uint8_t  RESERVED2;                   /* 0x101: Reserved */
-    __R  uint16_t HCIVERSION;                  /* 0x102: Host Controller Interface Version Register */
-    __R  uint32_t HCSPARAMS;                   /* 0x104: Host Controller Structural Parameter Register */
-    __R  uint32_t HCCPARAMS;                   /* 0x108: Host Controller Capability Parameter Register */
-    __R  uint8_t  RESERVED3[20];               /* 0x10C - 0x11F: Reserved */
-    __R  uint16_t DCIVERSION;                  /* 0x120: Device Controller Interface Version Register */
-    __R  uint8_t  RESERVED4[2];                /* 0x122 - 0x123: Reserved */
-    __R  uint32_t DCCPARAMS;                   /* 0x124: Device Controller Capability Parameter Register */
-    __R  uint8_t  RESERVED5[24];               /* 0x128 - 0x13F: Reserved */
+    __R  uint8_t  RESERVED1[172];              /* 0x94 - 0x13F: Reserved */
     __RW uint32_t USBCMD;                      /* 0x140: USB Command Register */
     __RW uint32_t USBSTS;                      /* 0x144: USB Status Register */
     __RW uint32_t USBINTR;                     /* 0x148: Interrupt Enable Register */
     __RW uint32_t FRINDEX;                     /* 0x14C: USB Frame Index Register */
-    __R  uint8_t  RESERVED6[4];                /* 0x150 - 0x153: Reserved */
+    __R  uint8_t  RESERVED2[4];                /* 0x150 - 0x153: Reserved */
     union {
         __RW uint32_t DEVICEADDR;              /* 0x154: Device Address Register */
         __RW uint32_t PERIODICLISTBASE;        /* 0x154: Frame List Base Address Register */
@@ -46,15 +30,15 @@ typedef struct {
         __RW uint32_t ASYNCLISTADDR;           /* 0x158: Next Asynch. Address Register */
         __RW uint32_t ENDPTLISTADDR;           /* 0x158: Endpoint List Address Register */
     };
-    __R  uint8_t  RESERVED7[4];                /* 0x15C - 0x15F: Reserved */
+    __R  uint8_t  RESERVED3[4];                /* 0x15C - 0x15F: Reserved */
     __RW uint32_t BURSTSIZE;                   /* 0x160: Programmable Burst Size Register */
     __RW uint32_t TXFILLTUNING;                /* 0x164: TX FIFO Fill Tuning Register */
-    __R  uint8_t  RESERVED8[16];               /* 0x168 - 0x177: Reserved */
+    __R  uint8_t  RESERVED4[16];               /* 0x168 - 0x177: Reserved */
     __RW uint32_t ENDPTNAK;                    /* 0x178: Endpoint NAK Register */
     __RW uint32_t ENDPTNAKEN;                  /* 0x17C: Endpoint NAK Enable Register */
-    __R  uint32_t CONFIGFLAG;                  /* 0x180: Configure Flag Register */
+    __R  uint8_t  RESERVED5[4];                /* 0x180 - 0x183: Reserved */
     __RW uint32_t PORTSC1;                     /* 0x184: Port Status & Control */
-    __R  uint8_t  RESERVED9[28];               /* 0x188 - 0x1A3: Reserved */
+    __R  uint8_t  RESERVED6[28];               /* 0x188 - 0x1A3: Reserved */
     __RW uint32_t OTGSC;                       /* 0x1A4: On-The-Go Status & control Register */
     __RW uint32_t USBMODE;                     /* 0x1A8: USB Device Mode Register */
     __RW uint32_t ENDPTSETUPSTAT;              /* 0x1AC: Endpoint Setup Status Register */
@@ -63,195 +47,16 @@ typedef struct {
     __R  uint32_t ENDPTSTAT;                   /* 0x1B8: Endpoint Status Register */
     __RW uint32_t ENDPTCOMPLETE;               /* 0x1BC: Endpoint Complete Register */
     __RW uint32_t ENDPTCTRL[8];                /* 0x1C0 - 0x1DC: Endpoint Control0 Register... Endpoint Control7 Register */
-    __R  uint8_t  RESERVED10[32];              /* 0x1E0 - 0x1FF: Reserved */
+    __R  uint8_t  RESERVED7[32];               /* 0x1E0 - 0x1FF: Reserved */
     __RW uint32_t OTG_CTRL0;                   /* 0x200:  */
-    __RW uint32_t OTG_CTRL1;                   /* 0x204:  */
-    __R  uint8_t  RESERVED11[8];               /* 0x208 - 0x20F: Reserved */
+    __R  uint8_t  RESERVED8[12];               /* 0x204 - 0x20F: Reserved */
     __RW uint32_t PHY_CTRL0;                   /* 0x210:  */
     __RW uint32_t PHY_CTRL1;                   /* 0x214:  */
-    __R  uint8_t  RESERVED12[8];               /* 0x218 - 0x21F: Reserved */
+    __R  uint8_t  RESERVED9[8];                /* 0x218 - 0x21F: Reserved */
     __RW uint32_t TOP_STATUS;                  /* 0x220:  */
     __RW uint32_t PHY_STATUS;                  /* 0x224:  */
 } USB_Type;
 
-
-/* Bitfield definition for register: ID */
-/*
- * REVISION (RO)
- *
- * Revision number of the controller core
- */
-#define USB_ID_REVISION_MASK (0xFF0000UL)
-#define USB_ID_REVISION_SHIFT (16U)
-#define USB_ID_REVISION_GET(x) (((uint32_t)(x) & USB_ID_REVISION_MASK) >> USB_ID_REVISION_SHIFT)
-
-/*
- * NID (RO)
- *
- * Complement version of ID
- */
-#define USB_ID_NID_MASK (0x3F00U)
-#define USB_ID_NID_SHIFT (8U)
-#define USB_ID_NID_GET(x) (((uint32_t)(x) & USB_ID_NID_MASK) >> USB_ID_NID_SHIFT)
-
-/*
- * ID (RO)
- *
- * Configuration number.This number indicates the type of the USB-HS 2.0 core.
- */
-#define USB_ID_ID_MASK (0x3FU)
-#define USB_ID_ID_SHIFT (0U)
-#define USB_ID_ID_GET(x) (((uint32_t)(x) & USB_ID_ID_MASK) >> USB_ID_ID_SHIFT)
-
-/* Bitfield definition for register: HWGENERAL */
-/*
- * SM (RO)
- *
- * Serial interface mode capability
- * 00 - No Serial Engine, always use parallel signalling.
- * 01 - Serial Engine present, always use serial signalling for FS/LS.
- * 10 - Software programmable - Reset to use parallel signalling for FS/LS
- * 11 - Software programmable - Reset to use serial signalling for FS/LS
- */
-#define USB_HWGENERAL_SM_MASK (0xC00U)
-#define USB_HWGENERAL_SM_SHIFT (10U)
-#define USB_HWGENERAL_SM_GET(x) (((uint32_t)(x) & USB_HWGENERAL_SM_MASK) >> USB_HWGENERAL_SM_SHIFT)
-
-/*
- * PHYM (RO)
- *
- * PHYM
- * Transciever type
- * 000 - UTMI/UMTI+
- * 001 - ULPI DDR
- * 010 - ULPI
- * 011 - Serial Only
- * 100 - Software programmable - reset to UTMI/UTMI+
- * 101 - Software programmable - reset to ULPI DDR
- * 110 - Software programmable - reset to ULPI
- * 111 - Software programmable - reset to Serial
- */
-#define USB_HWGENERAL_PHYM_MASK (0x3C0U)
-#define USB_HWGENERAL_PHYM_SHIFT (6U)
-#define USB_HWGENERAL_PHYM_GET(x) (((uint32_t)(x) & USB_HWGENERAL_PHYM_MASK) >> USB_HWGENERAL_PHYM_SHIFT)
-
-/*
- * PHYW (RO)
- *
- * PHYW
- * Data width of the transciever connected to the controller core.
- * 00 - 8 bit wide data bus (Software non-programmable)
- * 01 - 16 bit wide data bus (Software non-programmable)
- * 10 - Reset to 8 bit wide data bus (Software programmable)
- * 11 - Reset to 16 bit wide data bus (Software programmable)
- */
-#define USB_HWGENERAL_PHYW_MASK (0x30U)
-#define USB_HWGENERAL_PHYW_SHIFT (4U)
-#define USB_HWGENERAL_PHYW_GET(x) (((uint32_t)(x) & USB_HWGENERAL_PHYW_MASK) >> USB_HWGENERAL_PHYW_SHIFT)
-
-/* Bitfield definition for register: HWHOST */
-/*
- * NPORT (RO)
- *
- * NPORT
- * The Nmber of downstream ports supported by the host controller is (NPORT+1).
- * NOTE: When these bits value is '000', it indicates a single-port host controller.
- */
-#define USB_HWHOST_NPORT_MASK (0xEU)
-#define USB_HWHOST_NPORT_SHIFT (1U)
-#define USB_HWHOST_NPORT_GET(x) (((uint32_t)(x) & USB_HWHOST_NPORT_MASK) >> USB_HWHOST_NPORT_SHIFT)
-
-/*
- * HC (RO)
- *
- * HC
- * Host Capable.
- * Indicating whether host operation mode is supported or not.
- * 0 - Not supported
- * 1 - Supported
- */
-#define USB_HWHOST_HC_MASK (0x1U)
-#define USB_HWHOST_HC_SHIFT (0U)
-#define USB_HWHOST_HC_GET(x) (((uint32_t)(x) & USB_HWHOST_HC_MASK) >> USB_HWHOST_HC_SHIFT)
-
-/* Bitfield definition for register: HWDEVICE */
-/*
- * DEVEP (RO)
- *
- * DEVEP
- * Device Endpoint Number
- */
-#define USB_HWDEVICE_DEVEP_MASK (0x3EU)
-#define USB_HWDEVICE_DEVEP_SHIFT (1U)
-#define USB_HWDEVICE_DEVEP_GET(x) (((uint32_t)(x) & USB_HWDEVICE_DEVEP_MASK) >> USB_HWDEVICE_DEVEP_SHIFT)
-
-/*
- * DC (RO)
- *
- * DC
- * Device Capable.
- * Indicating whether device operation mode is supported or not.
- * 0 - Not supported
- * 1 - Supported
- */
-#define USB_HWDEVICE_DC_MASK (0x1U)
-#define USB_HWDEVICE_DC_SHIFT (0U)
-#define USB_HWDEVICE_DC_GET(x) (((uint32_t)(x) & USB_HWDEVICE_DC_MASK) >> USB_HWDEVICE_DC_SHIFT)
-
-/* Bitfield definition for register: HWTXBUF */
-/*
- * TXCHANADD (RO)
- *
- * TXCHANADD
- * TX FIFO Buffer size is: (2^TXCHANADD) * 4 Bytes.
- * These bits are set to '08h', so buffer size is 256*4 Bytes.
- * For the OTG controller operating in device mode, this is the FIFO buffer size per endpoint. As the OTG
- * controller has 8 TX endpoint, there are 8 of these buffers.
- * For the OTG controller operating in host mode, or for Host-only controller, the entire buffer memory is
- * used as a single TX buffer. Therefore, there is only 1 of this buffer
- */
-#define USB_HWTXBUF_TXCHANADD_MASK (0xFF0000UL)
-#define USB_HWTXBUF_TXCHANADD_SHIFT (16U)
-#define USB_HWTXBUF_TXCHANADD_GET(x) (((uint32_t)(x) & USB_HWTXBUF_TXCHANADD_MASK) >> USB_HWTXBUF_TXCHANADD_SHIFT)
-
-/*
- * TXBURST (RO)
- *
- * TXBURST
- * Default burst size for memory to TX buffer transfer.
- * This is reset value of TXPBURST bits in USB core register USB_n_BURSTSIZE.
- * Please see BURSTSIZE .
- */
-#define USB_HWTXBUF_TXBURST_MASK (0xFFU)
-#define USB_HWTXBUF_TXBURST_SHIFT (0U)
-#define USB_HWTXBUF_TXBURST_GET(x) (((uint32_t)(x) & USB_HWTXBUF_TXBURST_MASK) >> USB_HWTXBUF_TXBURST_SHIFT)
-
-/* Bitfield definition for register: HWRXBUF */
-/*
- * RXADD (RO)
- *
- * RXADD
- * Buffer total size for all receive endpoints is (2^RXADD).
- * RX Buffer size is: (2^RXADD) * 4 Bytes.
- * These bits are set to '08h', so buffer size is 256*4 Bytes.
- * There is a single Receive FIFO buffer in the USB controller. The buffer is shared for all endpoints for the
- * OTG controller in device mode.
- */
-#define USB_HWRXBUF_RXADD_MASK (0xFF00U)
-#define USB_HWRXBUF_RXADD_SHIFT (8U)
-#define USB_HWRXBUF_RXADD_GET(x) (((uint32_t)(x) & USB_HWRXBUF_RXADD_MASK) >> USB_HWRXBUF_RXADD_SHIFT)
-
-/*
- * RXBURST (RO)
- *
- * RXBURST
- * Default burst size for memory to RX buffer transfer.
- * This is reset value of RXPBURST bits in USB core register USB_n_BURSTSIZE.
- * Please see BURSTSIZE .
- */
-#define USB_HWRXBUF_RXBURST_MASK (0xFFU)
-#define USB_HWRXBUF_RXBURST_SHIFT (0U)
-#define USB_HWRXBUF_RXBURST_GET(x) (((uint32_t)(x) & USB_HWRXBUF_RXBURST_MASK) >> USB_HWRXBUF_RXBURST_SHIFT)
 
 /* Bitfield definition for register: GPTIMER0LD */
 /*
@@ -418,259 +223,13 @@ typedef struct {
 #define USB_SBUSCFG_AHBBRST_SET(x) (((uint32_t)(x) << USB_SBUSCFG_AHBBRST_SHIFT) & USB_SBUSCFG_AHBBRST_MASK)
 #define USB_SBUSCFG_AHBBRST_GET(x) (((uint32_t)(x) & USB_SBUSCFG_AHBBRST_MASK) >> USB_SBUSCFG_AHBBRST_SHIFT)
 
-/* Bitfield definition for register: CAPLENGTH */
-/*
- * CAPLENGTH (RO)
- *
- * CAPLENGTH
- * These bits are used as an offset to add to register base to find the beginning of the Operational Register.
- * Default value is '40h'.
- */
-#define USB_CAPLENGTH_CAPLENGTH_MASK (0xFFU)
-#define USB_CAPLENGTH_CAPLENGTH_SHIFT (0U)
-#define USB_CAPLENGTH_CAPLENGTH_GET(x) (((uint8_t)(x) & USB_CAPLENGTH_CAPLENGTH_MASK) >> USB_CAPLENGTH_CAPLENGTH_SHIFT)
-
-/* Bitfield definition for register: HCIVERSION */
-/*
- * HCIVERSION (RO)
- *
- * HCIVERSION
- * Host Controller Interface Version Number
- * Default value is '10h', which means EHCI rev1.0.
- */
-#define USB_HCIVERSION_HCIVERSION_MASK (0xFFFFU)
-#define USB_HCIVERSION_HCIVERSION_SHIFT (0U)
-#define USB_HCIVERSION_HCIVERSION_GET(x) (((uint16_t)(x) & USB_HCIVERSION_HCIVERSION_MASK) >> USB_HCIVERSION_HCIVERSION_SHIFT)
-
-/* Bitfield definition for register: HCSPARAMS */
-/*
- * N_TT (RO)
- *
- * N_TT
- * Number of Transaction Translators (N_TT). Default value '0000b'
- * This field indicates the number of embedded transaction translators associated with the USB2.0 host
- * controller.
- * These bits would be set to '0001b' for Multi-Port Host, and '0000b' for Single-Port Host.
- */
-#define USB_HCSPARAMS_N_TT_MASK (0xF000000UL)
-#define USB_HCSPARAMS_N_TT_SHIFT (24U)
-#define USB_HCSPARAMS_N_TT_GET(x) (((uint32_t)(x) & USB_HCSPARAMS_N_TT_MASK) >> USB_HCSPARAMS_N_TT_SHIFT)
-
-/*
- * N_PTT (RO)
- *
- * N_PTT
- * Number of Ports per Transaction Translator (N_PTT). Default value '0000b'
- * This field indicates the number of ports assigned to each transaction translator within the USB2.0 host
- * controller.
- * These bits would be set to equal N_PORTS for Multi-Port Host, and '0000b' for Single-Port Host.
- */
-#define USB_HCSPARAMS_N_PTT_MASK (0xF00000UL)
-#define USB_HCSPARAMS_N_PTT_SHIFT (20U)
-#define USB_HCSPARAMS_N_PTT_GET(x) (((uint32_t)(x) & USB_HCSPARAMS_N_PTT_MASK) >> USB_HCSPARAMS_N_PTT_SHIFT)
-
-/*
- * PI (RO)
- *
- * PI
- * Port Indicators (P INDICATOR)
- * This bit indicates whether the ports support port indicator control. When set to one, the port status and
- * control registers include a read/writeable field for controlling the state of the port indicator
- * This bit is "1b" in all controller core.
- */
-#define USB_HCSPARAMS_PI_MASK (0x10000UL)
-#define USB_HCSPARAMS_PI_SHIFT (16U)
-#define USB_HCSPARAMS_PI_GET(x) (((uint32_t)(x) & USB_HCSPARAMS_PI_MASK) >> USB_HCSPARAMS_PI_SHIFT)
-
-/*
- * N_CC (RO)
- *
- * N_CC
- * Number of Companion Controller (N_CC).
- * This field indicates the number of companion controllers associated with this USB2.0 host controller.
- * These bits are '0000b' in all controller core.
- * 0000 - There is no internal Companion Controller and port-ownership hand-off is not supported.
- * 0001 - There are internal companion controller(s) and port-ownership hand-offs is supported.
- */
-#define USB_HCSPARAMS_N_CC_MASK (0xF000U)
-#define USB_HCSPARAMS_N_CC_SHIFT (12U)
-#define USB_HCSPARAMS_N_CC_GET(x) (((uint32_t)(x) & USB_HCSPARAMS_N_CC_MASK) >> USB_HCSPARAMS_N_CC_SHIFT)
-
-/*
- * N_PCC (RO)
- *
- * N_PCC
- * Number of Ports per Companion Controller
- * This field indicates the number of ports supported per internal Companion Controller. It is used to indicate
- * the port routing configuration to the system software.
- * For example, if N_PORTS has a value of 6 and N_CC has a value of 2 then N_PCC could have a value
- * of 3. The convention is that the first N_PCC ports are assumed to be routed to companion controller 1,
- * the next N_PCC ports to companion controller 2, etc. In the previous example, the N_PCC could have
- * been 4, where the first 4 are routed to companion controller 1 and the last two are routed to companion
- * controller 2. The number in this field must be consistent with N_PORTS and N_CC.
- * These bits are '0000b' in all controller core.
- */
-#define USB_HCSPARAMS_N_PCC_MASK (0xF00U)
-#define USB_HCSPARAMS_N_PCC_SHIFT (8U)
-#define USB_HCSPARAMS_N_PCC_GET(x) (((uint32_t)(x) & USB_HCSPARAMS_N_PCC_MASK) >> USB_HCSPARAMS_N_PCC_SHIFT)
-
-/*
- * PPC (RO)
- *
- * PPC
- * Port Power Control
- * This field indicates whether the host controller implementation includes port power control. A one
- * indicates the ports have port power switches. A zero indicates the ports do not have port power switches.
- * The value of this field affects the functionality of the Port Power field in each port status and control
- * Register
- */
-#define USB_HCSPARAMS_PPC_MASK (0x10U)
-#define USB_HCSPARAMS_PPC_SHIFT (4U)
-#define USB_HCSPARAMS_PPC_GET(x) (((uint32_t)(x) & USB_HCSPARAMS_PPC_MASK) >> USB_HCSPARAMS_PPC_SHIFT)
-
-/*
- * N_PORTS (RO)
- *
- * N_PORTS
- * Number of downstream ports. This field specifies the number of physical downstream ports implemented
- * on this host controller. The value of this field determines how many port registers are addressable in the
- * Operational Register.
- * Valid values are in the range of 1h to Fh. A zero in this field is undefined.
- * These bits are always set to '0001b' because all controller cores are Single-Port Host.
- */
-#define USB_HCSPARAMS_N_PORTS_MASK (0xFU)
-#define USB_HCSPARAMS_N_PORTS_SHIFT (0U)
-#define USB_HCSPARAMS_N_PORTS_GET(x) (((uint32_t)(x) & USB_HCSPARAMS_N_PORTS_MASK) >> USB_HCSPARAMS_N_PORTS_SHIFT)
-
-/* Bitfield definition for register: HCCPARAMS */
-/*
- * EECP (RO)
- *
- * EECP
- * EHCI Extended Capabilities Pointer.
- * This field indicates the existence of a capabilities list. A value of 00h indicates no extended capabilities
- * are implemented. A non-zero value in this register indicates the offset in PCI configuration space of the
- * first EHCI extended capability. The pointer value must be 40h or greater if implemented to maintain the
- * consistency of the PCI header defined for this class of device.
- * NOTE: These bits are set '00h' in all controller core.
- */
-#define USB_HCCPARAMS_EECP_MASK (0xFF00U)
-#define USB_HCCPARAMS_EECP_SHIFT (8U)
-#define USB_HCCPARAMS_EECP_GET(x) (((uint32_t)(x) & USB_HCCPARAMS_EECP_MASK) >> USB_HCCPARAMS_EECP_SHIFT)
-
-/*
- * IST (RO)
- *
- * IST
- * Isochronous Scheduling Threshold.
- * This field indicates, relative to the current position of the executing host controller, where software can
- * reliably update the isochronous schedule. When bit [7] is zero, the value of the least significant 3 bits
- * indicates the number of micro-frames a host controller can hold a set of isochronous data structures (one
- * or more) before flushing the state. When bit [7] is a one, then host software assumes the host controller
- * may cache an isochronous data structure for an entire frame.
- * These bits are set '00h' in all controller core.
- */
-#define USB_HCCPARAMS_IST_MASK (0xF0U)
-#define USB_HCCPARAMS_IST_SHIFT (4U)
-#define USB_HCCPARAMS_IST_GET(x) (((uint32_t)(x) & USB_HCCPARAMS_IST_MASK) >> USB_HCCPARAMS_IST_SHIFT)
-
-/*
- * ASP (RO)
- *
- * ASP
- * Asynchronous Schedule Park Capability
- * If this bit is set to a one, then the host controller supports the park feature for high-speed queue heads in
- * the Asynchronous Schedule. The feature can be disabled or enabled and set to a specific level by using
- * the Asynchronous Schedule Park Mode Enable and Asynchronous Schedule Park Mode Count fields in
- * the USBCMD register.
- * NOTE: ASP bit reset value: '00b' for OTG controller core, '11b' for Host-only controller core.
- */
-#define USB_HCCPARAMS_ASP_MASK (0x4U)
-#define USB_HCCPARAMS_ASP_SHIFT (2U)
-#define USB_HCCPARAMS_ASP_GET(x) (((uint32_t)(x) & USB_HCCPARAMS_ASP_MASK) >> USB_HCCPARAMS_ASP_SHIFT)
-
-/*
- * PFL (RO)
- *
- * Programmable Frame List Flag
- * If this bit is set to zero, then the system software must use a frame list length of 1024 elements with this
- * host controller. The USBCMD register Frame List Size field is a read-only register and must be set to
- * zero.
- * If set to a one, then the system software can specify and use a smaller frame list and configure the host
- * controller via the USBCMD register Frame List Size field. The frame list must always be aligned on a 4Kpage
- * boundary. This requirement ensures that the frame list is always physically contiguous.
- * This bit is set '1b' in all controller core.
- */
-#define USB_HCCPARAMS_PFL_MASK (0x2U)
-#define USB_HCCPARAMS_PFL_SHIFT (1U)
-#define USB_HCCPARAMS_PFL_GET(x) (((uint32_t)(x) & USB_HCCPARAMS_PFL_MASK) >> USB_HCCPARAMS_PFL_SHIFT)
-
-/*
- * ADC (RO)
- *
- * ADC
- * 64-bit Addressing Capability
- * This bit is set '0b' in all controller core, no 64-bit addressing capability is supported.
- */
-#define USB_HCCPARAMS_ADC_MASK (0x1U)
-#define USB_HCCPARAMS_ADC_SHIFT (0U)
-#define USB_HCCPARAMS_ADC_GET(x) (((uint32_t)(x) & USB_HCCPARAMS_ADC_MASK) >> USB_HCCPARAMS_ADC_SHIFT)
-
-/* Bitfield definition for register: DCIVERSION */
-/*
- * DCIVERSION (RO)
- *
- * DCIVERSION
- * Device Controller Interface Version Number
- * Default value is '01h', which means rev0.1.
- */
-#define USB_DCIVERSION_DCIVERSION_MASK (0xFFFFU)
-#define USB_DCIVERSION_DCIVERSION_SHIFT (0U)
-#define USB_DCIVERSION_DCIVERSION_GET(x) (((uint16_t)(x) & USB_DCIVERSION_DCIVERSION_MASK) >> USB_DCIVERSION_DCIVERSION_SHIFT)
-
-/* Bitfield definition for register: DCCPARAMS */
-/*
- * HC (RO)
- *
- * HC
- * Host Capable
- * When this bit is 1, this controller is capable of operating as an EHCI compatible USB 2.0 host controller.
- */
-#define USB_DCCPARAMS_HC_MASK (0x100U)
-#define USB_DCCPARAMS_HC_SHIFT (8U)
-#define USB_DCCPARAMS_HC_GET(x) (((uint32_t)(x) & USB_DCCPARAMS_HC_MASK) >> USB_DCCPARAMS_HC_SHIFT)
-
-/*
- * DC (RO)
- *
- * DC
- * Device Capable
- * When this bit is 1, this controller is capable of operating as a USB 2.0 device.
- */
-#define USB_DCCPARAMS_DC_MASK (0x80U)
-#define USB_DCCPARAMS_DC_SHIFT (7U)
-#define USB_DCCPARAMS_DC_GET(x) (((uint32_t)(x) & USB_DCCPARAMS_DC_MASK) >> USB_DCCPARAMS_DC_SHIFT)
-
-/*
- * DEN (RO)
- *
- * DEN
- * Device Endpoint Number
- * This field indicates the number of endpoints built into the device controller. If this controller is not device
- * capable, then this field will be zero. Valid values are 0 - 15.
- */
-#define USB_DCCPARAMS_DEN_MASK (0x1FU)
-#define USB_DCCPARAMS_DEN_SHIFT (0U)
-#define USB_DCCPARAMS_DEN_GET(x) (((uint32_t)(x) & USB_DCCPARAMS_DEN_MASK) >> USB_DCCPARAMS_DEN_SHIFT)
-
 /* Bitfield definition for register: USBCMD */
 /*
  * ITC (RW)
  *
  * ITC
  * Interrupt Threshold Control -Read/Write.
- * The system software uses this field to set the maximum rate at which the host/device controller will issue
- * interrupts. ITC contains the maximum interrupt interval measured in micro-frames. Valid values are
+ * The system software uses this field to set the maximum rate at which the host/device controller will issue interrupts. ITC contains the maximum interrupt interval measured in micro-frames. Valid values are
  * shown below.
  * Value Maximum Interrupt Interval
  * 00000000 - Immediate (no threshold)
@@ -693,8 +252,7 @@ typedef struct {
  * FS_2
  * Frame List Size - (Read/Write or Read Only). [host mode only]
  * This field is Read/Write only if Programmable Frame List Flag in the HCCPARAMS registers is set to one.
- * This field specifies the size of the frame list that controls which bits in the Frame Index Register should be
- * used for the Frame List Current index.
+ * This field specifies the size of the frame list that controls which bits in the Frame Index Register should be used for the Frame List Current index.
  * NOTE: This field is made up from USBCMD bits 15, 3 and 2.
  * Value Meaning
  * 0b000 - 1024 elements (4096 bytes) Default value
@@ -731,11 +289,8 @@ typedef struct {
  *
  * SUTW
  * Setup TripWire - Read/Write. [device mode only]
- * This bit is used as a semaphore to ensure that the setup data payload of 8 bytes is extracted from a QH
- * by the DCD without being corrupted. If the setup lockout mode is off (SLOM bit in USB core register
- * n_USBMODE, see USBMODE ) then there is a hazard when new setup data arrives while the DCD is
- * copying the setup data payload from the QH for a previous setup packet. This bit is set and cleared by
- * software.
+ * This bit is used as a semaphore to ensure that the setup data payload of 8 bytes is extracted from a QH by the DCD without being corrupted.
+ * If the setup lockout mode is off (SLOM bit in USB core register n_USBMODE, see USBMODE ) then there is a hazard when new setup data arrives while the DCD is copying the setup data payload from the QH for a previous setup packet. This bit is set and cleared by software.
  * This bit would also be cleared by hardware when a hazard detected.
  */
 #define USB_USBCMD_SUTW_MASK (0x2000U)
@@ -748,9 +303,7 @@ typedef struct {
  *
  * ASPE
  * Asynchronous Schedule Park Mode Enable - Read/Write.
- * If the Asynchronous Park Capability bit in the HCCPARAMS register is a one, then this bit defaults to a
- * 1h and is R/W. Otherwise the bit must be a zero and is RO. Software uses this bit to enable or disable
- * Park mode. When this bit is one, Park mode is enabled. When this bit is a zero, Park mode is disabled.
+ * If the Asynchronous Park Capability bit in the HCCPARAMS register is a one, then this bit defaults to a 1h and is R/W. Otherwise the bit must be a zero and is RO. Software uses this bit to enable or disable Park mode. When this bit is one, Park mode is enabled. When this bit is a zero, Park mode is disabled.
  * NOTE: ASPE bit reset value: '0b' for OTG controller .
  */
 #define USB_USBCMD_ASPE_MASK (0x800U)
@@ -763,12 +316,9 @@ typedef struct {
  *
  * ASP
  * Asynchronous Schedule Park Mode Count - Read/Write.
- * If the Asynchronous Park Capability bit in the HCCPARAMS register is a one, then this field defaults to
- * 3h and is R/W. Otherwise it defaults to zero and is Read-Only. It contains a count of the number of
- * successive transactions the host controller is allowed to execute from a high-speed queue head on the
- * Asynchronous schedule before continuing traversal of the Asynchronous schedule. Valid values are 1h to
- * 3h. Software must not write a zero to this bit when Park Mode Enable is a one as this will result in
- * undefined behavior.
+ * If the Asynchronous Park Capability bit in the HCCPARAMS register is a one, then this field defaults to 3h and is R/W. Otherwise it defaults to zero and is Read-Only.
+ * It contains a count of the number of successive transactions the host controller is allowed to execute from a high-speed queue head on the Asynchronous schedule before continuing traversal of the Asynchronous schedule.
+ * Valid values are 1h to 3h. Software must not write a zero to this bit when Park Mode Enable is a one as this will result in undefined behavior.
  * This field is set to 3h in all controller core.
  */
 #define USB_USBCMD_ASP_MASK (0x300U)
@@ -781,16 +331,10 @@ typedef struct {
  *
  * IAA
  * Interrupt on Async Advance Doorbell - Read/Write.
- * This bit is used as a doorbell by software to tell the host controller to issue an interrupt the next time it
- * advances asynchronous schedule. Software must write a 1 to this bit to ring the doorbell.
- * When the host controller has evicted all appropriate cached schedule states, it sets the Interrupt on
- * Async Advance status bit in the USBSTS register. If the Interrupt on Sync Advance Enable bit in the
- * USBINTR register is one, then the host controller will assert an interrupt at the next interrupt threshold.
- * The host controller sets this bit to zero after it has set the Interrupt on Sync Advance status bit in the
- * USBSTS register to one. Software should not write a one to this bit when the asynchronous schedule is
- * inactive. Doing so will yield undefined results.
- * This bit is only used in host mode. Writing a one to this bit when device mode is selected will have
- * undefined results.
+ * This bit is used as a doorbell by software to tell the host controller to issue an interrupt the next time it advances asynchronous schedule. Software must write a 1 to this bit to ring the doorbell.
+ * When the host controller has evicted all appropriate cached schedule states, it sets the Interrupt on Async Advance status bit in the USBSTS register. If the Interrupt on Sync Advance Enable bit in the USBINTR register is one, then the host controller will assert an interrupt at the next interrupt threshold.
+ * The host controller sets this bit to zero after it has set the Interrupt on Sync Advance status bit in the USBSTS register to one. Software should not write a one to this bit when the asynchronous  schedule is inactive. Doing so will yield undefined results.
+ * This bit is only used in host mode. Writing a one to this bit when device mode is selected will have undefined results.
  */
 #define USB_USBCMD_IAA_MASK (0x40U)
 #define USB_USBCMD_IAA_SHIFT (6U)
@@ -844,21 +388,14 @@ typedef struct {
  * RST (RW)
  *
  * RST
- * Controller Reset (RESET) - Read/Write. Software uses this bit to reset the controller. This bit is set to
- * zero by the Host/Device Controller when the reset process is complete. Software cannot terminate the
- * reset process early by writing a zero to this register.
+ * Controller Reset (RESET) - Read/Write. Software uses this bit to reset the controller. This bit is set to zero by the Host/Device Controller when the reset process is complete. Software cannot terminate the reset process early by writing a zero to this register.
  * Host operation mode:
- * When software writes a one to this bit, the Controller resets its internal pipelines, timers, counters, state
- * machines etc. to their initial value. Any transaction currently in progress on USB is immediately
- * terminated. A USB reset is not driven on downstream ports. Software should not set this bit to a one
- * when the HCHalted bit in the USBSTS register is a zero. Attempting to reset an actively running host
- * controller will result in undefined behavior.
+ * When software writes a one to this bit, the Controller resets its internal pipelines, timers, counters, state machines etc. to their initial value. Any transaction currently in progress on USB is immediately terminated. A USB reset is not driven on downstream ports.
+ * Software should not set this bit to a one when the HCHalted bit in the USBSTS register is a zero.
+ * Attempting to reset an actively running host controller will result in undefined behavior.
  * Device operation mode:
- * When software writes a one to this bit, the Controller resets its internal pipelines, timers, counters, state
- * machines etc. to their initial value. Writing a one to this bit when the device is in the attached state is not
- * recommended, because the effect on an attached host is undefined. In order to ensure that the device is
- * not in an attached state before initiating a device controller reset, all primed endpoints should be flushed
- * and the USBCMD Run/Stop bit should be set to 0.
+ * When software writes a one to this bit, the Controller resets its internal pipelines, timers, counters, state machines etc. to their initial value.
+ * Writing a one to this bit when the device is in the attached state is not recommended, because the effect on an attached host is undefined. In order to ensure that the device is not in an attached state before initiating a device controller reset, all primed endpoints should be flushed and the USBCMD Run/Stop bit should be set to 0.
  */
 #define USB_USBCMD_RST_MASK (0x2U)
 #define USB_USBCMD_RST_SHIFT (1U)
@@ -871,17 +408,11 @@ typedef struct {
  * RS
  * Run/Stop (RS) - Read/Write. Default 0b. 1=Run. 0=Stop.
  * Host operation mode:
- * When set to '1b', the Controller proceeds with the execution of the schedule. The Controller continues
- * execution as long as this bit is set to a one. When this bit is set to 0, the Host Controller completes the
- * current transaction on the USB and then halts. The HC Halted bit in the status register indicates when the
- * Controller has finished the transaction and has entered the stopped state. Software should not write a
- * one to this field unless the controller is in the Halted state (that is, HCHalted in the USBSTS register is a
- * one).
+ * When set to '1b', the Controller proceeds with the execution of the schedule. The Controller continues execution as long as this bit is set to a one. When this bit is set to 0, the Host Controller completes the current transaction on the USB and then halts. The HC Halted bit in the status register indicates when the Controller has finished the transaction and has entered the stopped state.
+ * Software should not write a one to this field unless the controller is in the Halted state (that is, HCHalted in the USBSTS register is a one).
  * Device operation mode:
  * Writing a one to this bit will cause the controller to enable a pull-up on D+ and initiate an attach event.
- * This control bit is not directly connected to the pull-up enable, as the pull-up will become disabled upon
- * transitioning into high-speed mode. Software should use this bit to prevent an attach event before the
- * controller has been properly initialized. Writing a 0 to this will cause a detach event.
+ * This control bit is not directly connected to the pull-up enable, as the pull-up will become disabled upon transitioning into high-speed mode. Software should use this bit to prevent an attach event before the controller has been properly initialized. Writing a 0 to this will cause a detach event.
  */
 #define USB_USBCMD_RS_MASK (0x1U)
 #define USB_USBCMD_RS_SHIFT (0U)
@@ -916,6 +447,32 @@ typedef struct {
 #define USB_USBSTS_TI0_GET(x) (((uint32_t)(x) & USB_USBSTS_TI0_MASK) >> USB_USBSTS_TI0_SHIFT)
 
 /*
+ * UPI (RWC)
+ *
+ * USB Host Periodic Interrupt – RWC. Default = 0b.
+ * This bit is set by the Host Controller when the cause of an interrupt is a completion of a USB transaction where the Transfer Descriptor (TD) has an interrupt on complete (IOC) bit set and the TD was from the periodic schedule.
+ * This bit is also set by the Host Controller when a short packet is detected and the packet is on the periodic schedule. A short packet is when the actual number of bytes received was less than expected.
+ * This bit is not used by the device controller and will always be zero.
+ */
+#define USB_USBSTS_UPI_MASK (0x80000UL)
+#define USB_USBSTS_UPI_SHIFT (19U)
+#define USB_USBSTS_UPI_SET(x) (((uint32_t)(x) << USB_USBSTS_UPI_SHIFT) & USB_USBSTS_UPI_MASK)
+#define USB_USBSTS_UPI_GET(x) (((uint32_t)(x) & USB_USBSTS_UPI_MASK) >> USB_USBSTS_UPI_SHIFT)
+
+/*
+ * UAI (RWC)
+ *
+ * USB Host Asynchronous Interrupt – RWC. Default = 0b.
+ * This bit is set by the Host Controller when the cause of an interrupt is a completion of a USB transaction where the Transfer Descriptor (TD) has an interrupt on complete (IOC) bit set AND the TD was from the asynchronous schedule.
+ * This bit is also set by the Host when a short packet is detected and the packet is on the asynchronous schedule. A short packet is when the actual number of bytes received was less than expected.
+ * This bit is not used by the device controller and will always be zero
+ */
+#define USB_USBSTS_UAI_MASK (0x40000UL)
+#define USB_USBSTS_UAI_SHIFT (18U)
+#define USB_USBSTS_UAI_SET(x) (((uint32_t)(x) << USB_USBSTS_UAI_SHIFT) & USB_USBSTS_UAI_MASK)
+#define USB_USBSTS_UAI_GET(x) (((uint32_t)(x) & USB_USBSTS_UAI_MASK) >> USB_USBSTS_UAI_SHIFT)
+
+/*
  * NAKI (RO)
  *
  * NAKI
@@ -933,11 +490,9 @@ typedef struct {
  *
  * AS
  * Asynchronous Schedule Status - Read Only.
- * This bit reports the current real status of the Asynchronous Schedule. When set to zero the asynchronous
- * schedule status is disabled and if set to one the status is enabled. The Host Controller is not required to
- * immediately disable or enable the Asynchronous Schedule when software transitions the Asynchronous
- * Schedule Enable bit in the USBCMD register. When this bit and the Asynchronous Schedule Enable bit
- * are the same value, the Asynchronous Schedule is either enabled (1) or disabled (0).
+ * This bit reports the current real status of the Asynchronous Schedule. When set to zero the asynchronous schedule status is disabled and if set to one the status is enabled.
+ * The Host Controller is not required to immediately disable or enable the Asynchronous Schedule when software transitions the Asynchronous Schedule Enable bit in the USBCMD register.
+ * When this bit and the Asynchronous Schedule Enable bit are the same value, the Asynchronous Schedule is either enabled (1) or disabled (0).
  * Only used in the host operation mode.
  */
 #define USB_USBSTS_AS_MASK (0x8000U)
@@ -949,11 +504,7 @@ typedef struct {
  *
  * PS
  * Periodic Schedule Status - Read Only.
- * This bit reports the current real status of the Periodic Schedule. When set to zero the periodic schedule is
- * disabled, and if set to one the status is enabled. The Host Controller is not required to immediately
- * disable or enable the Periodic Schedule when software transitions the Periodic Schedule Enable bit in the
- * USBCMD register. When this bit and the Periodic Schedule Enable bit are the same value, the Periodic
- * Schedule is either enabled (1) or disabled (0).
+ * This bit reports the current real status of the Periodic Schedule. When set to zero the periodic schedule is disabled, and if set to one the status is enabled. The Host Controller is not required to immediately disable or enable the Periodic Schedule when software transitions the Periodic Schedule Enable bit in the USBCMD register. When this bit and the Periodic Schedule Enable bit are the same value, the Periodic Schedule is either enabled (1) or disabled (0).
  * Only used in the host operation mode.
  */
 #define USB_USBSTS_PS_MASK (0x4000U)
@@ -977,9 +528,7 @@ typedef struct {
  *
  * HCH
  * HCHaIted - Read Only.
- * This bit is a zero whenever the Run/Stop bit is a one. The Controller sets this bit to one after it has
- * stopped executing because of the Run/Stop bit being set to 0, either by software or by the Controller
- * hardware (for example, an internal error).
+ * This bit is a zero whenever the Run/Stop bit is a one. The Controller sets this bit to one after it has stopped executing because of the Run/Stop bit being set to 0, either by software or by the Controller hardware (for example, an internal error).
  * Only used in the host operation mode.
  * Default value is '0b' for OTG core .
  * This is because OTG core is not operating as host in default. Please see CM bit in USB_n_USBMODE
@@ -991,25 +540,11 @@ typedef struct {
 #define USB_USBSTS_HCH_GET(x) (((uint32_t)(x) & USB_USBSTS_HCH_MASK) >> USB_USBSTS_HCH_SHIFT)
 
 /*
- * ULPII (RWC)
- *
- * ULPII
- * ULPI Interrupt - R/WC.
- * This bit will be set '1b' by hardware when there is an event completion in ULPI viewport.
- * This bit is usable only if the controller support UPLI interface mode.
- */
-#define USB_USBSTS_ULPII_MASK (0x400U)
-#define USB_USBSTS_ULPII_SHIFT (10U)
-#define USB_USBSTS_ULPII_SET(x) (((uint32_t)(x) << USB_USBSTS_ULPII_SHIFT) & USB_USBSTS_ULPII_MASK)
-#define USB_USBSTS_ULPII_GET(x) (((uint32_t)(x) & USB_USBSTS_ULPII_MASK) >> USB_USBSTS_ULPII_SHIFT)
-
-/*
  * SLI (RWC)
  *
  * SLI
  * DCSuspend - R/WC.
- * When a controller enters a suspend state from an active state, this bit will be set to a one. The device
- * controller clears the bit upon exiting from a suspend state.
+ * When a controller enters a suspend state from an active state, this bit will be set to a one. The device controller clears the bit upon exiting from a suspend state.
  * Only used in device operation mode.
  */
 #define USB_USBSTS_SLI_MASK (0x100U)
@@ -1022,12 +557,9 @@ typedef struct {
  *
  * SRI
  * SOF Received - R/WC.
- * When the device controller detects a Start Of (micro) Frame, this bit will be set to a one. When a SOF is
- * extremely late, the device controller will automatically set this bit to indicate that an SOF was expected.
- * Therefore, this bit will be set roughly every 1ms in device FS mode and every 125ms in HS mode and will
- * be synchronized to the actual SOF that is received.
- * Because the device controller is initialized to FS before connect, this bit will be set at an interval of 1ms
- * during the prelude to connect and chirp.
+ * When the device controller detects a Start Of (micro) Frame, this bit will be set to a one. When a SOF is extremely late, the device controller will automatically set this bit to indicate that an SOF was expected.
+ * Therefore, this bit will be set roughly every 1ms in device FS mode and every 125ms in HS mode and will be synchronized to the actual SOF that is received.
+ * Because the device controller is initialized to FS before connect, this bit will be set at an interval of 1ms during the prelude to connect and chirp.
  * In host mode, this bit will be set every 125us and can be used by host controller driver as a time base.
  * Software writes a 1 to this bit to clear it.
  */
@@ -1055,9 +587,7 @@ typedef struct {
  *
  * AAI
  * Interrupt on Async Advance - R/WC.
- * System software can force the host controller to issue an interrupt the next time the host controller
- * advances the asynchronous schedule by writing a one to the Interrupt on Async Advance Doorbell bit in
- * the n_USBCMD register. This status bit indicates the assertion of that interrupt source.
+ * System software can force the host controller to issue an interrupt the next time the host controller advances the asynchronous schedule by writing a one to the Interrupt on Async Advance Doorbell bit in the n_USBCMD register. This status bit indicates the assertion of that interrupt source.
  * Only used in host operation mode.
  */
 #define USB_USBSTS_AAI_MASK (0x20U)
@@ -1068,14 +598,8 @@ typedef struct {
 /*
  * SEI (RWC)
  *
- * FRI
- * Frame List Rollover - R/WC.
- * The Host Controller sets this bit to a one when the Frame List Index rolls over from its maximum value to
- * zero. The exact value at which the rollover occurs depends on the frame list size. For example. If the
- * frame list size (as programmed in the Frame List Size field of the USB_n_USBCMD register) is 1024, the
- * Frame Index Register rolls over every time FRINDEX [13] toggles. Similarly, if the size is 512, the Host
- * Controller sets this bit to a one every time FHINDEX [12] toggles.
- * Only used in host operation mode.
+ * System Error – RWC. Default = 0b.
+ * In the BVCI implementation of the USBHS core, this bit is not used, and will always be cleared to '0b'. In the AMBA implementation, this bit will be set to '1b' when an Error response is seen by the master interface (HRESP[1:0]=ERROR)
  */
 #define USB_USBSTS_SEI_MASK (0x10U)
 #define USB_USBSTS_SEI_SHIFT (4U)
@@ -1104,13 +628,8 @@ typedef struct {
  *
  * PCI
  * Port Change Detect - R/WC.
- * The Host Controller sets this bit to a one when on any port a Connect Status occurs, a Port Enable/
- * Disable Change occurs, or the Force Port Resume bit is set as the result of a J-K transition on the
- * suspended port.
- * The Device Controller sets this bit to a one when the port controller enters the full or high-speed
- * operational state. When the port controller exits the full or high-speed operation states due to Reset or
- * Suspend events, the notification mechanisms are the USB Reset Received bit and the DCSuspend bits
- * Respectively.
+ * The Host Controller sets this bit to a one when on any port a Connect Status occurs, a Port Enable/Disable Change occurs, or the Force Port Resume bit is set as the result of a J-K transition on the suspended port.
+ * The Device Controller sets this bit to a one when the port controller enters the full or high-speed operational state. When the port controller exits the full or high-speed operation states due to Reset or Suspend events, the notification mechanisms are the USB Reset Received bit and the DCSuspend bits Respectively.
  */
 #define USB_USBSTS_PCI_MASK (0x4U)
 #define USB_USBSTS_PCI_SHIFT (2U)
@@ -1122,10 +641,7 @@ typedef struct {
  *
  * UEI
  * USB Error Interrupt (USBERRINT) - R/WC.
- * When completion of a USB transaction results in an error condition, this bit is set by the Host/Device
- * Controller. This bit is set along with the USBINT bit, if the TD on which the error interrupt occurred also
- * had its interrupt on complete (IOC) bit set.
- * The device controller detects resume signaling only.
+ * When completion of a USB transaction results in an error condition, this bit is set by the Host/Device Controller. This bit is set along with the USBINT bit, if the TD on which the error interrupt occurred also had its interrupt on complete (IOC) bit set.
  */
 #define USB_USBSTS_UEI_MASK (0x2U)
 #define USB_USBSTS_UEI_SHIFT (1U)
@@ -1208,19 +724,6 @@ typedef struct {
 #define USB_USBINTR_NAKE_MASK (0x10000UL)
 #define USB_USBINTR_NAKE_SHIFT (16U)
 #define USB_USBINTR_NAKE_GET(x) (((uint32_t)(x) & USB_USBINTR_NAKE_MASK) >> USB_USBINTR_NAKE_SHIFT)
-
-/*
- * ULPIE (RW)
- *
- * ULPIE
- * ULPI Interrupt Enable
- * When this bit is one and the UPLII bit in n_USBSTS register is a one the controller will issue an interrupt.
- * This bit is usable only if the controller support UPLI interface mode.
- */
-#define USB_USBINTR_ULPIE_MASK (0x400U)
-#define USB_USBINTR_ULPIE_SHIFT (10U)
-#define USB_USBINTR_ULPIE_SET(x) (((uint32_t)(x) << USB_USBINTR_ULPIE_SHIFT) & USB_USBINTR_ULPIE_MASK)
-#define USB_USBINTR_ULPIE_GET(x) (((uint32_t)(x) & USB_USBINTR_ULPIE_MASK) >> USB_USBINTR_ULPIE_SHIFT)
 
 /*
  * SLE (RW)
@@ -1341,14 +844,10 @@ typedef struct {
  *
  * FRINDEX
  * Frame Index.
- * The value, in this register, increments at the end of each time frame (micro-frame). Bits [N: 3] are used for
- * the Frame List current index. This means that each location of the frame list is accessed 8 times (frames
- * or micro-frames) before moving to the next index.
- * The following illustrates values of N based on the value of the Frame List Size field in the USBCMD
- * register, when used in host mode.
+ * The value, in this register, increments at the end of each time frame (micro-frame). Bits [N: 3] are used for the Frame List current index. This means that each location of the frame list is accessed 8 times (frames or micro-frames) before moving to the next index.
+ * The following illustrates values of N based on the value of the Frame List Size field in the USBCMD register, when used in host mode.
  * USBCMD [Frame List Size] Number Elements N
- * In device mode the value is the current frame number of the last frame transmitted. It is not used as an
- * index.
+ * In device mode the value is the current frame number of the last frame transmitted. It is not used as an index.
  * In either mode bits 2:0 indicate the current microframe.
  * The bit field values description below is represented as (Frame List Size) Number Elements N.
  * 00000000000000 - (1024) 12
@@ -1383,19 +882,14 @@ typedef struct {
  *
  * USBADRA
  * Device Address Advance. Default=0.
- * When this bit is '0', any writes to USBADR are instantaneous. When this bit is written to a '1' at the same
- * time or before USBADR is written, the write to the USBADR field is staged and held in a hidden register.
+ * When this bit is '0', any writes to USBADR are instantaneous. When this bit is written to a '1' at the same time or before USBADR is written, the write to the USBADR field is staged and held in a hidden register.
  * After an IN occurs on endpoint 0 and is ACKed, USBADR will be loaded from the holding register.
  * Hardware will automatically clear this bit on the following conditions:
  * 1) IN is ACKed to endpoint 0. (USBADR is updated from staging register).
  * 2) OUT/SETUP occur to endpoint 0. (USBADR is not updated).
  * 3) Device Reset occurs (USBADR is reset to 0).
- * NOTE: After the status phase of the SET_ADDRESS descriptor, the DCD has 2 ms to program the
- * USBADR field. This mechanism will ensure this specification is met when the DCD can not write
- * of the device address within 2ms from the SET_ADDRESS status phase. If the DCD writes the
- * USBADR with USBADRA=1 after the SET_ADDRESS data phase (before the prime of the
- * status phase), the USBADR will be programmed instantly at the correct time and meet the 2ms
- * USB requirement.
+ * NOTE: After the status phase of the SET_ADDRESS descriptor, the DCD has 2 ms to program the USBADR field. This mechanism will ensure this specification is met when the DCD can not write of the device address within 2ms from the SET_ADDRESS status phase.
+ * If the DCD writes the USBADR with USBADRA=1 after the SET_ADDRESS data phase (before the prime of the status phase), the USBADR will be programmed instantly at the correct time and meet the 2ms USB requirement.
  */
 #define USB_DEVICEADDR_USBADRA_MASK (0x1000000UL)
 #define USB_DEVICEADDR_USBADRA_SHIFT (24U)
@@ -1436,8 +930,7 @@ typedef struct {
  * EPBASE (RW)
  *
  * EPBASE
- * Endpoint List Pointer(Low). These bits correspond to memory address signals [31:11], respectively. This
- * field will reference a list of up to 32 Queue Head (QH) (that is, one queue head per endpoint & direction).
+ * Endpoint List Pointer(Low). These bits correspond to memory address signals [31:11], respectively. This field will reference a list of up to 32 Queue Head (QH) (that is, one queue head per endpoint & direction).
  */
 #define USB_ENDPTLISTADDR_EPBASE_MASK (0xFFFFF800UL)
 #define USB_ENDPTLISTADDR_EPBASE_SHIFT (11U)
@@ -1479,12 +972,10 @@ typedef struct {
  *
  * TXFIFOTHRES
  * FIFO Burst Threshold. (Read/Write)
- * This register controls the number of data bursts that are posted to the TX latency FIFO in host mode
- * before the packet begins on to the bus. The minimum value is 2 and this value should be a low as
- * possible to maximize USB performance. A higher value can be used in systems with unpredictable
- * latency and/or insufficient bandwidth where the FIFO may underrun because the data transferred from
- * the latency FIFO to USB occurs before it can be replenished from system memory. This value is ignored
- * if the Stream Disable bit in USB_n_USBMODE register is set.
+ * This register controls the number of data bursts that are posted to the TX latency FIFO in host mode before the packet begins on to the bus.
+ * The minimum value is 2 and this value should be a low as possible to maximize USB performance.
+ * A higher value can be used in systems with unpredictable latency and/or insufficient bandwidth where the FIFO may underrun because the data transferred from the latency FIFO to USB occurs before it can be replenished from system memory.
+ * This value is ignored if the Stream Disable bit in USB_n_USBMODE register is set.
  */
 #define USB_TXFILLTUNING_TXFIFOTHRES_MASK (0x3F0000UL)
 #define USB_TXFILLTUNING_TXFIFOTHRES_SHIFT (16U)
@@ -1497,10 +988,7 @@ typedef struct {
  * TXSCHHEALTH
  * Scheduler Health Counter. (Read/Write To Clear)
  * Table continues on the next page
- * This register increments when the host controller fails to fill the TX latency FIFO to the level programmed
- * by TXFIFOTHRES before running out of time to send the packet before the next Start-Of-Frame. This
- * health counter measures the number of times this occurs to provide feedback to selecting a proper
- * TXSCHOH. Writing to this register will clear the counter and this counter will max. at 31.
+ * This register increments when the host controller fails to fill the TX latency FIFO to the level programmed by TXFIFOTHRES before running out of time to send the packet before the next Start-Of-Frame. This health counter measures the number of times this occurs to provide feedback to selecting a proper TXSCHOH. Writing to this register will clear the counter and this counter will max. at 31.
  */
 #define USB_TXFILLTUNING_TXSCHHEALTH_MASK (0x1F00U)
 #define USB_TXFILLTUNING_TXSCHHEALTH_SHIFT (8U)
@@ -1512,12 +1000,11 @@ typedef struct {
  *
  * TXSCHOH
  * Scheduler Overhead. (Read/Write) [Default = 0]
- * This register adds an additional fixed offset to the schedule time estimator described above as Tff. As an
- * approximation, the value chosen for this register should limit the number of back-off events captured in
- * the TXSCHHEALTH to less than 10 per second in a highly utilized bus. Choosing a value that is too high
- * for this register is not desired as it can needlessly reduce USB utilization. The time unit represented in
- * this register is 1.267us when a device is connected in High-Speed Mode. The time unit represented in
- * this register is 6.333us when a device is connected in Low/Full Speed Mode.
+ * This register adds an additional fixed offset to the schedule time estimator described above as Tff.
+ * As an approximation, the value chosen for this register should limit the number of back-off events captured in the TXSCHHEALTH to less than 10 per second in a highly utilized bus.
+ * Choosing a value that is too high for this register is not desired as it can needlessly reduce USB utilization.
+ * The time unit represented in this register is 1.267us when a device is connected in High-Speed Mode.
+ * The time unit represented in this register is 6.333us when a device is connected in Low/Full Speed Mode.
  * Default value is '08h' for OTG controller core .
  */
 #define USB_TXFILLTUNING_TXSCHOH_MASK (0x7FU)
@@ -1583,45 +1070,7 @@ typedef struct {
 #define USB_ENDPTNAKEN_EPRNE_SET(x) (((uint32_t)(x) << USB_ENDPTNAKEN_EPRNE_SHIFT) & USB_ENDPTNAKEN_EPRNE_MASK)
 #define USB_ENDPTNAKEN_EPRNE_GET(x) (((uint32_t)(x) & USB_ENDPTNAKEN_EPRNE_MASK) >> USB_ENDPTNAKEN_EPRNE_SHIFT)
 
-/* Bitfield definition for register: CONFIGFLAG */
-/*
- * CF (RO)
- *
- * CCF
- * Configure Flag
- * Host software sets this bit as the last action in its process of configuring the Host Controller. This bit
- * controls the default port-routing control logic.
- * 0 - Port routing control logic default-routes each port to an implementation dependent classic host
- * controller.
- * 1 - Port routing control logic default-routes all ports to this host controller.
- */
-#define USB_CONFIGFLAG_CF_MASK (0x1U)
-#define USB_CONFIGFLAG_CF_SHIFT (0U)
-#define USB_CONFIGFLAG_CF_GET(x) (((uint32_t)(x) & USB_CONFIGFLAG_CF_MASK) >> USB_CONFIGFLAG_CF_SHIFT)
-
 /* Bitfield definition for register: PORTSC1 */
-/*
- * PTS_1 (RW)
- *
- * PTS_1
- * Bit field {bit25, bit31, bit30}:
- * "000b" UTMI/UTMI+
- * "001b" Reserved
- * "010b" ULPI
- * "011b" Serial/USB 1.1 PHY/IC-USB (FS Only)
- * "100b" HSIC
- * Parallel Transceiver Select (bit25, bit31, bit30).
- * For OTG core, it's Read-Only.
- * For Host1/Host2/Host3 core, it's Read/Write.
- * NOTE: All USB port interface modes are listed in this field description, but not all are supported. For
- * detail feature of each controller core, please see Features . The behaviour is unknown when
- * unsupported interface mode is selected.
- */
-#define USB_PORTSC1_PTS_1_MASK (0xC0000000UL)
-#define USB_PORTSC1_PTS_1_SHIFT (30U)
-#define USB_PORTSC1_PTS_1_SET(x) (((uint32_t)(x) << USB_PORTSC1_PTS_1_SHIFT) & USB_PORTSC1_PTS_1_MASK)
-#define USB_PORTSC1_PTS_1_GET(x) (((uint32_t)(x) & USB_PORTSC1_PTS_1_MASK) >> USB_PORTSC1_PTS_1_SHIFT)
-
 /*
  * STS (RW)
  *
@@ -1629,12 +1078,8 @@ typedef struct {
  * Serial Transceiver Select
  * 1 Serial Interface Engine is selected
  * 0 Parallel Interface signals is selected
- * Serial Interface Engine can be used in combination with UTMI+/ULPI physical interface to provide FS/LS
- * signaling instead of the parallel interface signals.
+ * Serial Interface Engine can be used in combination with UTMI+/ULPI physical interface to provide FS/LS signaling instead of the parallel interface signals.
  * When this bit is set '1b', serial interface engine will be used instead of parallel interface signals.
- * This bit has no effect unless PTS bits is set to select UTMI+/ULPI interface.
- * The Serial/USB1.1 PHY/IC-USB will use the serial interface engine for FS/LS signaling regardless of this
- * bit value.
  */
 #define USB_PORTSC1_STS_MASK (0x20000000UL)
 #define USB_PORTSC1_STS_SHIFT (29U)
@@ -1669,17 +1114,6 @@ typedef struct {
 #define USB_PORTSC1_PSPD_MASK (0xC000000UL)
 #define USB_PORTSC1_PSPD_SHIFT (26U)
 #define USB_PORTSC1_PSPD_GET(x) (((uint32_t)(x) & USB_PORTSC1_PSPD_MASK) >> USB_PORTSC1_PSPD_SHIFT)
-
-/*
- * PTS_2 (RW)
- *
- * PTS_2
- * See description at bits 31-30
- */
-#define USB_PORTSC1_PTS_2_MASK (0x2000000UL)
-#define USB_PORTSC1_PTS_2_SHIFT (25U)
-#define USB_PORTSC1_PTS_2_SET(x) (((uint32_t)(x) << USB_PORTSC1_PTS_2_SHIFT) & USB_PORTSC1_PTS_2_MASK)
-#define USB_PORTSC1_PTS_2_GET(x) (((uint32_t)(x) & USB_PORTSC1_PTS_2_MASK) >> USB_PORTSC1_PTS_2_SHIFT)
 
 /*
  * PFSC (RW)
@@ -1763,12 +1197,8 @@ typedef struct {
  *
  * PTC
  * Port Test Control - Read/Write. Default = 0000b.
- * Refer to Port Test Mode for the operational model for using these test modes and the USB Specification
- * Revision 2.0, Chapter 7 for details on each test mode.
- * The FORCE_ENABLE_FS and FORCE ENABLE_LS are extensions to the test mode support specified in
- * the EHCI specification. Writing the PTC field to any of the FORCE_ENABLE_{HS/FS/LS} values will force
- * the port into the connected and enabled state at the selected speed. Writing the PTC field back to
- * TEST_MODE_DISABLE will allow the port state machines to progress normally from that point.
+ * Refer to Port Test Mode for the operational model for using these test modes and the USB Specification Revision 2.0, Chapter 7 for details on each test mode.
+ * The FORCE_ENABLE_FS and FORCE ENABLE_LS are extensions to the test mode support specified in the EHCI specification. Writing the PTC field to any of the FORCE_ENABLE_{HS/FS/LS} values will force the port into the connected and enabled state at the selected speed. Writing the PTC field back to TEST_MODE_DISABLE will allow the port state machines to progress normally from that point.
  * NOTE: Low speed operations are not supported as a peripheral device.
  * Any other value than zero indicates that the port is operating in test mode.
  * Value Specific Test
@@ -1788,60 +1218,18 @@ typedef struct {
 #define USB_PORTSC1_PTC_GET(x) (((uint32_t)(x) & USB_PORTSC1_PTC_MASK) >> USB_PORTSC1_PTC_SHIFT)
 
 /*
- * PIC (RW)
- *
- * PIC
- * Port Indicator Control - Read/Write. Default = Ob.
- * Writing to this field has no effect if the P_INDICATOR bit in the HCSPARAMS register is a zero.
- * Refer to the USB Specification Revision 2.0 for a description on how these bits are to be used.
- * This field is zero if Port Power is zero.
- * Bit Value Meaning
- * 00 - Port indicators are off
- * 01 - Amber
- * 10 - Green
- * 11 - Undefined
- */
-#define USB_PORTSC1_PIC_MASK (0xC000U)
-#define USB_PORTSC1_PIC_SHIFT (14U)
-#define USB_PORTSC1_PIC_SET(x) (((uint32_t)(x) << USB_PORTSC1_PIC_SHIFT) & USB_PORTSC1_PIC_MASK)
-#define USB_PORTSC1_PIC_GET(x) (((uint32_t)(x) & USB_PORTSC1_PIC_MASK) >> USB_PORTSC1_PIC_SHIFT)
-
-/*
- * PO (RO)
- *
- * PO
- * Port Owner-Read/Write. Default = 0.
- * This bit unconditionally goes to a 0 when the configured bit in the CONFIGFLAG register makes a 0 to 1
- * transition. This bit unconditionally goes to 1 whenever the Configured bit is zero System software uses
- * this field to release ownership of the port to a selected host controller (in the event that the attached
- * device is not a high-speed device). Software writes a one to this bit when the attached device is not a
- * high-speed device. A one in this bit means that an internal companion controller owns and controls the
- * port.
- * Port owner handoff is not supported in all controller cores, therefore this bit will always be 0.
- */
-#define USB_PORTSC1_PO_MASK (0x2000U)
-#define USB_PORTSC1_PO_SHIFT (13U)
-#define USB_PORTSC1_PO_GET(x) (((uint32_t)(x) & USB_PORTSC1_PO_MASK) >> USB_PORTSC1_PO_SHIFT)
-
-/*
  * PP (RW)
  *
  * PP
  * Port Power (PP)-Read/Write or Read Only.
- * The function of this bit depends on the value of the Port Power Switching (PPC) field in the HCSPARAMS
- * register. The behavior is as follows:
+ * The function of this bit depends on the value of the Port Power Switching (PPC) field in the HCSPARAMS register. The behavior is as follows:
  * PPC
  * PP Operation
  * 0
- * 1b Read Only - Host controller does not have port power control switches. Each port is hard-wired to
- * power.
+ * 1b Read Only - Host controller does not have port power control switches. Each port is hard-wired to power.
  * 1
- * 1b/0b - Read/Write. OTG controller requires port power control switches. This bit represents the current
- * setting of the switch (0=off, 1=on). When power is not available on a port (that is, PP equals a 0), the
- * port is non-functional and will not report attaches, detaches, etc.
- * When an over-current condition is detected on a powered port and PPC is a one, the PP bit in each
- * affected port may be transitional by the host controller driver from a one to a zero (removing power from
- * the port).
+ * 1b/0b - Read/Write. OTG controller requires port power control switches. This bit represents the current setting of the switch (0=off, 1=on). When power is not available on a port (that is, PP equals a 0), the port is non-functional and will not report attaches, detaches, etc.
+ * When an over-current condition is detected on a powered port and PPC is a one, the PP bit in each affected port may be transitional by the host controller driver from a one to a zero (removing power from the port).
  * This feature is implemented in all controller cores (PPC = 1).
  */
 #define USB_PORTSC1_PP_MASK (0x1000U)
@@ -1888,13 +1276,9 @@ typedef struct {
  * PR
  * Port Reset - Read/Write or Read Only. Default = 0b.
  * In Host Mode: Read/Write. 1=Port is in Reset. 0=Port is not in Reset. Default 0.
- * When software writes a one to this bit the bus-reset sequence as defined in the USB Specification
- * Revision 2.0 is started. This bit will automatically change to zero after the reset sequence is complete.
- * This behavior is different from EHCI where the host controller driver is required to set this bit to a zero
- * after the reset duration is timed in the driver.
- * In Device Mode: This bit is a read only status bit. Device reset from the USB bus is also indicated in the
- * USBSTS register.
- * This field is zero if Port Power(PORTSC1) is zero.
+ * When software writes a one to this bit the bus-reset sequence as defined in the USB Specification Revision 2.0 is started. This bit will automatically change to zero after the reset sequence is complete.
+ * This behavior is different from EHCI where the host controller driver is required to set this bit to a zero after the reset duration is timed in the driver.
+ * In Device Mode: This bit is a read only status bit. Device reset from the USB bus is also indicated in the USBSTS register.
  */
 #define USB_PORTSC1_PR_MASK (0x100U)
 #define USB_PORTSC1_PR_SHIFT (8U)
@@ -1914,14 +1298,9 @@ typedef struct {
  * 10 Enable
  * 11 Suspend
  * When in suspend state, downstream propagation of data is blocked on this port, except for port reset.
- * The blocking occurs at the end of the current transaction if a transaction was in progress when this bit
- * was written to 1. In the suspend state, the port is sensitive to resume detection. Note that the bit status
- * does not change until the port is suspended and that there may be a delay in suspending a port if there is
- * a transaction currently in progress on the USB.
- * The host controller will unconditionally set this bit to zero when software sets the Force Port Resume bit
- * to zero. The host controller ignores a write of zero to this bit.
- * If host software sets this bit to a one when the port is not enabled (that is, Port enabled bit is a zero) the
- * results are undefined.
+ * The blocking occurs at the end of the current transaction if a transaction was in progress when this bit was written to 1. In the suspend state, the port is sensitive to resume detection. Note that the bit status does not change until the port is suspended and that there may be a delay in suspending a port if there is a transaction currently in progress on the USB.
+ * The host controller will unconditionally set this bit to zero when software sets the Force Port Resume bit to zero. The host controller ignores a write of zero to this bit.
+ * If host software sets this bit to a one when the port is not enabled (that is, Port enabled bit is a zero) the results are undefined.
  * This field is zero if Port Power(PORTSC1) is zero in host mode.
  * In Device Mode: Read Only.
  * In device mode this bit is a read only status bit.
@@ -1935,28 +1314,22 @@ typedef struct {
  * FPR (RW)
  *
  * FPR
- * Force Port Resume -Read/Write. 1= Resume detected/driven on port. 0=No resume (K-state) detected/
- * driven on port. Default = 0.
+ * Force Port Resume -Read/Write. 1= Resume detected/driven on port. 0=No resume (K-state) detected driven on port. Default = 0.
  * In Host Mode:
- * Software sets this bit to one to drive resume signaling. The Host Controller sets this bit to one if a J-to-K
- * transition is detected while the port is in the Suspend state. When this bit transitions to a one because a
- * J-to-K transition is detected, the Port Change Detect bit in the USBSTS register is also set to one. This
- * bit will automatically change to zero after the resume sequence is complete. This behavior is different
- * from EHCI where the host controller driver is required to set this bit to a zero after the resume duration is
- * timed in the driver.
- * Note that when the Host controller owns the port, the resume sequence follows the defined sequence
- * documented in the USB Specification Revision 2.0. The resume signaling (Full-speed 'K') is driven on the
- * port as long as this bit remains a one. This bit will remain a one until the port has switched to the high-
- * speed idle. Writing a zero has no effect because the port controller will time the resume operation, clear
- * the bit the port control state switches to HS or FS idle.
+ * Software sets this bit to one to drive resume signaling. The Host Controller sets this bit to one if a J-to-K transition is detected while the port is in the Suspend state.
+ * When this bit transitions to a one because a J-to-K transition is detected, the Port Change Detect bit in the USBSTS register is also set to one.
+ * This bit will automatically change to zero after the resume sequence is complete.
+ * This behavior is different from EHCI where the host controller driver is required to set this bit to a zero after the resume duration is timed in the driver.
+ * Note that when the Host controller owns the port, the resume sequence follows the defined sequence documented in the USB Specification Revision 2.0.
+ * The resume signaling (Full-speed 'K') is driven on the port as long as this bit remains a one. This bit will remain a one until the port has switched to the high-speed idle.
+ * Writing a zero has no effect because the port controller will time the resume operation, clear the bit the port control state switches to HS or FS idle.
  * This field is zero if Port Power(PORTSC1) is zero in host mode.
  * This bit is not-EHCI compatible.
  * In Device mode:
- * After the device has been in Suspend State for 5ms or more, software must set this bit to one to drive
- * resume signaling before clearing. The Device Controller will set this bit to one if a J-to-K transition is
- * detected while the port is in the Suspend state. The bit will be cleared when the device returns to normal
- * operation. Also, when this bit wil be cleared because a K-to-J transition detected, the Port Change Detect
- * bit in the USBSTS register is also set to one.
+ * After the device has been in Suspend State for 5ms or more, software must set this bit to one to drive resume signaling before clearing.
+ * The Device Controller will set this bit to one if a J-to-K transition is detected while the port is in the Suspend state.
+ * The bit will be cleared when the device returns to normal operation.
+ *  Also, when this bit wil be cleared because a K-to-J transition detected, the Port Change Detect bit in the USBSTS register is also set to one.
  */
 #define USB_PORTSC1_FPR_MASK (0x40U)
 #define USB_PORTSC1_FPR_SHIFT (6U)
@@ -1968,8 +1341,7 @@ typedef struct {
  *
  * OCC
  * Over-current Change-R/WC. Default=0.
- * This bit is set '1b' by hardware when there is a change to Over-current Active. Software can clear this bit
- * by writing a one to this bit position.
+ * This bit is set '1b' by hardware when there is a change to Over-current Active. Software can clear this bit by writing a one to this bit position.
  */
 #define USB_PORTSC1_OCC_MASK (0x20U)
 #define USB_PORTSC1_OCC_SHIFT (5U)
@@ -1993,11 +1365,9 @@ typedef struct {
  * PEC (RWC)
  *
  * PEC
- * Port Enable/Disable Change-R/WC. 1=Port enabled/disabled status has changed. 0=No change. Default
- * = 0.
+ * Port Enable/Disable Change-R/WC. 1=Port enabled/disabled status has changed. 0=No change. Default = 0.
  * In Host Mode:
- * For the root hub, this bit is set to a one only when a port is disabled due to disconnect on the port or due
- * to the appropriate conditions existing at the EOF2 point (See Chapter 11 of the USB Specification).
+ * For the root hub, this bit is set to a one only when a port is disabled due to disconnect on the port or due to the appropriate conditions existing at the EOF2 point (See Chapter 11 of the USB Specification).
  * Software clears this by writing a one to it.
  * This field is zero if Port Power(PORTSC1) is zero.
  * In Device mode:
@@ -2014,11 +1384,9 @@ typedef struct {
  * PE
  * Port Enabled/Disabled-Read/Write. 1=Enable. 0=Disable. Default 0.
  * In Host Mode:
- * Ports can only be enabled by the host controller as a part of the reset and enable. Software cannot
- * enable a port by writing a one to this field. Ports can be disabled by either a fault condition (disconnect
- * event or other fault condition) or by the host software. Note that the bit status does not change until the
- * port state actually changes. There may be a delay in disabling or enabling a port due to other host
- * controller and bus events.
+ * Ports can only be enabled by the host controller as a part of the reset and enable. Software cannot enable a port by writing a one to this field.
+ * Ports can be disabled by either a fault condition (disconnect event or other fault condition) or by the host software.
+ * Note that the bit status does not change until the port state actually changes. There may be a delay in disabling or enabling a port due to other host controller and bus events.
  * When the port is disabled, (0b) downstream propagation of data is blocked except for reset.
  * This field is zero if Port Power(PORTSC1) is zero in host mode.
  * In Device Mode:
@@ -2035,11 +1403,8 @@ typedef struct {
  * CSC
  * Connect Status Change-R/WC. 1 =Change in Current Connect Status. 0=No change. Default 0.
  * In Host Mode:
- * Indicates a change has occurred in the port's Current Connect Status. The host/device controller sets this
- * bit for all changes to the port device connect status, even if system software has not cleared an existing
- * connect status change. For example, the insertion status changes twice before system software has
- * cleared the changed condition, hub hardware will be 'setting' an already-set bit (that is, the bit will remain
- * set). Software clears this bit by writing a one to it.
+ * Indicates a change has occurred in the port's Current Connect Status. The host/device controller sets this bit for all changes to the port device connect status, even if system software has not cleared an existing connect status change.
+ * For example, the insertion status changes twice before system software has cleared the changed condition, hub hardware will be 'setting' an already-set bit (that is, the bit will remain set). Software clears this bit by writing a one to it.
  * This field is zero if Port Power(PORTSC1) is zero in host mode.
  * In Device Mode:
  * This bit is undefined in device controller mode.
@@ -2055,16 +1420,10 @@ typedef struct {
  * CCS
  * Current Connect Status-Read Only.
  * In Host Mode:
- * 1=Device is present on port. 0=No device is present. Default = 0. This value reflects the current state of
- * the port, and may not correspond directly to the event that caused the Connect Status Change bit (Bit 1)
- * to be set.
+ * 1=Device is present on port. 0=No device is present. Default = 0. This value reflects the current state of the port, and may not correspond directly to the event that caused the Connect Status Change bit (Bit 1) to be set.
  * This field is zero if Port Power(PORTSC1) is zero in host mode.
  * In Device Mode:
- * 1=Attached. 0=Not Attached. Default=0. A one indicates that the device successfully attached and is
- * operating in either high speed or full speed as indicated by the High Speed Port bit in this register. A zero
- * indicates that the device did not attach successfully or was forcibly disconnected by the software writing a
- * zero to the Run bit in the USBCMD register. It does not state the device being disconnected or
- * Suspended.
+ * 1=Attached. 0=Not Attached. Default=0. A one indicates that the device successfully attached and is operating in either high speed or full speed as indicated by the High Speed Port bit in this register. A zero indicates that the device did not attach successfully or was forcibly disconnected by the software writing a zero to the Run bit in the USBCMD register. It does not state the device being disconnected or Suspended.
  */
 #define USB_PORTSC1_CCS_MASK (0x1U)
 #define USB_PORTSC1_CCS_SHIFT (0U)
@@ -2072,52 +1431,6 @@ typedef struct {
 #define USB_PORTSC1_CCS_GET(x) (((uint32_t)(x) & USB_PORTSC1_CCS_MASK) >> USB_PORTSC1_CCS_SHIFT)
 
 /* Bitfield definition for register: OTGSC */
-/*
- * DPIE (RW)
- *
- * DPIE
- * Data Pulse Interrupt Enable
- */
-#define USB_OTGSC_DPIE_MASK (0x40000000UL)
-#define USB_OTGSC_DPIE_SHIFT (30U)
-#define USB_OTGSC_DPIE_SET(x) (((uint32_t)(x) << USB_OTGSC_DPIE_SHIFT) & USB_OTGSC_DPIE_MASK)
-#define USB_OTGSC_DPIE_GET(x) (((uint32_t)(x) & USB_OTGSC_DPIE_MASK) >> USB_OTGSC_DPIE_SHIFT)
-
-/*
- * EN_1MS (RW)
- *
- * EN_1MS
- * 1 millisecond timer Interrupt Enable - Read/Write
- */
-#define USB_OTGSC_EN_1MS_MASK (0x20000000UL)
-#define USB_OTGSC_EN_1MS_SHIFT (29U)
-#define USB_OTGSC_EN_1MS_SET(x) (((uint32_t)(x) << USB_OTGSC_EN_1MS_SHIFT) & USB_OTGSC_EN_1MS_MASK)
-#define USB_OTGSC_EN_1MS_GET(x) (((uint32_t)(x) & USB_OTGSC_EN_1MS_MASK) >> USB_OTGSC_EN_1MS_SHIFT)
-
-/*
- * BSEIE (RW)
- *
- * BSEIE
- * B Session End Interrupt Enable - Read/Write.
- * Setting this bit enables the B session end interrupt.
- */
-#define USB_OTGSC_BSEIE_MASK (0x10000000UL)
-#define USB_OTGSC_BSEIE_SHIFT (28U)
-#define USB_OTGSC_BSEIE_SET(x) (((uint32_t)(x) << USB_OTGSC_BSEIE_SHIFT) & USB_OTGSC_BSEIE_MASK)
-#define USB_OTGSC_BSEIE_GET(x) (((uint32_t)(x) & USB_OTGSC_BSEIE_MASK) >> USB_OTGSC_BSEIE_SHIFT)
-
-/*
- * BSVIE (RW)
- *
- * BSVIE
- * B Session Valid Interrupt Enable - Read/Write.
- * Setting this bit enables the B session valid interrupt.
- */
-#define USB_OTGSC_BSVIE_MASK (0x8000000UL)
-#define USB_OTGSC_BSVIE_SHIFT (27U)
-#define USB_OTGSC_BSVIE_SET(x) (((uint32_t)(x) << USB_OTGSC_BSVIE_SHIFT) & USB_OTGSC_BSVIE_MASK)
-#define USB_OTGSC_BSVIE_GET(x) (((uint32_t)(x) & USB_OTGSC_BSVIE_MASK) >> USB_OTGSC_BSVIE_SHIFT)
-
 /*
  * ASVIE (RW)
  *
@@ -2152,59 +1465,6 @@ typedef struct {
 #define USB_OTGSC_IDIE_SHIFT (24U)
 #define USB_OTGSC_IDIE_SET(x) (((uint32_t)(x) << USB_OTGSC_IDIE_SHIFT) & USB_OTGSC_IDIE_MASK)
 #define USB_OTGSC_IDIE_GET(x) (((uint32_t)(x) & USB_OTGSC_IDIE_MASK) >> USB_OTGSC_IDIE_SHIFT)
-
-/*
- * DPIS (RWC)
- *
- * DPIS
- * Data Pulse Interrupt Status - Read/Write to Clear.
- * This bit is set when data bus pulsing occurs on DP or DM. Data bus pulsing is only detected when
- * USBMODE.CM = Host (11) and PORTSC1(0)[PP] = 0.
- * Software must write a one to clear this bit.
- */
-#define USB_OTGSC_DPIS_MASK (0x400000UL)
-#define USB_OTGSC_DPIS_SHIFT (22U)
-#define USB_OTGSC_DPIS_SET(x) (((uint32_t)(x) << USB_OTGSC_DPIS_SHIFT) & USB_OTGSC_DPIS_MASK)
-#define USB_OTGSC_DPIS_GET(x) (((uint32_t)(x) & USB_OTGSC_DPIS_MASK) >> USB_OTGSC_DPIS_SHIFT)
-
-/*
- * STATUS_1MS (RWC)
- *
- * STATUS_1MS
- * 1 millisecond timer Interrupt Status - Read/Write to Clear.
- * This bit is set once every millisecond.
- * Software must write a one to clear this bit.
- */
-#define USB_OTGSC_STATUS_1MS_MASK (0x200000UL)
-#define USB_OTGSC_STATUS_1MS_SHIFT (21U)
-#define USB_OTGSC_STATUS_1MS_SET(x) (((uint32_t)(x) << USB_OTGSC_STATUS_1MS_SHIFT) & USB_OTGSC_STATUS_1MS_MASK)
-#define USB_OTGSC_STATUS_1MS_GET(x) (((uint32_t)(x) & USB_OTGSC_STATUS_1MS_MASK) >> USB_OTGSC_STATUS_1MS_SHIFT)
-
-/*
- * BSEIS (RWC)
- *
- * BSEIS
- * B Session End Interrupt Status - Read/Write to Clear.
- * This bit is set when VBus has fallen below the B session end threshold. Software must write a one to
- * clear this bit.
- */
-#define USB_OTGSC_BSEIS_MASK (0x100000UL)
-#define USB_OTGSC_BSEIS_SHIFT (20U)
-#define USB_OTGSC_BSEIS_SET(x) (((uint32_t)(x) << USB_OTGSC_BSEIS_SHIFT) & USB_OTGSC_BSEIS_MASK)
-#define USB_OTGSC_BSEIS_GET(x) (((uint32_t)(x) & USB_OTGSC_BSEIS_MASK) >> USB_OTGSC_BSEIS_SHIFT)
-
-/*
- * BSVIS (RWC)
- *
- * BSVIS
- * B Session Valid Interrupt Status - Read/Write to Clear.
- * This bit is set when VBus has either risen above or fallen below the B session valid threshold.
- * Software must write a one to clear this bit.
- */
-#define USB_OTGSC_BSVIS_MASK (0x80000UL)
-#define USB_OTGSC_BSVIS_SHIFT (19U)
-#define USB_OTGSC_BSVIS_SET(x) (((uint32_t)(x) << USB_OTGSC_BSVIS_SHIFT) & USB_OTGSC_BSVIS_MASK)
-#define USB_OTGSC_BSVIS_GET(x) (((uint32_t)(x) & USB_OTGSC_BSVIS_MASK) >> USB_OTGSC_BSVIS_SHIFT)
 
 /*
  * ASVIS (RWC)
@@ -2244,50 +1504,6 @@ typedef struct {
 #define USB_OTGSC_IDIS_SHIFT (16U)
 #define USB_OTGSC_IDIS_SET(x) (((uint32_t)(x) << USB_OTGSC_IDIS_SHIFT) & USB_OTGSC_IDIS_MASK)
 #define USB_OTGSC_IDIS_GET(x) (((uint32_t)(x) & USB_OTGSC_IDIS_MASK) >> USB_OTGSC_IDIS_SHIFT)
-
-/*
- * DPS (RO)
- *
- * DPS
- * Data Bus Pulsing Status - Read Only.
- * A '1' indicates data bus pulsing is being detected on the port.
- */
-#define USB_OTGSC_DPS_MASK (0x4000U)
-#define USB_OTGSC_DPS_SHIFT (14U)
-#define USB_OTGSC_DPS_GET(x) (((uint32_t)(x) & USB_OTGSC_DPS_MASK) >> USB_OTGSC_DPS_SHIFT)
-
-/*
- * TOG_1MS (RO)
- *
- * TOG_1MS
- * 1 millisecond timer toggle - Read Only.
- * This bit toggles once per millisecond.
- */
-#define USB_OTGSC_TOG_1MS_MASK (0x2000U)
-#define USB_OTGSC_TOG_1MS_SHIFT (13U)
-#define USB_OTGSC_TOG_1MS_GET(x) (((uint32_t)(x) & USB_OTGSC_TOG_1MS_MASK) >> USB_OTGSC_TOG_1MS_SHIFT)
-
-/*
- * BSE (RO)
- *
- * BSE
- * B Session End - Read Only.
- * Indicates VBus is below the B session end threshold.
- */
-#define USB_OTGSC_BSE_MASK (0x1000U)
-#define USB_OTGSC_BSE_SHIFT (12U)
-#define USB_OTGSC_BSE_GET(x) (((uint32_t)(x) & USB_OTGSC_BSE_MASK) >> USB_OTGSC_BSE_SHIFT)
-
-/*
- * BSV (RO)
- *
- * BSV
- * B Session Valid - Read Only.
- * Indicates VBus is above the B session valid threshold.
- */
-#define USB_OTGSC_BSV_MASK (0x800U)
-#define USB_OTGSC_BSV_SHIFT (11U)
-#define USB_OTGSC_BSV_GET(x) (((uint32_t)(x) & USB_OTGSC_BSV_MASK) >> USB_OTGSC_BSV_SHIFT)
 
 /*
  * ASV (RO)
@@ -2336,30 +1552,6 @@ typedef struct {
 #define USB_OTGSC_IDPU_GET(x) (((uint32_t)(x) & USB_OTGSC_IDPU_MASK) >> USB_OTGSC_IDPU_SHIFT)
 
 /*
- * DP (RW)
- *
- * DP
- * Data Pulsing - Read/Write.
- * Setting this bit causes the pullup on DP to be asserted for data pulsing during SRP.
- */
-#define USB_OTGSC_DP_MASK (0x10U)
-#define USB_OTGSC_DP_SHIFT (4U)
-#define USB_OTGSC_DP_SET(x) (((uint32_t)(x) << USB_OTGSC_DP_SHIFT) & USB_OTGSC_DP_MASK)
-#define USB_OTGSC_DP_GET(x) (((uint32_t)(x) & USB_OTGSC_DP_MASK) >> USB_OTGSC_DP_SHIFT)
-
-/*
- * OT (RW)
- *
- * OT
- * OTG Termination - Read/Write.
- * This bit must be set when the OTG device is in device mode, this controls the pulldown on DM.
- */
-#define USB_OTGSC_OT_MASK (0x8U)
-#define USB_OTGSC_OT_SHIFT (3U)
-#define USB_OTGSC_OT_SET(x) (((uint32_t)(x) << USB_OTGSC_OT_SHIFT) & USB_OTGSC_OT_MASK)
-#define USB_OTGSC_OT_GET(x) (((uint32_t)(x) & USB_OTGSC_OT_MASK) >> USB_OTGSC_OT_SHIFT)
-
-/*
  * VC (RW)
  *
  * VC
@@ -2389,17 +1581,11 @@ typedef struct {
  *
  * SDIS
  * Stream Disable Mode. (0 - Inactive [default]; 1 - Active)
- * Device Mode: Setting to a '1' disables double priming on both RX and TX for low bandwidth systems. This
- * mode ensures that when the RX and TX buffers are sufficient to contain an entire packet that the
- * standard double buffering scheme is disabled to prevent overruns/underruns in bandwidth limited
- * systems. Note: In High Speed Mode, all packets received are responded to with a NYET handshake
- * when stream disable is active.
- * Host Mode: Setting to a '1' ensures that overruns/underruns of the latency FIFO are eliminated for low
- * bandwidth systems where the RX and TX buffers are sufficient to contain the entire packet. Enabling
- * stream disable also has the effect of ensuring the TX latency is filled to capacity before the packet is
- * launched onto the USB.
- * NOTE: Time duration to pre-fill the FIFO becomes significant when stream disable is active. See
- * TXFILLTUNING and TXTTFILLTUNING [MPH Only] to characterize the adjustments needed for
+ * Device Mode: Setting to a '1' disables double priming on both RX and TX for low bandwidth systems.
+ * This mode ensures that when the RX and TX buffers are sufficient to contain an entire packet that the standard double buffering scheme is disabled to prevent overruns/underruns in bandwidth limited systems.
+ * Note: In High Speed Mode, all packets received are responded to with a NYET handshake when stream disable is active.
+ * Host Mode: Setting to a '1' ensures that overruns/underruns of the latency FIFO are eliminated for low bandwidth systems where the RX and TX buffers are sufficient to contain the entire packet. Enabling stream disable also has the effect of ensuring the TX latency is filled to capacity before the packet is launched onto the USB.
+ * NOTE: Time duration to pre-fill the FIFO becomes significant when stream disable is active. See TXFILLTUNING and TXTTFILLTUNING [MPH Only] to characterize the adjustments needed for
  * the scheduler when using this feature.
  * NOTE: The use of this feature substantially limits of the overall USB performance that can be achieved.
  */
@@ -2412,8 +1598,7 @@ typedef struct {
  * SLOM (RW)
  *
  * SLOM
- * Setup Lockout Mode. In device mode, this bit controls behavior of the setup lock mechanism. See Control
- * Endpoint Operation Model .
+ * Setup Lockout Mode. In device mode, this bit controls behavior of the setup lock mechanism. See Control Endpoint Operation Model .
  * 0 - Setup Lockouts On (default);
  * 1 - Setup Lockouts Off. DCD requires use of Setup Data Buffer Tripwire in USBCMD.
  */
@@ -2464,14 +1649,12 @@ typedef struct {
  * ENDPTSETUPSTAT (RWC)
  *
  * ENDPTSETUPSTAT
- * Setup Endpoint Status. For every setup transaction that is received, a corresponding bit in this register is
- * set to one. Software must clear or acknowledge the setup transfer by writing a one to a respective bit
- * after it has read the setup data from Queue head. The response to a setup packet as in the order of
- * operations and total response time is crucial to limit bus time outs while the setup lock our mechanism is
- * engaged. See Managing Endpoints in the Device Operational Model.
+ * Setup Endpoint Status. For every setup transaction that is received, a corresponding bit in this register is set to one.
+ * Software must clear or acknowledge the setup transfer by writing a one to a respective bit after it has read the setup data from Queue head.
+ * The response to a setup packet as in the order of operations and total response time is crucial to limit bus time outs while the setup lock out mechanism is engaged.
  * This register is only used in device mode.
  */
-#define USB_ENDPTSETUPSTAT_ENDPTSETUPSTAT_MASK (0xFFFFU)
+#define USB_ENDPTSETUPSTAT_ENDPTSETUPSTAT_MASK (0xFFU)
 #define USB_ENDPTSETUPSTAT_ENDPTSETUPSTAT_SHIFT (0U)
 #define USB_ENDPTSETUPSTAT_ENDPTSETUPSTAT_SET(x) (((uint32_t)(x) << USB_ENDPTSETUPSTAT_ENDPTSETUPSTAT_SHIFT) & USB_ENDPTSETUPSTAT_ENDPTSETUPSTAT_MASK)
 #define USB_ENDPTSETUPSTAT_ENDPTSETUPSTAT_GET(x) (((uint32_t)(x) & USB_ENDPTSETUPSTAT_ENDPTSETUPSTAT_MASK) >> USB_ENDPTSETUPSTAT_ENDPTSETUPSTAT_SHIFT)
@@ -2500,12 +1683,10 @@ typedef struct {
  * PERB (RWS)
  *
  * PERB
- * Prime Endpoint Receive Buffer - R/WS. For each endpoint, a corresponding bit is used to request a buffer
- * prepare for a receive operation for when a USB host initiates a USB OUT transaction. Software should
- * write a one to the corresponding bit whenever posting a new transfer descriptor to an endpoint queue
- * head. Hardware automatically uses this bit to begin parsing for a new transfer descriptor from the queue
- * head and prepare a receive buffer. Hardware clears this bit when the associated endpoint(s) is (are)
- * successfully primed.
+ * Prime Endpoint Receive Buffer - R/WS. For each endpoint, a corresponding bit is used to request a buffer prepare for a receive operation for when a USB host initiates a USB OUT transaction.
+ * Software should write a one to the corresponding bit whenever posting a new transfer descriptor to an endpoint queue head.
+ * Hardware automatically uses this bit to begin parsing for a new transfer descriptor from the queue head and prepare a receive buffer.
+ * Hardware clears this bit when the associated endpoint(s) is (are) successfully primed.
  * NOTE: These bits are momentarily set by hardware during hardware re-priming operations when a dTD
  * is retired, and the dQH is updated.
  * PERB[N] - Endpoint #N, N is in 0..7
@@ -2520,10 +1701,9 @@ typedef struct {
  * FETB (RWS)
  *
  * FETB
- * Flush Endpoint Transmit Buffer - R/WS. Writing one to a bit(s) in this register causes the associated
- * endpoint(s) to clear any primed buffers. If a packet is in progress for one of the associated endpoints,
- * then that transfer continues until completion. Hardware clears this register after the endpoint flush
- * operation is successful.
+ * Flush Endpoint Transmit Buffer - R/WS. Writing one to a bit(s) in this register causes the associated endpoint(s) to clear any primed buffers.
+ * If a packet is in progress for one of the associated endpoints, then that transfer continues until completion.
+ * Hardware clears this register after the endpoint flush operation is successful.
  * FETB[N] - Endpoint #N, N is in 0..7
  */
 #define USB_ENDPTFLUSH_FETB_MASK (0xFF0000UL)
@@ -2535,9 +1715,9 @@ typedef struct {
  * FERB (RWS)
  *
  * FERB
- * Flush Endpoint Receive Buffer - R/WS. Writing one to a bit(s) causes the assocUOGiated endpoint(s) to
- * clear any primed buffers. If a packet is in progress for one of the associated endpoints, then that transfer
- * continues until completion. Hardware clears this register after the endpoint flush operation is successful.
+ * Flush Endpoint Receive Buffer - R/WS. Writing one to a bit(s) causes the associated endpoint(s) to clear any primed buffers.
+ *  If a packet is in progress for one of the associated endpoints, then that transfer continues until completion.
+ * Hardware clears this register after the endpoint flush operation is successful.
  * FERB[N] - Endpoint #N, N is in 0..7
  */
 #define USB_ENDPTFLUSH_FERB_MASK (0xFFU)
@@ -2550,14 +1730,12 @@ typedef struct {
  * ETBR (RO)
  *
  * ETBR
- * Endpoint Transmit Buffer Ready -- Read Only. One bit for each endpoint indicates status of the
- * respective endpoint buffer. This bit is set to one by the hardware as a response to receiving a command
- * from a corresponding bit in the ENDPTPRIME register. There is always a delay between setting a bit in
- * the ENDPTPRIME register and endpoint indicating ready. This delay time varies based upon the current
- * USB traffic and the number of bits set in the ENDPRIME register. Buffer ready is cleared by USB reset,
- * by the USB DMA system, or through the ENDPTFLUSH register.
- * NOTE: These bits are momentarily cleared by hardware during hardware endpoint re-priming operations
- * when a dTD is retired, and the dQH is updated.
+ * Endpoint Transmit Buffer Ready -- Read Only. One bit for each endpoint indicates status of the respective endpoint buffer.
+ * This bit is set to one by the hardware as a response to receiving a command from a corresponding bit in the ENDPTPRIME register.
+ * There is always a delay between setting a bit in the ENDPTPRIME register and endpoint indicating ready.
+ * This delay time varies based upon the current USB traffic and the number of bits set in the ENDPRIME register.
+ * Buffer ready is cleared by USB reset, by the USB DMA system, or through the ENDPTFLUSH register.
+ * NOTE: These bits are momentarily cleared by hardware during hardware endpoint re-priming operations when a dTD is retired, and the dQH is updated.
  * ETBR[N] - Endpoint #N, N is in 0..7
  */
 #define USB_ENDPTSTAT_ETBR_MASK (0xFF0000UL)
@@ -2587,10 +1765,8 @@ typedef struct {
  * ETCE (RWC)
  *
  * ETCE
- * Endpoint Transmit Complete Event - R/WC. Each bit indicates a transmit event (IN/INTERRUPT)
- * occurred and software should read the corresponding endpoint queue to determine the endpoint status. If
- * the corresponding IOC bit is set in the Transfer Descriptor, then this bit is set simultaneously with the
- * USBINT . Writing one clears the corresponding bit in this register.
+ * Endpoint Transmit Complete Event - R/WC. Each bit indicates a transmit event (IN/INTERRUPT) occurred and software should read the corresponding endpoint queue to determine the endpoint status.
+ * If the corresponding IOC bit is set in the Transfer Descriptor, then this bit is set simultaneously with the USBINT . Writing one clears the corresponding bit in this register.
  * ETCE[N] - Endpoint #N, N is in 0..7
  */
 #define USB_ENDPTCOMPLETE_ETCE_MASK (0xFF0000UL)
@@ -2643,21 +1819,6 @@ typedef struct {
 #define USB_ENDPTCTRL_TXR_GET(x) (((uint32_t)(x) & USB_ENDPTCTRL_TXR_MASK) >> USB_ENDPTCTRL_TXR_SHIFT)
 
 /*
- * TXI (RW)
- *
- * TXI
- * TX Data Toggle Inhibit
- * 0 PID Sequencing Enabled. [Default]
- * 1 PID Sequencing Disabled.
- * This bit is only used for test and should always be written as zero. Writing a one to this bit causes this
- * endpoint to ignore the data toggle sequence and always transmit DATA0 for a data packet.
- */
-#define USB_ENDPTCTRL_TXI_MASK (0x200000UL)
-#define USB_ENDPTCTRL_TXI_SHIFT (21U)
-#define USB_ENDPTCTRL_TXI_SET(x) (((uint32_t)(x) << USB_ENDPTCTRL_TXI_SHIFT) & USB_ENDPTCTRL_TXI_MASK)
-#define USB_ENDPTCTRL_TXI_GET(x) (((uint32_t)(x) & USB_ENDPTCTRL_TXI_MASK) >> USB_ENDPTCTRL_TXI_SHIFT)
-
-/*
  * TXT (RW)
  *
  * TXT
@@ -2673,37 +1834,18 @@ typedef struct {
 #define USB_ENDPTCTRL_TXT_GET(x) (((uint32_t)(x) & USB_ENDPTCTRL_TXT_MASK) >> USB_ENDPTCTRL_TXT_SHIFT)
 
 /*
- * TXD (RW)
- *
- * TXD
- * TX Endpoint Data Source - Read/Write
- * 0 Dual Port Memory Buffer/DMA Engine [DEFAULT]
- * Should always be written as 0.
- */
-#define USB_ENDPTCTRL_TXD_MASK (0x20000UL)
-#define USB_ENDPTCTRL_TXD_SHIFT (17U)
-#define USB_ENDPTCTRL_TXD_SET(x) (((uint32_t)(x) << USB_ENDPTCTRL_TXD_SHIFT) & USB_ENDPTCTRL_TXD_MASK)
-#define USB_ENDPTCTRL_TXD_GET(x) (((uint32_t)(x) & USB_ENDPTCTRL_TXD_MASK) >> USB_ENDPTCTRL_TXD_SHIFT)
-
-/*
  * TXS (RW)
  *
  * TXS
  * TX Endpoint Stall - Read/Write
  * 0 End Point OK
  * 1 End Point Stalled
- * This bit will be cleared automatically upon receipt of a SETUP request if this Endpoint is configured as a
- * Control Endpoint and this bit will continue to be cleared by hardware until the associated
- * ENDPTSETUPSTAT bit is cleared.
- * Software can write a one to this bit to force the endpoint to return a STALL handshake to the Host. This
- * control will continue to STALL until this bit is either cleared by software or automatically cleared as above
- * for control endpoints.
- * NOTE: [CONTROL ENDPOINT TYPES ONLY]: there is a slight delay (50 clocks max) between the
- * ENDPTSETUPSTAT begin cleared and hardware continuing to clear this bit. In most systems, it
- * is unlikely the DCD software will observe this delay. However, should the DCD observe that the
- * stall bit is not set after writing a one to it then follow this procedure: continually write this stall bit
- * until it is set or until a new setup has been received by checking the associated endptsetupstat
- * Bit.
+ * This bit will be cleared automatically upon receipt of a SETUP request if this Endpoint is configured as a Control Endpoint and this bit will continue to be cleared by hardware until the associated ENDPTSETUPSTAT bit is cleared.
+ * Software can write a one to this bit to force the endpoint to return a STALL handshake to the Host.
+ * This control will continue to STALL until this bit is either cleared by software or automatically cleared as above for control endpoints.
+ * NOTE: [CONTROL ENDPOINT TYPES ONLY]: there is a slight delay (50 clocks max) between the ENDPTSETUPSTAT begin cleared and hardware continuing to clear this bit.
+ * In most systems, it is unlikely the DCD software will observe this delay. However, should the DCD observe that the stall bit is not set after writing a one to it then follow this procedure:
+ * continually write this stall bit until it is set or until a new setup has been received by checking the associated endptsetupstat Bit.
  */
 #define USB_ENDPTCTRL_TXS_MASK (0x10000UL)
 #define USB_ENDPTCTRL_TXS_SHIFT (16U)
@@ -2739,21 +1881,6 @@ typedef struct {
 #define USB_ENDPTCTRL_RXR_GET(x) (((uint32_t)(x) & USB_ENDPTCTRL_RXR_MASK) >> USB_ENDPTCTRL_RXR_SHIFT)
 
 /*
- * RXI (RW)
- *
- * RXI
- * RX Data Toggle Inhibit
- * 0 Disabled [Default]
- * 1 Enabled
- * This bit is only used for test and should always be written as zero. Writing a one to this bit causes this
- * endpoint to ignore the data toggle sequence and always accept data packet regardless of their data PID.
- */
-#define USB_ENDPTCTRL_RXI_MASK (0x20U)
-#define USB_ENDPTCTRL_RXI_SHIFT (5U)
-#define USB_ENDPTCTRL_RXI_SET(x) (((uint32_t)(x) << USB_ENDPTCTRL_RXI_SHIFT) & USB_ENDPTCTRL_RXI_MASK)
-#define USB_ENDPTCTRL_RXI_GET(x) (((uint32_t)(x) & USB_ENDPTCTRL_RXI_MASK) >> USB_ENDPTCTRL_RXI_SHIFT)
-
-/*
  * RXT (RW)
  *
  * RXT
@@ -2767,19 +1894,6 @@ typedef struct {
 #define USB_ENDPTCTRL_RXT_SHIFT (2U)
 #define USB_ENDPTCTRL_RXT_SET(x) (((uint32_t)(x) << USB_ENDPTCTRL_RXT_SHIFT) & USB_ENDPTCTRL_RXT_MASK)
 #define USB_ENDPTCTRL_RXT_GET(x) (((uint32_t)(x) & USB_ENDPTCTRL_RXT_MASK) >> USB_ENDPTCTRL_RXT_SHIFT)
-
-/*
- * RXD (RW)
- *
- * RXD
- * RX Endpoint Data Sink - Read/Write
- * 0 Dual Port Memory Buffer/DMA Engine [Default]
- * Should always be written as zero.
- */
-#define USB_ENDPTCTRL_RXD_MASK (0x2U)
-#define USB_ENDPTCTRL_RXD_SHIFT (1U)
-#define USB_ENDPTCTRL_RXD_SET(x) (((uint32_t)(x) << USB_ENDPTCTRL_RXD_SHIFT) & USB_ENDPTCTRL_RXD_MASK)
-#define USB_ENDPTCTRL_RXD_GET(x) (((uint32_t)(x) & USB_ENDPTCTRL_RXD_MASK) >> USB_ENDPTCTRL_RXD_SHIFT)
 
 /*
  * RXS (RW)
@@ -2810,7 +1924,6 @@ typedef struct {
 /*
  * OTG_WKDPDMCHG_EN (RW)
  *
- * 
  */
 #define USB_OTG_CTRL0_OTG_WKDPDMCHG_EN_MASK (0x2000000UL)
 #define USB_OTG_CTRL0_OTG_WKDPDMCHG_EN_SHIFT (25U)
@@ -2820,7 +1933,6 @@ typedef struct {
 /*
  * AUTORESUME_EN (RW)
  *
- * 1 for 18ms, 0 for 12 ms in exact 24MHz
  */
 #define USB_OTG_CTRL0_AUTORESUME_EN_MASK (0x80000UL)
 #define USB_OTG_CTRL0_AUTORESUME_EN_SHIFT (19U)
@@ -2830,7 +1942,6 @@ typedef struct {
 /*
  * OTG_VBUS_WAKEUP_EN (RW)
  *
- * 
  */
 #define USB_OTG_CTRL0_OTG_VBUS_WAKEUP_EN_MASK (0x20000UL)
 #define USB_OTG_CTRL0_OTG_VBUS_WAKEUP_EN_SHIFT (17U)
@@ -2840,7 +1951,6 @@ typedef struct {
 /*
  * OTG_ID_WAKEUP_EN (RW)
  *
- * 
  */
 #define USB_OTG_CTRL0_OTG_ID_WAKEUP_EN_MASK (0x10000UL)
 #define USB_OTG_CTRL0_OTG_ID_WAKEUP_EN_SHIFT (16U)
@@ -2850,7 +1960,6 @@ typedef struct {
 /*
  * OTG_VBUS_SOURCE_SEL (RW)
  *
- * 
  */
 #define USB_OTG_CTRL0_OTG_VBUS_SOURCE_SEL_MASK (0x2000U)
 #define USB_OTG_CTRL0_OTG_VBUS_SOURCE_SEL_SHIFT (13U)
@@ -2880,7 +1989,6 @@ typedef struct {
 /*
  * OTG_WAKEUP_INT_ENABLE (RW)
  *
- * 
  */
 #define USB_OTG_CTRL0_OTG_WAKEUP_INT_ENABLE_MASK (0x400U)
 #define USB_OTG_CTRL0_OTG_WAKEUP_INT_ENABLE_SHIFT (10U)
@@ -2890,7 +1998,6 @@ typedef struct {
 /*
  * OTG_POWER_MASK (RW)
  *
- * 
  */
 #define USB_OTG_CTRL0_OTG_POWER_MASK_MASK (0x200U)
 #define USB_OTG_CTRL0_OTG_POWER_MASK_SHIFT (9U)
@@ -2900,7 +2007,6 @@ typedef struct {
 /*
  * OTG_OVER_CUR_POL (RW)
  *
- * 
  */
 #define USB_OTG_CTRL0_OTG_OVER_CUR_POL_MASK (0x100U)
 #define USB_OTG_CTRL0_OTG_OVER_CUR_POL_SHIFT (8U)
@@ -2910,7 +2016,6 @@ typedef struct {
 /*
  * OTG_OVER_CUR_DIS (RW)
  *
- * 
  */
 #define USB_OTG_CTRL0_OTG_OVER_CUR_DIS_MASK (0x80U)
 #define USB_OTG_CTRL0_OTG_OVER_CUR_DIS_SHIFT (7U)
@@ -2927,98 +2032,79 @@ typedef struct {
 #define USB_OTG_CTRL0_SER_MODE_SUSPEND_EN_SET(x) (((uint32_t)(x) << USB_OTG_CTRL0_SER_MODE_SUSPEND_EN_SHIFT) & USB_OTG_CTRL0_SER_MODE_SUSPEND_EN_MASK)
 #define USB_OTG_CTRL0_SER_MODE_SUSPEND_EN_GET(x) (((uint32_t)(x) & USB_OTG_CTRL0_SER_MODE_SUSPEND_EN_MASK) >> USB_OTG_CTRL0_SER_MODE_SUSPEND_EN_SHIFT)
 
-/* Bitfield definition for register: OTG_CTRL1 */
-/*
- * OTG_DEBUG_SEL (RW)
- *
- * 
- */
-#define USB_OTG_CTRL1_OTG_DEBUG_SEL_MASK (0xFU)
-#define USB_OTG_CTRL1_OTG_DEBUG_SEL_SHIFT (0U)
-#define USB_OTG_CTRL1_OTG_DEBUG_SEL_SET(x) (((uint32_t)(x) << USB_OTG_CTRL1_OTG_DEBUG_SEL_SHIFT) & USB_OTG_CTRL1_OTG_DEBUG_SEL_MASK)
-#define USB_OTG_CTRL1_OTG_DEBUG_SEL_GET(x) (((uint32_t)(x) & USB_OTG_CTRL1_OTG_DEBUG_SEL_MASK) >> USB_OTG_CTRL1_OTG_DEBUG_SEL_SHIFT)
-
 /* Bitfield definition for register: PHY_CTRL0 */
 /*
  * GPIO_ID_SEL_N (RW)
  *
- * 
  */
 #define USB_PHY_CTRL0_GPIO_ID_SEL_N_MASK (0x2000000UL)
 #define USB_PHY_CTRL0_GPIO_ID_SEL_N_SHIFT (25U)
 #define USB_PHY_CTRL0_GPIO_ID_SEL_N_SET(x) (((uint32_t)(x) << USB_PHY_CTRL0_GPIO_ID_SEL_N_SHIFT) & USB_PHY_CTRL0_GPIO_ID_SEL_N_MASK)
 #define USB_PHY_CTRL0_GPIO_ID_SEL_N_GET(x) (((uint32_t)(x) & USB_PHY_CTRL0_GPIO_ID_SEL_N_MASK) >> USB_PHY_CTRL0_GPIO_ID_SEL_N_SHIFT)
 
-/* Bitfield definition for register: PHY_CTRL1 */
 /*
- * UTMI_SELF_TEST (RW)
+ * ID_DIG_OVERRIDE (RW)
  *
- * 
  */
-#define USB_PHY_CTRL1_UTMI_SELF_TEST_MASK (0x200000UL)
-#define USB_PHY_CTRL1_UTMI_SELF_TEST_SHIFT (21U)
-#define USB_PHY_CTRL1_UTMI_SELF_TEST_SET(x) (((uint32_t)(x) << USB_PHY_CTRL1_UTMI_SELF_TEST_SHIFT) & USB_PHY_CTRL1_UTMI_SELF_TEST_MASK)
-#define USB_PHY_CTRL1_UTMI_SELF_TEST_GET(x) (((uint32_t)(x) & USB_PHY_CTRL1_UTMI_SELF_TEST_MASK) >> USB_PHY_CTRL1_UTMI_SELF_TEST_SHIFT)
+#define USB_PHY_CTRL0_ID_DIG_OVERRIDE_MASK (0x4000U)
+#define USB_PHY_CTRL0_ID_DIG_OVERRIDE_SHIFT (14U)
+#define USB_PHY_CTRL0_ID_DIG_OVERRIDE_SET(x) (((uint32_t)(x) << USB_PHY_CTRL0_ID_DIG_OVERRIDE_SHIFT) & USB_PHY_CTRL0_ID_DIG_OVERRIDE_MASK)
+#define USB_PHY_CTRL0_ID_DIG_OVERRIDE_GET(x) (((uint32_t)(x) & USB_PHY_CTRL0_ID_DIG_OVERRIDE_MASK) >> USB_PHY_CTRL0_ID_DIG_OVERRIDE_SHIFT)
 
+/*
+ * SESS_VALID_OVERRIDE (RW)
+ *
+ */
+#define USB_PHY_CTRL0_SESS_VALID_OVERRIDE_MASK (0x2000U)
+#define USB_PHY_CTRL0_SESS_VALID_OVERRIDE_SHIFT (13U)
+#define USB_PHY_CTRL0_SESS_VALID_OVERRIDE_SET(x) (((uint32_t)(x) << USB_PHY_CTRL0_SESS_VALID_OVERRIDE_SHIFT) & USB_PHY_CTRL0_SESS_VALID_OVERRIDE_MASK)
+#define USB_PHY_CTRL0_SESS_VALID_OVERRIDE_GET(x) (((uint32_t)(x) & USB_PHY_CTRL0_SESS_VALID_OVERRIDE_MASK) >> USB_PHY_CTRL0_SESS_VALID_OVERRIDE_SHIFT)
+
+/*
+ * VBUS_VALID_OVERRIDE (RW)
+ *
+ */
+#define USB_PHY_CTRL0_VBUS_VALID_OVERRIDE_MASK (0x1000U)
+#define USB_PHY_CTRL0_VBUS_VALID_OVERRIDE_SHIFT (12U)
+#define USB_PHY_CTRL0_VBUS_VALID_OVERRIDE_SET(x) (((uint32_t)(x) << USB_PHY_CTRL0_VBUS_VALID_OVERRIDE_SHIFT) & USB_PHY_CTRL0_VBUS_VALID_OVERRIDE_MASK)
+#define USB_PHY_CTRL0_VBUS_VALID_OVERRIDE_GET(x) (((uint32_t)(x) & USB_PHY_CTRL0_VBUS_VALID_OVERRIDE_MASK) >> USB_PHY_CTRL0_VBUS_VALID_OVERRIDE_SHIFT)
+
+/*
+ * ID_DIG_OVERRIDE_EN (RW)
+ *
+ */
+#define USB_PHY_CTRL0_ID_DIG_OVERRIDE_EN_MASK (0x4U)
+#define USB_PHY_CTRL0_ID_DIG_OVERRIDE_EN_SHIFT (2U)
+#define USB_PHY_CTRL0_ID_DIG_OVERRIDE_EN_SET(x) (((uint32_t)(x) << USB_PHY_CTRL0_ID_DIG_OVERRIDE_EN_SHIFT) & USB_PHY_CTRL0_ID_DIG_OVERRIDE_EN_MASK)
+#define USB_PHY_CTRL0_ID_DIG_OVERRIDE_EN_GET(x) (((uint32_t)(x) & USB_PHY_CTRL0_ID_DIG_OVERRIDE_EN_MASK) >> USB_PHY_CTRL0_ID_DIG_OVERRIDE_EN_SHIFT)
+
+/*
+ * SESS_VALID_OVERRIDE_EN (RW)
+ *
+ */
+#define USB_PHY_CTRL0_SESS_VALID_OVERRIDE_EN_MASK (0x2U)
+#define USB_PHY_CTRL0_SESS_VALID_OVERRIDE_EN_SHIFT (1U)
+#define USB_PHY_CTRL0_SESS_VALID_OVERRIDE_EN_SET(x) (((uint32_t)(x) << USB_PHY_CTRL0_SESS_VALID_OVERRIDE_EN_SHIFT) & USB_PHY_CTRL0_SESS_VALID_OVERRIDE_EN_MASK)
+#define USB_PHY_CTRL0_SESS_VALID_OVERRIDE_EN_GET(x) (((uint32_t)(x) & USB_PHY_CTRL0_SESS_VALID_OVERRIDE_EN_MASK) >> USB_PHY_CTRL0_SESS_VALID_OVERRIDE_EN_SHIFT)
+
+/*
+ * VBUS_VALID_OVERRIDE_EN (RW)
+ *
+ */
+#define USB_PHY_CTRL0_VBUS_VALID_OVERRIDE_EN_MASK (0x1U)
+#define USB_PHY_CTRL0_VBUS_VALID_OVERRIDE_EN_SHIFT (0U)
+#define USB_PHY_CTRL0_VBUS_VALID_OVERRIDE_EN_SET(x) (((uint32_t)(x) << USB_PHY_CTRL0_VBUS_VALID_OVERRIDE_EN_SHIFT) & USB_PHY_CTRL0_VBUS_VALID_OVERRIDE_EN_MASK)
+#define USB_PHY_CTRL0_VBUS_VALID_OVERRIDE_EN_GET(x) (((uint32_t)(x) & USB_PHY_CTRL0_VBUS_VALID_OVERRIDE_EN_MASK) >> USB_PHY_CTRL0_VBUS_VALID_OVERRIDE_EN_SHIFT)
+
+/* Bitfield definition for register: PHY_CTRL1 */
 /*
  * UTMI_CFG_RST_N (RW)
  *
- * 
  */
 #define USB_PHY_CTRL1_UTMI_CFG_RST_N_MASK (0x100000UL)
 #define USB_PHY_CTRL1_UTMI_CFG_RST_N_SHIFT (20U)
 #define USB_PHY_CTRL1_UTMI_CFG_RST_N_SET(x) (((uint32_t)(x) << USB_PHY_CTRL1_UTMI_CFG_RST_N_SHIFT) & USB_PHY_CTRL1_UTMI_CFG_RST_N_MASK)
 #define USB_PHY_CTRL1_UTMI_CFG_RST_N_GET(x) (((uint32_t)(x) & USB_PHY_CTRL1_UTMI_CFG_RST_N_MASK) >> USB_PHY_CTRL1_UTMI_CFG_RST_N_SHIFT)
-
-/*
- * UTMI_CFG_WEN (RW)
- *
- * 
- */
-#define USB_PHY_CTRL1_UTMI_CFG_WEN_MASK (0x80000UL)
-#define USB_PHY_CTRL1_UTMI_CFG_WEN_SHIFT (19U)
-#define USB_PHY_CTRL1_UTMI_CFG_WEN_SET(x) (((uint32_t)(x) << USB_PHY_CTRL1_UTMI_CFG_WEN_SHIFT) & USB_PHY_CTRL1_UTMI_CFG_WEN_MASK)
-#define USB_PHY_CTRL1_UTMI_CFG_WEN_GET(x) (((uint32_t)(x) & USB_PHY_CTRL1_UTMI_CFG_WEN_MASK) >> USB_PHY_CTRL1_UTMI_CFG_WEN_SHIFT)
-
-/*
- * UTMI_CFG_REN (RW)
- *
- * 
- */
-#define USB_PHY_CTRL1_UTMI_CFG_REN_MASK (0x40000UL)
-#define USB_PHY_CTRL1_UTMI_CFG_REN_SHIFT (18U)
-#define USB_PHY_CTRL1_UTMI_CFG_REN_SET(x) (((uint32_t)(x) << USB_PHY_CTRL1_UTMI_CFG_REN_SHIFT) & USB_PHY_CTRL1_UTMI_CFG_REN_MASK)
-#define USB_PHY_CTRL1_UTMI_CFG_REN_GET(x) (((uint32_t)(x) & USB_PHY_CTRL1_UTMI_CFG_REN_MASK) >> USB_PHY_CTRL1_UTMI_CFG_REN_SHIFT)
-
-/*
- * UTMI_CFG_ADDR (RW)
- *
- * 
- */
-#define USB_PHY_CTRL1_UTMI_CFG_ADDR_MASK (0x3F000UL)
-#define USB_PHY_CTRL1_UTMI_CFG_ADDR_SHIFT (12U)
-#define USB_PHY_CTRL1_UTMI_CFG_ADDR_SET(x) (((uint32_t)(x) << USB_PHY_CTRL1_UTMI_CFG_ADDR_SHIFT) & USB_PHY_CTRL1_UTMI_CFG_ADDR_MASK)
-#define USB_PHY_CTRL1_UTMI_CFG_ADDR_GET(x) (((uint32_t)(x) & USB_PHY_CTRL1_UTMI_CFG_ADDR_MASK) >> USB_PHY_CTRL1_UTMI_CFG_ADDR_SHIFT)
-
-/*
- * UTMI_CFG_WDATA (RW)
- *
- * 
- */
-#define USB_PHY_CTRL1_UTMI_CFG_WDATA_MASK (0xFF0U)
-#define USB_PHY_CTRL1_UTMI_CFG_WDATA_SHIFT (4U)
-#define USB_PHY_CTRL1_UTMI_CFG_WDATA_SET(x) (((uint32_t)(x) << USB_PHY_CTRL1_UTMI_CFG_WDATA_SHIFT) & USB_PHY_CTRL1_UTMI_CFG_WDATA_MASK)
-#define USB_PHY_CTRL1_UTMI_CFG_WDATA_GET(x) (((uint32_t)(x) & USB_PHY_CTRL1_UTMI_CFG_WDATA_MASK) >> USB_PHY_CTRL1_UTMI_CFG_WDATA_SHIFT)
-
-/*
- * UTMI_PLL_SEL (RW)
- *
- * assign  utmi_pll_en  = usb_phyctrl1[2] ? usb_phyctrl1[3] : utmi_suspendm
- */
-#define USB_PHY_CTRL1_UTMI_PLL_SEL_MASK (0x4U)
-#define USB_PHY_CTRL1_UTMI_PLL_SEL_SHIFT (2U)
-#define USB_PHY_CTRL1_UTMI_PLL_SEL_SET(x) (((uint32_t)(x) << USB_PHY_CTRL1_UTMI_PLL_SEL_SHIFT) & USB_PHY_CTRL1_UTMI_PLL_SEL_MASK)
-#define USB_PHY_CTRL1_UTMI_PLL_SEL_GET(x) (((uint32_t)(x) & USB_PHY_CTRL1_UTMI_PLL_SEL_MASK) >> USB_PHY_CTRL1_UTMI_PLL_SEL_SHIFT)
 
 /*
  * UTMI_OTG_SUSPENDM (RW)
@@ -3034,7 +2120,6 @@ typedef struct {
 /*
  * WAKEUP_INT_STATUS (RW)
  *
- * 
  */
 #define USB_TOP_STATUS_WAKEUP_INT_STATUS_MASK (0x80000000UL)
 #define USB_TOP_STATUS_WAKEUP_INT_STATUS_SHIFT (31U)
@@ -3045,7 +2130,6 @@ typedef struct {
 /*
  * UTMI_CLK_VALID (RW)
  *
- * 
  */
 #define USB_PHY_STATUS_UTMI_CLK_VALID_MASK (0x80000000UL)
 #define USB_PHY_STATUS_UTMI_CLK_VALID_SHIFT (31U)
@@ -3053,29 +2137,8 @@ typedef struct {
 #define USB_PHY_STATUS_UTMI_CLK_VALID_GET(x) (((uint32_t)(x) & USB_PHY_STATUS_UTMI_CLK_VALID_MASK) >> USB_PHY_STATUS_UTMI_CLK_VALID_SHIFT)
 
 /*
- * UTMI_TEST_BIST (RW)
- *
- * 
- */
-#define USB_PHY_STATUS_UTMI_TEST_BIST_MASK (0x10000UL)
-#define USB_PHY_STATUS_UTMI_TEST_BIST_SHIFT (16U)
-#define USB_PHY_STATUS_UTMI_TEST_BIST_SET(x) (((uint32_t)(x) << USB_PHY_STATUS_UTMI_TEST_BIST_SHIFT) & USB_PHY_STATUS_UTMI_TEST_BIST_MASK)
-#define USB_PHY_STATUS_UTMI_TEST_BIST_GET(x) (((uint32_t)(x) & USB_PHY_STATUS_UTMI_TEST_BIST_MASK) >> USB_PHY_STATUS_UTMI_TEST_BIST_SHIFT)
-
-/*
- * UTMI_CFG_RDATA (RW)
- *
- * 
- */
-#define USB_PHY_STATUS_UTMI_CFG_RDATA_MASK (0xFF00U)
-#define USB_PHY_STATUS_UTMI_CFG_RDATA_SHIFT (8U)
-#define USB_PHY_STATUS_UTMI_CFG_RDATA_SET(x) (((uint32_t)(x) << USB_PHY_STATUS_UTMI_CFG_RDATA_SHIFT) & USB_PHY_STATUS_UTMI_CFG_RDATA_MASK)
-#define USB_PHY_STATUS_UTMI_CFG_RDATA_GET(x) (((uint32_t)(x) & USB_PHY_STATUS_UTMI_CFG_RDATA_MASK) >> USB_PHY_STATUS_UTMI_CFG_RDATA_SHIFT)
-
-/*
  * LINE_STATE (RW)
  *
- * 
  */
 #define USB_PHY_STATUS_LINE_STATE_MASK (0xC0U)
 #define USB_PHY_STATUS_LINE_STATE_SHIFT (6U)
@@ -3085,7 +2148,6 @@ typedef struct {
 /*
  * HOST_DISCONNECT (RW)
  *
- * 
  */
 #define USB_PHY_STATUS_HOST_DISCONNECT_MASK (0x20U)
 #define USB_PHY_STATUS_HOST_DISCONNECT_SHIFT (5U)
@@ -3095,7 +2157,6 @@ typedef struct {
 /*
  * ID_DIG (RW)
  *
- * 
  */
 #define USB_PHY_STATUS_ID_DIG_MASK (0x10U)
 #define USB_PHY_STATUS_ID_DIG_SHIFT (4U)
@@ -3103,19 +2164,8 @@ typedef struct {
 #define USB_PHY_STATUS_ID_DIG_GET(x) (((uint32_t)(x) & USB_PHY_STATUS_ID_DIG_MASK) >> USB_PHY_STATUS_ID_DIG_SHIFT)
 
 /*
- * UTMI_SESS_END (RW)
- *
- * 
- */
-#define USB_PHY_STATUS_UTMI_SESS_END_MASK (0x8U)
-#define USB_PHY_STATUS_UTMI_SESS_END_SHIFT (3U)
-#define USB_PHY_STATUS_UTMI_SESS_END_SET(x) (((uint32_t)(x) << USB_PHY_STATUS_UTMI_SESS_END_SHIFT) & USB_PHY_STATUS_UTMI_SESS_END_MASK)
-#define USB_PHY_STATUS_UTMI_SESS_END_GET(x) (((uint32_t)(x) & USB_PHY_STATUS_UTMI_SESS_END_MASK) >> USB_PHY_STATUS_UTMI_SESS_END_SHIFT)
-
-/*
  * UTMI_SESS_VALID (RW)
  *
- * 
  */
 #define USB_PHY_STATUS_UTMI_SESS_VALID_MASK (0x4U)
 #define USB_PHY_STATUS_UTMI_SESS_VALID_SHIFT (2U)
@@ -3123,19 +2173,8 @@ typedef struct {
 #define USB_PHY_STATUS_UTMI_SESS_VALID_GET(x) (((uint32_t)(x) & USB_PHY_STATUS_UTMI_SESS_VALID_MASK) >> USB_PHY_STATUS_UTMI_SESS_VALID_SHIFT)
 
 /*
- * UTMI_B_VALID (RW)
- *
- * 
- */
-#define USB_PHY_STATUS_UTMI_B_VALID_MASK (0x2U)
-#define USB_PHY_STATUS_UTMI_B_VALID_SHIFT (1U)
-#define USB_PHY_STATUS_UTMI_B_VALID_SET(x) (((uint32_t)(x) << USB_PHY_STATUS_UTMI_B_VALID_SHIFT) & USB_PHY_STATUS_UTMI_B_VALID_MASK)
-#define USB_PHY_STATUS_UTMI_B_VALID_GET(x) (((uint32_t)(x) & USB_PHY_STATUS_UTMI_B_VALID_MASK) >> USB_PHY_STATUS_UTMI_B_VALID_SHIFT)
-
-/*
  * VBUS_VALID (RW)
  *
- * 
  */
 #define USB_PHY_STATUS_VBUS_VALID_MASK (0x1U)
 #define USB_PHY_STATUS_VBUS_VALID_SHIFT (0U)

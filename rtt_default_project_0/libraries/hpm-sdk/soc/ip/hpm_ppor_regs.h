@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -23,15 +23,14 @@ typedef struct {
 
 /* Bitfield definition for register: RESET_FLAG */
 /*
- * FLAG (RW)
+ * FLAG (W1C)
  *
  * reset reason of last hard reset, write 1 to clear each bit
  * 0: brownout
  * 1: temperature(not available)
  * 2: resetpin(not available)
  * 4: debug reset
- * 5: security violation
- * 6: jtag reset
+ * 5: jtag reset
  * 8: cpu0 lockup(not available)
  * 9: cpu1 lockup(not available)
  * 10: cpu0 request(not available)
@@ -57,8 +56,7 @@ typedef struct {
  * 1: temperature(not available)
  * 2: resetpin(not available)
  * 4: debug reset
- * 5: security violation
- * 6: jtag reset
+ * 5: jtag reset
  * 8: cpu0 lockup(not available)
  * 9: cpu1 lockup(not available)
  * 10: cpu0 request(not available)
@@ -84,8 +82,7 @@ typedef struct {
  * 1: temperature(not available)
  * 2: resetpin(not available)
  * 4: debug reset
- * 5: security violation
- * 6: jtag reset
+ * 5: jtag reset
  * 8: cpu0 lockup(not available)
  * 9: cpu1 lockup(not available)
  * 10: cpu0 request(not available)
@@ -111,8 +108,7 @@ typedef struct {
  * 1: temperature(not available)
  * 2: resetpin(not available)
  * 4: debug reset
- * 5: security violation
- * 6: jtag reset
+ * 5: jtag reset
  * 8: cpu0 lockup(not available)
  * 9: cpu1 lockup(not available)
  * 10: cpu0 request(not available)
@@ -138,8 +134,7 @@ typedef struct {
  * 1: temperature(not available)
  * 2: resetpin(not available)
  * 4: debug reset
- * 5: security violation
- * 6: jtag reset
+ * 5: jtag reset
  * 8: cpu0 lockup(not available)
  * 9: cpu1 lockup(not available)
  * 10: cpu0 request(not available)
@@ -165,8 +160,7 @@ typedef struct {
  * 1: temperature(not available)
  * 2: resetpin(not available)
  * 4: debug reset
- * 5: security violation
- * 6: jtag reset
+ * 5: jtag reset
  * 8: cpu0 lockup(not available)
  * 9: cpu1 lockup(not available)
  * 10: cpu0 request(not available)

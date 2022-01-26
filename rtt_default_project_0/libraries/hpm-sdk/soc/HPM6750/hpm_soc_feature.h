@@ -97,8 +97,12 @@
 /*
 * ENET Section
 */
-#define ENET_SOC_ADDR_MAX_COUNT (5U)
-
+#define ENET_SOC_DESC_ADDR_ALIGNMENT               (32U)
+#define ENET_SOC_BUFF_ADDR_ALIGNMENT               (4U)
+#define ENET_SOC_ADDR_MAX_COUNT                    (5U)
+#define ENET_SOC_ADVANCED_TIMESTAMP_EN             (1U)
+#define ENET_SOC_IPC_FULL_CHKSUM_OFFLOAD_ENGINE    (0U)
+#define ENET_SOC_ALT_EHD_DES_LEN                   (ENET_SOC_ADVANCED_TIMESTAMP_EN || ENET_SOC_IPC_FULL_CHKSUM_OFFLOAD_ENGINE) ? (8U) : (4U)
 /*
 * ADC Section
 */
@@ -111,5 +115,15 @@
  */
 #define SYSCTL_SOC_CPU_GPR_COUNT (14U)
 #define SYSCTL_SOC_MONITOR_SLICE_COUNT (4U)
+
+/*
+ * PTPC Section
+ */
+#define PTPC_SOC_TIMER_MAX_COUNT       (2U)
+
+/*
+ * CAN Section
+ */
+#define CAN_SOC_MAX_COUNT       (4U)
 
 #endif /* HPM_SOC_FEATURE_H */

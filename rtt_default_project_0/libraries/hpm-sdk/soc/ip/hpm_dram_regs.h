@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -11,31 +11,29 @@
 
 typedef struct {
     __RW uint32_t CTRL;                        /* 0x0: Control Register */
-    __RW uint32_t IOCTRL;                      /* 0x4: IO Mux Control Register */
+    __R  uint8_t  RESERVED0[4];                /* 0x4 - 0x7: Reserved */
     __RW uint32_t BMW0;                        /* 0x8: Bus (AXI) Weight Control Register 0 */
     __RW uint32_t BMW1;                        /* 0xC: Bus (AXI) Weight Control Register 1 */
     __RW uint32_t BR[2];                       /* 0x10 - 0x14: Base Register 0 (for SDRAM CS0 device) */
-    __R  uint8_t  RESERVED0[32];               /* 0x18 - 0x37: Reserved */
+    __R  uint8_t  RESERVED1[32];               /* 0x18 - 0x37: Reserved */
     __RW uint32_t INTEN;                       /* 0x38: Interrupt Enable Register */
     __RW uint32_t INTR;                        /* 0x3C: Interrupt Status Register */
     __RW uint32_t SDRCTRL0;                    /* 0x40: SDRAM Control Register 0 */
     __RW uint32_t SDRCTRL1;                    /* 0x44: SDRAM Control Register 1 */
     __RW uint32_t SDRCTRL2;                    /* 0x48: SDRAM Control Register 2 */
     __RW uint32_t SDRCTRL3;                    /* 0x4C: SDRAM Control Register 3 */
-    __R  uint8_t  RESERVED1[64];               /* 0x50 - 0x8F: Reserved */
+    __R  uint8_t  RESERVED2[64];               /* 0x50 - 0x8F: Reserved */
     __RW uint32_t SADDR;                       /* 0x90: IP Command Control Register 0 */
     __RW uint32_t DATSZ;                       /* 0x94: IP Command Control Register 1 */
     __RW uint32_t BYTEMSK;                     /* 0x98: IP Command Control Register 2 */
     __RW uint32_t IPCMD;                       /* 0x9C: IP Command Register */
     __RW uint32_t IPTX;                        /* 0xA0: TX DATA Register */
-    __R  uint8_t  RESERVED2[12];               /* 0xA4 - 0xAF: Reserved */
+    __R  uint8_t  RESERVED3[12];               /* 0xA4 - 0xAF: Reserved */
     __RW uint32_t IPRX;                        /* 0xB0: RX DATA Register */
-    __R  uint8_t  RESERVED3[12];               /* 0xB4 - 0xBF: Reserved */
+    __R  uint8_t  RESERVED4[12];               /* 0xB4 - 0xBF: Reserved */
     __R  uint32_t STAT0;                       /* 0xC0: Status Register 0 */
-    __R  uint8_t  RESERVED4[4];                /* 0xC4 - 0xC7: Reserved */
-    __R  uint32_t STAT2;                       /* 0xC8: Status Register 2 */
-    __R  uint8_t  RESERVED5[40];               /* 0xCC - 0xF3: Reserved */
-    __R  uint32_t STAT13;                      /* 0xF4: Status Register 13 */
+    __R  uint8_t  RESERVED5[140];              /* 0xC4 - 0x14F: Reserved */
+    __RW uint32_t DLYCFG;                      /* 0x150: Delay Line Config Register */
 } DRAM_Type;
 
 
@@ -101,115 +99,6 @@ typedef struct {
 #define DRAM_CTRL_RST_SHIFT (0U)
 #define DRAM_CTRL_RST_SET(x) (((uint32_t)(x) << DRAM_CTRL_RST_SHIFT) & DRAM_CTRL_RST_MASK)
 #define DRAM_CTRL_RST_GET(x) (((uint32_t)(x) & DRAM_CTRL_RST_MASK) >> DRAM_CTRL_RST_SHIFT)
-
-/* Bitfield definition for register: IOCTRL */
-/*
- * IO_RDY (RW)
- *
- * IO_RDY function selection
- * 000b - NAND Ready/Wait# input
- * 001b - SDRAM CS1
- * 010b - SDRAM CS2
- * 011b - SDRAM CS3
- * 100b - NOR CE#
- * 101b - PSRAM CE#
- * 110b - DBI CSX
- * 111b - NOR/PSRAM Address bit 27
- */
-#define DRAM_IOCTRL_IO_RDY_MASK (0x38000UL)
-#define DRAM_IOCTRL_IO_RDY_SHIFT (15U)
-#define DRAM_IOCTRL_IO_RDY_SET(x) (((uint32_t)(x) << DRAM_IOCTRL_IO_RDY_SHIFT) & DRAM_IOCTRL_IO_RDY_MASK)
-#define DRAM_IOCTRL_IO_RDY_GET(x) (((uint32_t)(x) & DRAM_IOCTRL_IO_RDY_MASK) >> DRAM_IOCTRL_IO_RDY_SHIFT)
-
-/*
- * IO_CSX3 (RW)
- *
- * IO_CSX3 output selection
- * 000b - NOR/PSRAM Address bit 27 (A27)
- * 001b - SDRAM CS1
- * 010b - SDRAM CS2
- * 011b - SDRAM CS3
- * 100b - NAND CE#
- * 101b - NOR CE#
- * 110b - PSRAM CE#
- * 111b - DBI CSX
- */
-#define DRAM_IOCTRL_IO_CSX3_MASK (0x7000U)
-#define DRAM_IOCTRL_IO_CSX3_SHIFT (12U)
-#define DRAM_IOCTRL_IO_CSX3_SET(x) (((uint32_t)(x) << DRAM_IOCTRL_IO_CSX3_SHIFT) & DRAM_IOCTRL_IO_CSX3_MASK)
-#define DRAM_IOCTRL_IO_CSX3_GET(x) (((uint32_t)(x) & DRAM_IOCTRL_IO_CSX3_MASK) >> DRAM_IOCTRL_IO_CSX3_SHIFT)
-
-/*
- * IO_CSX2 (RW)
- *
- * IO_CSX2 output selection
- * 000b - NOR/PSRAM Address bit 26 (A26)
- * 001b - SDRAM CS1
- * 010b - SDRAM CS2
- * 011b - SDRAM CS3
- * 100b - NAND CE#
- * 101b - NOR CE#
- * 110b - PSRAM CE#
- * 111b - DBI CSX
- */
-#define DRAM_IOCTRL_IO_CSX2_MASK (0xE00U)
-#define DRAM_IOCTRL_IO_CSX2_SHIFT (9U)
-#define DRAM_IOCTRL_IO_CSX2_SET(x) (((uint32_t)(x) << DRAM_IOCTRL_IO_CSX2_SHIFT) & DRAM_IOCTRL_IO_CSX2_MASK)
-#define DRAM_IOCTRL_IO_CSX2_GET(x) (((uint32_t)(x) & DRAM_IOCTRL_IO_CSX2_MASK) >> DRAM_IOCTRL_IO_CSX2_SHIFT)
-
-/*
- * IO_CSX1 (RW)
- *
- * IO_CSX1 output selection
- * 000b - NOR/PSRAM Address bit 25 (A25)
- * 001b - SDRAM CS1
- * 010b - SDRAM CS2
- * 011b - SDRAM CS3
- * 100b - NAND CE#
- * 101b - NOR CE#
- * 110b - PSRAM CE#
- * 111b - DBI CSX
- */
-#define DRAM_IOCTRL_IO_CSX1_MASK (0x1C0U)
-#define DRAM_IOCTRL_IO_CSX1_SHIFT (6U)
-#define DRAM_IOCTRL_IO_CSX1_SET(x) (((uint32_t)(x) << DRAM_IOCTRL_IO_CSX1_SHIFT) & DRAM_IOCTRL_IO_CSX1_MASK)
-#define DRAM_IOCTRL_IO_CSX1_GET(x) (((uint32_t)(x) & DRAM_IOCTRL_IO_CSX1_MASK) >> DRAM_IOCTRL_IO_CSX1_SHIFT)
-
-/*
- * IO_CSX0 (RW)
- *
- * IO_CSX0 output selection
- * 000b - NOR/PSRAM Address bit 24 (A24)
- * 001b - SDRAM CS1
- * 010b - SDRAM CS2
- * 011b - SDRAM CS3
- * 100b - NAND CE#
- * 101b - NOR CE#
- * 110b - PSRAM CE#
- * 111b - DBI CSX
- */
-#define DRAM_IOCTRL_IO_CSX0_MASK (0x38U)
-#define DRAM_IOCTRL_IO_CSX0_SHIFT (3U)
-#define DRAM_IOCTRL_IO_CSX0_SET(x) (((uint32_t)(x) << DRAM_IOCTRL_IO_CSX0_SHIFT) & DRAM_IOCTRL_IO_CSX0_MASK)
-#define DRAM_IOCTRL_IO_CSX0_GET(x) (((uint32_t)(x) & DRAM_IOCTRL_IO_CSX0_MASK) >> DRAM_IOCTRL_IO_CSX0_SHIFT)
-
-/*
- * IO_A8 (RW)
- *
- * IO_A8 output selection
- * 000b - SDRAM Address bit (A8)
- * 001b - NAND CE#
- * 010b - NOR CE#
- * 011b - PSRAM CE#
- * 100b - DBI CSX
- * 101b - SDRAM Address bit (A8)
- * 110b - SDRAM Address bit (A8)
- * 111b - SDRAM Address bit (A8)
- */
-#define DRAM_IOCTRL_IO_A8_MASK (0x7U)
-#define DRAM_IOCTRL_IO_A8_SHIFT (0U)
-#define DRAM_IOCTRL_IO_A8_SET(x) (((uint32_t)(x) << DRAM_IOCTRL_IO_A8_SHIFT) & DRAM_IOCTRL_IO_A8_MASK)
-#define DRAM_IOCTRL_IO_A8_GET(x) (((uint32_t)(x) & DRAM_IOCTRL_IO_A8_MASK) >> DRAM_IOCTRL_IO_A8_SHIFT)
 
 /* Bitfield definition for register: BMW0 */
 /*
@@ -372,7 +261,7 @@ typedef struct {
 /*
  * AXIBUSERR (RW)
  *
- * IP command done interrupt enable
+ * AXI BUS error interrupt enable
  * 0b - Interrupt is disabled
  * 1b - Interrupt is enabled
  */
@@ -384,7 +273,7 @@ typedef struct {
 /*
  * AXICMDERR (RW)
  *
- * IP command error interrupt enable
+ * AXI command error interrupt enable
  * 0b - Interrupt is disabled
  * 1b - Interrupt is enabled
  */
@@ -396,7 +285,7 @@ typedef struct {
 /*
  * IPCMDERR (RW)
  *
- * AXI command error interrupt enable
+ * IP command error interrupt enable
  * 0b - Interrupt is disabled
  * 1b - Interrupt is enabled
  */
@@ -408,7 +297,7 @@ typedef struct {
 /*
  * IPCMDDONE (RW)
  *
- * AXI bus error interrupt enable
+ * IP command done interrupt enable
  * 0b - Interrupt is disabled
  * 1b - Interrupt is enabled
  */
@@ -424,8 +313,6 @@ typedef struct {
  * AXI bus error interrupt
  * AXI Bus error interrupt is generated in following cases:
  * • AXI address is invalid
- * • AXI write to NOR flash
- * • AXI 8-bit write to 16-bit NAND flash
  * • AXI 8-bit or 16-bit WRAP write/read
  */
 #define DRAM_INTR_AXIBUSERR_MASK (0x8U)
@@ -540,12 +427,25 @@ typedef struct {
 #define DRAM_SDRCTRL0_BURSTLEN_GET(x) (((uint32_t)(x) & DRAM_SDRCTRL0_BURSTLEN_MASK) >> DRAM_SDRCTRL0_BURSTLEN_SHIFT)
 
 /*
+ * HIGHBAND (RW)
+ *
+ * high band select
+ * 0: use data[15:0] for 16bit SDRAM;
+ * 1: use data[31:16] for 16bit SDRAM;
+ * only used when Port Size is 16bit(PORTSZ=01b)
+ */
+#define DRAM_SDRCTRL0_HIGHBAND_MASK (0x8U)
+#define DRAM_SDRCTRL0_HIGHBAND_SHIFT (3U)
+#define DRAM_SDRCTRL0_HIGHBAND_SET(x) (((uint32_t)(x) << DRAM_SDRCTRL0_HIGHBAND_SHIFT) & DRAM_SDRCTRL0_HIGHBAND_MASK)
+#define DRAM_SDRCTRL0_HIGHBAND_GET(x) (((uint32_t)(x) & DRAM_SDRCTRL0_HIGHBAND_MASK) >> DRAM_SDRCTRL0_HIGHBAND_SHIFT)
+
+/*
  * PORTSZ (RW)
  *
  * Port Size
- * 0b - 8bit
- * 1b - 16bit
- * 2b - 32bit
+ * 00b - 8bit
+ * 01b - 16bit
+ * 10b - 32bit
  */
 #define DRAM_SDRCTRL0_PORTSZ_MASK (0x3U)
 #define DRAM_SDRCTRL0_PORTSZ_SHIFT (0U)
@@ -556,9 +456,8 @@ typedef struct {
 /*
  * ACT2PRE (RW)
  *
- * PRECHARGE to ACT/Refresh wait time
- * It is promised PRE2ACT+1 clock cycles delay between PRECHARGE/PRECHARGE_ALL command
- * to ACTIVE/REFRESH command. This could help to meet tRP timing requirement by SDRAM device.
+ * ACT to Precharge minimum time
+ * It is promised ACT2PRE+1 clock cycles delay between ACTIVE command to PRECHARGE/PRECHARGE_ALL command.
  */
 #define DRAM_SDRCTRL1_ACT2PRE_MASK (0xF00000UL)
 #define DRAM_SDRCTRL1_ACT2PRE_SHIFT (20U)
@@ -568,9 +467,8 @@ typedef struct {
 /*
  * CKEOFF (RW)
  *
- * ACT to Read/Write wait time
- * It is promised ACT2RW+1 clock cycles delay between ACTIVE command to READ/WRITE command.
- * This could help to meet tRCD timing requirement by SDRAM device.
+ * CKE OFF minimum time
+ * It is promised clock suspend last at leat CKEOFF+1 clock cycles.
  */
 #define DRAM_SDRCTRL1_CKEOFF_MASK (0xF0000UL)
 #define DRAM_SDRCTRL1_CKEOFF_SHIFT (16U)
@@ -580,9 +478,8 @@ typedef struct {
 /*
  * WRC (RW)
  *
- * Refresh recovery time
- * It is promised RFRC+1 clock cycles delay between REFRESH command to ACTIVE command. This
- * could help to meet tRFC timing requirement by SDRAM device.
+ * Write recovery time
+ * It is promised WRC+1 clock cycles delay between WRITE command to PRECHARGE/PRECHARGE_ALL command. This could help to meet tWR timing requirement by SDRAM device.
  */
 #define DRAM_SDRCTRL1_WRC_MASK (0xE000U)
 #define DRAM_SDRCTRL1_WRC_SHIFT (13U)
@@ -592,9 +489,8 @@ typedef struct {
 /*
  * RFRC (RW)
  *
- * Write recovery time
- * It is promised WRC+1 clock cycles delay between WRITE command to PRECHARGE/
- * PRECHARGE_ALL command. This could help to meet tWR timing requirement by SDRAM device.
+ * Refresh recovery time
+ * It is promised RFRC+1 clock cycles delay between REFRESH command to ACTIVE command. Thiscould help to meet tRFC timing requirement by SDRAM device.
  */
 #define DRAM_SDRCTRL1_RFRC_MASK (0x1F00U)
 #define DRAM_SDRCTRL1_RFRC_SHIFT (8U)
@@ -604,8 +500,8 @@ typedef struct {
 /*
  * ACT2RW (RW)
  *
- * CKE OFF minimum time
- * It is promised clock suspend last at leat CKEOFF+1 clock cycles.
+ * ACT to Read/Write wait time
+ * It is promised ACT2RW+1 clock cycles delay between ACTIVE command to READ/WRITE command.This could help to meet tRCD timing requirement by SDRAM device.
  */
 #define DRAM_SDRCTRL1_ACT2RW_MASK (0xF0U)
 #define DRAM_SDRCTRL1_ACT2RW_SHIFT (4U)
@@ -615,9 +511,8 @@ typedef struct {
 /*
  * PRE2ACT (RW)
  *
- * ACT to Precharge minimum time
- * It is promised ACT2PRE+1 clock cycles delay between ACTIVE command to PRECHARGE/
- * PRECHARGE_ALL command.
+ * PRECHARGE to ACT/Refresh wait time
+ * It is promised PRE2ACT+1 clock cycles delay between PRECHARGE/PRECHARGE_ALL commandto ACTIVE/REFRESH command. This could help to meet tRP timing requirement by SDRAM device.
  */
 #define DRAM_SDRCTRL1_PRE2ACT_MASK (0xFU)
 #define DRAM_SDRCTRL1_PRE2ACT_SHIFT (0U)
@@ -836,11 +731,8 @@ typedef struct {
 /*
  * KEY (WO)
  *
- * This field should be written with 0xA55A when trigging an IP command for all device types. The memory
+ * This field should be written with 0x5AA5 when trigging an IP command for all device types. The memory
  * device is selected by BRx settings and IPCR0 registers.
- * This field should be written with 0x5AA5 when trigging an IP command for NAND only. The address is
- * extended to 40-bit with the use of NAND_EXT_ADDR. NAND IP base address is from 0x0 and memory
- * size is not limited by BR8.MS.
  */
 #define DRAM_IPCMD_KEY_MASK (0xFFFF0000UL)
 #define DRAM_IPCMD_KEY_SHIFT (16U)
@@ -860,7 +752,7 @@ typedef struct {
  * • 0xE: PRECHARGE
  * • 0xF: PRECHARGE ALL
  * • Others: RSVD
- * NOTE: SELF REFRESH is sent to all SDRAM devices because they shared same SEMC_CLK pin.
+ * NOTE: SELF REFRESH is sent to all SDRAM devices because they shared same CLK pin.
  */
 #define DRAM_IPCMD_CMD_MASK (0xFFFFU)
 #define DRAM_IPCMD_CMD_SHIFT (0U)
@@ -891,17 +783,6 @@ typedef struct {
 
 /* Bitfield definition for register: STAT0 */
 /*
- * NARDY (RO)
- *
- * Indicating NAND device Ready/WAIT# pin level.
- * 0b - NAND device is not ready
- * 1b - NAND device is ready
- */
-#define DRAM_STAT0_NARDY_MASK (0x2U)
-#define DRAM_STAT0_NARDY_SHIFT (1U)
-#define DRAM_STAT0_NARDY_GET(x) (((uint32_t)(x) & DRAM_STAT0_NARDY_MASK) >> DRAM_STAT0_NARDY_SHIFT)
-
-/*
  * IDLE (RO)
  *
  * Indicating whether it is in IDLE state.
@@ -912,54 +793,36 @@ typedef struct {
 #define DRAM_STAT0_IDLE_SHIFT (0U)
 #define DRAM_STAT0_IDLE_GET(x) (((uint32_t)(x) & DRAM_STAT0_IDLE_MASK) >> DRAM_STAT0_IDLE_SHIFT)
 
-/* Bitfield definition for register: STAT2 */
+/* Bitfield definition for register: DLYCFG */
 /*
- * NDWRPEND (RO)
+ * OE (RW)
  *
- * This field indicating whether there is pending AXI command (write) to NAND device.
- * 0b - No pending
- * 1b - Pending
+ * delay clock output enable, should be set after setting DLYEN and DLYSEL
  */
-#define DRAM_STAT2_NDWRPEND_MASK (0x8U)
-#define DRAM_STAT2_NDWRPEND_SHIFT (3U)
-#define DRAM_STAT2_NDWRPEND_GET(x) (((uint32_t)(x) & DRAM_STAT2_NDWRPEND_MASK) >> DRAM_STAT2_NDWRPEND_SHIFT)
-
-/* Bitfield definition for register: STAT13 */
-/*
- * REFSEL (RO)
- *
- * Sample clock reference delay line delay cell number selection.
- */
-#define DRAM_STAT13_REFSEL_MASK (0x3F00U)
-#define DRAM_STAT13_REFSEL_SHIFT (8U)
-#define DRAM_STAT13_REFSEL_GET(x) (((uint32_t)(x) & DRAM_STAT13_REFSEL_MASK) >> DRAM_STAT13_REFSEL_SHIFT)
+#define DRAM_DLYCFG_OE_MASK (0x2000U)
+#define DRAM_DLYCFG_OE_SHIFT (13U)
+#define DRAM_DLYCFG_OE_SET(x) (((uint32_t)(x) << DRAM_DLYCFG_OE_SHIFT) & DRAM_DLYCFG_OE_MASK)
+#define DRAM_DLYCFG_OE_GET(x) (((uint32_t)(x) & DRAM_DLYCFG_OE_MASK) >> DRAM_DLYCFG_OE_SHIFT)
 
 /*
- * SLVSEL (RO)
+ * DLYSEL (RW)
  *
- * Sample clock slave delay line delay cell number selection .
+ * delay line select, 0 for 1 cell, 31 for all 32 cells
  */
-#define DRAM_STAT13_SLVSEL_MASK (0xFCU)
-#define DRAM_STAT13_SLVSEL_SHIFT (2U)
-#define DRAM_STAT13_SLVSEL_GET(x) (((uint32_t)(x) & DRAM_STAT13_SLVSEL_MASK) >> DRAM_STAT13_SLVSEL_SHIFT)
+#define DRAM_DLYCFG_DLYSEL_MASK (0x3EU)
+#define DRAM_DLYCFG_DLYSEL_SHIFT (1U)
+#define DRAM_DLYCFG_DLYSEL_SET(x) (((uint32_t)(x) << DRAM_DLYCFG_DLYSEL_SHIFT) & DRAM_DLYCFG_DLYSEL_MASK)
+#define DRAM_DLYCFG_DLYSEL_GET(x) (((uint32_t)(x) & DRAM_DLYCFG_DLYSEL_MASK) >> DRAM_DLYCFG_DLYSEL_SHIFT)
 
 /*
- * REFLOCK (RO)
+ * DLYEN (RW)
  *
- * Sample clock reference delay line locked.
+ * delay line enable
  */
-#define DRAM_STAT13_REFLOCK_MASK (0x2U)
-#define DRAM_STAT13_REFLOCK_SHIFT (1U)
-#define DRAM_STAT13_REFLOCK_GET(x) (((uint32_t)(x) & DRAM_STAT13_REFLOCK_MASK) >> DRAM_STAT13_REFLOCK_SHIFT)
-
-/*
- * SLVLOCK (RO)
- *
- * Sample clock slave delay line locked.
- */
-#define DRAM_STAT13_SLVLOCK_MASK (0x1U)
-#define DRAM_STAT13_SLVLOCK_SHIFT (0U)
-#define DRAM_STAT13_SLVLOCK_GET(x) (((uint32_t)(x) & DRAM_STAT13_SLVLOCK_MASK) >> DRAM_STAT13_SLVLOCK_SHIFT)
+#define DRAM_DLYCFG_DLYEN_MASK (0x1U)
+#define DRAM_DLYCFG_DLYEN_SHIFT (0U)
+#define DRAM_DLYCFG_DLYEN_SET(x) (((uint32_t)(x) << DRAM_DLYCFG_DLYEN_SHIFT) & DRAM_DLYCFG_DLYEN_MASK)
+#define DRAM_DLYCFG_DLYEN_GET(x) (((uint32_t)(x) & DRAM_DLYCFG_DLYEN_MASK) >> DRAM_DLYCFG_DLYEN_SHIFT)
 
 
 

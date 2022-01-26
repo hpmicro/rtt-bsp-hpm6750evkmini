@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -13,7 +13,7 @@ typedef struct {
     __RW uint32_t SHADOW[128];                 /* 0x0 - 0x1FC: Fuse shadow registers */
     __RW uint32_t SHADOW_LOCK[8];              /* 0x200 - 0x21C: Fuse shadow lock */
     __R  uint8_t  RESERVED0[480];              /* 0x220 - 0x3FF: Reserved */
-    __RW uint32_t FUSE[128];                   /* 0x400 - 0x5FC: Fuse shadow registers */
+    __RW uint32_t FUSE[128];                   /* 0x400 - 0x5FC: Fuse Array */
     __RW uint32_t FUSE_LOCK[8];                /* 0x600 - 0x61C: Fuse lock */
     __R  uint8_t  RESERVED1[480];              /* 0x620 - 0x7FF: Reserved */
     __RW uint32_t UNLOCK;                      /* 0x800: UNLOCK */
@@ -75,7 +75,7 @@ typedef struct {
 /*
  * LOCK (RW)
  *
- * lock for pmic part shadow registers, 2 bits per 32 bit word, lock behavior is different between different fuse types
+ * lock for fuse array, 2 bits per 32 bit word, lock behavior is different between different fuse types
  * 00: not locked
  * 01: soft locked
  * 10: not locked, and cannot lock in furture
@@ -91,7 +91,7 @@ typedef struct {
  * UNLOCK (RW)
  *
  * unlock word for fuse array operation
- * write "OPEN" to unlock fuse array, write any other value will lock write to fuse. 
+ * write "OPEN" to unlock fuse array, write any other value will lock write to fuse.
  * Please make sure 24M crystal is running and 2.5V LDO working properly
  */
 #define OTP_UNLOCK_UNLOCK_MASK (0xFFFFFFFFUL)
@@ -139,9 +139,9 @@ typedef struct {
 /*
  * REQUEST (RW)
  *
- * reload request for 4 regions 
+ * reload request for 4 regions
  * bit0: region0
- * bit1: region1 
+ * bit1: region1
  * bit2: region2
  * bit3: region3
  */
@@ -156,7 +156,7 @@ typedef struct {
  *
  * reload complete sign for 4 regions
  * bit0: region 0
- * bit1: region1 
+ * bit1: region1
  * bit2: region2
  * bit3: region3
  */
@@ -172,7 +172,7 @@ typedef struct {
  * stop address of load region, fuse word at end address will NOT be reloaded
  * region0: fixed at 8
  * region1: fixed at 16
- * region2: fixed at 0, 
+ * region2: fixed at 0,
  * region3: usrer configurable
  */
 #define OTP_REGION_STOP_MASK (0x7F00U)

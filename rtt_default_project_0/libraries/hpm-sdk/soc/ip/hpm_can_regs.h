@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -42,7 +42,7 @@ typedef struct {
 /*
  * RBUF (rw)
  *
- * 
+ * receive buffer
  */
 #define CAN_RBUF_RBUF_MASK (0xFFFFFFFFUL)
 #define CAN_RBUF_RBUF_SHIFT (0U)
@@ -53,7 +53,7 @@ typedef struct {
 /*
  * TBUF (rw)
  *
- * 
+ * transmit buffer
  */
 #define CAN_TBUF_TBUF_MASK (0xFFFFFFFFUL)
 #define CAN_TBUF_TBUF_SHIFT (0U)
@@ -64,7 +64,7 @@ typedef struct {
 /*
  * TTS_WRD0 (rw)
  *
- * 
+ * transmission time stamp, word 0, LSB 32bit
  */
 #define CAN_TTS_TTS_WRD0_MASK (0xFFFFFFFFUL)
 #define CAN_TTS_TTS_WRD0_SHIFT (0U)
@@ -267,7 +267,7 @@ typedef struct {
 /*
  * LOM (rw)
  *
- * Listen Only Mode 
+ * Listen Only Mode
  * 0 - Disabled
  * 1 - Enabled
  * LOM cannot be set if TPE, TSONE or TSALL is set. No transmission can be started if LOM
@@ -284,7 +284,7 @@ typedef struct {
 /*
  * STBY (rw)
  *
- * Transceiver Standby Mode (Chapter 3.9.10.5)
+ * Transceiver Standby Mode
  * 0 - Disabled
  * 1 - Enabled
  * This register bit is connected to the output signal stby which can be used to control a
@@ -413,10 +413,10 @@ typedef struct {
  * RESET request bit
  * 1 - The host controller performs a local reset of CAN-CTRL.
  * 0 - no local reset of CAN-CTRLThe some register (e.g for node configuration) can only be modified if RESET=1.
- * Bit RESET forces several components to a reset state. 
- * A detailed definition is given in Chapter3.9.11 . RESET is automatically set if the node enters “bus off” state.
- * Note that a CAN node will participate in CAN communication after RESET is switched to 0after 11 CAN bit times. 
- * This delay is required by the CAN standard (bus idle time).If RESET is set to 1 and immediately set to 0, then it takes some time until RESET can beread as 0 and becomes inactive. 
+ * Bit RESET forces several components to a reset state.
+ * RESET is automatically set if the node enters “bus off” state.
+ * Note that a CAN node will participate in CAN communication after RESET is switched to 0after 11 CAN bit times.
+ * This delay is required by the CAN standard (bus idle time).If RESET is set to 1 and immediately set to 0, then it takes some time until RESET can beread as 0 and becomes inactive.
  * The reason is clock domain crossing from host to CAN clockdomain. RESET is held active as long as needed depending on the relation between host andCAN clock.
  */
 #define CAN_CMD_STA_CMD_CTRL_RESET_MASK (0x80U)
@@ -427,8 +427,9 @@ typedef struct {
 /*
  * LBME (rw)
  *
- * Loop Back Mode, External (Chapter 3.9.10.4)
- * 0 - Disabled1 - EnabledLBME should not be enabled while a transmission is active
+ * Loop Back Mode, External
+ * 0 - Disabled
+ * 1 - EnabledLBME should not be enabled while a transmission is active
  */
 #define CAN_CMD_STA_CMD_CTRL_LBME_MASK (0x40U)
 #define CAN_CMD_STA_CMD_CTRL_LBME_SHIFT (6U)
@@ -438,7 +439,7 @@ typedef struct {
 /*
  * LBMI (rw)
  *
- * Loop Back Mode, Internal (Chapter 3.9.10.4)
+ * Loop Back Mode, Internal
  * 0 - Disabled1 - EnabledLBMI should not be enabled while a transmission is active.
  */
 #define CAN_CMD_STA_CMD_CTRL_LBMI_MASK (0x20U)
@@ -449,7 +450,7 @@ typedef struct {
 /*
  * TPSS (rw)
  *
- * Transmission Primary Single Shot mode for PTB (Chapter 3.9.10.1)
+ * Transmission Primary Single Shot mode for PTB
  * 0 - Disabled
  * 1 - Enabled
  */
@@ -461,7 +462,7 @@ typedef struct {
 /*
  * TSSS (rw)
  *
- * Transmission Secondary Single Shot mode for STB (Chapter 3.9.10.1)
+ * Transmission Secondary Single Shot mode for STB
  * 0 - Disabled
  * 1 - Enabled
  */
@@ -592,7 +593,7 @@ typedef struct {
  * If TTEN=0 or TTTBM=0: Transmit Secondary buffer Full Flag
  * 1 - The STB is filled with the maximal number of messages.
  * 0 - The STB is not filled with the maximal number of messages.
- * If the STB is disabled using STB_DISABLE, then TSFF=0. 
+ * If the STB is disabled using STB_DISABLE, then TSFF=0.
  * If TTEN=1 and TTTBM=1: Transmit buffer Slot Full Flag
  * 1 - The buffer slot selected by TBPTR is filled.
  * 0 - The buffer slot selected by TBPTR is empty.
@@ -645,7 +646,7 @@ typedef struct {
  * RAFIF (rw)
  *
  * RB Almost Full Interrupt Flag
- * 1 - number of filled RB slots  AFWL_i
+ * 1 - number of filled RB slots >= AFWL_i
  * 0 - number of filled RB slots < AFWL_i
  */
 #define CAN_RTIF_RAFIF_MASK (0x10U)
@@ -702,7 +703,6 @@ typedef struct {
  * source AIF.
  * 0 - No abort has been executed.
  * The AIF does not have an associated enable register.
- * See also Chapter 3.9.5 for further information.
  */
 #define CAN_RTIF_AIF_MASK (0x1U)
 #define CAN_RTIF_AIF_SHIFT (0U)
@@ -800,7 +800,7 @@ typedef struct {
  *
  * receive buffer Almost Full Warning Limit
  * AFWL defines the internal warning limit AFWL_i with being the number of availableRB slots.
- * AFWL_i is compared to the number of filled RB slots and triggers RAFIF if equal. Thevalid range of . 
+ * AFWL_i is compared to the number of filled RB slots and triggers RAFIF if equal. Thevalid range of .
  * AFWL = 0 is meaningless and automatically treated as 0x1. (Note that AFWL is meant in this rule and not AFWL_i.)
  * AFWL_i > nRB is meaningless and automatically treated as nRB.
  * AFWL_i = nRB is a valid value, but note that RFIF also exists.
@@ -815,8 +815,6 @@ typedef struct {
  *
  * Programmable Error Warning Limit = (EWL+1)*8. Possible Limit values: 8, 16, … 128.
  * The value of EWL controls EIF.
- * EWL needs to be transferred using CDC from host to CAN clock domain. During transfer
- * EWL register bits are write-locked for the host for a few clocks until CDC is complete.
  */
 #define CAN_LIMIT_EWL_MASK (0xFU)
 #define CAN_LIMIT_EWL_SHIFT (0U)
@@ -918,7 +916,8 @@ typedef struct {
  * KOER (rw)
  *
  * Kind Of ERror (Error code)
- * 000 - no error001 - BIT ERROR
+ * 000 - no error
+ * 001 - BIT ERROR
  * 010 - FORM ERROR
  * 011 - STUFF ERROR
  * 100 - ACKNOWLEDGEMENT ERROR
@@ -986,7 +985,7 @@ typedef struct {
  *
  * Transmit Error CouNT (number of errors during transmission)
  * TECNT is incremented and decremented as defined in the CAN specification.
- * In case of the “bus off state” TECNT may overflow. 
+ * In case of the “bus off state” TECNT may overflow.
  * If TXB=1, then the error counters are frozen.
  */
 #define CAN_TECNT_TECNT_MASK (0xFFU)
@@ -1012,9 +1011,9 @@ typedef struct {
  * ACFADR (rw)
  *
  * acceptance filter address
- * ACFADR points to a specific acceptance filter. 
- * The selected filter is accessible using theregisters ACF_x. 
- * Bit SELMASK selects between acceptance code and mask for theselected acceptance filter. 
+ * ACFADR points to a specific acceptance filter.
+ * The selected filter is accessible using theregisters ACF_x.
+ * Bit SELMASK selects between acceptance code and mask for theselected acceptance filter.
  * A value of ACFADR>ACF_NUMBER-1 is meaningless and automatically treated as value ACF_NUMBER-1.
  * ACF_NUMBER = 16.
  */
@@ -1082,7 +1081,7 @@ typedef struct {
  *
  * Acceptance mask IDE bit value
  * If AIDEE=1 then:
- * 1 - acceptance filter accepts only extended frames                  
+ * 1 - acceptance filter accepts only extended frames
  * 0 - acceptance filter accepts only standard frames
  * Only filter 0 is affected by the power-on reset. All other filters stay uninitialized.
  */
@@ -1099,7 +1098,7 @@ typedef struct {
  * 0 - ACC bit value to compare with ID bit of the received message
  * ACODE_x(10:0) will be used for extended frames.
  * ACODE_x(28:0) will be used for extended frames.
- * Only filter 0 is affected by the power-on reset. 
+ * Only filter 0 is affected by the power-on reset.
  * Acceptance MASK(if SELMASK ==1 )
  * 1 - acceptance check for these bits of receive identifier disabled
  * 0 - acceptance check for these bits of receive identifier enable
@@ -1107,7 +1106,7 @@ typedef struct {
  * AMASK_x(28:0) will be used for extended frames.
  * Disabled bits result in accepting the message. Therefore the default configuration after
  * reset for filter 0 accepts all messages.
- * Only filter 0 is affected by the power-on reset. 
+ * Only filter 0 is affected by the power-on reset.
  */
 #define CAN_ACF_CODE_MASK_MASK (0x1FFFFFFFUL)
 #define CAN_ACF_CODE_MASK_SHIFT (0U)
@@ -1162,10 +1161,10 @@ typedef struct {
  * 0x00 - Pointer to the PTB
  * others - Pointer to a slot in the STB
  * The message slot pointed to by TBPTR is readable / writable using the TBUF registers.
- * Write access is only possible if TSFF=0. 
+ * Write access is only possible if TSFF=0.
  * Setting TBF to 1 marks the selected slot asfilled and setting TBE to 1 marks the selected slot as empty.
  * TBSEL and TSNEXT are unused in TTCAN mode and have no meaning.
- * TBPTR can only point to buffer slots, that exist in the hardware. 
+ * TBPTR can only point to buffer slots, that exist in the hardware.
  * Unusable bits ofTBPTR are fixed to 0.
  * TBPTR is limited to the PTB and 63 STB slots.
  *  More slots cannot be used in TTCANmode.If TBPTR is too big and points to a slot that is not available, then TBF and TBE arereset automatically and no action takes place.
@@ -1223,7 +1222,7 @@ typedef struct {
  * TTIF (rw)
  *
  * Time Trigger Interrupt Flag
- * TTIF will be set if TTIE is set and the cycle time is equal to the trigger time TT_TRIG.    
+ * TTIF will be set if TTIE is set and the cycle time is equal to the trigger time TT_TRIG.
  * Writing an one to TTIF resets it. Writing a zero has no impact.TTIF will be set only once.
  * If TT_TRIG gets not updated, then TTIF will be not setagain in the next basic cycle.
  */
@@ -1273,7 +1272,7 @@ typedef struct {
 /*
  * REF_MSG (rw)
  *
- * EFerence message IDentifier.
+ * REFerence message IDentifier.
  * If REF_IDE is
  * 1 - REF_ID(28:0) is valid (extended ID)
  * 0 - REF_ID(10:0) is valid (standard ID)
@@ -1344,7 +1343,7 @@ typedef struct {
  * TT_TRIG (rw)
  *
  * Trigger Time
- * TT_TRIG(15:0) defines the cycle time for a trigger. 
+ * TT_TRIG(15:0) defines the cycle time for a trigger.
  * For a transmission trigger theearliest point of transmission of the SOF of the appropriate frame will be TT_TRIG+1.
  */
 #define CAN_TT_TRIG_TT_TRIG_MASK (0xFFFFU)
@@ -1357,7 +1356,7 @@ typedef struct {
  * TT_WTRIG (rw)
  *
  * Watch Trigger Time
- * TT_WTRIG(15:0) defines the cycle time for a watch trigger. The initial watch trigger isthe maximum cycle time 0xffff. 
+ * TT_WTRIG(15:0) defines the cycle time for a watch trigger. The initial watch trigger isthe maximum cycle time 0xffff.
  */
 #define CAN_TT_WTRIG_TT_WTRIG_MASK (0xFFFFU)
 #define CAN_TT_WTRIG_TT_WTRIG_SHIFT (0U)

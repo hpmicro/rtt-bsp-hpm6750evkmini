@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -55,7 +55,7 @@ typedef struct {
 /*
  * SYNCFLW (RW)
  *
- * 1- enable this channel to reset counter to reload(RLD) together with its previous channel. 
+ * 1- enable this channel to reset counter to reload(RLD) together with its previous channel.
  * This bit is not valid for channel 0.
  */
 #define GPTMR_CHANNEL_CR_SYNCFLW_MASK (0x2000U)

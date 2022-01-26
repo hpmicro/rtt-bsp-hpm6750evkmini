@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -58,8 +58,14 @@ typedef struct {
  * 0b - Display Off.
  * 1b - Display On.
  * Display can be set off at any time, but it can only be set on after VS_BLANK status is asserted.
- * So a good procedure to stop the display is:1) clr VS_BLANK status 2) assert software reset 3) de-assert software reset 4) set display off 5) check VS_BLANK status until it is asserted, 6)reset the module, change settings 7) set display on 
- * Step 2 & 3 are found to be effective through FPGA test.
+ * So a good procedure to stop and turn on the display is:
+ * 1) clr VS_BLANK status
+ * 2) assert software reset
+ * 3) de-assert software reset
+ * 4) set display off
+ * 5) check VS_BLANK status until it is asserted,
+ * 6)reset the module, change settings
+ * 7) set display on
  */
 #define LCDC_CTRL_DISP_ON_MASK (0x40000000UL)
 #define LCDC_CTRL_DISP_ON_SHIFT (30U)
@@ -232,7 +238,7 @@ typedef struct {
 /*
  * FP (RW)
  *
- * HSYNC front-porch pulse width (in pixel clock cycles). Pulse width has a minimum value of 1.  If zero, indicates no front-porch for HSYNC
+ * HSYNC front-porch pulse width (in pixel clock cycles). If zero, indicates no front-porch for HSYNC
  */
 #define LCDC_HSYNC_PARA_FP_MASK (0x7FC00000UL)
 #define LCDC_HSYNC_PARA_FP_SHIFT (22U)
@@ -242,7 +248,7 @@ typedef struct {
 /*
  * BP (RW)
  *
- * HSYNC back-porch pulse width (in pixel clock cycles). Pulse width has a minimum value of 1. If zero, indicates no back-porch for HSYNC
+ * HSYNC back-porch pulse width (in pixel clock cycles). If zero, indicates no back-porch for HSYNC
  */
 #define LCDC_HSYNC_PARA_BP_MASK (0xFF800UL)
 #define LCDC_HSYNC_PARA_BP_SHIFT (11U)
@@ -263,7 +269,7 @@ typedef struct {
 /*
  * FP (RW)
  *
- * VSYNC front-porch pulse width (in horizontal line cycles). Pulse width has a minimum value of 1.  If zero, means no front-porch for VSYNC 
+ * VSYNC front-porch pulse width (in horizontal line cycles). If zero, means no front-porch for VSYNC
  */
 #define LCDC_VSYNC_PARA_FP_MASK (0x7FC00000UL)
 #define LCDC_VSYNC_PARA_FP_SHIFT (22U)
@@ -273,7 +279,7 @@ typedef struct {
 /*
  * BP (RW)
  *
- * VSYNC back-porch pulse width (in horizontal line cycles). Pulse width has a minimum value of 1. If zero, means no back-porch for VSYNC 
+ * VSYNC back-porch pulse width (in horizontal line cycles). If zero, means no back-porch for VSYNC
  */
 #define LCDC_VSYNC_PARA_BP_MASK (0xFF800UL)
 #define LCDC_VSYNC_PARA_BP_SHIFT (11U)
@@ -294,7 +300,7 @@ typedef struct {
 /*
  * DMA_ERR (W1C)
  *
- * plan n axi error. W1C.
+ * plane n axi error. W1C.
  */
 #define LCDC_DMA_ST_DMA_ERR_MASK (0xFF000000UL)
 #define LCDC_DMA_ST_DMA_ERR_SHIFT (24U)
@@ -415,7 +421,7 @@ typedef struct {
 /*
  * VSYNC (RW)
  *
- * Interrupt enable for end of sof 
+ * Interrupt enable for end of sof
  */
 #define LCDC_INT_EN_VSYNC_MASK (0x1U)
 #define LCDC_INT_EN_VSYNC_SHIFT (0U)
@@ -466,8 +472,8 @@ typedef struct {
  * 10b - The YVYU422 8bit sequence is Y1,U1,Y2,V1
  * 11b - The YVYU422 8bit sequence is Y1,V1,Y2,U1
  * If not YUV422 mode,
- * FORMAT[0}: asserted to exchange sequence inside the bytes. Org [15:8]-->New[8:15], Org [7:0]-->New[0:7]. (First exchange)
- * FORMAT[1}: asserted to exchange the sequence of the odd and even 8 bits. Org Even [7:0]-->New[15:8], Org Odd [15:8]-->New[7:0]. (Second exchange)
+ * FORMAT[0]: asserted to exchange sequence inside the bytes. Org [15:8]-->New[8:15], Org [7:0]-->New[0:7]. (First exchange)
+ * FORMAT[1]: asserted to exchange the sequence of the odd and even 8 bits. Org Even [7:0]-->New[15:8], Org Odd [15:8]-->New[7:0]. (Second exchange)
  */
 #define LCDC_LAYER_LAYCTRL_YUV_FORMAT_MASK (0xC000U)
 #define LCDC_LAYER_LAYCTRL_YUV_FORMAT_SHIFT (14U)
@@ -478,14 +484,14 @@ typedef struct {
  * PIXFORMAT (RW)
  *
  * Layer encoding format (bit per pixel)
- * 0000b - 1 bpp (pixel width must be multiples of 32)
- * 0001b - 2 bpp (pixel width must be multiples of 16)
- * 0010b - 4 bpp (pixel width must be multiples of 8)
- * 0011b - 8 bpp  (pixel width must be multiples of 4)
- * 0100b - 16 bpp (RGB565)
- * 0111b - YCbCr422 (Only layer 0/1 can support this format)
- * 1001b - 32 bpp (ARGB8888)
- * 1011b - Y8  (pixel width must be multiples of 4)
+ * 0000b - 1 bpp (pixel width must be multiples of 32), pixel sequence is from LSB to MSB in 32b word.
+ * 0001b - 2 bpp (pixel width must be multiples of 16), pixel sequence is from LSB to MSB in 32b word.
+ * 0010b - 4 bpp (pixel width must be multiples of 8), pixel sequence is from LSB to MSB in 32b word.
+ * 0011b - 8 bpp  (pixel width must be multiples of 4), pixel sequence is from LSB to MSB in 32b word.
+ * 0100b - 16 bpp (RGB565), byte sequence as B,R
+ * 0111b - YCbCr422 (Only layer 0/1 can support this format), byte sequence determined by LAYCTRL[YUV_FORMAT]
+ * 1001b - 32 bpp (ARGB8888), byte sequence as B,G,R,A
+ * 1011b - Y8  (pixel width must be multiples of 4), byte sequence as Y1,Y2,Y3,Y4
  */
 #define LCDC_LAYER_LAYCTRL_PIXFORMAT_MASK (0x3C00U)
 #define LCDC_LAYER_LAYCTRL_PIXFORMAT_SHIFT (10U)
@@ -526,17 +532,17 @@ typedef struct {
  * Alpha Blending Mode
  * 0: SKBlendMode_Clear;
  * 1: SKBlendMode_Src ;
- * 2: SKBlendMode_Dst     
- * 3: SKBlendMode_SrcOver 
- * 4: SKBlendMode_DstOver 
- * 5: SKBlendMode_SrcIn   
- * 6: SKBlendMode_DstIn   
- * 7: SKBlendMode_SrcOut  
- * 8: SKBlendMode_DstOut  
- * 9: SKBlendMode_SrcATop 
- * 10: SKBlendMode_DstATop 
- * 11: SKBlendMode_Xor     
- * 12: SKBlendMode_Plus    (The conventional belding mode)
+ * 2: SKBlendMode_Dst
+ * 3: SKBlendMode_SrcOver
+ * 4: SKBlendMode_DstOver
+ * 5: SKBlendMode_SrcIn
+ * 6: SKBlendMode_DstIn
+ * 7: SKBlendMode_SrcOut
+ * 8: SKBlendMode_DstOut
+ * 9: SKBlendMode_SrcATop
+ * 10: SKBlendMode_DstATop
+ * 11: SKBlendMode_Xor
+ * 12: SKBlendMode_Plus    (The conventional blending mode)
  * 13: SKBlendMode_Modulate
  * 14: SRC org
  * 15: DST org
@@ -550,7 +556,7 @@ typedef struct {
 /*
  * EN (RW)
  *
- * Asserted when the layer is enabled. If this layer is not enabled, it means the layer is a bypass layer.
+ * Asserted when the layer is enabled. If this layer is not enabled, it means a bypassing plane.
  */
 #define LCDC_LAYER_LAYCTRL_EN_MASK (0x1U)
 #define LCDC_LAYER_LAYCTRL_EN_SHIFT (0U)
@@ -614,7 +620,7 @@ typedef struct {
 /*
  * X (RW)
  *
- * The horizontal position of left-hand column of the layer, where 0 is the left-hand column of the panel, positive values are to the right the left-hand column of the panel.  
+ * The horizontal position of left-hand column of the layer, where 0 is the left-hand column of the panel, positive values are to the right the left-hand column of the panel.
  */
 #define LCDC_LAYER_LAYPOS_X_MASK (0xFFFFU)
 #define LCDC_LAYER_LAYPOS_X_SHIFT (0U)
@@ -653,7 +659,6 @@ typedef struct {
  *
  * the number of outstanding axi read transactions.
  * If zero, it means max 8.
- * 
  */
 #define LCDC_LAYER_LINECFG_MAX_OT_MASK (0xE00000UL)
 #define LCDC_LAYER_LINECFG_MAX_OT_SHIFT (21U)
@@ -710,7 +715,7 @@ typedef struct {
 /*
  * C0 (RW)
  *
- * Two's compliment Y multiplier coefficient. YUV=0x100 (1.000) YCbCr=0x12A (1.164)
+ * Two's compliment Y multiplier coefficient C0. YUV=0x100 (1.000) YCbCr=0x12A (1.164)
  */
 #define LCDC_LAYER_CSC_COEF0_C0_MASK (0x1FFC0000UL)
 #define LCDC_LAYER_CSC_COEF0_C0_SHIFT (18U)
@@ -720,7 +725,7 @@ typedef struct {
 /*
  * UV_OFFSET (RW)
  *
- * Two's compliment phase offset implicit for CbCr data. Generally used for YCbCr to RGB conversion.
+ * Two's compliment phase offset implicit for CbCr data UV_OFFSET. Generally used for YCbCr to RGB conversion.
  * YCbCr=0x180, YUV=0x000 (typically -128 or 0x180 to indicate normalized -0.5 to 0.5 range).
  */
 #define LCDC_LAYER_CSC_COEF0_UV_OFFSET_MASK (0x3FE00UL)
@@ -731,7 +736,7 @@ typedef struct {
 /*
  * Y_OFFSET (RW)
  *
- * Two's compliment amplitude offset implicit in the Y data. For YUV, this is typically 0 and for YCbCr, this is
+ * Two's compliment amplitude offset implicit in the Y data Y_OFFSET. For YUV, this is typically 0 and for YCbCr, this is
  * typically -16 (0x1F0).
  */
 #define LCDC_LAYER_CSC_COEF0_Y_OFFSET_MASK (0x1FFU)
@@ -743,7 +748,7 @@ typedef struct {
 /*
  * C1 (RW)
  *
- * Two's compliment Red V/Cr multiplier coefficient. YUV=0x123 (1.140) YCbCr=0x198 (1.596).
+ * Two's compliment Red V/Cr multiplier coefficient C1. YUV=0x123 (1.140) YCbCr=0x198 (1.596).
  */
 #define LCDC_LAYER_CSC_COEF1_C1_MASK (0x7FF0000UL)
 #define LCDC_LAYER_CSC_COEF1_C1_SHIFT (16U)
@@ -753,7 +758,7 @@ typedef struct {
 /*
  * C4 (RW)
  *
- * Two's compliment Blue U/Cb multiplier coefficient. YUV=0x208 (2.032) YCbCr=0x204 (2.017).
+ * Two's compliment Blue U/Cb multiplier coefficient C4. YUV=0x208 (2.032) YCbCr=0x204 (2.017).
  */
 #define LCDC_LAYER_CSC_COEF1_C4_MASK (0x7FFU)
 #define LCDC_LAYER_CSC_COEF1_C4_SHIFT (0U)
@@ -764,7 +769,7 @@ typedef struct {
 /*
  * C2 (RW)
  *
- * Two's compliment Green V/Cr multiplier coefficient. YUV=0x76B (-0.581) YCbCr=0x730 (-0.813).
+ * Two's compliment Green V/Cr multiplier coefficient C2. YUV=0x76B (-0.581) YCbCr=0x730 (-0.813).
  */
 #define LCDC_LAYER_CSC_COEF2_C2_MASK (0x7FF0000UL)
 #define LCDC_LAYER_CSC_COEF2_C2_SHIFT (16U)
@@ -774,7 +779,7 @@ typedef struct {
 /*
  * C3 (RW)
  *
- * Two's compliment Green U/Cb multiplier coefficient. YUV=0x79C (-0.394) YCbCr=0x79C (-0.392).
+ * Two's compliment Green U/Cb multiplier coefficient C3. YUV=0x79C (-0.394) YCbCr=0x79C (-0.392).
  */
 #define LCDC_LAYER_CSC_COEF2_C3_MASK (0x7FFU)
 #define LCDC_LAYER_CSC_COEF2_C3_SHIFT (0U)
@@ -786,15 +791,13 @@ typedef struct {
  * SEL_NUM (RW)
  *
  * Selected CLUT Number
- * The SEL_CLUT_NUM is used to select which plane's CLUT need to be updated. The hardware can only
- * backup one CLUT setting and load, so the SEL_CLUT_NUM can't be changed between setup of
- * CLUT_UPDATE_EN and SHADOW_LOAD_EN.
+ * The SEL_CLUT_NUM is used to select which plane's CLUT need to be updated. The hardware can only backup one CLUT setting and load, so the SEL_CLUT_NUM can't be changed when CLUT_LOAD[UPDATE_EN] is 1.
  * . 3'h0 - PLANE 0
  * . 3'h1 - PLANE 1
  * . ------
  * . 3'h7 - PLANE 7
- * 
- * Currently CLUT for plane 0..7 cannot be modified via APB when display is on.  Can only be updated via UPDATE_EN bit.
+ * CLUT 8 can be modified via APB even when display is on.
+ * Currently CLUT for plane 0..7 cannot be modified via APB when display is on.  Can only be updated via CLUT_LOAD[UPDATE_EN] bit.
  */
 #define LCDC_CLUT_LOAD_SEL_NUM_MASK (0x70U)
 #define LCDC_CLUT_LOAD_SEL_NUM_SHIFT (4U)
@@ -805,11 +808,10 @@ typedef struct {
  * UPDATE_EN (RW)
  *
  * CLUT Update Enable
- * The CLUT_UPDATE_EN bit is written to 1 when software want to update the Color Look Up Tables
- * during display. If set to 1, software update selected CLUT due to SEL_CLUT_NUM setting, the table will
- * be loaded during vertical blanking period after SHADOW_LOAD_EN is set to 1. If set to 0, software
- * update CLUT directly according to the CLUT memory map. Hardware will automatically clear this bit
- * when selected CLUT is updated according to SEL_CLUT_NUM.
+ * The bit is written to 1 when software want to update the Color Look Up Tables during display.
+ * If set to 1, software update selected CLUT due to SEL_CLUT_NUM setting, the table will be copied from CLUT8 during vertical blanking period after SHADOW_LOAD_EN is set to 1.
+ * If set to 0, software can update CLUT8 directly according to the CLUT memory map.
+ * Hardware will automatically clear this bit when selected CLUT is updated according to SEL_CLUT_NUM.
  */
 #define LCDC_CLUT_LOAD_UPDATE_EN_MASK (0x1U)
 #define LCDC_CLUT_LOAD_UPDATE_EN_SHIFT (0U)

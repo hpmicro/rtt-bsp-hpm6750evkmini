@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -30,6 +30,18 @@ typedef struct {
 #define BCFG_VBG_CFG_VBG_TRIMMED_SHIFT (31U)
 #define BCFG_VBG_CFG_VBG_TRIMMED_SET(x) (((uint32_t)(x) << BCFG_VBG_CFG_VBG_TRIMMED_SHIFT) & BCFG_VBG_CFG_VBG_TRIMMED_MASK)
 #define BCFG_VBG_CFG_VBG_TRIMMED_GET(x) (((uint32_t)(x) & BCFG_VBG_CFG_VBG_TRIMMED_MASK) >> BCFG_VBG_CFG_VBG_TRIMMED_SHIFT)
+
+/*
+ * LP_MODE (RW)
+ *
+ * Bandgap works in low power  mode
+ * 0: not in low power mode
+ * 1: bandgap work in low power mode
+ */
+#define BCFG_VBG_CFG_LP_MODE_MASK (0x2000000UL)
+#define BCFG_VBG_CFG_LP_MODE_SHIFT (25U)
+#define BCFG_VBG_CFG_LP_MODE_SET(x) (((uint32_t)(x) << BCFG_VBG_CFG_LP_MODE_SHIFT) & BCFG_VBG_CFG_LP_MODE_MASK)
+#define BCFG_VBG_CFG_LP_MODE_GET(x) (((uint32_t)(x) & BCFG_VBG_CFG_LP_MODE_MASK) >> BCFG_VBG_CFG_LP_MODE_SHIFT)
 
 /*
  * POWER_SAVE (RW)
@@ -74,18 +86,6 @@ typedef struct {
 #define BCFG_VBG_CFG_VBG_P50_GET(x) (((uint32_t)(x) & BCFG_VBG_CFG_VBG_P50_MASK) >> BCFG_VBG_CFG_VBG_P50_SHIFT)
 
 /* Bitfield definition for register: LDO_CFG */
-/*
- * TESTEN (RW)
- *
- * LDO test
- * 0: LDO test signal keep high Z
- * 1: LDO test signal output to test bus
- */
-#define BCFG_LDO_CFG_TESTEN_MASK (0x80000000UL)
-#define BCFG_LDO_CFG_TESTEN_SHIFT (31U)
-#define BCFG_LDO_CFG_TESTEN_SET(x) (((uint32_t)(x) << BCFG_LDO_CFG_TESTEN_SHIFT) & BCFG_LDO_CFG_TESTEN_MASK)
-#define BCFG_LDO_CFG_TESTEN_GET(x) (((uint32_t)(x) & BCFG_LDO_CFG_TESTEN_MASK) >> BCFG_LDO_CFG_TESTEN_SHIFT)
-
 /*
  * RES_TRIM (RW)
  *

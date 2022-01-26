@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -37,99 +37,183 @@ typedef struct {
     __RW uint32_t WDOG_WTO;                    /* 0xDC: Watchdog Timeout Register */
     __RW uint32_t GPIO;                        /* 0xE0: General Purpose IO Register */
     __R  uint8_t  RESERVED1[28];               /* 0xE4 - 0xFF: Reserved */
-    __RW uint32_t MMC_CNTRL;                   /* 0x100:  */
-    __RW uint32_t MMC_INTR_RX;                 /* 0x104:  */
-    __RW uint32_t MMC_INTR_TX;                 /* 0x108:  */
-    __RW uint32_t MMC_INTR_MASK_RX;            /* 0x10C:  */
-    __RW uint32_t MMC_INTR_MASK_TX;            /* 0x110:  */
-    __RW uint32_t TXOCTETCOUNT_GB;             /* 0x114:  */
-    __RW uint32_t TXFRAMECOUNT_GB;             /* 0x118:  */
-    __RW uint32_t TXBROADCASTFRAMES_G;         /* 0x11C:  */
-    __RW uint32_t TXMLTICASTFRAMES_G;          /* 0x120:  */
-    __RW uint32_t TX64OCTETS_GB;               /* 0x124:  */
-    __RW uint32_t TX65TO127OCTETS_GB;          /* 0x128:  */
-    __RW uint32_t TX128TO255OCTETS_GB;         /* 0x12C:  */
-    __RW uint32_t TX256TO511OCTETS_GB;         /* 0x130:  */
-    __RW uint32_t TX512TO1023OCTETS_GB;        /* 0x134:  */
-    __RW uint32_t TX1024TOMAXOCTETS_GB;        /* 0x138:  */
-    __RW uint32_t TXUNICASTFRAMES_GB;          /* 0x13C:  */
-    __RW uint32_t TXMULTICASTFRAMES_GB;        /* 0x140:  */
-    __RW uint32_t TXBROADCASTFRAMES_GB;        /* 0x144:  */
-    __RW uint32_t TXUNDERFLOWERROR;            /* 0x148:  */
-    __RW uint32_t TXSINGLECOL_G;               /* 0x14C:  */
-    __RW uint32_t TXMULTICOL_G;                /* 0x150:  */
-    __RW uint32_t TXDEFERRED;                  /* 0x154:  */
-    __RW uint32_t TXLATECOL;                   /* 0x158:  */
-    __RW uint32_t TXEXESSCOL;                  /* 0x15C:  */
-    __RW uint32_t TXCARRIERERROR;              /* 0x160:  */
-    __RW uint32_t TXOCTETCOUNT_G;              /* 0x164:  */
-    __RW uint32_t TXFRAMECOUNT_G;              /* 0x168:  */
-    __RW uint32_t TXEXCESSDEF;                 /* 0x16C:  */
-    __RW uint32_t TXPAUSEFRAMES;               /* 0x170:  */
-    __RW uint32_t TXVLANFRAMES_G;              /* 0x174:  */
-    __RW uint32_t TXOVERSIZE_G;                /* 0x178:  */
+    __RW uint32_t MMC_CNTRL;                   /* 0x100: MMC Control establishes the operating mode of MMC. */
+    __RW uint32_t MMC_INTR_RX;                 /* 0x104: MMC Receive Interrupt maintains the interrupt generated from all
+of the receive statistic counters. */
+    __RW uint32_t MMC_INTR_TX;                 /* 0x108: MMC Transmit Interrupt maintains the interrupt generated from all
+of the transmit statistic counters */
+    __RW uint32_t MMC_INTR_MASK_RX;            /* 0x10C: MMC Receive Interrupt mask maintains the mask for the interrupt
+generated from all of the receive statistic counters */
+    __RW uint32_t MMC_INTR_MASK_TX;            /* 0x110: MMC Transmit Interrupt Mask */
+    __RW uint32_t TXOCTETCOUNT_GB;             /* 0x114: Number of bytes transmitted, exclusive of preamble and retried
+bytes, in good and bad frames. */
+    __RW uint32_t TXFRAMECOUNT_GB;             /* 0x118: Number of good and bad frames transmitted, exclusive of retried
+frames. */
+    __RW uint32_t TXBROADCASTFRAMES_G;         /* 0x11C: Number of good broadcast frames transmitted */
+    __RW uint32_t TXMLTICASTFRAMES_G;          /* 0x120: Number of good multicast frames transmitted */
+    __RW uint32_t TX64OCTETS_GB;               /* 0x124: Number of good and bad frames transmitted with length 64 bytes,
+exclusive of preamble and retried frames. */
+    __RW uint32_t TX65TO127OCTETS_GB;          /* 0x128: Number of good and bad frames transmitted with length between
+65 and 127 (inclusive) bytes, exclusive of preamble and retried
+frames. */
+    __RW uint32_t TX128TO255OCTETS_GB;         /* 0x12C: Number of good and bad frames transmitted with length between
+128 and 255 (inclusive) bytes, exclusive of preamble and retried
+frames. */
+    __RW uint32_t TX256TO511OCTETS_GB;         /* 0x130: Number of good and bad frames transmitted with length between
+256 and 511 (inclusive) bytes, exclusive of preamble and retried
+frames. */
+    __RW uint32_t TX512TO1023OCTETS_GB;        /* 0x134: Number of good and bad frames transmitted with length between
+512 and 1,023 (inclusive) bytes, exclusive of preamble and retried
+frames. */
+    __RW uint32_t TX1024TOMAXOCTETS_GB;        /* 0x138: Number of good and bad frames transmitted with length between
+1,024 and maxsize (inclusive) bytes, exclusive of preamble and
+retried frames. */
+    __RW uint32_t TXUNICASTFRAMES_GB;          /* 0x13C: Number of good and bad unicast frames transmitted. */
+    __RW uint32_t TXMULTICASTFRAMES_GB;        /* 0x140: Number of good and bad multicast frames transmitted. */
+    __RW uint32_t TXBROADCASTFRAMES_GB;        /* 0x144: Number of good and bad broadcast frames transmitted. */
+    __RW uint32_t TXUNDERFLOWERROR;            /* 0x148: Number of frames aborted because of frame underflow error. */
+    __RW uint32_t TXSINGLECOL_G;               /* 0x14C: Number of successfully transmitted frames after a single collision
+in the half-duplex mode. */
+    __RW uint32_t TXMULTICOL_G;                /* 0x150: Number of successfully transmitted frames after multiple collisions
+in the half-duplex mode. */
+    __RW uint32_t TXDEFERRED;                  /* 0x154: Number of successfully transmitted frames after a deferral in the
+half-duplex mode. */
+    __RW uint32_t TXLATECOL;                   /* 0x158: Number of frames aborted because of late collision error */
+    __RW uint32_t TXEXESSCOL;                  /* 0x15C: Number of frames aborted because of excessive (16) collision
+errors */
+    __RW uint32_t TXCARRIERERROR;              /* 0x160: Number of frames aborted because of carrier sense error (no
+carrier or loss of carrier). */
+    __RW uint32_t TXOCTETCOUNT_G;              /* 0x164: Number of bytes transmitted, exclusive of preamble, only in good
+frames. */
+    __RW uint32_t TXFRAMECOUNT_G;              /* 0x168: Number of good frames transmitted */
+    __RW uint32_t TXEXCESSDEF;                 /* 0x16C: Number of frames aborted because of excessive deferral error
+(deferred for more than two max-sized frame times). */
+    __RW uint32_t TXPAUSEFRAMES;               /* 0x170: Number of good Pause frames transmitted */
+    __RW uint32_t TXVLANFRAMES_G;              /* 0x174: Number of good VLAN frames transmitted, exclusive of retried
+frames. */
+    __RW uint32_t TXOVERSIZE_G;                /* 0x178: Number of frames transmitted without errors and with length
+greater than the maxsize (1,518 or 1,522 bytes for VLAN tagged
+frames; 2000 bytes if enabled in Bit 27 of Register 0 (MAC
+Configuration Register)). */
     __R  uint8_t  RESERVED2[4];                /* 0x17C - 0x17F: Reserved */
-    __RW uint32_t RXFRAMECOUNT_GB;             /* 0x180:  */
-    __RW uint32_t RXOCTETCOUNT_G;              /* 0x184:  */
-    __RW uint32_t RXOCTETCOUNT_GB;             /* 0x188:  */
-    __RW uint32_t RXBROADCASTFRAMES_G;         /* 0x18C:  */
-    __RW uint32_t RXMULTICASTFRAMES_G;         /* 0x190:  */
-    __RW uint32_t RXCRCERROR;                  /* 0x194:  */
-    __RW uint32_t RXALIGNMENTERROR;            /* 0x198:  */
-    __RW uint32_t RXRUNTERROR;                 /* 0x19C:  */
-    __RW uint32_t RXJABBERERROR;               /* 0x1A0:  */
-    __RW uint32_t RXUNDERSIZE_G;               /* 0x1A4:  */
-    __RW uint32_t RXOVERSIZE_G;                /* 0x1A8:  */
-    __RW uint32_t RX64OCTETS_GB;               /* 0x1AC:  */
+    __RW uint32_t RXFRAMECOUNT_GB;             /* 0x180: Number of good and bad frames received */
+    __RW uint32_t RXOCTETCOUNT_G;              /* 0x184: Number of bytes received, exclusive of preamble, only in good
+frames. */
+    __RW uint32_t RXOCTETCOUNT_GB;             /* 0x188: Number of bytes received, exclusive of preamble, in good and bad
+frames. */
+    __RW uint32_t RXBROADCASTFRAMES_G;         /* 0x18C: Number of good broadcast frames received */
+    __RW uint32_t RXMULTICASTFRAMES_G;         /* 0x190: Number of good multicast frames received */
+    __RW uint32_t RXCRCERROR;                  /* 0x194: Number of frames received with CRC error */
+    __RW uint32_t RXALIGNMENTERROR;            /* 0x198: Number of frames received with alignment (dribble) error. Valid
+only in 10/100 mode */
+    __RW uint32_t RXRUNTERROR;                 /* 0x19C: Number of frames received with runt (<64 bytes and CRC error)
+error. */
+    __RW uint32_t RXJABBERERROR;               /* 0x1A0: Number of giant frames received with length (including CRC)
+greater than 1,518 bytes (1,522 bytes for VLAN tagged) and with
+CRC error. If Jumbo Frame mode is enabled, then frames of
+length greater than 9,018 bytes (9,022 for VLAN tagged) are
+considered as giant frames. */
+    __RW uint32_t RXUNDERSIZE_G;               /* 0x1A4: Number of frames received with length less than 64 bytes, without
+any errors. */
+    __RW uint32_t RXOVERSIZE_G;                /* 0x1A8: Number of frames received without errors, with length greater
+than the maxsize (1,518 or 1,522 for VLAN tagged frames; 2,000
+bytes if enabled in Bit 27 of Register 0 (MAC Configuration
+Register)) */
+    __RW uint32_t RX64OCTETS_GB;               /* 0x1AC: Number of good and bad frames received with length 64 bytes,
+exclusive of preamble. */
     __RW uint32_t RX65TO127OCTETS_GB;          /* 0x1B0:  */
     __RW uint32_t RX128TO255OCTETS_GB;         /* 0x1B4:  */
-    __RW uint32_t RX256TO511OCTETS_GB;         /* 0x1B8:  */
-    __RW uint32_t RX512TO1023OCTETS_GB;        /* 0x1BC:  */
-    __RW uint32_t RX1024TOMAXOCTETS_GB;        /* 0x1C0:  */
-    __RW uint32_t RXUNICASTFRAMES_G;           /* 0x1C4:  */
-    __RW uint32_t RXLENGTHERROR;               /* 0x1C8:  */
-    __RW uint32_t RXOUTOFRANGETYPE;            /* 0x1CC:  */
-    __RW uint32_t RXPAUSEFRAMES;               /* 0x1D0:  */
-    __RW uint32_t RXFIFOOVERFLOW;              /* 0x1D4:  */
-    __RW uint32_t RXVLANFRAMES_GB;             /* 0x1D8:  */
-    __RW uint32_t RXWATCHDOGERROR;             /* 0x1DC:  */
-    __RW uint32_t RXRCVERROR;                  /* 0x1E0:  */
-    __RW uint32_t RXCTRLFRAMES_G;              /* 0x1E4:  */
+    __RW uint32_t RX256TO511OCTETS_GB;         /* 0x1B8: Number of good and bad frames received with length between
+256 and 511 (inclusive) bytes, exclusive of preamble. */
+    __RW uint32_t RX512TO1023OCTETS_GB;        /* 0x1BC: Number of good and bad frames received with length between
+512 and 1023 (inclusive) bytes, exclusive of preamble. */
+    __RW uint32_t RX1024TOMAXOCTETS_GB;        /* 0x1C0: Number of good and bad frames received with length between
+1024 and maxsize (inclusive) bytes, exclusive of preamble. */
+    __RW uint32_t RXUNICASTFRAMES_G;           /* 0x1C4: Number of received good unicast frames. */
+    __RW uint32_t RXLENGTHERROR;               /* 0x1C8: Number of frames received with length error (Length type field ≠
+frame size), for all frames with valid length field. */
+    __RW uint32_t RXOUTOFRANGETYPE;            /* 0x1CC: Number of frames received with length field not equal to the valid
+frame size (greater than 1,500 but less than 1,536). */
+    __RW uint32_t RXPAUSEFRAMES;               /* 0x1D0: Number of good and valid Pause frames received. */
+    __RW uint32_t RXFIFOOVERFLOW;              /* 0x1D4: Number of missed received frames because of FIFO overflow.
+This counter is not present in the GMAC-CORE configuration. */
+    __RW uint32_t RXVLANFRAMES_GB;             /* 0x1D8: Number of good and bad VLAN frames received. */
+    __RW uint32_t RXWATCHDOGERROR;             /* 0x1DC: Number of frames received with error because of watchdog
+timeout error (frames with a data load larger than 2,048 bytes or
+the value programmed in Register 55 (Watchdog Timeout
+Register)). */
+    __RW uint32_t RXRCVERROR;                  /* 0x1E0: Number of frames received with Receive error or Frame Extension
+error on the GMII or MII interface. */
+    __RW uint32_t RXCTRLFRAMES_G;              /* 0x1E4: Number of received good control frames */
     __R  uint8_t  RESERVED3[24];               /* 0x1E8 - 0x1FF: Reserved */
-    __RW uint32_t MMC_IPC_INTR_MASK_RX;        /* 0x200:  */
+    __RW uint32_t MMC_IPC_INTR_MASK_RX;        /* 0x200: MMC IPC Receive Checksum Offload Interrupt Mask maintains
+the mask for the interrupt generated from the receive IPC statistic
+counters. */
     __R  uint8_t  RESERVED4[4];                /* 0x204 - 0x207: Reserved */
-    __RW uint32_t MMC_IPC_INTR_RX;             /* 0x208:  */
+    __RW uint32_t MMC_IPC_INTR_RX;             /* 0x208: MMC Receive Checksum Offload Interrupt maintains the interrupt
+that the receive IPC statistic counters generate. See Table 4-25
+for further detail. */
     __R  uint8_t  RESERVED5[4];                /* 0x20C - 0x20F: Reserved */
-    __RW uint32_t RXIPV4_GD_FMS;               /* 0x210:  */
-    __RW uint32_t RXIPV4_HDRERR_FRMS;          /* 0x214:  */
-    __RW uint32_t RXIPV4_NOPAY_FRMS;           /* 0x218:  */
-    __RW uint32_t RXIPV4_FRAG_FRMS;            /* 0x21C:  */
-    __RW uint32_t RXIPV4_UDSBL_FRMS;           /* 0x220:  */
-    __RW uint32_t RXIPV6_GD_FRMS;              /* 0x224:  */
-    __RW uint32_t RXIPV6_HDRERR_FRMS;          /* 0x228:  */
-    __RW uint32_t RXIPV6_NOPAY_FRMS;           /* 0x22C:  */
-    __RW uint32_t RXUDP_GD_FRMS;               /* 0x230:  */
-    __RW uint32_t RXUDP_ERR_FRMS;              /* 0x234:  */
-    __RW uint32_t RXTCP_GD_FRMS;               /* 0x238:  */
-    __RW uint32_t RXTCP_ERR_FRMS;              /* 0x23C:  */
-    __RW uint32_t RXICMP_GD_FRMS;              /* 0x240:  */
-    __RW uint32_t RXICMP_ERR_FRMS;             /* 0x244:  */
+    __RW uint32_t RXIPV4_GD_FMS;               /* 0x210: Number of good IPv4 datagrams received with the TCP, UDP, or
+ICMP payload */
+    __RW uint32_t RXIPV4_HDRERR_FRMS;          /* 0x214: Number of IPv4 datagrams received with header (checksum,
+length, or version mismatch) errors */
+    __RW uint32_t RXIPV4_NOPAY_FRMS;           /* 0x218: Number of IPv4 datagram frames received that did not have a
+TCP, UDP, or ICMP payload processed by the Checksum engine */
+    __RW uint32_t RXIPV4_FRAG_FRMS;            /* 0x21C: Number of good IPv4 datagrams with fragmentation */
+    __RW uint32_t RXIPV4_UDSBL_FRMS;           /* 0x220: Number of good IPv4 datagrams received that had a UDP
+payload with checksum disabled */
+    __RW uint32_t RXIPV6_GD_FRMS;              /* 0x224: Number of good IPv6 datagrams received with TCP, UDP, or
+ICMP payloads */
+    __RW uint32_t RXIPV6_HDRERR_FRMS;          /* 0x228: Number of IPv6 datagrams received with header errors (length or
+version mismatch) */
+    __RW uint32_t RXIPV6_NOPAY_FRMS;           /* 0x22C: Number of IPv6 datagram frames received that did not have a
+TCP, UDP, or ICMP payload. This includes all IPv6 datagrams with
+fragmentation or security extension headers */
+    __RW uint32_t RXUDP_GD_FRMS;               /* 0x230: Number of good IP datagrams with a good UDP payload. This
+counter is not updated when the rxipv4_udsbl_frms counter is
+incremented. */
+    __RW uint32_t RXUDP_ERR_FRMS;              /* 0x234: Number of good IP datagrams whose UDP payload has a
+checksum error */
+    __RW uint32_t RXTCP_GD_FRMS;               /* 0x238: Number of good IP datagrams with a good TCP payload */
+    __RW uint32_t RXTCP_ERR_FRMS;              /* 0x23C: Number of good IP datagrams whose TCP payload has a
+checksum error */
+    __RW uint32_t RXICMP_GD_FRMS;              /* 0x240: Number of good IP datagrams with a good ICMP payload */
+    __RW uint32_t RXICMP_ERR_FRMS;             /* 0x244: Number of good IP datagrams whose ICMP payload has a
+checksum error */
     __R  uint8_t  RESERVED6[8];                /* 0x248 - 0x24F: Reserved */
-    __RW uint32_t RXIPV4_GD_OCTETS;            /* 0x250:  */
-    __RW uint32_t RXIPV4_HDRERR_OCTETS;        /* 0x254:  */
-    __RW uint32_t RXIPV4_NOPAY_OCTETS;         /* 0x258:  */
-    __RW uint32_t RXIPV4_FRAG_OCTETS;          /* 0x25C:  */
-    __RW uint32_t RXIPV4_UDSBL_OCTETS;         /* 0x260:  */
-    __RW uint32_t RXIPV6_GD_OCTETS;            /* 0x264:  */
-    __RW uint32_t RXIPV6_HDRERR_OCTETS;        /* 0x268:  */
-    __RW uint32_t RXIPV6_NOPAY_OCTETS;         /* 0x26C:  */
-    __RW uint32_t RXUDP_GD_OCTETS;             /* 0x270:  */
-    __RW uint32_t RXUDP_ERR_OCTETS;            /* 0x274:  */
-    __RW uint32_t RXTCP_GD_OCTETS;             /* 0x278:  */
-    __RW uint32_t RXTCP_ERR_OCTETS;            /* 0x27C:  */
-    __RW uint32_t RXICMP_GD_OCTETS;            /* 0x280:  */
-    __R  uint32_t RXICMP_ERR_OCTETS;           /* 0x284:  */
-    __R  uint8_t  RESERVED7[376];              /* 0x288 - 0x3FF: Reserved */
+    __RW uint32_t RXIPV4_GD_OCTETS;            /* 0x250: Number of bytes received in good IPv4 datagrams encapsulating
+TCP, UDP, or ICMP data. (Ethernet header, FCS, pad, or IP pad
+bytes are not included in this counter or in the octet counters listed
+below). */
+    __RW uint32_t RXIPV4_HDRERR_OCTETS;        /* 0x254: Number of bytes received in IPv4 datagrams with header errors
+(checksum, length, version mismatch). The value in the Length
+field of IPv4 header is used to update this counter. */
+    __RW uint32_t RXIPV4_NOPAY_OCTETS;         /* 0x258: Number of bytes received in IPv4 datagrams that did not have a
+TCP, UDP, or ICMP payload. The value in the IPv4 header’s
+Length field is used to update this counter. */
+    __RW uint32_t RXIPV4_FRAG_OCTETS;          /* 0x25C: Number of bytes received in fragmented IPv4 datagrams. The
+value in the IPv4 header’s Length field is used to update this
+counter */
+    __RW uint32_t RXIPV4_UDSBL_OCTETS;         /* 0x260: Number of bytes received in a UDP segment that had the UDP
+checksum disabled. This counter does not count IP Header bytes. */
+    __RW uint32_t RXIPV6_GD_OCTETS;            /* 0x264: Number of bytes received in good IPv6 datagrams encapsulating
+TCP, UDP or ICMPv6 data */
+    __RW uint32_t RXIPV6_HDRERR_OCTETS;        /* 0x268: Number of bytes received in IPv6 datagrams with header errors
+(length, version mismatch). The value in the IPv6 header’s Length
+field is used to update this counter. */
+    __RW uint32_t RXIPV6_NOPAY_OCTETS;         /* 0x26C: Number of bytes received in IPv6 datagrams that did not have a
+TCP, UDP, or ICMP payload. The value in the IPv6 header’s
+Length field is used to update this counter. */
+    __RW uint32_t RXUDP_GD_OCTETS;             /* 0x270: Number of bytes received in a good UDP segment. This counter
+(and the counters below) does not count IP header bytes. */
+    __RW uint32_t RXUDP_ERR_OCTETS;            /* 0x274: Number of bytes received in a UDP segment that had checksum
+errors */
+    __RW uint32_t RXTCP_GD_OCTETS;             /* 0x278: Number of bytes received in a good TCP segment */
+    __RW uint32_t RXTCP_ERR_OCTETS;            /* 0x27C: Number of bytes received in a TCP segment with checksum
+errors */
+    __RW uint32_t RXICMP_GD_OCTETS;            /* 0x280: Number of bytes received in a good ICMP segment */
+    __R  uint8_t  RESERVED7[380];              /* 0x284 - 0x3FF: Reserved */
     struct {
         __RW uint32_t L3_L4_CTRL;              /* 0x400: Layer 3 and Layer 4 Control Register */
         __RW uint32_t L4_ADDR;                 /* 0x404: Layer 4 Address Register */
@@ -223,7 +307,7 @@ typedef struct {
  * SFTERR (RW)
  *
  * SMII Force Transmit Error
- *  When set, this bit indicates to the PHY to force a transmit error in the SMII frame being transmitted. This bit is reserved if the SMII PHY port is not selected during core configuration. 
+ *  When set, this bit indicates to the PHY to force a transmit error in the SMII frame being transmitted. This bit is reserved if the SMII PHY port is not selected during core configuration.
  */
 #define ENET_MACCFG_SFTERR_MASK (0x4000000UL)
 #define ENET_MACCFG_SFTERR_SHIFT (26U)
@@ -245,7 +329,7 @@ typedef struct {
  * TC (rw)
  *
  * Transmit Configuration in RGMII, SGMII, or SMII
- *  When set, this bit enables the transmission of duplex mode, link speed, and link up or down information to the PHY in the RGMII, SMII, or SGMII port. When this bit is reset, no such information is driven to the PHY. This bit is reserved (and RO) if the RGMII, SMII, or SGMII PHY port is not selected during core configuration. 
+ *  When set, this bit enables the transmission of duplex mode, link speed, and link up or down information to the PHY in the RGMII, SMII, or SGMII port. When this bit is reset, no such information is driven to the PHY. This bit is reserved (and RO) if the RGMII, SMII, or SGMII PHY port is not selected during core configuration.
  */
 #define ENET_MACCFG_TC_MASK (0x1000000UL)
 #define ENET_MACCFG_TC_SHIFT (24U)
@@ -315,7 +399,7 @@ typedef struct {
  * DCRS (rw)
  *
  * Disable Carrier Sense During Transmission
- *  When set high, this bit makes the MAC transmitter ignore the (G)MII CRS signal during frame transmission in the half-duplex mode. This request results in no errors generated because of Loss of Carrier or No Carrier during such transmission. When this bit is low, the MAC transmitter generates such errors because of Carrier Sense and can even abort the transmissions. 
+ *  When set high, this bit makes the MAC transmitter ignore the (G)MII CRS signal during frame transmission in the half-duplex mode. This request results in no errors generated because of Loss of Carrier or No Carrier during such transmission. When this bit is low, the MAC transmitter generates such errors because of Carrier Sense and can even abort the transmissions.
  */
 #define ENET_MACCFG_DCRS_MASK (0x10000UL)
 #define ENET_MACCFG_DCRS_SHIFT (16U)
@@ -352,7 +436,7 @@ typedef struct {
  * DO (rw)
  *
  * Disable Receive Own
- *  When this bit is set, the MAC disables the reception of frames when the phy_txen_o is asserted in the half-duplex mode. When this bit is reset, the MAC receives all packets that are given by the PHY while transmitting. This bit is not applicable if the MAC is operating in the full-duplex mode. This bit is reserved (RO with default value) if the MAC is configured for the full-duplex-only operation. 
+ *  When this bit is set, the MAC disables the reception of frames when the phy_txen_o is asserted in the half-duplex mode. When this bit is reset, the MAC receives all packets that are given by the PHY while transmitting. This bit is not applicable if the MAC is operating in the full-duplex mode. This bit is reserved (RO with default value) if the MAC is configured for the full-duplex-only operation.
  */
 #define ENET_MACCFG_DO_MASK (0x2000U)
 #define ENET_MACCFG_DO_SHIFT (13U)
@@ -363,7 +447,7 @@ typedef struct {
  * LM (rw)
  *
  * Loopback Mode
- *  When this bit is set, the MAC operates in the loopback mode at GMII or MII. The (G)MII Receive clock input (clk_rx_i) is required for the loopback to work properly, because the Transmit clock is not looped-back internally. 
+ *  When this bit is set, the MAC operates in the loopback mode at GMII or MII. The (G)MII Receive clock input (clk_rx_i) is required for the loopback to work properly, because the Transmit clock is not looped-back internally.
  */
 #define ENET_MACCFG_LM_MASK (0x1000U)
 #define ENET_MACCFG_LM_SHIFT (12U)
@@ -384,7 +468,7 @@ typedef struct {
 /*
  * IPC (rw)
  *
- * Checksum Offload 
+ * Checksum Offload
  * When this bit is set, the MAC calculates the 16-bit one’s complement of the one’s complement sum of all received Ethernet frame payloads. It also checks whether the IPv4 Header checksum (assumed to be bytes 25–26 or 29–30 (VLAN-tagged) of the received Ethernet frame) is correct for the received frame and gives the status in the receive status word. The MAC also appends the 16-bit checksum calculated for the IP header datagram payload (bytes after the IPv4 header) and appends it to the Ethernet frame transferred to the application (when Type 2 COE is deselected). When this bit is reset, this function is disabled. When Type 2 COE is selected, this bit, when set, enables the IPv4 header checksum checking and IPv4 or IPv6 TCP, UDP, or ICMP payload checksum checking.
  */
 #define ENET_MACCFG_IPC_MASK (0x400U)
@@ -395,7 +479,7 @@ typedef struct {
 /*
  * DR (rw)
  *
- * Disable Retry 
+ * Disable Retry
  * When this bit is set, the MAC attempts only one transmission. When a collision occurs on the GMII or MII interface, the MAC ignores the current frame transmission and reports a Frame Abort with excessive collision error in the transmit frame status. When this bit is reset, the MAC attempts retries based on the settings of the BL field (Bits [6:5]).
  */
 #define ENET_MACCFG_DR_MASK (0x200U)
@@ -457,7 +541,7 @@ typedef struct {
  * TE (rw)
  *
  * Transmitter Enable
- *  When this bit is set, the transmit state machine of the MAC is enabled for transmission on the GMII or MII. When this bit is reset, the MAC transmit state machine is disabled after the completion of the transmission of the current frame, and does not transmit any further frames. 
+ *  When this bit is set, the transmit state machine of the MAC is enabled for transmission on the GMII or MII. When this bit is reset, the MAC transmit state machine is disabled after the completion of the transmission of the current frame, and does not transmit any further frames.
  */
 #define ENET_MACCFG_TE_MASK (0x8U)
 #define ENET_MACCFG_TE_SHIFT (3U)
@@ -468,7 +552,7 @@ typedef struct {
  * RE (rw)
  *
  * Receiver Enable
- *  When this bit is set, the receiver state machine of the MAC is enabled for receiving frames from the GMII or MII. When this bit is reset, the MAC receive state machine is disabled after the completion of the reception of the current frame, and does not receive any further frames from the GMII or MII. 
+ *  When this bit is set, the receiver state machine of the MAC is enabled for receiving frames from the GMII or MII. When this bit is reset, the MAC receive state machine is disabled after the completion of the reception of the current frame, and does not receive any further frames from the GMII or MII.
  */
 #define ENET_MACCFG_RE_MASK (0x4U)
 #define ENET_MACCFG_RE_SHIFT (2U)
@@ -495,7 +579,7 @@ typedef struct {
  * RA (rw)
  *
  * Receive All
- *  When this bit is set, the MAC Receiver module passes all received frames, irrespective of whether they pass the address filter or not, to the Application. The result of the SA or DA filtering is updated (pass or fail) in the corresponding bits in the Receive Status Word. When this bit is reset, the Receiver module passes only those frames to the Application that pass the SA or DA address filter. 
+ *  When this bit is set, the MAC Receiver module passes all received frames, irrespective of whether they pass the address filter or not, to the Application. The result of the SA or DA filtering is updated (pass or fail) in the corresponding bits in the Receive Status Word. When this bit is reset, the Receiver module passes only those frames to the Application that pass the SA or DA address filter.
  */
 #define ENET_MACFF_RA_MASK (0x80000000UL)
 #define ENET_MACFF_RA_SHIFT (31U)
@@ -528,7 +612,7 @@ typedef struct {
  * VTFE (rw)
  *
  * VLAN Tag Filter Enable
- *  When set, this bit enables the MAC to drop VLAN tagged frames that do not match the VLAN Tag comparison. When reset, the MAC forwards all frames irrespective of the match status of the VLAN Tag. 
+ *  When set, this bit enables the MAC to drop VLAN tagged frames that do not match the VLAN Tag comparison. When reset, the MAC forwards all frames irrespective of the match status of the VLAN Tag.
  */
 #define ENET_MACFF_VTFE_MASK (0x8000U)
 #define ENET_MACFF_VTFE_SHIFT (15U)
@@ -539,7 +623,7 @@ typedef struct {
  * HPF (rw)
  *
  * Hash or Perfect Filter
- *  When this bit is set, it configures the address filter to pass a frame if it matches either the perfect filtering or the hash filtering as set by the HMC or HUC bits. When this bit is low and the HUC or HMC bit is set, the frame is passed only if it matches the Hash filter. 
+ *  When this bit is set, it configures the address filter to pass a frame if it matches either the perfect filtering or the hash filtering as set by the HMC or HUC bits. When this bit is low and the HUC or HMC bit is set, the frame is passed only if it matches the Hash filter.
  */
 #define ENET_MACFF_HPF_MASK (0x400U)
 #define ENET_MACFF_HPF_SHIFT (10U)
@@ -550,7 +634,7 @@ typedef struct {
  * SAF (rw)
  *
  * Source Address Filter Enable
- *  When this bit is set, the MAC compares the SA field of the received frames with the values programmed in the enabled SA registers. If the comparison fails, the MAC drops the frame. When this bit is reset, the MAC forwards the received frame to the application with updated SAF bit of the Rx Status depending on the SA address comparison. 
+ *  When this bit is set, the MAC compares the SA field of the received frames with the values programmed in the enabled SA registers. If the comparison fails, the MAC drops the frame. When this bit is reset, the MAC forwards the received frame to the application with updated SAF bit of the Rx Status depending on the SA address comparison.
  */
 #define ENET_MACFF_SAF_MASK (0x200U)
 #define ENET_MACFF_SAF_SHIFT (9U)
@@ -560,8 +644,8 @@ typedef struct {
 /*
  * SAIF (rw)
  *
- * SA Inverse Filtering 
- * When this bit is set, the Address Check block operates in inverse filtering mode for the SA address comparison. The frames whose SA matches the SA registers are marked as failing the SA Address filter. When this bit is reset, frames whose SA does not match the SA registers are marked as failing the SA Address filter. 
+ * SA Inverse Filtering
+ * When this bit is set, the Address Check block operates in inverse filtering mode for the SA address comparison. The frames whose SA matches the SA registers are marked as failing the SA Address filter. When this bit is reset, frames whose SA does not match the SA registers are marked as failing the SA Address filter.
  */
 #define ENET_MACFF_SAIF_MASK (0x100U)
 #define ENET_MACFF_SAIF_SHIFT (8U)
@@ -587,7 +671,7 @@ typedef struct {
  * DBF (rw)
  *
  * Disable Broadcast Frames
- *  When this bit is set, the AFM module blocks all incoming broadcast frames. In addition, it overrides all other filter settings. When this bit is reset, the AFM module passes all received broadcast frames. 
+ *  When this bit is set, the AFM module blocks all incoming broadcast frames. In addition, it overrides all other filter settings. When this bit is reset, the AFM module passes all received broadcast frames.
  */
 #define ENET_MACFF_DBF_MASK (0x20U)
 #define ENET_MACFF_DBF_SHIFT (5U)
@@ -597,7 +681,7 @@ typedef struct {
 /*
  * PM (rw)
  *
- * Pass All Multicast 
+ * Pass All Multicast
  * When set, this bit indicates that all received frames with a multicast destination address (first bit in the destination address field is '1') are passed. When reset, filtering of multicast frame depends on HMC bit.
  */
 #define ENET_MACFF_PM_MASK (0x10U)
@@ -609,7 +693,7 @@ typedef struct {
  * DAIF (rw)
  *
  * DA Inverse Filtering
- *  When this bit is set, the Address Check block operates in inverse filtering mode for the DA address comparison for both unicast and multicast frames. When reset, normal filtering of frames is performed. 
+ *  When this bit is set, the Address Check block operates in inverse filtering mode for the DA address comparison for both unicast and multicast frames. When reset, normal filtering of frames is performed.
  */
 #define ENET_MACFF_DAIF_MASK (0x8U)
 #define ENET_MACFF_DAIF_SHIFT (3U)
@@ -619,8 +703,8 @@ typedef struct {
 /*
  * HMC (rw)
  *
- * Hash Multicast 
- * When set, the MAC performs destination address filtering of received multicast frames according to the hash table. When reset, the MAC performs a perfect destination address filtering for multicast frames, that is, it compares the DA field with the values programmed in DA registers. 
+ * Hash Multicast
+ * When set, the MAC performs destination address filtering of received multicast frames according to the hash table. When reset, the MAC performs a perfect destination address filtering for multicast frames, that is, it compares the DA field with the values programmed in DA registers.
  */
 #define ENET_MACFF_HMC_MASK (0x4U)
 #define ENET_MACFF_HMC_SHIFT (2U)
@@ -631,7 +715,7 @@ typedef struct {
  * HUC (rw)
  *
  * Hash Unicast
- *  When set, the MAC performs destination address filtering of unicast frames according to the hash table. When reset, the MAC performs a perfect destination address filtering for unicast frames, that is, it compares the DA field with the values programmed in DA registers. 
+ *  When set, the MAC performs destination address filtering of unicast frames according to the hash table. When reset, the MAC performs a perfect destination address filtering for unicast frames, that is, it compares the DA field with the values programmed in DA registers.
  */
 #define ENET_MACFF_HUC_MASK (0x2U)
 #define ENET_MACFF_HUC_SHIFT (1U)
@@ -641,8 +725,8 @@ typedef struct {
 /*
  * PR (rw)
  *
- * Promiscuous Mode 
- * When this bit is set, the Address Filter module passes all incoming frames irrespective of the destination or source address. The SA or DA Filter Fails status bits of the Receive Status Word are always cleared when PR is set. 
+ * Promiscuous Mode
+ * When this bit is set, the Address Filter module passes all incoming frames irrespective of the destination or source address. The SA or DA Filter Fails status bits of the Receive Status Word are always cleared when PR is set.
  */
 #define ENET_MACFF_PR_MASK (0x1U)
 #define ENET_MACFF_PR_SHIFT (0U)
@@ -689,7 +773,7 @@ typedef struct {
  * GR (rw)
  *
  * GMII Register
- *  These bits select the desired GMII register in the selected PHY device. For RevMII, these bits select the desired CSR register in the RevMII Registers set. 
+ *  These bits select the desired GMII register in the selected PHY device. For RevMII, these bits select the desired CSR register in the RevMII Registers set.
  */
 #define ENET_GMII_ADDR_GR_MASK (0x7C0U)
 #define ENET_GMII_ADDR_GR_SHIFT (6U)
@@ -726,7 +810,7 @@ typedef struct {
  * GW (rw)
  *
  * GMII Write
- *  When set, this bit indicates to the PHY or RevMII that this is a Write operation using the GMII Data register. If this bit is not set, it indicates that this is a Read operation, that is, placing the data in the GMII Data register. 
+ *  When set, this bit indicates to the PHY or RevMII that this is a Write operation using the GMII Data register. If this bit is not set, it indicates that this is a Read operation, that is, placing the data in the GMII Data register.
  */
 #define ENET_GMII_ADDR_GW_MASK (0x2U)
 #define ENET_GMII_ADDR_GW_SHIFT (1U)
@@ -761,7 +845,7 @@ typedef struct {
  * PT (rw)
  *
  * Pause Time
- *  This field holds the value to be used in the Pause Time field in the transmit control frame. If the Pause Time bits is configured to be double-synchronized to the (G)MII clock domain, then consecutive writes to this register should be performed only after at least four clock cycles in the destination clock domain. 
+ *  This field holds the value to be used in the Pause Time field in the transmit control frame. If the Pause Time bits is configured to be double-synchronized to the (G)MII clock domain, then consecutive writes to this register should be performed only after at least four clock cycles in the destination clock domain.
  */
 #define ENET_FLOWCTRL_PT_MASK (0xFFFF0000UL)
 #define ENET_FLOWCTRL_PT_SHIFT (16U)
@@ -772,7 +856,7 @@ typedef struct {
  * DZPQ (rw)
  *
  * Disable Zero-Quanta Pause
- *  When this bit is set, it disables the automatic generation of the Zero-Quanta Pause frames on the de-assertion of the flow-control signal from the FIFO layer (MTL or external sideband flow control signal sbd_flowctrl_i/mti_flowctrl_i). When this bit is reset, normal operation with automatic Zero-Quanta Pause frame generation is enabled. 
+ *  When this bit is set, it disables the automatic generation of the Zero-Quanta Pause frames on the de-assertion of the flow-control signal from the FIFO layer (MTL or external sideband flow control signal sbd_flowctrl_i/mti_flowctrl_i). When this bit is reset, normal operation with automatic Zero-Quanta Pause frame generation is enabled.
  */
 #define ENET_FLOWCTRL_DZPQ_MASK (0x80U)
 #define ENET_FLOWCTRL_DZPQ_SHIFT (7U)
@@ -808,7 +892,7 @@ typedef struct {
  * RFE (rw)
  *
  * Receive Flow Control Enable
- *  When this bit is set, the MAC decodes the received Pause frame and disables its transmitter for a specified (Pause) time. When this bit is reset, the decode function of the Pause frame is disabled. 
+ *  When this bit is set, the MAC decodes the received Pause frame and disables its transmitter for a specified (Pause) time. When this bit is reset, the decode function of the Pause frame is disabled.
  */
 #define ENET_FLOWCTRL_RFE_MASK (0x4U)
 #define ENET_FLOWCTRL_RFE_SHIFT (2U)
@@ -818,8 +902,8 @@ typedef struct {
 /*
  * TFE (rw)
  *
- * Transmit Flow Control Enable 
- * In the full-duplex mode, when this bit is set, the MAC enables the flow control operation to transmit Pause frames. When this bit is reset, the flow control operation in the MAC is disabled, and the MAC does not transmit any Pause frames. In the half-duplex mode, when this bit is set, the MAC enables the backpressure operation. When this bit is reset, the backpressure feature is disabled. 
+ * Transmit Flow Control Enable
+ * In the full-duplex mode, when this bit is set, the MAC enables the flow control operation to transmit Pause frames. When this bit is reset, the flow control operation in the MAC is disabled, and the MAC does not transmit any Pause frames. In the half-duplex mode, when this bit is set, the MAC enables the backpressure operation. When this bit is reset, the backpressure feature is disabled.
  */
 #define ENET_FLOWCTRL_TFE_MASK (0x2U)
 #define ENET_FLOWCTRL_TFE_SHIFT (1U)
@@ -863,8 +947,8 @@ typedef struct {
 /*
  * VTIM (rw)
  *
- * VLAN Tag Inverse Match Enable 
- * When set, this bit enables the VLAN Tag inverse matching. The frames that do not have matching VLAN Tag are marked as matched. When reset, this bit enables the VLAN Tag perfect matching. The frames with matched VLAN Tag are marked as matched. 
+ * VLAN Tag Inverse Match Enable
+ * When set, this bit enables the VLAN Tag inverse matching. The frames that do not have matching VLAN Tag are marked as matched. When reset, this bit enables the VLAN Tag perfect matching. The frames with matched VLAN Tag are marked as matched.
  */
 #define ENET_VLAN_TAG_VTIM_MASK (0x20000UL)
 #define ENET_VLAN_TAG_VTIM_SHIFT (17U)
@@ -917,7 +1001,7 @@ typedef struct {
  * TXSTSFSTS (RO)
  *
  * MTL TxStatus FIFO Full Status
- *  When high, this bit indicates that the MTL TxStatus FIFO is full. Therefore, the MTL cannot accept any more frames for transmission. This bit is reserved in the GMAC-AHB and GMAC-DMA configurations. 
+ *  When high, this bit indicates that the MTL TxStatus FIFO is full. Therefore, the MTL cannot accept any more frames for transmission. This bit is reserved in the GMAC-AHB and GMAC-DMA configurations.
  */
 #define ENET_DEBUGGING_TXSTSFSTS_MASK (0x2000000UL)
 #define ENET_DEBUGGING_TXSTSFSTS_SHIFT (25U)
@@ -926,8 +1010,8 @@ typedef struct {
 /*
  * TXFSTS (RO)
  *
- * MTL Tx FIFO Not Empty Status 
- * When high, this bit indicates that the MTL Tx FIFO is not empty and some data is left for transmission. 
+ * MTL Tx FIFO Not Empty Status
+ * When high, this bit indicates that the MTL Tx FIFO is not empty and some data is left for transmission.
  */
 #define ENET_DEBUGGING_TXFSTS_MASK (0x1000000UL)
 #define ENET_DEBUGGING_TXFSTS_SHIFT (24U)
@@ -936,8 +1020,8 @@ typedef struct {
 /*
  * TWCSTS (RO)
  *
- * MTL Tx FIFO Write Controller Status 
- * When high, this bit indicates that the MTL Tx FIFO Write Controller is active and is transferring data to the Tx FIFO. 
+ * MTL Tx FIFO Write Controller Status
+ * When high, this bit indicates that the MTL Tx FIFO Write Controller is active and is transferring data to the Tx FIFO.
  */
 #define ENET_DEBUGGING_TWCSTS_MASK (0x400000UL)
 #define ENET_DEBUGGING_TWCSTS_SHIFT (22U)
@@ -946,7 +1030,7 @@ typedef struct {
 /*
  * TRCSTS (RO)
  *
- * MTL Tx FIFO Read Controller Status 
+ * MTL Tx FIFO Read Controller Status
  * This field indicates the state of the Tx FIFO Read Controller:
  * - 00: IDLE state
  * - 01: READ state (transferring data to the MAC transmitter)
@@ -961,7 +1045,7 @@ typedef struct {
  * TXPAUSED (RO)
  *
  * MAC Transmitter in Pause
- * When high, this bit indicates that the MAC transmitter is in the Pause condition (in the full-duplex-only mode) and hence does not schedule any frame for transmission. 
+ * When high, this bit indicates that the MAC transmitter is in the Pause condition (in the full-duplex-only mode) and hence does not schedule any frame for transmission.
  */
 #define ENET_DEBUGGING_TXPAUSED_MASK (0x80000UL)
 #define ENET_DEBUGGING_TXPAUSED_SHIFT (19U)
@@ -970,7 +1054,7 @@ typedef struct {
 /*
  * TFCSTS (RO)
  *
- * MAC Transmit Frame Controller Status 
+ * MAC Transmit Frame Controller Status
  * This field indicates the state of the MAC Transmit Frame Controller module:
  * - 00: IDLE state
  * - 01: Waiting for status of previous frame or IFG or backoff period to be over
@@ -985,7 +1069,7 @@ typedef struct {
  * TPESTS (RO)
  *
  * MAC GMII or MII Transmit Protocol Engine Status
- *  When high, this bit indicates that the MAC GMII or MII transmit protocol engine is actively transmitting data and is not in the IDLE state. 
+ *  When high, this bit indicates that the MAC GMII or MII transmit protocol engine is actively transmitting data and is not in the IDLE state.
  */
 #define ENET_DEBUGGING_TPESTS_MASK (0x10000UL)
 #define ENET_DEBUGGING_TPESTS_SHIFT (16U)
@@ -994,7 +1078,7 @@ typedef struct {
 /*
  * RXFSTS (RO)
  *
- * MTL RxFIFO Fill-Level Status 
+ * MTL RxFIFO Fill-Level Status
  * This field gives the status of the fill-level of the Rx FIFO:
  * - 00: Rx FIFO Empty
  * - 01: Rx FIFO fill-level below flow-control deactivate threshold
@@ -1008,7 +1092,7 @@ typedef struct {
 /*
  * RRCSTS (RO)
  *
- * MTL RxFIFO Read Controller State 
+ * MTL RxFIFO Read Controller State
  * This field gives the state of the Rx FIFO read Controller:
  * - 00: IDLE state
  * - 01: Reading frame data
@@ -1023,7 +1107,7 @@ typedef struct {
  * RWCSTS (RO)
  *
  * MTL Rx FIFO Write Controller Active Status
- *  When high, this bit indicates that the MTL Rx FIFO Write Controller is active and is transferring a received frame to the FIFO. 
+ *  When high, this bit indicates that the MTL Rx FIFO Write Controller is active and is transferring a received frame to the FIFO.
  */
 #define ENET_DEBUGGING_RWCSTS_MASK (0x10U)
 #define ENET_DEBUGGING_RWCSTS_SHIFT (4U)
@@ -1042,8 +1126,8 @@ typedef struct {
 /*
  * RPESTS (RO)
  *
- * MAC GMII or MII Receive Protocol Engine Status 
- * When high, this bit indicates that the MAC GMII or MII receive protocol engine is actively receiving data and not in IDLE state. 
+ * MAC GMII or MII Receive Protocol Engine Status
+ * When high, this bit indicates that the MAC GMII or MII receive protocol engine is actively receiving data and not in IDLE state.
  */
 #define ENET_DEBUGGING_RPESTS_MASK (0x1U)
 #define ENET_DEBUGGING_RPESTS_SHIFT (0U)
@@ -1064,7 +1148,7 @@ typedef struct {
 /*
  * RWKFILTRST (rw)
  *
- * Remote Wake-Up Frame Filter Register Pointer Reset 
+ * Remote Wake-Up Frame Filter Register Pointer Reset
  * When this bit is set, it resets the remote wake-up frame filter register pointer to 3’b000. It is automatically cleared after 1 clock cycle.
  */
 #define ENET_PMT_CSR_RWKFILTRST_MASK (0x80000000UL)
@@ -1075,7 +1159,7 @@ typedef struct {
 /*
  * RWKPTR (rw)
  *
- * Remote Wake-up FIFO Pointer 
+ * Remote Wake-up FIFO Pointer
  * This field gives the current value (0 to 31) of the Remote Wake-up Frame filter register pointer. When the value of this pointer is equal to 7, 15, 23 or 31, the contents of the Remote Wake-up Frame Filter Register are transferred to the clk_rx_i domain when a write occurs to that register. The maximum value of the pointer is 7, 15, 23 and 31 respectively depending on the number of Remote Wakeup Filters selected during configuration.
  */
 #define ENET_PMT_CSR_RWKPTR_MASK (0x1F000000UL)
@@ -1086,8 +1170,8 @@ typedef struct {
 /*
  * GLBLUCAST (rw)
  *
- * Global Unicast 
- * When set, enables any unicast packet filtered by the MAC (DAF) address recognition to be a remote wake-up frame. 
+ * Global Unicast
+ * When set, enables any unicast packet filtered by the MAC (DAF) address recognition to be a remote wake-up frame.
  */
 #define ENET_PMT_CSR_GLBLUCAST_MASK (0x200U)
 #define ENET_PMT_CSR_GLBLUCAST_SHIFT (9U)
@@ -1097,8 +1181,8 @@ typedef struct {
 /*
  * RWKPRCVD (rw)
  *
- * Remote Wake-Up Frame Received 
- * When set, this bit indicates the power management event is generated because of the reception of a remote wake-up frame. This bit is cleared by a Read into this register. 
+ * Remote Wake-Up Frame Received
+ * When set, this bit indicates the power management event is generated because of the reception of a remote wake-up frame. This bit is cleared by a Read into this register.
  */
 #define ENET_PMT_CSR_RWKPRCVD_MASK (0x40U)
 #define ENET_PMT_CSR_RWKPRCVD_SHIFT (6U)
@@ -1108,8 +1192,8 @@ typedef struct {
 /*
  * MGKPRCVD (rw)
  *
- * Magic Packet Received 
- * When set, this bit indicates that the power management event is generated because of the reception of a magic packet. This bit is cleared by a Read into this register. 
+ * Magic Packet Received
+ * When set, this bit indicates that the power management event is generated because of the reception of a magic packet. This bit is cleared by a Read into this register.
  */
 #define ENET_PMT_CSR_MGKPRCVD_MASK (0x20U)
 #define ENET_PMT_CSR_MGKPRCVD_SHIFT (5U)
@@ -1119,8 +1203,8 @@ typedef struct {
 /*
  * RWKPKTEN (rw)
  *
- * Remote Wake-Up Frame Enable 
- * When set, enables generation of a power management event because of remote wake-up frame reception. 
+ * Remote Wake-Up Frame Enable
+ * When set, enables generation of a power management event because of remote wake-up frame reception.
  */
 #define ENET_PMT_CSR_RWKPKTEN_MASK (0x4U)
 #define ENET_PMT_CSR_RWKPKTEN_SHIFT (2U)
@@ -1130,8 +1214,8 @@ typedef struct {
 /*
  * MGKPKTEN (rw)
  *
- * Magic Packet Enable 
- * When set, enables generation of a power management event because of magic packet reception. 
+ * Magic Packet Enable
+ * When set, enables generation of a power management event because of magic packet reception.
  */
 #define ENET_PMT_CSR_MGKPKTEN_MASK (0x2U)
 #define ENET_PMT_CSR_MGKPKTEN_SHIFT (1U)
@@ -1141,8 +1225,8 @@ typedef struct {
 /*
  * PWRDWN (rw)
  *
- * Power Down 
- * When set, the MAC receiver drops all received frames until it receives the expected magic packet or remote wake-up frame. This bit is then self-cleared and the power-down mode is disabled. The Software can also clear this bit before the expected magic packet or remote wake-up frame is received. The frames, received by the MAC after this bit is cleared, are forwarded to the application. This bit must only be set when the Magic Packet Enable, Global Unicast, or Remote Wake-Up Frame Enable bit is set high. Note: You can gate-off the CSR clock during the power-down mode. However, when the CSR clock is gated-off, you cannot perform any read or write operations on this register. Therefore, the Software cannot clear this bit. 
+ * Power Down
+ * When set, the MAC receiver drops all received frames until it receives the expected magic packet or remote wake-up frame. This bit is then self-cleared and the power-down mode is disabled. The Software can also clear this bit before the expected magic packet or remote wake-up frame is received. The frames, received by the MAC after this bit is cleared, are forwarded to the application. This bit must only be set when the Magic Packet Enable, Global Unicast, or Remote Wake-Up Frame Enable bit is set high. Note: You can gate-off the CSR clock during the power-down mode. However, when the CSR clock is gated-off, you cannot perform any read or write operations on this register. Therefore, the Software cannot clear this bit.
  */
 #define ENET_PMT_CSR_PWRDWN_MASK (0x1U)
 #define ENET_PMT_CSR_PWRDWN_SHIFT (0U)
@@ -1153,7 +1237,7 @@ typedef struct {
 /*
  * LPITXA (rw)
  *
- * LPI TX Automate 
+ * LPI TX Automate
  * This bit controls the behavior of the MAC when it is entering or coming out of the LPI mode on the transmit side. This bit is not functional in the GMAC-CORE configuration in which the Tx clock gating is done during the LPI mode. If the LPITXA and LPIEN bits are set to 1, the MAC enters the LPI mode only after all outstanding frames (in the core) and pending frames (in the application interface) have been transmitted. The MAC comes out of the LPI mode when the application sends any frame for transmission or the application issues a TX FIFO Flush command. In addition, the MAC automatically clears the LPIEN bit when it exits the LPI state. If TX FIFO Flush is set in Bit 20 of Register 6 (Operation Mode Register), when the MAC is in the LPI mode, the MAC exits the LPI mode. When this bit is 0, the LPIEN bit directly controls behavior of the MAC when it is entering or coming out of the LPI mode.
  */
 #define ENET_LPI_CSR_LPITXA_MASK (0x80000UL)
@@ -1164,7 +1248,7 @@ typedef struct {
 /*
  * PLSEN (rw)
  *
- * PHY Link Status Enable 
+ * PHY Link Status Enable
  * This bit enables the link status received on the RGMII, SGMII, or SMII receive paths to be used for activating the LPI LS TIMER. When set, the MAC uses the link-status bits of Register 54 (SGMII/RGMII/SMII Control and Status Register) and Bit 17 (PLS) for the LPI LS Timer trigger. When cleared, the MAC ignores the link-status bits of Register 54 and takes only the PLS bit. This bit is RO and reserved if you have not selected the RGMII, SGMII, or SMII PHY interface.
  */
 #define ENET_LPI_CSR_PLSEN_MASK (0x40000UL)
@@ -1175,8 +1259,8 @@ typedef struct {
 /*
  * PLS (rw)
  *
- * PHY Link Status 
- * This bit indicates the link status of the PHY. The MAC Transmitter asserts the LPI pattern only when the link status is up (okay) at least for the time indicated by the LPI LS TIMER. When set, the link is considered to be okay (up) and when reset, the link is considered to be down. 
+ * PHY Link Status
+ * This bit indicates the link status of the PHY. The MAC Transmitter asserts the LPI pattern only when the link status is up (okay) at least for the time indicated by the LPI LS TIMER. When set, the link is considered to be okay (up) and when reset, the link is considered to be down.
  */
 #define ENET_LPI_CSR_PLS_MASK (0x20000UL)
 #define ENET_LPI_CSR_PLS_SHIFT (17U)
@@ -1186,8 +1270,8 @@ typedef struct {
 /*
  * LPIEN (rw)
  *
- * LPI Enable 
- * When set, this bit instructs the MAC Transmitter to enter the LPI state. When reset, this bit instructs the MAC to exit the LPI state and resume normal transmission. This bit is cleared when the LPITXA bit is set and the MAC exits the LPI state because of the arrival of a new packet for transmission. 
+ * LPI Enable
+ * When set, this bit instructs the MAC Transmitter to enter the LPI state. When reset, this bit instructs the MAC to exit the LPI state and resume normal transmission. This bit is cleared when the LPITXA bit is set and the MAC exits the LPI state because of the arrival of a new packet for transmission.
  */
 #define ENET_LPI_CSR_LPIEN_MASK (0x10000UL)
 #define ENET_LPI_CSR_LPIEN_SHIFT (16U)
@@ -1197,8 +1281,8 @@ typedef struct {
 /*
  * RLPIST (rw)
  *
- * Receive LPI State 
- * When set, this bit indicates that the MAC is receiving the LPI pattern on the GMII or MII interface. 
+ * Receive LPI State
+ * When set, this bit indicates that the MAC is receiving the LPI pattern on the GMII or MII interface.
  */
 #define ENET_LPI_CSR_RLPIST_MASK (0x200U)
 #define ENET_LPI_CSR_RLPIST_SHIFT (9U)
@@ -1208,8 +1292,8 @@ typedef struct {
 /*
  * TLPIST (rw)
  *
- * Transmit LPI State 
- * When set, this bit indicates that the MAC is transmitting the LPI pattern on the GMII or MII interface. 
+ * Transmit LPI State
+ * When set, this bit indicates that the MAC is transmitting the LPI pattern on the GMII or MII interface.
  */
 #define ENET_LPI_CSR_TLPIST_MASK (0x100U)
 #define ENET_LPI_CSR_TLPIST_SHIFT (8U)
@@ -1219,7 +1303,7 @@ typedef struct {
 /*
  * RLPIEX (rw)
  *
- * Receive LPI Exit 
+ * Receive LPI Exit
  * When set, this bit indicates that the MAC Receiver has stopped receiving the LPI pattern on the GMII or MII interface, exited the LPI state, and resumed the normal reception. This bit is cleared by a read into this register. Note: This bit may not get set if the MAC stops receiving the LPI pattern for a very short duration, such as, less than 3 clock cycles of CSR clock.
  */
 #define ENET_LPI_CSR_RLPIEX_MASK (0x8U)
@@ -1230,7 +1314,7 @@ typedef struct {
 /*
  * RLPIEN (rw)
  *
- * Receive LPI Entry 
+ * Receive LPI Entry
  * When set, this bit indicates that the MAC Receiver has received an LPI pattern and entered the LPI state. This bit is cleared by a read into this register. Note: This bit may not get set if the MAC stops receiving the LPI pattern for a very short duration, such as, less than 3 clock cycles of CSR clock.
  */
 #define ENET_LPI_CSR_RLPIEN_MASK (0x4U)
@@ -1241,8 +1325,8 @@ typedef struct {
 /*
  * TLPIEX (rw)
  *
- * Transmit LPI Exit 
- * When set, this bit indicates that the MAC transmitter has exited the LPI state after the user has cleared the LPIEN bit and the LPI TW Timer has expired. This bit is cleared by a read into this register. 
+ * Transmit LPI Exit
+ * When set, this bit indicates that the MAC transmitter has exited the LPI state after the user has cleared the LPIEN bit and the LPI TW Timer has expired. This bit is cleared by a read into this register.
  */
 #define ENET_LPI_CSR_TLPIEX_MASK (0x2U)
 #define ENET_LPI_CSR_TLPIEX_SHIFT (1U)
@@ -1253,7 +1337,7 @@ typedef struct {
  * TLPIEN (rw)
  *
  * Transmit LPI Entry
- *  When set, this bit indicates that the MAC Transmitter has entered the LPI state because of the setting of the LPIEN bit. This bit is cleared by a read into this register. 
+ *  When set, this bit indicates that the MAC Transmitter has entered the LPI state because of the setting of the LPIEN bit. This bit is cleared by a read into this register.
  */
 #define ENET_LPI_CSR_TLPIEN_MASK (0x1U)
 #define ENET_LPI_CSR_TLPIEN_SHIFT (0U)
@@ -1276,7 +1360,7 @@ typedef struct {
  * TWT (rw)
  *
  * LPI TW TIMER
- * This field specifies the minimum time (in microseconds) for which the MAC waits after it stops transmitting the LPI pattern to the PHY and before it resumes the normal transmission. The TLPIEX status bit is set after the expiry of this timer. 
+ * This field specifies the minimum time (in microseconds) for which the MAC waits after it stops transmitting the LPI pattern to the PHY and before it resumes the normal transmission. The TLPIEX status bit is set after the expiry of this timer.
  */
 #define ENET_LPI_TCR_TWT_MASK (0xFFFFU)
 #define ENET_LPI_TCR_TWT_SHIFT (0U)
@@ -1287,7 +1371,7 @@ typedef struct {
 /*
  * GPIIS (RO)
  *
- * GPI Interrupt Status 
+ * GPI Interrupt Status
  * When the GPIO feature is enabled, this bit is set when any active event (LL or LH) occurs on the GPIS field (Bits [3:0]) of Register 56 (General Purpose IO Register) and the corresponding GPIE bit is enabled. This bit is cleared on reading lane 0 (GPIS) of Register 56 (General Purpose IO Register). When the GPIO feature is not enabled, this bit is reserved.
  */
 #define ENET_INTR_STATUS_GPIIS_MASK (0x800U)
@@ -1297,7 +1381,7 @@ typedef struct {
 /*
  * LPIIS (RO)
  *
- * LPI Interrupt Status 
+ * LPI Interrupt Status
  * When the Energy Efficient Ethernet feature is enabled, this bit is set for any LPI state entry or exit in the MAC Transmitter or Receiver. This bit is cleared on reading Bit 0 of Register 12 (LPI Control and Status Register). In all other modes, this bit is reserved.
  */
 #define ENET_INTR_STATUS_LPIIS_MASK (0x400U)
@@ -1307,7 +1391,7 @@ typedef struct {
 /*
  * TSIS (RO)
  *
- * Timestamp Interrupt Status 
+ * Timestamp Interrupt Status
  * When the Advanced Timestamp feature is enabled, this bit is set when any of the following conditions is true: - The system time value equals or exceeds the value specified in the Target Time High and Low registers. - There is an overflow in the seconds register. - The Auxiliary snapshot trigger is asserted. This bit is cleared on reading Bit 0 of Register 458 (Timestamp Status Register).
  */
 #define ENET_INTR_STATUS_TSIS_MASK (0x200U)
@@ -1317,8 +1401,8 @@ typedef struct {
 /*
  * MMCRXIPIS (RO)
  *
- * MMC Receive Checksum Offload Interrupt Status 
- * This bit is set high when an interrupt is generated in the MMC Receive Checksum Offload Interrupt Register. This bit is cleared when all the bits in this interrupt register are cleared. 
+ * MMC Receive Checksum Offload Interrupt Status
+ * This bit is set high when an interrupt is generated in the MMC Receive Checksum Offload Interrupt Register. This bit is cleared when all the bits in this interrupt register are cleared.
  */
 #define ENET_INTR_STATUS_MMCRXIPIS_MASK (0x80U)
 #define ENET_INTR_STATUS_MMCRXIPIS_SHIFT (7U)
@@ -1327,8 +1411,8 @@ typedef struct {
 /*
  * MMCTXIS (RO)
  *
- * MMC Transmit Interrupt Status 
- * This bit is set high when an interrupt is generated in the MMC Transmit Interrupt Register. This bit is cleared when all the bits in this interrupt register are cleared. 
+ * MMC Transmit Interrupt Status
+ * This bit is set high when an interrupt is generated in the MMC Transmit Interrupt Register. This bit is cleared when all the bits in this interrupt register are cleared.
  */
 #define ENET_INTR_STATUS_MMCTXIS_MASK (0x40U)
 #define ENET_INTR_STATUS_MMCTXIS_SHIFT (6U)
@@ -1337,8 +1421,8 @@ typedef struct {
 /*
  * MMCRXIS (RO)
  *
- * MMC Receive Interrupt Status 
- * This bit is set high when an interrupt is generated in the MMC Receive Interrupt Register. This bit is cleared when all the bits in this interrupt register are cleared. 
+ * MMC Receive Interrupt Status
+ * This bit is set high when an interrupt is generated in the MMC Receive Interrupt Register. This bit is cleared when all the bits in this interrupt register are cleared.
  */
 #define ENET_INTR_STATUS_MMCRXIS_MASK (0x20U)
 #define ENET_INTR_STATUS_MMCRXIS_SHIFT (5U)
@@ -1347,7 +1431,7 @@ typedef struct {
 /*
  * MMCIS (RO)
  *
- * MMC Interrupt Status 
+ * MMC Interrupt Status
  * This bit is set high when any of the Bits [7:5] is set high and cleared only when all of these bits are low.
  */
 #define ENET_INTR_STATUS_MMCIS_MASK (0x10U)
@@ -1357,7 +1441,7 @@ typedef struct {
 /*
  * PMTIS (RO)
  *
- * PMT Interrupt Status 
+ * PMT Interrupt Status
  * This bit is set when a magic packet or remote wake-up frame is received in the power-down mode (see Bits 5 and 6 in the PMT Control and Status Register). This bit is cleared when both Bits[6:5] are cleared because of a read operation to the PMT Control and Status register.
  */
 #define ENET_INTR_STATUS_PMTIS_MASK (0x8U)
@@ -1367,7 +1451,7 @@ typedef struct {
 /*
  * PCSANCIS (RO)
  *
- * PCS Auto-Negotiation Complete 
+ * PCS Auto-Negotiation Complete
  * This bit is set when the Auto-negotiation is completed in the TBI, RTBI, or SGMII PHY interface (Bit 5 in Register 49 (AN Status Register)). This bit is cleared when you perform a read operation to the AN Status register.
  */
 #define ENET_INTR_STATUS_PCSANCIS_MASK (0x4U)
@@ -1377,7 +1461,7 @@ typedef struct {
 /*
  * PCSLCHGIS (RO)
  *
- * PCS Link Status Changed 
+ * PCS Link Status Changed
  * This bit is set because of any change in Link Status in the TBI, RTBI, or SGMII PHY interface (Bit 2 in Register 49 (AN Status Register)). This bit is cleared when you perform a read operation on the AN Status register.
  */
 #define ENET_INTR_STATUS_PCSLCHGIS_MASK (0x2U)
@@ -1387,7 +1471,7 @@ typedef struct {
 /*
  * RGSMIIIS (RO)
  *
- * RGMII or SMII Interrupt Status 
+ * RGMII or SMII Interrupt Status
  * This bit is set because of any change in value of the Link Status of RGMII or SMII interface (Bit 3 in Register 54 (SGMII/RGMII/SMII Control and Status Register)). This bit is cleared when you perform a read operation on the SGMII/RGMII/SMII Control and Status Register.
  */
 #define ENET_INTR_STATUS_RGSMIIIS_MASK (0x1U)
@@ -1398,7 +1482,7 @@ typedef struct {
 /*
  * LPIIM (rw)
  *
- * LPI Interrupt Mask 
+ * LPI Interrupt Mask
  * When set, this bit disables the assertion of the interrupt signal because of the setting of the LPI Interrupt Status bit in Register 14 (Interrupt Status Register).
  */
 #define ENET_INTR_MASK_LPIIM_MASK (0x400U)
@@ -1431,7 +1515,7 @@ typedef struct {
 /*
  * PCSANCIM (rw)
  *
- * PCS AN Completion Interrupt Mask 
+ * PCS AN Completion Interrupt Mask
  * When set, this bit disables the assertion of the interrupt signal because of the setting of PCS Auto-negotiation complete bit in Register 14 (Interrupt Status Register).
  */
 #define ENET_INTR_MASK_PCSANCIM_MASK (0x4U)
@@ -1453,7 +1537,7 @@ typedef struct {
 /*
  * RGSMIIIM (rw)
  *
- * RGMII or SMII Interrupt Mask 
+ * RGMII or SMII Interrupt Mask
  * When set, this bit disables the assertion of the interrupt signal because of the setting of the RGMII or SMII Interrupt Status bit in Register 14 (Interrupt Status Register).
  */
 #define ENET_INTR_MASK_RGSMIIIM_MASK (0x1U)
@@ -1501,7 +1585,7 @@ typedef struct {
  * AE (rw)
  *
  * Address Enable
- * When this bit is set, the address filter module uses the second MAC address for perfect filtering. When this bit is reset, the address filter module ignores the address for filtering. 
+ * When this bit is set, the address filter module uses the second MAC address for perfect filtering. When this bit is reset, the address filter module ignores the address for filtering.
  */
 #define ENET_MAC_ADDR_HIGH_AE_MASK (0x80000000UL)
 #define ENET_MAC_ADDR_HIGH_AE_SHIFT (31U)
@@ -1522,7 +1606,7 @@ typedef struct {
 /*
  * MBC (rw)
  *
- * Mask Byte Control 
+ * Mask Byte Control
  * These bits are mask control bits for comparison of each of the MAC Address bytes. When set high, the MAC does not compare the corresponding byte of received DA or SA with the contents of MAC Address1 registers. Each bit controls the masking of the bytes as follows: - Bit 29: Register 18[15:8] - Bit 28: Register 18[7:0] - Bit 27: Register 19[31:24] - ... - Bit 24: Register 19[7:0] You can filter a group of addresses (known as group address filtering) by masking one or more bytes of the address.
  */
 #define ENET_MAC_ADDR_HIGH_MBC_MASK (0x3F000000UL)
@@ -1557,7 +1641,7 @@ typedef struct {
 /*
  * SMIDRXS (RO)
  *
- * Delay SMII RX Data Sampling with respect to the SMII SYNC Signal When set, the first bit of the SMII RX data is sampled one cycle after the SMII SYNC signal. When reset, the first bit of the SMII RX data is sampled along with the SMII SYNC signal. If the SMII PHY Interface with source synchronous mode is selected during core configuration, this bit is reserved (RO with default value). 
+ * Delay SMII RX Data Sampling with respect to the SMII SYNC Signal When set, the first bit of the SMII RX data is sampled one cycle after the SMII SYNC signal. When reset, the first bit of the SMII RX data is sampled along with the SMII SYNC signal. If the SMII PHY Interface with source synchronous mode is selected during core configuration, this bit is reserved (RO with default value).
  */
 #define ENET_XMII_CSR_SMIDRXS_MASK (0x10000UL)
 #define ENET_XMII_CSR_SMIDRXS_SHIFT (16U)
@@ -1589,7 +1673,7 @@ typedef struct {
  * LNKSTS (rw)
  *
  * Link Status
- *  This bit indicates whether the link between the local PHY and the remote PHY is up or down. It gives the status of the link between the SGMII of MAC and the SGMII of the local PHY. The status bits are received from the local PHY during ANEG betweent he MAC and PHY on the SGMII link. 
+ *  This bit indicates whether the link between the local PHY and the remote PHY is up or down. It gives the status of the link between the SGMII of MAC and the SGMII of the local PHY. The status bits are received from the local PHY during ANEG betweent he MAC and PHY on the SGMII link.
  */
 #define ENET_XMII_CSR_LNKSTS_MASK (0x8U)
 #define ENET_XMII_CSR_LNKSTS_SHIFT (3U)
@@ -1638,7 +1722,7 @@ typedef struct {
 /*
  * WTO (rw)
  *
- * Watchdog Timeout 
+ * Watchdog Timeout
  * When Bit 16 (PWE) is set and Bit 23 (WD) of Register 0 (MAC Configuration Register) is reset, this field is used as watchdog timeout for a received frame. If the length of a received frame exceeds the value of this field, such frame is terminated and declared as an error frame. Note: When Bit 16 (PWE) is set, the value in this field should be more than 1,522 (0x05F2). Otherwise, the IEEE Std 802.3-specified valid tagged frames are declared as error frames and are dropped.
  */
 #define ENET_WDOG_WTO_WTO_MASK (0x3FFFU)
@@ -1650,7 +1734,6 @@ typedef struct {
 /*
  * GPIT (rw)
  *
- * 
  */
 #define ENET_GPIO_GPIT_MASK (0xF000000UL)
 #define ENET_GPIO_GPIT_SHIFT (24U)
@@ -1660,7 +1743,6 @@ typedef struct {
 /*
  * GPIE (rw)
  *
- * 
  */
 #define ENET_GPIO_GPIE_MASK (0xF0000UL)
 #define ENET_GPIO_GPIE_SHIFT (16U)
@@ -1670,7 +1752,6 @@ typedef struct {
 /*
  * GPO (rw)
  *
- * 
  */
 #define ENET_GPIO_GPO_MASK (0xF00U)
 #define ENET_GPIO_GPO_SHIFT (8U)
@@ -1680,7 +1761,6 @@ typedef struct {
 /*
  * GPIS (rw)
  *
- * 
  */
 #define ENET_GPIO_GPIS_MASK (0xFU)
 #define ENET_GPIO_GPIS_SHIFT (0U)
@@ -1691,7 +1771,7 @@ typedef struct {
 /*
  * UCDBC (rw)
  *
- * Update MMC Counters for Dropped Broadcast Frames 
+ * Update MMC Counters for Dropped Broadcast Frames
  * When set, the MAC updates all related MMC Counters for Broadcast frames that are dropped because of the setting of Bit 5 (DBF) of Register 1 (MAC Frame Filter). When reset, the MMC Counters are not updated for dropped Broadcast frames.
  */
 #define ENET_MMC_CNTRL_UCDBC_MASK (0x100U)
@@ -1702,7 +1782,7 @@ typedef struct {
 /*
  * CNTPRSTLVL (rw)
  *
- * Full-Half Preset 
+ * Full-Half Preset
  * When this bit is low and Bit 4 is set, all MMC counters get preset to almost-half value. All octet counters get preset to 0x7FFF_F800 (half
  * - 2KBytes) and all frame-counters gets preset to 0x7FFF_FFF0 (half
  * - 16). When this bit is high and Bit 4 is set, all MMC counters get preset to almost-full value. All octet counters get preset to 0xFFFF_F800 (full
@@ -1717,7 +1797,7 @@ typedef struct {
 /*
  * CNTPRST (rw)
  *
- * Counters Preset 
+ * Counters Preset
  * When this bit is set, all counters are initialized or preset to almost full or almost half according to Bit 5. This bit is cleared automatically after 1 clock cycle. This bit, along with Bit 5, is useful for debugging and testing the assertion of interrupts because of MMC counter becoming half-full or full.
  */
 #define ENET_MMC_CNTRL_CNTPRST_MASK (0x10U)
@@ -1728,7 +1808,7 @@ typedef struct {
 /*
  * CNTFREEZ (rw)
  *
- * MMC Counter Freeze 
+ * MMC Counter Freeze
  * When this bit is set, it freezes all MMC counters to their current value. Until this bit is reset to 0, no MMC counter is updated because of any transmitted or received frame. If any MMC counter is read with the Reset on Read bit set, then that counter is also cleared in this mode.
  */
 #define ENET_MMC_CNTRL_CNTFREEZ_MASK (0x8U)
@@ -1739,7 +1819,7 @@ typedef struct {
 /*
  * RSTONRD (rw)
  *
- * Reset on Read 
+ * Reset on Read
  * When this bit is set, the MMC counters are reset to zero after Read (self-clearing after reset). The counters are cleared when the least significant byte lane (Bits[7:0]) is read.
  */
 #define ENET_MMC_CNTRL_RSTONRD_MASK (0x4U)
@@ -1750,8 +1830,8 @@ typedef struct {
 /*
  * CNTSTOPRO (rw)
  *
- * Counter Stop Rollover 
- * When this bit is set, the counter does not roll over to zero after reaching the maximum value. 
+ * Counter Stop Rollover
+ * When this bit is set, the counter does not roll over to zero after reaching the maximum value.
  */
 #define ENET_MMC_CNTRL_CNTSTOPRO_MASK (0x2U)
 #define ENET_MMC_CNTRL_CNTSTOPRO_SHIFT (1U)
@@ -1761,7 +1841,7 @@ typedef struct {
 /*
  * CNTRST (rw)
  *
- * Counters Reset 
+ * Counters Reset
  * When this bit is set, all counters are reset. This bit is cleared automatically after 1 clock cycle
  */
 #define ENET_MMC_CNTRL_CNTRST_MASK (0x1U)
@@ -1773,8 +1853,8 @@ typedef struct {
 /*
  * RXCTRLFIS (rw)
  *
- * MMC Receive Control Frame Counter Interrupt Status 
- * This bit is set when the rxctrlframes_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Control Frame Counter Interrupt Status
+ * This bit is set when the rxctrlframes_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXCTRLFIS_MASK (0x2000000UL)
 #define ENET_MMC_INTR_RX_RXCTRLFIS_SHIFT (25U)
@@ -1784,8 +1864,8 @@ typedef struct {
 /*
  * RXRCVERRFIS (rw)
  *
- * MMC Receive Error Frame Counter Interrupt Status 
- * This bit is set when the rxrcverror counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Error Frame Counter Interrupt Status
+ * This bit is set when the rxrcverror counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXRCVERRFIS_MASK (0x1000000UL)
 #define ENET_MMC_INTR_RX_RXRCVERRFIS_SHIFT (24U)
@@ -1795,8 +1875,8 @@ typedef struct {
 /*
  * RXWDOGFIS (rw)
  *
- * MMC Receive Watchdog Error Frame Counter Interrupt Status 
- * This bit is set when the rxwatchdog error counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Watchdog Error Frame Counter Interrupt Status
+ * This bit is set when the rxwatchdog error counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXWDOGFIS_MASK (0x800000UL)
 #define ENET_MMC_INTR_RX_RXWDOGFIS_SHIFT (23U)
@@ -1806,8 +1886,8 @@ typedef struct {
 /*
  * RXVLANGBFIS (rw)
  *
- * MMC Receive VLAN Good Bad Frame Counter Interrupt Status 
- * This bit is set when the rxvlanframes_gb counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive VLAN Good Bad Frame Counter Interrupt Status
+ * This bit is set when the rxvlanframes_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXVLANGBFIS_MASK (0x400000UL)
 #define ENET_MMC_INTR_RX_RXVLANGBFIS_SHIFT (22U)
@@ -1817,8 +1897,8 @@ typedef struct {
 /*
  * RXFOVFIS (rw)
  *
- * MMC Receive FIFO Overflow Frame Counter Interrupt Status 
- * This bit is set when the rxfifooverflow counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive FIFO Overflow Frame Counter Interrupt Status
+ * This bit is set when the rxfifooverflow counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXFOVFIS_MASK (0x200000UL)
 #define ENET_MMC_INTR_RX_RXFOVFIS_SHIFT (21U)
@@ -1828,8 +1908,8 @@ typedef struct {
 /*
  * RXPAUSFIS (rw)
  *
- * MMC Receive Pause Frame Counter Interrupt Status 
- * This bit is set when the rxpauseframes counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Pause Frame Counter Interrupt Status
+ * This bit is set when the rxpauseframes counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXPAUSFIS_MASK (0x100000UL)
 #define ENET_MMC_INTR_RX_RXPAUSFIS_SHIFT (20U)
@@ -1839,8 +1919,8 @@ typedef struct {
 /*
  * RXORANGEFIS (rw)
  *
- * MMC Receive Out Of Range Error Frame Counter Interrupt Status. 
- * This bit is set when the rxoutofrangetype counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Out Of Range Error Frame Counter Interrupt Status.
+ * This bit is set when the rxoutofrangetype counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXORANGEFIS_MASK (0x80000UL)
 #define ENET_MMC_INTR_RX_RXORANGEFIS_SHIFT (19U)
@@ -1850,8 +1930,8 @@ typedef struct {
 /*
  * RXLENERFIS (rw)
  *
- * MMC Receive Length Error Frame Counter Interrupt Status 
- * This bit is set when the rxlengtherror counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Length Error Frame Counter Interrupt Status
+ * This bit is set when the rxlengtherror counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXLENERFIS_MASK (0x40000UL)
 #define ENET_MMC_INTR_RX_RXLENERFIS_SHIFT (18U)
@@ -1861,8 +1941,8 @@ typedef struct {
 /*
  * RXUCGFIS (rw)
  *
- * MMC Receive Unicast Good Frame Counter Interrupt Status 
- * This bit is set when the rxunicastframes_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Unicast Good Frame Counter Interrupt Status
+ * This bit is set when the rxunicastframes_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXUCGFIS_MASK (0x20000UL)
 #define ENET_MMC_INTR_RX_RXUCGFIS_SHIFT (17U)
@@ -1872,7 +1952,7 @@ typedef struct {
 /*
  * RX1024TMAXOCTGBFIS (rw)
  *
- * MMC Receive 1024 to Maximum Octet Good Bad Frame Counter Interrupt Status. 
+ * MMC Receive 1024 to Maximum Octet Good Bad Frame Counter Interrupt Status.
  * This bit is set when the rx1024tomaxoctets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RX1024TMAXOCTGBFIS_MASK (0x10000UL)
@@ -1883,7 +1963,7 @@ typedef struct {
 /*
  * RX512T1023OCTGBFIS (rw)
  *
- * MMC Receive 512 to 1023 Octet Good Bad Frame Counter Interrupt Status 
+ * MMC Receive 512 to 1023 Octet Good Bad Frame Counter Interrupt Status
  * This bit is set when the rx512to1023octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RX512T1023OCTGBFIS_MASK (0x8000U)
@@ -1894,7 +1974,7 @@ typedef struct {
 /*
  * RX256T511OCTGBFIS (rw)
  *
- * MMC Receive 256 to 511 Octet Good Bad Frame Counter Interrupt Status 
+ * MMC Receive 256 to 511 Octet Good Bad Frame Counter Interrupt Status
  * This bit is set when the rx256to511octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RX256T511OCTGBFIS_MASK (0x4000U)
@@ -1905,7 +1985,7 @@ typedef struct {
 /*
  * RX128T255OCTGBFIS (rw)
  *
- * MMC Receive 128 to 255 Octet Good Bad Frame Counter Interrupt Status 
+ * MMC Receive 128 to 255 Octet Good Bad Frame Counter Interrupt Status
  * This bit is set when the rx128to255octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RX128T255OCTGBFIS_MASK (0x2000U)
@@ -1916,7 +1996,7 @@ typedef struct {
 /*
  * RX65T127OCTGBFIS (rw)
  *
- * MMC Receive 65 to 127 Octet Good Bad Frame Counter Interrupt Status 
+ * MMC Receive 65 to 127 Octet Good Bad Frame Counter Interrupt Status
  * This bit is set when the rx65to127octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RX65T127OCTGBFIS_MASK (0x1000U)
@@ -1927,7 +2007,7 @@ typedef struct {
 /*
  * RX64OCTGBFIS (rw)
  *
- * MMC Receive 64 Octet Good Bad Frame Counter Interrupt Status 
+ * MMC Receive 64 Octet Good Bad Frame Counter Interrupt Status
  * This bit is set when the rx64octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RX64OCTGBFIS_MASK (0x800U)
@@ -1938,8 +2018,8 @@ typedef struct {
 /*
  * RXOSIZEGFIS (rw)
  *
- * MMC Receive Oversize Good Frame Counter Interrupt Status 
- * This bit is set when the rxoversize_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Oversize Good Frame Counter Interrupt Status
+ * This bit is set when the rxoversize_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXOSIZEGFIS_MASK (0x400U)
 #define ENET_MMC_INTR_RX_RXOSIZEGFIS_SHIFT (10U)
@@ -1949,8 +2029,8 @@ typedef struct {
 /*
  * RXUSIZEGFIS (rw)
  *
- * MMC Receive Undersize Good Frame Counter Interrupt Status 
- * This bit is set when the rxundersize_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Undersize Good Frame Counter Interrupt Status
+ * This bit is set when the rxundersize_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXUSIZEGFIS_MASK (0x200U)
 #define ENET_MMC_INTR_RX_RXUSIZEGFIS_SHIFT (9U)
@@ -1960,8 +2040,8 @@ typedef struct {
 /*
  * RXJABERFIS (rw)
  *
- * MMC Receive Jabber Error Frame Counter Interrupt Status 
- * This bit is set when the rxjabbererror counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Jabber Error Frame Counter Interrupt Status
+ * This bit is set when the rxjabbererror counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXJABERFIS_MASK (0x100U)
 #define ENET_MMC_INTR_RX_RXJABERFIS_SHIFT (8U)
@@ -1971,8 +2051,8 @@ typedef struct {
 /*
  * RXRUNTFIS (rw)
  *
- * MMC Receive Runt Frame Counter Interrupt Status 
- * This bit is set when the rxrunterror counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Runt Frame Counter Interrupt Status
+ * This bit is set when the rxrunterror counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXRUNTFIS_MASK (0x80U)
 #define ENET_MMC_INTR_RX_RXRUNTFIS_SHIFT (7U)
@@ -1982,8 +2062,8 @@ typedef struct {
 /*
  * RXALGNERFIS (rw)
  *
- * MMC Receive Alignment Error Frame Counter Interrupt Status 
- * This bit is set when the rxalignmenterror counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Alignment Error Frame Counter Interrupt Status
+ * This bit is set when the rxalignmenterror counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXALGNERFIS_MASK (0x40U)
 #define ENET_MMC_INTR_RX_RXALGNERFIS_SHIFT (6U)
@@ -1993,8 +2073,8 @@ typedef struct {
 /*
  * RXCRCERFIS (rw)
  *
- * MMC Receive CRC Error Frame Counter Interrupt Status 
- * This bit is set when the rxcrcerror counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive CRC Error Frame Counter Interrupt Status
+ * This bit is set when the rxcrcerror counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXCRCERFIS_MASK (0x20U)
 #define ENET_MMC_INTR_RX_RXCRCERFIS_SHIFT (5U)
@@ -2004,8 +2084,8 @@ typedef struct {
 /*
  * RXMCGFIS (rw)
  *
- * MMC Receive Multicast Good Frame Counter Interrupt Status 
- * This bit is set when the rxmulticastframes_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Multicast Good Frame Counter Interrupt Status
+ * This bit is set when the rxmulticastframes_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXMCGFIS_MASK (0x10U)
 #define ENET_MMC_INTR_RX_RXMCGFIS_SHIFT (4U)
@@ -2015,8 +2095,8 @@ typedef struct {
 /*
  * RXBCGFIS (rw)
  *
- * MMC Receive Broadcast Good Frame Counter Interrupt Status 
- * This bit is set when the rxbroadcastframes_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Broadcast Good Frame Counter Interrupt Status
+ * This bit is set when the rxbroadcastframes_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXBCGFIS_MASK (0x8U)
 #define ENET_MMC_INTR_RX_RXBCGFIS_SHIFT (3U)
@@ -2026,8 +2106,8 @@ typedef struct {
 /*
  * RXGOCTIS (rw)
  *
- * MMC Receive Good Octet Counter Interrupt Status 
- * This bit is set when the rxoctetcount_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Good Octet Counter Interrupt Status
+ * This bit is set when the rxoctetcount_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXGOCTIS_MASK (0x4U)
 #define ENET_MMC_INTR_RX_RXGOCTIS_SHIFT (2U)
@@ -2038,7 +2118,7 @@ typedef struct {
  * RXGBOCTIS (rw)
  *
  * MMC Receive Good Bad Octet Counter Interrupt Status
- * This bit is set when the rxoctetcount_gb counter reaches half of the maximum value or the maximum value. 
+ * This bit is set when the rxoctetcount_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXGBOCTIS_MASK (0x2U)
 #define ENET_MMC_INTR_RX_RXGBOCTIS_SHIFT (1U)
@@ -2048,8 +2128,8 @@ typedef struct {
 /*
  * RXGBFRMIS (rw)
  *
- * MMC Receive Good Bad Frame Counter Interrupt Status 
- * This bit is set when the rxframecount_gb counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Good Bad Frame Counter Interrupt Status
+ * This bit is set when the rxframecount_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_RX_RXGBFRMIS_MASK (0x1U)
 #define ENET_MMC_INTR_RX_RXGBFRMIS_SHIFT (0U)
@@ -2060,8 +2140,8 @@ typedef struct {
 /*
  * TXOSIZEGFIS (rw)
  *
- * MMC Transmit Oversize Good Frame Counter Interrupt Status 
- * This bit is set when the txoversize_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Oversize Good Frame Counter Interrupt Status
+ * This bit is set when the txoversize_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXOSIZEGFIS_MASK (0x2000000UL)
 #define ENET_MMC_INTR_TX_TXOSIZEGFIS_SHIFT (25U)
@@ -2072,7 +2152,7 @@ typedef struct {
  * TXVLANGFIS (rw)
  *
  * MMC Transmit VLAN Good Frame Counter Interrupt Status
- * This bit is set when the txvlanframes_g counter reaches half of the maximum value or the maximum value. 
+ * This bit is set when the txvlanframes_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXVLANGFIS_MASK (0x1000000UL)
 #define ENET_MMC_INTR_TX_TXVLANGFIS_SHIFT (24U)
@@ -2082,8 +2162,8 @@ typedef struct {
 /*
  * TXPAUSFIS (rw)
  *
- * MMC Transmit Pause Frame Counter Interrupt Status 
- * This bit is set when the txpauseframeserror counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Pause Frame Counter Interrupt Status
+ * This bit is set when the txpauseframeserror counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXPAUSFIS_MASK (0x800000UL)
 #define ENET_MMC_INTR_TX_TXPAUSFIS_SHIFT (23U)
@@ -2093,8 +2173,8 @@ typedef struct {
 /*
  * TXEXDEFFIS (rw)
  *
- * MMC Transmit Excessive Deferral Frame Counter Interrupt Status 
- * This bit is set when the txexcessdef counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Excessive Deferral Frame Counter Interrupt Status
+ * This bit is set when the txexcessdef counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXEXDEFFIS_MASK (0x400000UL)
 #define ENET_MMC_INTR_TX_TXEXDEFFIS_SHIFT (22U)
@@ -2104,8 +2184,8 @@ typedef struct {
 /*
  * TXGFRMIS (rw)
  *
- * MMC Transmit Good Frame Counter Interrupt Status 
- * This bit is set when the txframecount_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Good Frame Counter Interrupt Status
+ * This bit is set when the txframecount_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXGFRMIS_MASK (0x200000UL)
 #define ENET_MMC_INTR_TX_TXGFRMIS_SHIFT (21U)
@@ -2115,8 +2195,8 @@ typedef struct {
 /*
  * TXGOCTIS (rw)
  *
- * MMC Transmit Good Octet Counter Interrupt Status 
- * This bit is set when the txoctetcount_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Good Octet Counter Interrupt Status
+ * This bit is set when the txoctetcount_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXGOCTIS_MASK (0x100000UL)
 #define ENET_MMC_INTR_TX_TXGOCTIS_SHIFT (20U)
@@ -2126,8 +2206,8 @@ typedef struct {
 /*
  * TXCARERFIS (rw)
  *
- * MMC Transmit Carrier Error Frame Counter Interrupt Status 
- * This bit is set when the txcarriererror counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Carrier Error Frame Counter Interrupt Status
+ * This bit is set when the txcarriererror counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXCARERFIS_MASK (0x80000UL)
 #define ENET_MMC_INTR_TX_TXCARERFIS_SHIFT (19U)
@@ -2137,8 +2217,8 @@ typedef struct {
 /*
  * TXEXCOLFIS (rw)
  *
- * MMC Transmit Excessive Collision Frame Counter Interrupt Status 
- * This bit is set when the txexesscol counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Excessive Collision Frame Counter Interrupt Status
+ * This bit is set when the txexesscol counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXEXCOLFIS_MASK (0x40000UL)
 #define ENET_MMC_INTR_TX_TXEXCOLFIS_SHIFT (18U)
@@ -2148,8 +2228,8 @@ typedef struct {
 /*
  * TXLATCOLFIS (rw)
  *
- * MMC Transmit Late Collision Frame Counter Interrupt Status 
- * This bit is set when the txlatecol counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Late Collision Frame Counter Interrupt Status
+ * This bit is set when the txlatecol counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXLATCOLFIS_MASK (0x20000UL)
 #define ENET_MMC_INTR_TX_TXLATCOLFIS_SHIFT (17U)
@@ -2159,8 +2239,8 @@ typedef struct {
 /*
  * TXDEFFIS (rw)
  *
- * MMC Transmit Deferred Frame Counter Interrupt Status 
- * This bit is set when the txdeferred counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Deferred Frame Counter Interrupt Status
+ * This bit is set when the txdeferred counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXDEFFIS_MASK (0x10000UL)
 #define ENET_MMC_INTR_TX_TXDEFFIS_SHIFT (16U)
@@ -2170,8 +2250,8 @@ typedef struct {
 /*
  * TXMCOLGFIS (rw)
  *
- * MMC Transmit Multiple Collision Good Frame Counter Interrupt Status 
- * This bit is set when the txmulticol_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Multiple Collision Good Frame Counter Interrupt Status
+ * This bit is set when the txmulticol_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXMCOLGFIS_MASK (0x8000U)
 #define ENET_MMC_INTR_TX_TXMCOLGFIS_SHIFT (15U)
@@ -2182,7 +2262,7 @@ typedef struct {
  * TXSCOLGFIS (rw)
  *
  * MMC Transmit Single Collision Good Frame Counter Interrupt Status
- * This bit is set when the txsinglecol_g counter reaches half of the maximum value or the maximum value. 
+ * This bit is set when the txsinglecol_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXSCOLGFIS_MASK (0x4000U)
 #define ENET_MMC_INTR_TX_TXSCOLGFIS_SHIFT (14U)
@@ -2192,8 +2272,8 @@ typedef struct {
 /*
  * TXUFLOWERFIS (rw)
  *
- * MMC Transmit Underflow Error Frame Counter Interrupt Status 
- * This bit is set when the txunderflowerror counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Underflow Error Frame Counter Interrupt Status
+ * This bit is set when the txunderflowerror counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXUFLOWERFIS_MASK (0x2000U)
 #define ENET_MMC_INTR_TX_TXUFLOWERFIS_SHIFT (13U)
@@ -2203,8 +2283,8 @@ typedef struct {
 /*
  * TXBCGBFIS (rw)
  *
- * MMC Transmit Broadcast Good Bad Frame Counter Interrupt Status 
- * This bit is set when the txbroadcastframes_gb counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Broadcast Good Bad Frame Counter Interrupt Status
+ * This bit is set when the txbroadcastframes_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXBCGBFIS_MASK (0x1000U)
 #define ENET_MMC_INTR_TX_TXBCGBFIS_SHIFT (12U)
@@ -2215,7 +2295,7 @@ typedef struct {
  * TXMCGBFIS (rw)
  *
  * MMC Transmit Multicast Good Bad Frame Counter Interrupt Status
- * The bit is set when the txmulticastframes_gb counter reaches half of the maximum value or the maximum value. 
+ * The bit is set when the txmulticastframes_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXMCGBFIS_MASK (0x800U)
 #define ENET_MMC_INTR_TX_TXMCGBFIS_SHIFT (11U)
@@ -2225,8 +2305,8 @@ typedef struct {
 /*
  * TXUCGBFIS (rw)
  *
- * MMC Transmit Unicast Good Bad Frame Counter Interrupt Status 
- * This bit is set when the txunicastframes_gb counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Unicast Good Bad Frame Counter Interrupt Status
+ * This bit is set when the txunicastframes_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXUCGBFIS_MASK (0x400U)
 #define ENET_MMC_INTR_TX_TXUCGBFIS_SHIFT (10U)
@@ -2236,7 +2316,7 @@ typedef struct {
 /*
  * TX1024TMAXOCTGBFIS (rw)
  *
- * MMC Transmit 1024 to Maximum Octet Good Bad Frame Counter Interrupt Status 
+ * MMC Transmit 1024 to Maximum Octet Good Bad Frame Counter Interrupt Status
  * This bit is set when the tx1024tomaxoctets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TX1024TMAXOCTGBFIS_MASK (0x200U)
@@ -2247,7 +2327,7 @@ typedef struct {
 /*
  * TX512T1023OCTGBFIS (rw)
  *
- * MMC Transmit 512 to 1023 Octet Good Bad Frame Counter Interrupt Status 
+ * MMC Transmit 512 to 1023 Octet Good Bad Frame Counter Interrupt Status
  * This bit is set when the tx512to1023octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TX512T1023OCTGBFIS_MASK (0x100U)
@@ -2258,7 +2338,7 @@ typedef struct {
 /*
  * TX256T511OCTGBFIS (rw)
  *
- * MMC Transmit 256 to 511 Octet Good Bad Frame Counter Interrupt Status 
+ * MMC Transmit 256 to 511 Octet Good Bad Frame Counter Interrupt Status
  * This bit is set when the tx256to511octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TX256T511OCTGBFIS_MASK (0x80U)
@@ -2269,7 +2349,7 @@ typedef struct {
 /*
  * TX128T255OCTGBFIS (rw)
  *
- * MMC Transmit 128 to 255 Octet Good Bad Frame Counter Interrupt Status 
+ * MMC Transmit 128 to 255 Octet Good Bad Frame Counter Interrupt Status
  * This bit is set when the tx128to255octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TX128T255OCTGBFIS_MASK (0x40U)
@@ -2280,7 +2360,7 @@ typedef struct {
 /*
  * TX65T127OCTGBFIS (rw)
  *
- * MMC Transmit 65 to 127 Octet Good Bad Frame Counter Interrupt Status 
+ * MMC Transmit 65 to 127 Octet Good Bad Frame Counter Interrupt Status
  * This bit is set when the tx65to127octets_gb counter reaches half the maximum value, and also when it reaches the maximum value.
  */
 #define ENET_MMC_INTR_TX_TX65T127OCTGBFIS_MASK (0x20U)
@@ -2291,7 +2371,7 @@ typedef struct {
 /*
  * TX64OCTGBFIS (rw)
  *
- * MMC Transmit 64 Octet Good Bad Frame Counter Interrupt Status 
+ * MMC Transmit 64 Octet Good Bad Frame Counter Interrupt Status
  * This bit is set when the tx64octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TX64OCTGBFIS_MASK (0x10U)
@@ -2302,8 +2382,8 @@ typedef struct {
 /*
  * TXMCGFIS (rw)
  *
- * MMC Transmit Multicast Good Frame Counter Interrupt Status 
- * This bit is set when the txmulticastframes_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Multicast Good Frame Counter Interrupt Status
+ * This bit is set when the txmulticastframes_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXMCGFIS_MASK (0x8U)
 #define ENET_MMC_INTR_TX_TXMCGFIS_SHIFT (3U)
@@ -2313,8 +2393,8 @@ typedef struct {
 /*
  * TXBCGFIS (rw)
  *
- * MMC Transmit Broadcast Good Frame Counter Interrupt Status 
- * This bit is set when the txbroadcastframes_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Broadcast Good Frame Counter Interrupt Status
+ * This bit is set when the txbroadcastframes_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXBCGFIS_MASK (0x4U)
 #define ENET_MMC_INTR_TX_TXBCGFIS_SHIFT (2U)
@@ -2324,8 +2404,8 @@ typedef struct {
 /*
  * TXGBFRMIS (rw)
  *
- * MMC Transmit Good Bad Frame Counter Interrupt Status 
- * This bit is set when the txframecount_gb counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Good Bad Frame Counter Interrupt Status
+ * This bit is set when the txframecount_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXGBFRMIS_MASK (0x2U)
 #define ENET_MMC_INTR_TX_TXGBFRMIS_SHIFT (1U)
@@ -2335,8 +2415,8 @@ typedef struct {
 /*
  * TXGBOCTIS (rw)
  *
- * MMC Transmit Good Bad Octet Counter Interrupt Status 
- * This bit is set when the txoctetcount_gb counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Good Bad Octet Counter Interrupt Status
+ * This bit is set when the txoctetcount_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_TX_TXGBOCTIS_MASK (0x1U)
 #define ENET_MMC_INTR_TX_TXGBOCTIS_SHIFT (0U)
@@ -2347,8 +2427,8 @@ typedef struct {
 /*
  * RXCTRLFIM (rw)
  *
- * MMC Receive Control Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxctrlframes_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Control Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxctrlframes_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXCTRLFIM_MASK (0x2000000UL)
 #define ENET_MMC_INTR_MASK_RX_RXCTRLFIM_SHIFT (25U)
@@ -2358,8 +2438,8 @@ typedef struct {
 /*
  * RXRCVERRFIM (rw)
  *
- * MMC Receive Error Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxrcverror counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Error Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxrcverror counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXRCVERRFIM_MASK (0x1000000UL)
 #define ENET_MMC_INTR_MASK_RX_RXRCVERRFIM_SHIFT (24U)
@@ -2369,8 +2449,8 @@ typedef struct {
 /*
  * RXWDOGFIM (rw)
  *
- * MMC Receive Watchdog Error Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxwatchdog counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Watchdog Error Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxwatchdog counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXWDOGFIM_MASK (0x800000UL)
 #define ENET_MMC_INTR_MASK_RX_RXWDOGFIM_SHIFT (23U)
@@ -2380,8 +2460,8 @@ typedef struct {
 /*
  * RXVLANGBFIM (rw)
  *
- * MMC Receive VLAN Good Bad Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxvlanframes_gb counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive VLAN Good Bad Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxvlanframes_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXVLANGBFIM_MASK (0x400000UL)
 #define ENET_MMC_INTR_MASK_RX_RXVLANGBFIM_SHIFT (22U)
@@ -2391,8 +2471,8 @@ typedef struct {
 /*
  * RXFOVFIM (rw)
  *
- * MMC Receive FIFO Overflow Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxfifooverflow counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive FIFO Overflow Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxfifooverflow counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXFOVFIM_MASK (0x200000UL)
 #define ENET_MMC_INTR_MASK_RX_RXFOVFIM_SHIFT (21U)
@@ -2402,8 +2482,8 @@ typedef struct {
 /*
  * RXPAUSFIM (rw)
  *
- * MMC Receive Pause Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxpauseframes counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Pause Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxpauseframes counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXPAUSFIM_MASK (0x100000UL)
 #define ENET_MMC_INTR_MASK_RX_RXPAUSFIM_SHIFT (20U)
@@ -2413,8 +2493,8 @@ typedef struct {
 /*
  * RXORANGEFIM (rw)
  *
- * MMC Receive Out Of Range Error Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxoutofrangetype counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Out Of Range Error Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxoutofrangetype counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXORANGEFIM_MASK (0x80000UL)
 #define ENET_MMC_INTR_MASK_RX_RXORANGEFIM_SHIFT (19U)
@@ -2424,8 +2504,8 @@ typedef struct {
 /*
  * RXLENERFIM (rw)
  *
- * MMC Receive Length Error Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxlengtherror counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Length Error Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxlengtherror counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXLENERFIM_MASK (0x40000UL)
 #define ENET_MMC_INTR_MASK_RX_RXLENERFIM_SHIFT (18U)
@@ -2435,8 +2515,8 @@ typedef struct {
 /*
  * RXUCGFIM (rw)
  *
- * MMC Receive Unicast Good Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxunicastframes_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Unicast Good Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxunicastframes_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXUCGFIM_MASK (0x20000UL)
 #define ENET_MMC_INTR_MASK_RX_RXUCGFIM_SHIFT (17U)
@@ -2446,7 +2526,7 @@ typedef struct {
 /*
  * RX1024TMAXOCTGBFIM (rw)
  *
- * MMC Receive 1024 to Maximum Octet Good Bad Frame Counter Interrupt Mask. 
+ * MMC Receive 1024 to Maximum Octet Good Bad Frame Counter Interrupt Mask.
  * Setting this bit masks the interrupt when the rx1024tomaxoctets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RX1024TMAXOCTGBFIM_MASK (0x10000UL)
@@ -2457,7 +2537,7 @@ typedef struct {
 /*
  * RX512T1023OCTGBFIM (rw)
  *
- * MMC Receive 512 to 1023 Octet Good Bad Frame Counter Interrupt Mask 
+ * MMC Receive 512 to 1023 Octet Good Bad Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rx512to1023octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RX512T1023OCTGBFIM_MASK (0x8000U)
@@ -2468,7 +2548,7 @@ typedef struct {
 /*
  * RX256T511OCTGBFIM (rw)
  *
- * MMC Receive 256 to 511 Octet Good Bad Frame Counter Interrupt Mask 
+ * MMC Receive 256 to 511 Octet Good Bad Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rx256to511octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RX256T511OCTGBFIM_MASK (0x4000U)
@@ -2479,7 +2559,7 @@ typedef struct {
 /*
  * RX128T255OCTGBFIM (rw)
  *
- * MMC Receive 128 to 255 Octet Good Bad Frame Counter Interrupt Mask 
+ * MMC Receive 128 to 255 Octet Good Bad Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rx128to255octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RX128T255OCTGBFIM_MASK (0x2000U)
@@ -2490,7 +2570,7 @@ typedef struct {
 /*
  * RX65T127OCTGBFIM (rw)
  *
- * MMC Receive 65 to 127 Octet Good Bad Frame Counter Interrupt Mask 
+ * MMC Receive 65 to 127 Octet Good Bad Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rx65to127octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RX65T127OCTGBFIM_MASK (0x1000U)
@@ -2501,7 +2581,7 @@ typedef struct {
 /*
  * RX64OCTGBFIM (rw)
  *
- * MMC Receive 64 Octet Good Bad Frame Counter Interrupt Mask 
+ * MMC Receive 64 Octet Good Bad Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rx64octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RX64OCTGBFIM_MASK (0x800U)
@@ -2512,8 +2592,8 @@ typedef struct {
 /*
  * RXOSIZEGFIM (rw)
  *
- * MMC Receive Oversize Good Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxoversize_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Oversize Good Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxoversize_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXOSIZEGFIM_MASK (0x400U)
 #define ENET_MMC_INTR_MASK_RX_RXOSIZEGFIM_SHIFT (10U)
@@ -2523,8 +2603,8 @@ typedef struct {
 /*
  * RXUSIZEGFIM (rw)
  *
- * MMC Receive Undersize Good Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxundersize_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Undersize Good Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxundersize_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXUSIZEGFIM_MASK (0x200U)
 #define ENET_MMC_INTR_MASK_RX_RXUSIZEGFIM_SHIFT (9U)
@@ -2534,8 +2614,8 @@ typedef struct {
 /*
  * RXJABERFIM (rw)
  *
- * MMC Receive Jabber Error Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxjabbererror counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Jabber Error Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxjabbererror counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXJABERFIM_MASK (0x100U)
 #define ENET_MMC_INTR_MASK_RX_RXJABERFIM_SHIFT (8U)
@@ -2545,8 +2625,8 @@ typedef struct {
 /*
  * RXRUNTFIM (rw)
  *
- * MMC Receive Runt Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxrunterror counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Runt Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxrunterror counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXRUNTFIM_MASK (0x80U)
 #define ENET_MMC_INTR_MASK_RX_RXRUNTFIM_SHIFT (7U)
@@ -2556,8 +2636,8 @@ typedef struct {
 /*
  * RXALGNERFIM (rw)
  *
- * MMC Receive Alignment Error Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxalignmenterror counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Alignment Error Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxalignmenterror counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXALGNERFIM_MASK (0x40U)
 #define ENET_MMC_INTR_MASK_RX_RXALGNERFIM_SHIFT (6U)
@@ -2567,8 +2647,8 @@ typedef struct {
 /*
  * RXCRCERFIM (rw)
  *
- * MMC Receive CRC Error Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxcrcerror counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive CRC Error Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxcrcerror counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXCRCERFIM_MASK (0x20U)
 #define ENET_MMC_INTR_MASK_RX_RXCRCERFIM_SHIFT (5U)
@@ -2578,8 +2658,8 @@ typedef struct {
 /*
  * RXMCGFIM (rw)
  *
- * MMC Receive Multicast Good Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxmulticastframes_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Multicast Good Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxmulticastframes_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXMCGFIM_MASK (0x10U)
 #define ENET_MMC_INTR_MASK_RX_RXMCGFIM_SHIFT (4U)
@@ -2589,8 +2669,8 @@ typedef struct {
 /*
  * RXBCGFIM (rw)
  *
- * MMC Receive Broadcast Good Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxbroadcastframes_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Broadcast Good Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxbroadcastframes_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXBCGFIM_MASK (0x8U)
 #define ENET_MMC_INTR_MASK_RX_RXBCGFIM_SHIFT (3U)
@@ -2600,8 +2680,8 @@ typedef struct {
 /*
  * RXGOCTIM (rw)
  *
- * MMC Receive Good Octet Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxoctetcount_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Good Octet Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxoctetcount_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXGOCTIM_MASK (0x4U)
 #define ENET_MMC_INTR_MASK_RX_RXGOCTIM_SHIFT (2U)
@@ -2611,8 +2691,8 @@ typedef struct {
 /*
  * RXGBOCTIM (rw)
  *
- * MMC Receive Good Bad Octet Counter Interrupt Mask. 
- * Setting this bit masks the interrupt when the rxoctetcount_gb counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive Good Bad Octet Counter Interrupt Mask.
+ * Setting this bit masks the interrupt when the rxoctetcount_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_RX_RXGBOCTIM_MASK (0x2U)
 #define ENET_MMC_INTR_MASK_RX_RXGBOCTIM_SHIFT (1U)
@@ -2623,8 +2703,8 @@ typedef struct {
 /*
  * TXOSIZEGFIM (rw)
  *
- * MMC Transmit Oversize Good Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txoversize_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Oversize Good Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txoversize_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXOSIZEGFIM_MASK (0x2000000UL)
 #define ENET_MMC_INTR_MASK_TX_TXOSIZEGFIM_SHIFT (25U)
@@ -2634,8 +2714,8 @@ typedef struct {
 /*
  * TXVLANGFIM (rw)
  *
- * MMC Transmit VLAN Good Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txvlanframes_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit VLAN Good Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txvlanframes_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXVLANGFIM_MASK (0x1000000UL)
 #define ENET_MMC_INTR_MASK_TX_TXVLANGFIM_SHIFT (24U)
@@ -2645,8 +2725,8 @@ typedef struct {
 /*
  * TXPAUSFIM (rw)
  *
- * MMC Transmit Pause Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txpauseframes counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Pause Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txpauseframes counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXPAUSFIM_MASK (0x800000UL)
 #define ENET_MMC_INTR_MASK_TX_TXPAUSFIM_SHIFT (23U)
@@ -2656,8 +2736,8 @@ typedef struct {
 /*
  * TXEXDEFFIM (rw)
  *
- * MMC Transmit Excessive Deferral Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txexcessdef counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Excessive Deferral Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txexcessdef counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXEXDEFFIM_MASK (0x400000UL)
 #define ENET_MMC_INTR_MASK_TX_TXEXDEFFIM_SHIFT (22U)
@@ -2667,8 +2747,8 @@ typedef struct {
 /*
  * TXGFRMIM (rw)
  *
- * MMC Transmit Good Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txframecount_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Good Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txframecount_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXGFRMIM_MASK (0x200000UL)
 #define ENET_MMC_INTR_MASK_TX_TXGFRMIM_SHIFT (21U)
@@ -2678,8 +2758,8 @@ typedef struct {
 /*
  * TXGOCTIM (rw)
  *
- * MMC Transmit Good Octet Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txoctetcount_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Good Octet Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txoctetcount_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXGOCTIM_MASK (0x100000UL)
 #define ENET_MMC_INTR_MASK_TX_TXGOCTIM_SHIFT (20U)
@@ -2689,8 +2769,8 @@ typedef struct {
 /*
  * TXCARERFIM (rw)
  *
- * MMC Transmit Carrier Error Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txcarriererror counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Carrier Error Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txcarriererror counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXCARERFIM_MASK (0x80000UL)
 #define ENET_MMC_INTR_MASK_TX_TXCARERFIM_SHIFT (19U)
@@ -2700,8 +2780,8 @@ typedef struct {
 /*
  * TXEXCOLFIM (rw)
  *
- * MMC Transmit Excessive Collision Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txexcesscol counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Excessive Collision Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txexcesscol counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXEXCOLFIM_MASK (0x40000UL)
 #define ENET_MMC_INTR_MASK_TX_TXEXCOLFIM_SHIFT (18U)
@@ -2711,8 +2791,8 @@ typedef struct {
 /*
  * TXLATCOLFIM (rw)
  *
- * MMC Transmit Late Collision Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txlatecol counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Late Collision Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txlatecol counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXLATCOLFIM_MASK (0x20000UL)
 #define ENET_MMC_INTR_MASK_TX_TXLATCOLFIM_SHIFT (17U)
@@ -2722,8 +2802,8 @@ typedef struct {
 /*
  * TXDEFFIM (rw)
  *
- * MMC Transmit Deferred Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txdeferred counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Deferred Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txdeferred counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXDEFFIM_MASK (0x10000UL)
 #define ENET_MMC_INTR_MASK_TX_TXDEFFIM_SHIFT (16U)
@@ -2733,8 +2813,8 @@ typedef struct {
 /*
  * TXMCOLGFIM (rw)
  *
- * MMC Transmit Multiple Collision Good Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txmulticol_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Multiple Collision Good Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txmulticol_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXMCOLGFIM_MASK (0x8000U)
 #define ENET_MMC_INTR_MASK_TX_TXMCOLGFIM_SHIFT (15U)
@@ -2744,8 +2824,8 @@ typedef struct {
 /*
  * TXSCOLGFIM (rw)
  *
- * MMC Transmit Single Collision Good Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txsinglecol_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Single Collision Good Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txsinglecol_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXSCOLGFIM_MASK (0x4000U)
 #define ENET_MMC_INTR_MASK_TX_TXSCOLGFIM_SHIFT (14U)
@@ -2755,8 +2835,8 @@ typedef struct {
 /*
  * TXUFLOWERFIM (rw)
  *
- * MMC Transmit Underflow Error Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txunderflowerror counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Underflow Error Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txunderflowerror counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXUFLOWERFIM_MASK (0x2000U)
 #define ENET_MMC_INTR_MASK_TX_TXUFLOWERFIM_SHIFT (13U)
@@ -2766,8 +2846,8 @@ typedef struct {
 /*
  * TXBCGBFIM (rw)
  *
- * MMC Transmit Broadcast Good Bad Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txbroadcastframes_gb counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Broadcast Good Bad Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txbroadcastframes_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXBCGBFIM_MASK (0x1000U)
 #define ENET_MMC_INTR_MASK_TX_TXBCGBFIM_SHIFT (12U)
@@ -2777,8 +2857,8 @@ typedef struct {
 /*
  * TXMCGBFIM (rw)
  *
- * MMC Transmit Multicast Good Bad Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txmulticastframes_gb counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Multicast Good Bad Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txmulticastframes_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXMCGBFIM_MASK (0x800U)
 #define ENET_MMC_INTR_MASK_TX_TXMCGBFIM_SHIFT (11U)
@@ -2788,8 +2868,8 @@ typedef struct {
 /*
  * TXUCGBFIM (rw)
  *
- * MMC Transmit Unicast Good Bad Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txunicastframes_gb counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Unicast Good Bad Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txunicastframes_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXUCGBFIM_MASK (0x400U)
 #define ENET_MMC_INTR_MASK_TX_TXUCGBFIM_SHIFT (10U)
@@ -2799,7 +2879,7 @@ typedef struct {
 /*
  * TX1024TMAXOCTGBFIM (rw)
  *
- * MMC Transmit 1024 to Maximum Octet Good Bad Frame Counter Interrupt Mask 
+ * MMC Transmit 1024 to Maximum Octet Good Bad Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the tx1024tomaxoctets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TX1024TMAXOCTGBFIM_MASK (0x200U)
@@ -2810,7 +2890,7 @@ typedef struct {
 /*
  * TX512T1023OCTGBFIM (rw)
  *
- * MMC Transmit 512 to 1023 Octet Good Bad Frame Counter Interrupt Mask 
+ * MMC Transmit 512 to 1023 Octet Good Bad Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the tx512to1023octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TX512T1023OCTGBFIM_MASK (0x100U)
@@ -2821,7 +2901,7 @@ typedef struct {
 /*
  * TX256T511OCTGBFIM (rw)
  *
- * MMC Transmit 256 to 511 Octet Good Bad Frame Counter Interrupt Mask 
+ * MMC Transmit 256 to 511 Octet Good Bad Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the tx256to511octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TX256T511OCTGBFIM_MASK (0x80U)
@@ -2832,7 +2912,7 @@ typedef struct {
 /*
  * TX128T255OCTGBFIM (rw)
  *
- * MMC Transmit 128 to 255 Octet Good Bad Frame Counter Interrupt Mask 
+ * MMC Transmit 128 to 255 Octet Good Bad Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the tx128to255octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TX128T255OCTGBFIM_MASK (0x40U)
@@ -2843,7 +2923,7 @@ typedef struct {
 /*
  * TX65T127OCTGBFIM (rw)
  *
- * MMC Transmit 65 to 127 Octet Good Bad Frame Counter Interrupt Mask 
+ * MMC Transmit 65 to 127 Octet Good Bad Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the tx65to127octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TX65T127OCTGBFIM_MASK (0x20U)
@@ -2854,7 +2934,7 @@ typedef struct {
 /*
  * TX64OCTGBFIM (rw)
  *
- * MMC Transmit 64 Octet Good Bad Frame Counter Interrupt Mask 
+ * MMC Transmit 64 Octet Good Bad Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the tx64octets_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TX64OCTGBFIM_MASK (0x10U)
@@ -2865,8 +2945,8 @@ typedef struct {
 /*
  * TXMCGFIM (rw)
  *
- * MMC Transmit Multicast Good Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txmulticastframes_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Multicast Good Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txmulticastframes_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXMCGFIM_MASK (0x8U)
 #define ENET_MMC_INTR_MASK_TX_TXMCGFIM_SHIFT (3U)
@@ -2876,8 +2956,8 @@ typedef struct {
 /*
  * TXBCGFIM (rw)
  *
- * MMC Transmit Broadcast Good Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txbroadcastframes_g counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Broadcast Good Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txbroadcastframes_g counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXBCGFIM_MASK (0x4U)
 #define ENET_MMC_INTR_MASK_TX_TXBCGFIM_SHIFT (2U)
@@ -2887,8 +2967,8 @@ typedef struct {
 /*
  * TXGBFRMIM (rw)
  *
- * MMC Transmit Good Bad Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txframecount_gb counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Good Bad Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txframecount_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXGBFRMIM_MASK (0x2U)
 #define ENET_MMC_INTR_MASK_TX_TXGBFRMIM_SHIFT (1U)
@@ -2898,8 +2978,8 @@ typedef struct {
 /*
  * TXGBOCTIM (rw)
  *
- * MMC Transmit Good Bad Octet Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the txoctetcount_gb counter reaches half of the maximum value or the maximum value. 
+ * MMC Transmit Good Bad Octet Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the txoctetcount_gb counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_INTR_MASK_TX_TXGBOCTIM_MASK (0x1U)
 #define ENET_MMC_INTR_MASK_TX_TXGBOCTIM_SHIFT (0U)
@@ -2921,7 +3001,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good and bad frames transmitted, exclusive of retried frames. 
+ * Number of good and bad frames transmitted, exclusive of retried frames.
  */
 #define ENET_TXFRAMECOUNT_GB_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_TXFRAMECOUNT_GB_FRMCNT_SHIFT (0U)
@@ -2932,7 +3012,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good broadcast frames transmitted. 
+ * Number of good broadcast frames transmitted.
  */
 #define ENET_TXBROADCASTFRAMES_G_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_TXBROADCASTFRAMES_G_FRMCNT_SHIFT (0U)
@@ -2943,7 +3023,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good multicast frames transmitted. 
+ * Number of good multicast frames transmitted.
  */
 #define ENET_TXMLTICASTFRAMES_G_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_TXMLTICASTFRAMES_G_FRMCNT_SHIFT (0U)
@@ -3020,7 +3100,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good and bad unicast frames transmitted. 
+ * Number of good and bad unicast frames transmitted.
  */
 #define ENET_TXUNICASTFRAMES_GB_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_TXUNICASTFRAMES_GB_FRMCNT_SHIFT (0U)
@@ -3031,7 +3111,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good and bad multicast frames transmitted. 
+ * Number of good and bad multicast frames transmitted.
  */
 #define ENET_TXMULTICASTFRAMES_GB_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_TXMULTICASTFRAMES_GB_FRMCNT_SHIFT (0U)
@@ -3042,7 +3122,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good and bad broadcast frames transmitted. 
+ * Number of good and bad broadcast frames transmitted.
  */
 #define ENET_TXBROADCASTFRAMES_GB_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_TXBROADCASTFRAMES_GB_FRMCNT_SHIFT (0U)
@@ -3053,7 +3133,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of frames aborted because of frame underflow error. 
+ * Number of frames aborted because of frame underflow error.
  */
 #define ENET_TXUNDERFLOWERROR_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_TXUNDERFLOWERROR_FRMCNT_SHIFT (0U)
@@ -3064,7 +3144,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of successfully transmitted frames after a single collision in the half-duplex mode. 
+ * Number of successfully transmitted frames after a single collision in the half-duplex mode.
  */
 #define ENET_TXSINGLECOL_G_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_TXSINGLECOL_G_FRMCNT_SHIFT (0U)
@@ -3075,7 +3155,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of successfully transmitted frames after multiple collisions in the half-duplex mode. 
+ * Number of successfully transmitted frames after multiple collisions in the half-duplex mode.
  */
 #define ENET_TXMULTICOL_G_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_TXMULTICOL_G_FRMCNT_SHIFT (0U)
@@ -3086,7 +3166,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of successfully transmitted frames after a deferral in the half-duplex mode. 
+ * Number of successfully transmitted frames after a deferral in the half-duplex mode.
  */
 #define ENET_TXDEFERRED_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_TXDEFERRED_FRMCNT_SHIFT (0U)
@@ -3097,7 +3177,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of frames aborted because of late collision error. 
+ * Number of frames aborted because of late collision error.
  */
 #define ENET_TXLATECOL_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_TXLATECOL_FRMCNT_SHIFT (0U)
@@ -3119,7 +3199,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of frames aborted because of carrier sense error (no carrier or loss of carrier). 
+ * Number of frames aborted because of carrier sense error (no carrier or loss of carrier).
  */
 #define ENET_TXCARRIERERROR_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_TXCARRIERERROR_FRMCNT_SHIFT (0U)
@@ -3130,7 +3210,7 @@ typedef struct {
 /*
  * BYTECNT (rw)
  *
- * Number of bytes transmitted, exclusive of preamble, only in good frames. 
+ * Number of bytes transmitted, exclusive of preamble, only in good frames.
  */
 #define ENET_TXOCTETCOUNT_G_BYTECNT_MASK (0xFFFFFFFFUL)
 #define ENET_TXOCTETCOUNT_G_BYTECNT_SHIFT (0U)
@@ -3141,7 +3221,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good frames transmitted. 
+ * Number of good frames transmitted.
  */
 #define ENET_TXFRAMECOUNT_G_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_TXFRAMECOUNT_G_FRMCNT_SHIFT (0U)
@@ -3152,7 +3232,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of frames aborted because of excessive deferral error (deferred for more than two max-sized frame times). 
+ * Number of frames aborted because of excessive deferral error (deferred for more than two max-sized frame times).
  */
 #define ENET_TXEXCESSDEF_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_TXEXCESSDEF_FRMCNT_SHIFT (0U)
@@ -3163,7 +3243,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good Pause frames transmitted. 
+ * Number of good Pause frames transmitted.
  */
 #define ENET_TXPAUSEFRAMES_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_TXPAUSEFRAMES_FRMCNT_SHIFT (0U)
@@ -3174,7 +3254,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good VLAN frames transmitted, exclusive of retried frames. 
+ * Number of good VLAN frames transmitted, exclusive of retried frames.
  */
 #define ENET_TXVLANFRAMES_G_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_TXVLANFRAMES_G_FRMCNT_SHIFT (0U)
@@ -3196,7 +3276,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good and bad frames received. 
+ * Number of good and bad frames received.
  */
 #define ENET_RXFRAMECOUNT_GB_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXFRAMECOUNT_GB_FRMCNT_SHIFT (0U)
@@ -3207,7 +3287,7 @@ typedef struct {
 /*
  * BYTECNT (rw)
  *
- * Number of bytes received, exclusive of preamble, in good and bad frames. 
+ * Number of bytes received, exclusive of preamble, in good and bad frames.
  */
 #define ENET_RXOCTETCOUNT_G_BYTECNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXOCTETCOUNT_G_BYTECNT_SHIFT (0U)
@@ -3218,7 +3298,7 @@ typedef struct {
 /*
  * BYTECNT (rw)
  *
- * Number of bytes received, exclusive of preamble, only in good frames. 
+ * Number of bytes received, exclusive of preamble, only in good frames.
  */
 #define ENET_RXOCTETCOUNT_GB_BYTECNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXOCTETCOUNT_GB_BYTECNT_SHIFT (0U)
@@ -3229,7 +3309,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good broadcast frames received. 
+ * Number of good broadcast frames received.
  */
 #define ENET_RXBROADCASTFRAMES_G_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXBROADCASTFRAMES_G_FRMCNT_SHIFT (0U)
@@ -3240,7 +3320,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good multicast frames received. 
+ * Number of good multicast frames received.
  */
 #define ENET_RXMULTICASTFRAMES_G_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXMULTICASTFRAMES_G_FRMCNT_SHIFT (0U)
@@ -3251,7 +3331,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of frames received with CRC error. 
+ * Number of frames received with CRC error.
  */
 #define ENET_RXCRCERROR_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXCRCERROR_FRMCNT_SHIFT (0U)
@@ -3383,7 +3463,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of received good unicast frames. 
+ * Number of received good unicast frames.
  */
 #define ENET_RXUNICASTFRAMES_G_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXUNICASTFRAMES_G_FRMCNT_SHIFT (0U)
@@ -3394,7 +3474,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of frames received with length error (Length type field ≠ frame size), for all frames with valid length field. 
+ * Number of frames received with length error (Length type field ≠ frame size), for all frames with valid length field.
  */
 #define ENET_RXLENGTHERROR_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXLENGTHERROR_FRMCNT_SHIFT (0U)
@@ -3416,7 +3496,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good and valid Pause frames received. 
+ * Number of good and valid Pause frames received.
  */
 #define ENET_RXPAUSEFRAMES_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXPAUSEFRAMES_FRMCNT_SHIFT (0U)
@@ -3427,7 +3507,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of missed received frames because of FIFO overflow. This counter is not present in the GMAC-CORE configuration. 
+ * Number of missed received frames because of FIFO overflow. This counter is not present in the GMAC-CORE configuration.
  */
 #define ENET_RXFIFOOVERFLOW_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXFIFOOVERFLOW_FRMCNT_SHIFT (0U)
@@ -3438,7 +3518,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good and bad VLAN frames received. 
+ * Number of good and bad VLAN frames received.
  */
 #define ENET_RXVLANFRAMES_GB_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXVLANFRAMES_GB_FRMCNT_SHIFT (0U)
@@ -3460,7 +3540,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of frames received with Receive error or Frame Extension error on the GMII or MII interface. 
+ * Number of frames received with Receive error or Frame Extension error on the GMII or MII interface.
  */
 #define ENET_RXRCVERROR_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXRCVERROR_FRMCNT_SHIFT (0U)
@@ -3471,7 +3551,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of received good control frames. 
+ * Number of received good control frames.
  */
 #define ENET_RXCTRLFRAMES_G_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXCTRLFRAMES_G_FRMCNT_SHIFT (0U)
@@ -3482,8 +3562,8 @@ typedef struct {
 /*
  * RXICMPEROIM (rw)
  *
- * MMC Receive ICMP Error Octet Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxicmp_err_octets counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive ICMP Error Octet Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxicmp_err_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXICMPEROIM_MASK (0x20000000UL)
 #define ENET_MMC_IPC_INTR_MASK_RX_RXICMPEROIM_SHIFT (29U)
@@ -3493,8 +3573,8 @@ typedef struct {
 /*
  * RXICMPGOIM (rw)
  *
- * MMC Receive ICMP Good Octet Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxicmp_gd_octets counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive ICMP Good Octet Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxicmp_gd_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXICMPGOIM_MASK (0x10000000UL)
 #define ENET_MMC_IPC_INTR_MASK_RX_RXICMPGOIM_SHIFT (28U)
@@ -3504,8 +3584,8 @@ typedef struct {
 /*
  * RXTCPEROIM (rw)
  *
- * MMC Receive TCP Error Octet Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxtcp_err_octets counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive TCP Error Octet Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxtcp_err_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXTCPEROIM_MASK (0x8000000UL)
 #define ENET_MMC_IPC_INTR_MASK_RX_RXTCPEROIM_SHIFT (27U)
@@ -3515,8 +3595,8 @@ typedef struct {
 /*
  * RXTCPGOIM (rw)
  *
- * MMC Receive TCP Good Octet Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxtcp_gd_octets counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive TCP Good Octet Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxtcp_gd_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXTCPGOIM_MASK (0x4000000UL)
 #define ENET_MMC_IPC_INTR_MASK_RX_RXTCPGOIM_SHIFT (26U)
@@ -3526,8 +3606,8 @@ typedef struct {
 /*
  * RXUDPEROIM (rw)
  *
- * MMC Receive UDP Good Octet Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxudp_err_octets counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive UDP Good Octet Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxudp_err_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXUDPEROIM_MASK (0x2000000UL)
 #define ENET_MMC_IPC_INTR_MASK_RX_RXUDPEROIM_SHIFT (25U)
@@ -3537,7 +3617,7 @@ typedef struct {
 /*
  * RXUDPGOIM (rw)
  *
- * MMC Receive IPV6 No Payload Octet Counter Interrupt Mask 
+ * MMC Receive IPV6 No Payload Octet Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rxudp_gd_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXUDPGOIM_MASK (0x1000000UL)
@@ -3548,7 +3628,7 @@ typedef struct {
 /*
  * RXIPV6NOPAYOIM (rw)
  *
- * MMC Receive IPV6 Header Error Octet Counter Interrupt Mask 
+ * MMC Receive IPV6 Header Error Octet Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rxipv6_nopay_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXIPV6NOPAYOIM_MASK (0x800000UL)
@@ -3559,7 +3639,7 @@ typedef struct {
 /*
  * RXIPV6HEROIM (rw)
  *
- * MMC Receive IPV6 Good Octet Counter Interrupt Mask 
+ * MMC Receive IPV6 Good Octet Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rxipv6_hdrerr_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXIPV6HEROIM_MASK (0x400000UL)
@@ -3570,7 +3650,7 @@ typedef struct {
 /*
  * RXIPV6GOIM (rw)
  *
- * MMC Receive IPV6 Good Octet Counter Interrupt Mask 
+ * MMC Receive IPV6 Good Octet Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rxipv6_gd_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXIPV6GOIM_MASK (0x200000UL)
@@ -3581,7 +3661,7 @@ typedef struct {
 /*
  * RXIPV4UDSBLOIM (rw)
  *
- * MMC Receive IPV4 UDP Checksum Disabled Octet Counter Interrupt Mask 
+ * MMC Receive IPV4 UDP Checksum Disabled Octet Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rxipv4_udsbl_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXIPV4UDSBLOIM_MASK (0x100000UL)
@@ -3592,7 +3672,7 @@ typedef struct {
 /*
  * RXIPV4FRAGOIM (rw)
  *
- * MMC Receive IPV4 Fragmented Octet Counter Interrupt Mask 
+ * MMC Receive IPV4 Fragmented Octet Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rxipv4_frag_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXIPV4FRAGOIM_MASK (0x80000UL)
@@ -3603,7 +3683,7 @@ typedef struct {
 /*
  * RXIPV4NOPAYOIM (rw)
  *
- * MMC Receive IPV4 No Payload Octet Counter Interrupt Mask 
+ * MMC Receive IPV4 No Payload Octet Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rxipv4_nopay_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXIPV4NOPAYOIM_MASK (0x40000UL)
@@ -3614,7 +3694,7 @@ typedef struct {
 /*
  * RXIPV4HEROIM (rw)
  *
- * MMC Receive IPV4 Header Error Octet Counter Interrupt Mask 
+ * MMC Receive IPV4 Header Error Octet Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rxipv4_hdrerr_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXIPV4HEROIM_MASK (0x20000UL)
@@ -3625,7 +3705,7 @@ typedef struct {
 /*
  * RXIPV4GOIM (rw)
  *
- * MMC Receive IPV4 Good Octet Counter Interrupt Mask 
+ * MMC Receive IPV4 Good Octet Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rxipv4_gd_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXIPV4GOIM_MASK (0x10000UL)
@@ -3636,8 +3716,8 @@ typedef struct {
 /*
  * RXICMPERFIM (rw)
  *
- * MMC Receive ICMP Error Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxicmp_err_frms counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive ICMP Error Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxicmp_err_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXICMPERFIM_MASK (0x2000U)
 #define ENET_MMC_IPC_INTR_MASK_RX_RXICMPERFIM_SHIFT (13U)
@@ -3647,8 +3727,8 @@ typedef struct {
 /*
  * RXICMPGFIM (rw)
  *
- * MMC Receive ICMP Good Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxicmp_gd_frms counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive ICMP Good Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxicmp_gd_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXICMPGFIM_MASK (0x1000U)
 #define ENET_MMC_IPC_INTR_MASK_RX_RXICMPGFIM_SHIFT (12U)
@@ -3658,8 +3738,8 @@ typedef struct {
 /*
  * RXTCPERFIM (rw)
  *
- * MMC Receive TCP Error Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxtcp_err_frms counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive TCP Error Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxtcp_err_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXTCPERFIM_MASK (0x800U)
 #define ENET_MMC_IPC_INTR_MASK_RX_RXTCPERFIM_SHIFT (11U)
@@ -3669,8 +3749,8 @@ typedef struct {
 /*
  * RXTCPGFIM (rw)
  *
- * MMC Receive TCP Good Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxtcp_gd_frms counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive TCP Good Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxtcp_gd_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXTCPGFIM_MASK (0x400U)
 #define ENET_MMC_IPC_INTR_MASK_RX_RXTCPGFIM_SHIFT (10U)
@@ -3680,8 +3760,8 @@ typedef struct {
 /*
  * RXUDPERFIM (rw)
  *
- * MMC Receive UDP Error Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxudp_err_frms counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive UDP Error Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxudp_err_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXUDPERFIM_MASK (0x200U)
 #define ENET_MMC_IPC_INTR_MASK_RX_RXUDPERFIM_SHIFT (9U)
@@ -3691,8 +3771,8 @@ typedef struct {
 /*
  * RXUDPGFIM (rw)
  *
- * MMC Receive UDP Good Frame Counter Interrupt Mask 
- * Setting this bit masks the interrupt when the rxudp_gd_frms counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive UDP Good Frame Counter Interrupt Mask
+ * Setting this bit masks the interrupt when the rxudp_gd_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXUDPGFIM_MASK (0x100U)
 #define ENET_MMC_IPC_INTR_MASK_RX_RXUDPGFIM_SHIFT (8U)
@@ -3702,7 +3782,7 @@ typedef struct {
 /*
  * RXIPV6NOPAYFIM (rw)
  *
- * MMC Receive IPV6 No Payload Frame Counter Interrupt Mask 
+ * MMC Receive IPV6 No Payload Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rxipv6_nopay_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXIPV6NOPAYFIM_MASK (0x80U)
@@ -3713,7 +3793,7 @@ typedef struct {
 /*
  * RXIPV6HERFIM (rw)
  *
- * MMC Receive IPV6 Header Error Frame Counter Interrupt Mask 
+ * MMC Receive IPV6 Header Error Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rxipv6_hdrerr_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXIPV6HERFIM_MASK (0x40U)
@@ -3724,7 +3804,7 @@ typedef struct {
 /*
  * RXIPV6GFIM (rw)
  *
- * MMC Receive IPV6 Good Frame Counter Interrupt Mask 
+ * MMC Receive IPV6 Good Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rxipv6_gd_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXIPV6GFIM_MASK (0x20U)
@@ -3735,7 +3815,7 @@ typedef struct {
 /*
  * RXIPV4UDSBLFIM (rw)
  *
- * MMC Receive IPV4 UDP Checksum Disabled Frame Counter Interrupt Mask 
+ * MMC Receive IPV4 UDP Checksum Disabled Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rxipv4_udsbl_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXIPV4UDSBLFIM_MASK (0x10U)
@@ -3746,7 +3826,7 @@ typedef struct {
 /*
  * RXIPV4FRAGFIM (rw)
  *
- * MMC Receive IPV4 Fragmented Frame Counter Interrupt Mask 
+ * MMC Receive IPV4 Fragmented Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rxipv4_frag_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXIPV4FRAGFIM_MASK (0x8U)
@@ -3757,7 +3837,7 @@ typedef struct {
 /*
  * RXIPV4NOPAYFIM (rw)
  *
- * MMC Receive IPV4 No Payload Frame Counter Interrupt Mask 
+ * MMC Receive IPV4 No Payload Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rxipv4_nopay_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXIPV4NOPAYFIM_MASK (0x4U)
@@ -3768,7 +3848,7 @@ typedef struct {
 /*
  * RXIPV4HERFIM (rw)
  *
- * MMC Receive IPV4 Header Error Frame Counter Interrupt Mask 
+ * MMC Receive IPV4 Header Error Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rxipv4_hdrerr_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXIPV4HERFIM_MASK (0x2U)
@@ -3779,7 +3859,7 @@ typedef struct {
 /*
  * RXIPV4GFIM (rw)
  *
- * MMC Receive IPV4 Good Frame Counter Interrupt Mask 
+ * MMC Receive IPV4 Good Frame Counter Interrupt Mask
  * Setting this bit masks the interrupt when the rxipv4_gd_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_MASK_RX_RXIPV4GFIM_MASK (0x1U)
@@ -3791,8 +3871,8 @@ typedef struct {
 /*
  * RXICMPEROIS (rw)
  *
- * MMC Receive ICMP Error Octet Counter Interrupt Status 
- * This bit is set when the rxicmp_err_octets counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive ICMP Error Octet Counter Interrupt Status
+ * This bit is set when the rxicmp_err_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXICMPEROIS_MASK (0x20000000UL)
 #define ENET_MMC_IPC_INTR_RX_RXICMPEROIS_SHIFT (29U)
@@ -3802,8 +3882,8 @@ typedef struct {
 /*
  * RXICMPGOIS (rw)
  *
- * MMC Receive ICMP Good Octet Counter Interrupt Status 
- * This bit is set when the rxicmp_gd_octets counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive ICMP Good Octet Counter Interrupt Status
+ * This bit is set when the rxicmp_gd_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXICMPGOIS_MASK (0x10000000UL)
 #define ENET_MMC_IPC_INTR_RX_RXICMPGOIS_SHIFT (28U)
@@ -3813,8 +3893,8 @@ typedef struct {
 /*
  * RXTCPEROIS (rw)
  *
- * MMC Receive TCP Error Octet Counter Interrupt Status 
- * This bit is set when the rxtcp_err_octets counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive TCP Error Octet Counter Interrupt Status
+ * This bit is set when the rxtcp_err_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXTCPEROIS_MASK (0x8000000UL)
 #define ENET_MMC_IPC_INTR_RX_RXTCPEROIS_SHIFT (27U)
@@ -3824,8 +3904,8 @@ typedef struct {
 /*
  * RXTCPGOIS (rw)
  *
- * MMC Receive TCP Good Octet Counter Interrupt Status 
- * This bit is set when the rxtcp_gd_octets counter reaches half of the maximum value or the maximum value 
+ * MMC Receive TCP Good Octet Counter Interrupt Status
+ * This bit is set when the rxtcp_gd_octets counter reaches half of the maximum value or the maximum value
  */
 #define ENET_MMC_IPC_INTR_RX_RXTCPGOIS_MASK (0x4000000UL)
 #define ENET_MMC_IPC_INTR_RX_RXTCPGOIS_SHIFT (26U)
@@ -3835,8 +3915,8 @@ typedef struct {
 /*
  * RXUDPEROIS (rw)
  *
- * MMC Receive UDP Error Octet Counter Interrupt Status 
- * This bit is set when the rxudp_err_octets counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive UDP Error Octet Counter Interrupt Status
+ * This bit is set when the rxudp_err_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXUDPEROIS_MASK (0x2000000UL)
 #define ENET_MMC_IPC_INTR_RX_RXUDPEROIS_SHIFT (25U)
@@ -3846,8 +3926,8 @@ typedef struct {
 /*
  * RXUDPGOIS (rw)
  *
- * MMC Receive UDP Good Octet Counter Interrupt Status 
- * This bit is set when the rxudp_gd_octets counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive UDP Good Octet Counter Interrupt Status
+ * This bit is set when the rxudp_gd_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXUDPGOIS_MASK (0x1000000UL)
 #define ENET_MMC_IPC_INTR_RX_RXUDPGOIS_SHIFT (24U)
@@ -3857,7 +3937,7 @@ typedef struct {
 /*
  * RXIPV6NOPAYOIS (rw)
  *
- * MMC Receive IPV6 No Payload Octet Counter Interrupt Status 
+ * MMC Receive IPV6 No Payload Octet Counter Interrupt Status
  * This bit is set when the rxipv6_nopay_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXIPV6NOPAYOIS_MASK (0x800000UL)
@@ -3868,7 +3948,7 @@ typedef struct {
 /*
  * RXIPV6HEROIS (rw)
  *
- * MMC Receive IPV6 Header Error Octet Counter Interrupt Status 
+ * MMC Receive IPV6 Header Error Octet Counter Interrupt Status
  * This bit is set when the rxipv6_hdrerr_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXIPV6HEROIS_MASK (0x400000UL)
@@ -3879,7 +3959,7 @@ typedef struct {
 /*
  * RXIPV6GOIS (rw)
  *
- * MMC Receive IPV6 Good Octet Counter Interrupt Status 
+ * MMC Receive IPV6 Good Octet Counter Interrupt Status
  * This bit is set when the rxipv6_gd_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXIPV6GOIS_MASK (0x200000UL)
@@ -3890,7 +3970,7 @@ typedef struct {
 /*
  * RXIPV4UDSBLOIS (rw)
  *
- * MMC Receive IPV4 UDP Checksum Disabled Octet Counter Interrupt Status 
+ * MMC Receive IPV4 UDP Checksum Disabled Octet Counter Interrupt Status
  * This bit is set when the rxipv4_udsbl_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXIPV4UDSBLOIS_MASK (0x100000UL)
@@ -3901,7 +3981,7 @@ typedef struct {
 /*
  * RXIPV4FRAGOIS (rw)
  *
- * MMC Receive IPV4 Fragmented Octet Counter Interrupt Status 
+ * MMC Receive IPV4 Fragmented Octet Counter Interrupt Status
  * This bit is set when the rxipv4_frag_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXIPV4FRAGOIS_MASK (0x80000UL)
@@ -3912,7 +3992,7 @@ typedef struct {
 /*
  * RXIPV4NOPAYOIS (rw)
  *
- * MMC Receive IPV4 No Payload Octet Counter Interrupt Status 
+ * MMC Receive IPV4 No Payload Octet Counter Interrupt Status
  * This bit is set when the rxipv4_nopay_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXIPV4NOPAYOIS_MASK (0x40000UL)
@@ -3923,7 +4003,7 @@ typedef struct {
 /*
  * RXIPV4HEROIS (rw)
  *
- * MMC Receive IPV4 Header Error Octet Counter Interrupt Status 
+ * MMC Receive IPV4 Header Error Octet Counter Interrupt Status
  * This bit is set when the rxipv4_hdrerr_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXIPV4HEROIS_MASK (0x20000UL)
@@ -3934,7 +4014,7 @@ typedef struct {
 /*
  * RXIPV4GOIS (rw)
  *
- * MMC Receive IPV4 Good Octet Counter Interrupt Status 
+ * MMC Receive IPV4 Good Octet Counter Interrupt Status
  * This bit is set when the rxipv4_gd_octets counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXIPV4GOIS_MASK (0x10000UL)
@@ -3945,8 +4025,8 @@ typedef struct {
 /*
  * RXICMPERFIS (rw)
  *
- * MMC Receive ICMP Error Frame Counter Interrupt Status 
- * This bit is set when the rxicmp_err_frms counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive ICMP Error Frame Counter Interrupt Status
+ * This bit is set when the rxicmp_err_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXICMPERFIS_MASK (0x2000U)
 #define ENET_MMC_IPC_INTR_RX_RXICMPERFIS_SHIFT (13U)
@@ -3956,8 +4036,8 @@ typedef struct {
 /*
  * RXICMPGFIS (rw)
  *
- * MMC Receive ICMP Good Frame Counter Interrupt Status 
- * This bit is set when the rxicmp_gd_frms counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive ICMP Good Frame Counter Interrupt Status
+ * This bit is set when the rxicmp_gd_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXICMPGFIS_MASK (0x1000U)
 #define ENET_MMC_IPC_INTR_RX_RXICMPGFIS_SHIFT (12U)
@@ -3967,8 +4047,8 @@ typedef struct {
 /*
  * RXTCPERFIS (rw)
  *
- * MMC Receive TCP Error Frame Counter Interrupt Status 
- * This bit is set when the rxtcp_err_frms counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive TCP Error Frame Counter Interrupt Status
+ * This bit is set when the rxtcp_err_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXTCPERFIS_MASK (0x800U)
 #define ENET_MMC_IPC_INTR_RX_RXTCPERFIS_SHIFT (11U)
@@ -3978,8 +4058,8 @@ typedef struct {
 /*
  * RXTCPGFIS (rw)
  *
- * MMC Receive TCP Good Frame Counter Interrupt Status 
- * This bit is set when the rxtcp_gd_frms counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive TCP Good Frame Counter Interrupt Status
+ * This bit is set when the rxtcp_gd_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXTCPGFIS_MASK (0x400U)
 #define ENET_MMC_IPC_INTR_RX_RXTCPGFIS_SHIFT (10U)
@@ -3989,8 +4069,8 @@ typedef struct {
 /*
  * RXUDPERFIS (rw)
  *
- * MMC Receive UDP Error Frame Counter Interrupt Status 
- * This bit is set when the rxudp_err_frms counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive UDP Error Frame Counter Interrupt Status
+ * This bit is set when the rxudp_err_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXUDPERFIS_MASK (0x200U)
 #define ENET_MMC_IPC_INTR_RX_RXUDPERFIS_SHIFT (9U)
@@ -4000,8 +4080,8 @@ typedef struct {
 /*
  * RXUDPGFIS (rw)
  *
- * MMC Receive UDP Good Frame Counter Interrupt Status 
- * This bit is set when the rxudp_gd_frms counter reaches half of the maximum value or the maximum value. 
+ * MMC Receive UDP Good Frame Counter Interrupt Status
+ * This bit is set when the rxudp_gd_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXUDPGFIS_MASK (0x100U)
 #define ENET_MMC_IPC_INTR_RX_RXUDPGFIS_SHIFT (8U)
@@ -4011,7 +4091,7 @@ typedef struct {
 /*
  * RXIPV6NOPAYFIS (rw)
  *
- * MMC Receive IPV6 No Payload Frame Counter Interrupt Status 
+ * MMC Receive IPV6 No Payload Frame Counter Interrupt Status
  * This bit is set when the rxipv6_nopay_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXIPV6NOPAYFIS_MASK (0x80U)
@@ -4022,7 +4102,7 @@ typedef struct {
 /*
  * RXIPV6HERFIS (rw)
  *
- * MMC Receive IPV6 Header Error Frame Counter Interrupt Status 
+ * MMC Receive IPV6 Header Error Frame Counter Interrupt Status
  * This bit is set when the rxipv6_hdrerr_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXIPV6HERFIS_MASK (0x40U)
@@ -4033,7 +4113,7 @@ typedef struct {
 /*
  * RXIPV6GFIS (rw)
  *
- * MMC Receive IPV6 Good Frame Counter Interrupt Status 
+ * MMC Receive IPV6 Good Frame Counter Interrupt Status
  * This bit is set when the rxipv6_gd_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXIPV6GFIS_MASK (0x20U)
@@ -4044,7 +4124,7 @@ typedef struct {
 /*
  * RXIPV4UDSBLFIS (rw)
  *
- * MMC Receive IPV4 UDP Checksum Disabled Frame Counter Interrupt Status 
+ * MMC Receive IPV4 UDP Checksum Disabled Frame Counter Interrupt Status
  * This bit is set when the rxipv4_udsbl_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXIPV4UDSBLFIS_MASK (0x10U)
@@ -4055,7 +4135,7 @@ typedef struct {
 /*
  * RXIPV4FRAGFIS (rw)
  *
- * MMC Receive IPV4 Fragmented Frame Counter Interrupt Status 
+ * MMC Receive IPV4 Fragmented Frame Counter Interrupt Status
  * This bit is set when the rxipv4_frag_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXIPV4FRAGFIS_MASK (0x8U)
@@ -4066,7 +4146,7 @@ typedef struct {
 /*
  * RXIPV4NOPAYFIS (rw)
  *
- * MMC Receive IPV4 No Payload Frame Counter Interrupt Status 
+ * MMC Receive IPV4 No Payload Frame Counter Interrupt Status
  * This bit is set when the rxipv4_nopay_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXIPV4NOPAYFIS_MASK (0x4U)
@@ -4088,7 +4168,7 @@ typedef struct {
 /*
  * RXIPV4GFIS (rw)
  *
- * MMC Receive IPV4 Good Frame Counter Interrupt Status 
+ * MMC Receive IPV4 Good Frame Counter Interrupt Status
  * This bit is set when the rxipv4_gd_frms counter reaches half of the maximum value or the maximum value.
  */
 #define ENET_MMC_IPC_INTR_RX_RXIPV4GFIS_MASK (0x1U)
@@ -4199,7 +4279,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good IP datagrams whose UDP payload has a checksum error 
+ * Number of good IP datagrams whose UDP payload has a checksum error
  */
 #define ENET_RXUDP_ERR_FRMS_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXUDP_ERR_FRMS_FRMCNT_SHIFT (0U)
@@ -4210,7 +4290,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good IP datagrams with a good TCP payload 
+ * Number of good IP datagrams with a good TCP payload
  */
 #define ENET_RXTCP_GD_FRMS_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXTCP_GD_FRMS_FRMCNT_SHIFT (0U)
@@ -4221,7 +4301,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good IP datagrams whose TCP payload has a checksum error 
+ * Number of good IP datagrams whose TCP payload has a checksum error
  */
 #define ENET_RXTCP_ERR_FRMS_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXTCP_ERR_FRMS_FRMCNT_SHIFT (0U)
@@ -4232,7 +4312,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good IP datagrams with a good ICMP payload 
+ * Number of good IP datagrams with a good ICMP payload
  */
 #define ENET_RXICMP_GD_FRMS_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXICMP_GD_FRMS_FRMCNT_SHIFT (0U)
@@ -4243,7 +4323,7 @@ typedef struct {
 /*
  * FRMCNT (rw)
  *
- * Number of good IP datagrams whose ICMP payload has a checksum error 
+ * Number of good IP datagrams whose ICMP payload has a checksum error
  */
 #define ENET_RXICMP_ERR_FRMS_FRMCNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXICMP_ERR_FRMS_FRMCNT_SHIFT (0U)
@@ -4298,7 +4378,7 @@ typedef struct {
 /*
  * BYTECNT (rw)
  *
- * Number of bytes received in a UDP segment that had the UDP checksum disabled. This counter does not count IP Header bytes. 
+ * Number of bytes received in a UDP segment that had the UDP checksum disabled. This counter does not count IP Header bytes.
  */
 #define ENET_RXIPV4_UDSBL_OCTETS_BYTECNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXIPV4_UDSBL_OCTETS_BYTECNT_SHIFT (0U)
@@ -4342,7 +4422,7 @@ typedef struct {
 /*
  * BYTECNT (rw)
  *
- * Number of bytes received in a good UDP segment. This counter (and the counters below) does not count IP header bytes. 
+ * Number of bytes received in a good UDP segment. This counter (and the counters below) does not count IP header bytes.
  */
 #define ENET_RXUDP_GD_OCTETS_BYTECNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXUDP_GD_OCTETS_BYTECNT_SHIFT (0U)
@@ -4353,7 +4433,7 @@ typedef struct {
 /*
  * BYTECNT (rw)
  *
- * Number of bytes received in a UDP segment that had checksum errors 
+ * Number of bytes received in a UDP segment that had checksum errors
  */
 #define ENET_RXUDP_ERR_OCTETS_BYTECNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXUDP_ERR_OCTETS_BYTECNT_SHIFT (0U)
@@ -4364,7 +4444,7 @@ typedef struct {
 /*
  * BYTECNT (rw)
  *
- * Number of bytes received in a good TCP segment 
+ * Number of bytes received in a good TCP segment
  */
 #define ENET_RXTCP_GD_OCTETS_BYTECNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXTCP_GD_OCTETS_BYTECNT_SHIFT (0U)
@@ -4375,7 +4455,7 @@ typedef struct {
 /*
  * BYTECNT (rw)
  *
- * Number of bytes received in a TCP segment with checksum errors 
+ * Number of bytes received in a TCP segment with checksum errors
  */
 #define ENET_RXTCP_ERR_OCTETS_BYTECNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXTCP_ERR_OCTETS_BYTECNT_SHIFT (0U)
@@ -4386,14 +4466,13 @@ typedef struct {
 /*
  * BYTECNT (rw)
  *
- * Number of bytes received in a good ICMP segment 
+ * Number of bytes received in a good ICMP segment
  */
 #define ENET_RXICMP_GD_OCTETS_BYTECNT_MASK (0xFFFFFFFFUL)
 #define ENET_RXICMP_GD_OCTETS_BYTECNT_SHIFT (0U)
 #define ENET_RXICMP_GD_OCTETS_BYTECNT_SET(x) (((uint32_t)(x) << ENET_RXICMP_GD_OCTETS_BYTECNT_SHIFT) & ENET_RXICMP_GD_OCTETS_BYTECNT_MASK)
 #define ENET_RXICMP_GD_OCTETS_BYTECNT_GET(x) (((uint32_t)(x) & ENET_RXICMP_GD_OCTETS_BYTECNT_MASK) >> ENET_RXICMP_GD_OCTETS_BYTECNT_SHIFT)
 
-/* Bitfield definition for register: RXICMP_ERR_OCTETS */
 /* Bitfield definition for register of struct array L3_L4_CFG: L3_L4_CTRL */
 /*
  * L4DPIM0 (rw)
@@ -4420,7 +4499,7 @@ typedef struct {
 /*
  * L4SPIM0 (rw)
  *
- * Layer 4 Source Port Inverse Match Enable 
+ * Layer 4 Source Port Inverse Match Enable
  * When set, this bit indicates that the Layer 4 Source Port number field is enabled for inverse matching. When reset, this bit indicates that the Layer 4 Source Port number field is enabled for perfect matching. This bit is valid and applicable only when Bit 18 (L4SPM0) is set high.
  */
 #define ENET_L3_L4_CFG_L3_L4_CTRL_L4SPIM0_MASK (0x80000UL)
@@ -4431,7 +4510,7 @@ typedef struct {
 /*
  * L4SPM0 (rw)
  *
- * Layer 4 Source Port Match Enable 
+ * Layer 4 Source Port Match Enable
  * When set, this bit indicates that the Layer 4 Source Port number field is enabled for matching. When reset, the MAC ignores the Layer 4 Source Port number field for matching.
  */
 #define ENET_L3_L4_CFG_L3_L4_CTRL_L4SPM0_MASK (0x40000UL)
@@ -4442,7 +4521,7 @@ typedef struct {
 /*
  * L4PEN0 (rw)
  *
- * Layer 4 Protocol Enable 
+ * Layer 4 Protocol Enable
  * When set, this bit indicates that the Source and Destination Port number fields for UDP frames are used for matching. When reset, this bit indicates that the Source and Destination Port number fields for TCP frames are used for matching. The Layer 4 matching is done only when either L4SPM0 or L4DPM0 bit is set high.
  */
 #define ENET_L3_L4_CFG_L3_L4_CTRL_L4PEN0_MASK (0x10000UL)
@@ -4487,7 +4566,7 @@ typedef struct {
 /*
  * L3DAIM0 (rw)
  *
- * Layer 3 IP DA Inverse Match Enable 
+ * Layer 3 IP DA Inverse Match Enable
  * When set, this bit indicates that the Layer 3 IP Destination Address field is enabled for inverse matching. When reset, this bit indicates that the Layer 3 IP Destination Address field is enabled for perfect matching. This bit is valid and applicable only when Bit 4 (L3DAM0) is set high.
  */
 #define ENET_L3_L4_CFG_L3_L4_CTRL_L3DAIM0_MASK (0x20U)
@@ -4498,7 +4577,7 @@ typedef struct {
 /*
  * L3DAM0 (rw)
  *
- * Layer 3 IP DA Match Enable 
+ * Layer 3 IP DA Match Enable
  * When set, this bit indicates that Layer 3 IP Destination Address field is enabled for matching. When reset, the MAC ignores the Layer 3 IP Destination Address field for matching. Note: When Bit 0 (L3PEN0) is set, you should set either this bit or Bit 2 (L3SAM0) because either IPv6 DA or SA can be checked for filtering.
  */
 #define ENET_L3_L4_CFG_L3_L4_CTRL_L3DAM0_MASK (0x10U)
@@ -4509,7 +4588,7 @@ typedef struct {
 /*
  * L3SAIM0 (rw)
  *
- * Layer 3 IP SA Inverse Match Enable 
+ * Layer 3 IP SA Inverse Match Enable
  * When set, this bit indicates that the Layer 3 IP Source Address field is enabled for inverse matching. When reset, this bit indicates that the Layer 3 IP Source Address field is enabled for perfect matching. This bit is valid and applicable only when Bit 2 (L3SAM0) is set high.
  */
 #define ENET_L3_L4_CFG_L3_L4_CTRL_L3SAIM0_MASK (0x8U)
@@ -4520,7 +4599,7 @@ typedef struct {
 /*
  * L3SAM0 (rw)
  *
- * Layer 3 IP SA Match Enable 
+ * Layer 3 IP SA Match Enable
  * When set, this bit indicates that the Layer 3 IP Source Address field is enabled for matching. When reset, the MAC ignores the Layer 3 IP Source Address field for matching.
  */
 #define ENET_L3_L4_CFG_L3_L4_CTRL_L3SAM0_MASK (0x4U)
@@ -4543,7 +4622,7 @@ typedef struct {
 /*
  * L4DP0 (rw)
  *
- * Layer 4 Destination Port Number Field 
+ * Layer 4 Destination Port Number Field
  * When Bit 16 (L4PEN0) is reset and Bit 20 (L4DPM0) is set in Register 256 (Layer 3 and Layer 4 Control Register 0), this field contains the value to be matched with the TCP Destination Port Number field in the IPv4 or IPv6 frames. When Bit 16 (L4PEN0) and Bit 20 (L4DPM0) are set in Register 256 (Layer 3 and Layer 4 Control Register 0), this field contains the value to be matched with the UDP Destination Port Number field in the IPv4 or IPv6 frames.
  */
 #define ENET_L3_L4_CFG_L4_ADDR_L4DP0_MASK (0xFFFF0000UL)
@@ -4636,7 +4715,7 @@ typedef struct {
 /*
  * VLP (rw)
  *
- * VLAN Priority Control 
+ * VLAN Priority Control
  * When this bit is set, the control Bits [17:16] are used for VLAN deletion, insertion, or replacement. When this bit is reset, the mti_vlan_ctrl_i control input is used, and Bits [17:16] are ignored.
  */
 #define ENET_VLAN_TAG_INC_RPL_VLP_MASK (0x40000UL)
@@ -4647,7 +4726,7 @@ typedef struct {
 /*
  * VLC (rw)
  *
- * VLAN Tag Control in Transmit Frames 
+ * VLAN Tag Control in Transmit Frames
  * - 2’b00: No VLAN tag deletion, insertion, or replacement
  * - 2’b01: VLAN tag deletion The MAC removes the VLAN type (bytes 13 and 14) and VLAN tag (bytes 15 and 16) of all transmitted frames with VLAN tags.
  * - 2’b10: VLAN tag insertion The MAC inserts VLT in bytes 15 and 16 of the frame after inserting the Type value (0x8100/0x88a8) in bytes 13 and 14. This operation is performed on all transmitted frames, irrespective of whether they already have a VLAN tag.
@@ -4685,7 +4764,7 @@ typedef struct {
 /*
  * ATSEN3 (rw)
  *
- * Auxiliary Snapshot 3 Enable 
+ * Auxiliary Snapshot 3 Enable
  * This field controls capturing the Auxiliary Snapshot Trigger 3. When this bit is set, the Auxiliary snapshot of event on ptp_aux_trig_i[3] input is enabled. When this bit is reset, the events on this input are ignored. This bit is reserved when the Add IEEE 1588 Auxiliary Snapshot option is not selected during core configuration or the selected number in the Number of IEEE 1588 Auxiliary Snapshot Inputs option is less than four.
  */
 #define ENET_TS_CTRL_ATSEN3_MASK (0x10000000UL)
@@ -4696,7 +4775,7 @@ typedef struct {
 /*
  * ATSEN2 (rw)
  *
- * Auxiliary Snapshot 2 Enable 
+ * Auxiliary Snapshot 2 Enable
  * This field controls capturing the Auxiliary Snapshot Trigger 2. When this bit is set, the Auxiliary snapshot of event on ptp_aux_trig_i[2] input is enabled. When this bit is reset, the events on this input are ignored. This bit is reserved when the Add IEEE 1588 Auxiliary Snapshot option is not selected during core configuration or the selected number in the Number of IEEE 1588 Auxiliary Snapshot Inputs option is less than three.
  */
 #define ENET_TS_CTRL_ATSEN2_MASK (0x8000000UL)
@@ -4707,7 +4786,7 @@ typedef struct {
 /*
  * ATSEN1 (rw)
  *
- * Auxiliary Snapshot 1 Enable 
+ * Auxiliary Snapshot 1 Enable
  * This field controls capturing the Auxiliary Snapshot Trigger 1. When this bit is set, the Auxiliary snapshot of event on ptp_aux_trig_i[1] input is enabled. When this bit is reset, the events on this input are ignored. This bit is reserved when the Add IEEE 1588 Auxiliary Snapshot option is not selected during core configuration or the selected number in the Number of IEEE 1588 Auxiliary Snapshot Inputs option is less than two.
  */
 #define ENET_TS_CTRL_ATSEN1_MASK (0x4000000UL)
@@ -4718,7 +4797,7 @@ typedef struct {
 /*
  * ATSEN0 (rw)
  *
- * Auxiliary Snapshot 0 Enable 
+ * Auxiliary Snapshot 0 Enable
  * This field controls capturing the Auxiliary Snapshot Trigger 0. When this bit is set, the Auxiliary snapshot of event on ptp_aux_trig_i[0] input is enabled. When this bit is reset, the events on this input are ignored.
  */
 #define ENET_TS_CTRL_ATSEN0_MASK (0x2000000UL)
@@ -4729,7 +4808,7 @@ typedef struct {
 /*
  * ATSFC (rw)
  *
- * Auxiliary Snapshot FIFO Clear 
+ * Auxiliary Snapshot FIFO Clear
  * When set, it resets the pointers of the Auxiliary Snapshot FIFO. This bit is cleared when the pointers are reset and the FIFO is empty. When this bit is high, auxiliary snapshots get stored in the FIFO. This bit is reserved when the Add IEEE 1588 Auxiliary Snapshot option is not selected during core configuration.
  */
 #define ENET_TS_CTRL_ATSFC_MASK (0x1000000UL)
@@ -4740,8 +4819,8 @@ typedef struct {
 /*
  * TSENMACADDR (rw)
  *
- * Enable MAC address for PTP Frame Filtering 
- * When set, the DA MAC address (that matches any MAC Address register) is used to filter the PTP frames when PTP is directly sent over Ethernet. 
+ * Enable MAC address for PTP Frame Filtering
+ * When set, the DA MAC address (that matches any MAC Address register) is used to filter the PTP frames when PTP is directly sent over Ethernet.
  */
 #define ENET_TS_CTRL_TSENMACADDR_MASK (0x40000UL)
 #define ENET_TS_CTRL_TSENMACADDR_SHIFT (18U)
@@ -4762,8 +4841,8 @@ typedef struct {
 /*
  * TSMSTRENA (rw)
  *
- * Enable Snapshot for Messages Relevant to Master 
- * When set, the snapshot is taken only for the messages relevant to the master node. Otherwise, the snapshot is taken for the messages relevant to the slave node. 
+ * Enable Snapshot for Messages Relevant to Master
+ * When set, the snapshot is taken only for the messages relevant to the master node. Otherwise, the snapshot is taken for the messages relevant to the slave node.
  */
 #define ENET_TS_CTRL_TSMSTRENA_MASK (0x8000U)
 #define ENET_TS_CTRL_TSMSTRENA_SHIFT (15U)
@@ -4773,8 +4852,8 @@ typedef struct {
 /*
  * TSEVNTENA (rw)
  *
- * Enable Timestamp Snapshot for Event Messages 
- * When set, the timestamp snapshot is taken only for event messages (SYNC, Delay_Req, Pdelay_Req, or Pdelay_Resp). When reset, the snapshot is taken for all messages except Announce, Management, and Signaling. 
+ * Enable Timestamp Snapshot for Event Messages
+ * When set, the timestamp snapshot is taken only for event messages (SYNC, Delay_Req, Pdelay_Req, or Pdelay_Resp). When reset, the snapshot is taken for all messages except Announce, Management, and Signaling.
  */
 #define ENET_TS_CTRL_TSEVNTENA_MASK (0x4000U)
 #define ENET_TS_CTRL_TSEVNTENA_SHIFT (14U)
@@ -4795,7 +4874,7 @@ typedef struct {
 /*
  * TSIPV6ENA (rw)
  *
- * Enable Processing of PTP Frames Sent over IPv6-UDP 
+ * Enable Processing of PTP Frames Sent over IPv6-UDP
  * When set, the MAC receiver processes PTP packets encapsulated in UDP over IPv6 packets. When this bit is clear, the MAC ignores the PTP transported over UDP-IPv6 packets.
  */
 #define ENET_TS_CTRL_TSIPV6ENA_MASK (0x1000U)
@@ -4806,8 +4885,8 @@ typedef struct {
 /*
  * TSIPENA (rw)
  *
- * Enable Processing of PTP over Ethernet Frames 
- * When set, the MAC receiver processes the PTP packets encapsulated directly in the Ethernet frames. When this bit is clear, the MAC ignores the PTP over Ethernet packets 
+ * Enable Processing of PTP over Ethernet Frames
+ * When set, the MAC receiver processes the PTP packets encapsulated directly in the Ethernet frames. When this bit is clear, the MAC ignores the PTP over Ethernet packets
  */
 #define ENET_TS_CTRL_TSIPENA_MASK (0x800U)
 #define ENET_TS_CTRL_TSIPENA_SHIFT (11U)
@@ -4817,7 +4896,7 @@ typedef struct {
 /*
  * TSVER2ENA (rw)
  *
- * Enable PTP packet Processing for Version 2 Format 
+ * Enable PTP packet Processing for Version 2 Format
  * When set, the PTP packets are processed using the 1588 version 2 format. Otherwise, the PTP packets are processed using the version 1 format.
  */
 #define ENET_TS_CTRL_TSVER2ENA_MASK (0x400U)
@@ -4828,7 +4907,7 @@ typedef struct {
 /*
  * TSCTRLSSR (rw)
  *
- * Timestamp Digital or Binary Rollover Control 
+ * Timestamp Digital or Binary Rollover Control
  * When set, the Timestamp Low register rolls over after 0x3B9A_C9FF value (that is, 1 nanosecond accuracy) and increments the timestamp (High) seconds. When reset, the rollover value of sub-second register is 0x7FFF_FFFF. The sub-second increment has to be programmed correctly depending on the PTP reference clock frequency and the value of this bit.
  */
 #define ENET_TS_CTRL_TSCTRLSSR_MASK (0x200U)
@@ -4839,8 +4918,8 @@ typedef struct {
 /*
  * TSENALL (rw)
  *
- * Enable Timestamp for All Frames 
- * When set, the timestamp snapshot is enabled for all frames received by the MAC. 
+ * Enable Timestamp for All Frames
+ * When set, the timestamp snapshot is enabled for all frames received by the MAC.
  */
 #define ENET_TS_CTRL_TSENALL_MASK (0x100U)
 #define ENET_TS_CTRL_TSENALL_SHIFT (8U)
@@ -4850,8 +4929,8 @@ typedef struct {
 /*
  * TSADDREG (rw)
  *
- * Addend Reg Update 
- * When set, the content of the Timestamp Addend register is updated in the PTP block for fine correction. This is cleared when the update is completed. This register bit should be zero before setting it. 
+ * Addend Reg Update
+ * When set, the content of the Timestamp Addend register is updated in the PTP block for fine correction. This is cleared when the update is completed. This register bit should be zero before setting it.
  */
 #define ENET_TS_CTRL_TSADDREG_MASK (0x20U)
 #define ENET_TS_CTRL_TSADDREG_SHIFT (5U)
@@ -4861,8 +4940,8 @@ typedef struct {
 /*
  * TSTRIG (rw)
  *
- * Timestamp Interrupt Trigger Enable 
- * When set, the timestamp interrupt is generated when the System Time becomes greater than the value written in the Target Time register. This bit is reset after the generation of the Timestamp Trigger Interrupt. 
+ * Timestamp Interrupt Trigger Enable
+ * When set, the timestamp interrupt is generated when the System Time becomes greater than the value written in the Target Time register. This bit is reset after the generation of the Timestamp Trigger Interrupt.
  */
 #define ENET_TS_CTRL_TSTRIG_MASK (0x10U)
 #define ENET_TS_CTRL_TSTRIG_SHIFT (4U)
@@ -4872,7 +4951,7 @@ typedef struct {
 /*
  * TSUPDT (rw)
  *
- * Timestamp Update 
+ * Timestamp Update
  * When set, the system time is updated (added or subtracted) with the value specified in Register 452 (System Time – Seconds Update Register) and Register 453 (System Time – Nanoseconds Update Register). This bit should be read zero before updating it. This bit is reset when the update is completed in hardware. The “Timestamp Higher Word” register (if enabled during core configuration) is not updated.
  */
 #define ENET_TS_CTRL_TSUPDT_MASK (0x8U)
@@ -4883,7 +4962,7 @@ typedef struct {
 /*
  * TSINIT (rw)
  *
- * Timestamp Initialize 
+ * Timestamp Initialize
  * When set, the system time is initialized (overwritten) with the value specified in the Register 452 (System Time – Seconds Update Register) and Register 453 (System Time – Nanoseconds Update Register). This bit should be read zero before updating it. This bit is reset when the initialization is complete. The “Timestamp Higher Word” register (if enabled during core configuration) can only be initialized.
  */
 #define ENET_TS_CTRL_TSINIT_MASK (0x4U)
@@ -4894,8 +4973,8 @@ typedef struct {
 /*
  * TSCFUPDT (rw)
  *
- * Timestamp Fine or Coarse Update 
- * When set, this bit indicates that the system times update should be done using the fine update method. When reset, it indicates the system timestamp update should be done using the Coarse method. 
+ * Timestamp Fine or Coarse Update
+ * When set, this bit indicates that the system times update should be done using the fine update method. When reset, it indicates the system timestamp update should be done using the Coarse method.
  */
 #define ENET_TS_CTRL_TSCFUPDT_MASK (0x2U)
 #define ENET_TS_CTRL_TSCFUPDT_SHIFT (1U)
@@ -4905,7 +4984,7 @@ typedef struct {
 /*
  * TSENA (rw)
  *
- * Timestamp Enable 
+ * Timestamp Enable
  * When set, the timestamp is added for the transmit and receive frames. When disabled, timestamp is not added for the transmit and receive frames and the Timestamp Generator is also suspended. You need to initialize the Timestamp (system time) after enabling this mode. On the receive side, the MAC processes the 1588 frames only if this bit is set.
  */
 #define ENET_TS_CTRL_TSENA_MASK (0x1U)
@@ -4917,7 +4996,7 @@ typedef struct {
 /*
  * SSINC (rw)
  *
- * Sub-second Increment Value 
+ * Sub-second Increment Value
  * The value programmed in this field is accumulated every clock cycle (of clk_ptp_i) with the contents of the sub-second register. For example, when PTP clock is 50 MHz (period is 20 ns), you should program 20 (0x14) when the System Time- Nanoseconds register has an accuracy of 1 ns [Bit 9 (TSCTRLSSR) is set in Register 448 (Timestamp Control Register)]. When TSCTRLSSR is clear, the Nanoseconds register has a resolution of ~0.465ns. In this case, you should program a value of 43 (0x2B) that is derived by 20ns/0.465.
  */
 #define ENET_SUB_SEC_INCR_SSINC_MASK (0xFFU)
@@ -4930,7 +5009,7 @@ typedef struct {
  * TSS (rw)
  *
  * Timestamp Second
- *  The value in this field indicates the current value in seconds of the System Time maintained by the MAC. 
+ *  The value in this field indicates the current value in seconds of the System Time maintained by the MAC.
  */
 #define ENET_SYST_SEC_TSS_MASK (0xFFFFFFFFUL)
 #define ENET_SYST_SEC_TSS_SHIFT (0U)
@@ -4954,7 +5033,7 @@ typedef struct {
  * TSS (rw)
  *
  * Timestamp Second
- *  The value in this field indicates the time in seconds to be initialized or added to the system time. 
+ *  The value in this field indicates the time in seconds to be initialized or added to the system time.
  */
 #define ENET_SYST_SEC_UPD_TSS_MASK (0xFFFFFFFFUL)
 #define ENET_SYST_SEC_UPD_TSS_SHIFT (0U)
@@ -4966,7 +5045,7 @@ typedef struct {
  * ADDSUB (rw)
  *
  * Add or Subtract Time
- *  When this bit is set, the time value is subtracted with the contents of the update register. When this bit is reset, the time value is added with the contents of the update register. 
+ *  When this bit is set, the time value is subtracted with the contents of the update register. When this bit is reset, the time value is added with the contents of the update register.
  */
 #define ENET_SYST_NSEC_UPD_ADDSUB_MASK (0x80000000UL)
 #define ENET_SYST_NSEC_UPD_ADDSUB_SHIFT (31U)
@@ -4976,7 +5055,7 @@ typedef struct {
 /*
  * TSSS (rw)
  *
- * Timestamp Sub Seconds 
+ * Timestamp Sub Seconds
  * The value in this field has the sub second representation of time, with an accuracy of 0.46 ns. When Bit 9 (TSCTRLSSR) is set in Register 448 (Timestamp Control Register), each bit represents 1 ns and the programmed value should not exceed 0x3B9A_C9FF.
  */
 #define ENET_SYST_NSEC_UPD_TSSS_MASK (0x7FFFFFFFUL)
@@ -4988,7 +5067,7 @@ typedef struct {
 /*
  * TSAR (rw)
  *
- * Timestamp Addend Register 
+ * Timestamp Addend Register
  * This field indicates the 32-bit time value to be added to the Accumulator register to achieve time synchronization.
  */
 #define ENET_TS_ADDEND_TSAR_MASK (0xFFFFFFFFUL)
@@ -5023,7 +5102,7 @@ typedef struct {
 /*
  * TTSLO (rw)
  *
- * Target Timestamp Low Register 
+ * Target Timestamp Low Register
  * This register stores the time in (signed) nanoseconds. When the value of the timestamp matches the both Target Timestamp registers, then based on the TRGTMODSEL0 field (Bits [6:5]) in Register 459 (PPS Control Register), the MAC starts or stops the PPS signal output and generates an interrupt (if enabled). This value should not exceed 0x3B9A_C9FF when Bit 9 (TSCTRLSSR) is set in Register 448 (Timestamp Control Register). The actual start or stop time of the PPS signal output may have an error margin up to one unit of sub-second increment value.
  */
 #define ENET_TGTTM_NSEC_TTSLO_MASK (0x7FFFFFFFUL)
@@ -5035,7 +5114,7 @@ typedef struct {
 /*
  * TSHWR (rw)
  *
- * Timestamp Higher Word Register 
+ * Timestamp Higher Word Register
  * This field contains the most significant 16-bits of the timestamp seconds value. This register is optional and can be selected using the Enable IEEE 1588 Higher Word Register option during core configuration. The register is directly written to initialize the value. This register is incremented when there is an overflow from the 32-bits of the System Time - Seconds register.
  */
 #define ENET_SYSTM_H_SEC_TSHWR_MASK (0xFFFFU)
@@ -5047,7 +5126,7 @@ typedef struct {
 /*
  * ATSNS (RO)
  *
- * Number of Auxiliary Timestamp Snapshots 
+ * Number of Auxiliary Timestamp Snapshots
  * This field indicates the number of Snapshots available in the FIFO. A value equal to the selected depth of FIFO (4, 8, or 16) indicates that the Auxiliary Snapshot FIFO is full. These bits are cleared (to 00000) when the Auxiliary snapshot FIFO clear bit is set. This bit is valid only if the Add IEEE 1588 Auxiliary Snapshot option is selected during core configuration.
  */
 #define ENET_TS_STATUS_ATSNS_MASK (0x3E000000UL)
@@ -5067,7 +5146,7 @@ typedef struct {
 /*
  * ATSSTN (RO)
  *
- * Auxiliary Timestamp Snapshot Trigger Identifier 
+ * Auxiliary Timestamp Snapshot Trigger Identifier
  * These bits identify the Auxiliary trigger inputs for which the timestamp available in the Auxiliary Snapshot Register is applicable. When more than one bit is set at the same time, it means that corresponding auxiliary triggers were sampled at the same clock. These bits are applicable only if the number of Auxiliary snapshots is more than one. One bit is assigned for each trigger as shown in the following list: - Bit 16: Auxiliary trigger 0 - Bit 17: Auxiliary trigger 1 - Bit 18: Auxiliary trigger 2 - Bit 19: Auxiliary trigger 3 The software can read this register to find the triggers that are set when the timestamp is taken.
  */
 #define ENET_TS_STATUS_ATSSTN_MASK (0xF0000UL)
@@ -5077,7 +5156,7 @@ typedef struct {
 /*
  * TSTRGTERR3 (RO)
  *
- * Timestamp Target Time Error 
+ * Timestamp Target Time Error
  * This bit is set when the target time, being programmed in Register 496 and Register 497, is already elapsed. This bit is cleared when read by the application.
  */
 #define ENET_TS_STATUS_TSTRGTERR3_MASK (0x200U)
@@ -5087,7 +5166,7 @@ typedef struct {
 /*
  * TSTARGT3 (RO)
  *
- * Timestamp Target Time Reached for Target Time PPS3 
+ * Timestamp Target Time Reached for Target Time PPS3
  * When set, this bit indicates that the value of system time is greater than or equal to the value specified in Register 496 (PPS3 Target Time High Register) and Register 497 (PPS3 Target Time Low Register).
  */
 #define ENET_TS_STATUS_TSTARGT3_MASK (0x100U)
@@ -5097,7 +5176,6 @@ typedef struct {
 /*
  * TSTRGTERR2 (RO)
  *
- * 
  */
 #define ENET_TS_STATUS_TSTRGTERR2_MASK (0x80U)
 #define ENET_TS_STATUS_TSTRGTERR2_SHIFT (7U)
@@ -5106,7 +5184,6 @@ typedef struct {
 /*
  * TSTARGT2 (RO)
  *
- * 
  */
 #define ENET_TS_STATUS_TSTARGT2_MASK (0x40U)
 #define ENET_TS_STATUS_TSTARGT2_SHIFT (6U)
@@ -5115,7 +5192,6 @@ typedef struct {
 /*
  * TSTRGTERR1 (RO)
  *
- * 
  */
 #define ENET_TS_STATUS_TSTRGTERR1_MASK (0x20U)
 #define ENET_TS_STATUS_TSTRGTERR1_SHIFT (5U)
@@ -5124,7 +5200,6 @@ typedef struct {
 /*
  * TSTARGT1 (RO)
  *
- * 
  */
 #define ENET_TS_STATUS_TSTARGT1_MASK (0x10U)
 #define ENET_TS_STATUS_TSTARGT1_SHIFT (4U)
@@ -5133,7 +5208,6 @@ typedef struct {
 /*
  * TSTRGTERR (RO)
  *
- * 
  */
 #define ENET_TS_STATUS_TSTRGTERR_MASK (0x8U)
 #define ENET_TS_STATUS_TSTRGTERR_SHIFT (3U)
@@ -5142,7 +5216,6 @@ typedef struct {
 /*
  * AUXTSTRIG (RO)
  *
- * 
  */
 #define ENET_TS_STATUS_AUXTSTRIG_MASK (0x4U)
 #define ENET_TS_STATUS_AUXTSTRIG_SHIFT (2U)
@@ -5151,7 +5224,6 @@ typedef struct {
 /*
  * TSTARGT (RO)
  *
- * 
  */
 #define ENET_TS_STATUS_TSTARGT_MASK (0x2U)
 #define ENET_TS_STATUS_TSTARGT_SHIFT (1U)
@@ -5160,7 +5232,6 @@ typedef struct {
 /*
  * TSSOVF (RO)
  *
- * 
  */
 #define ENET_TS_STATUS_TSSOVF_MASK (0x1U)
 #define ENET_TS_STATUS_TSSOVF_SHIFT (0U)
@@ -5170,7 +5241,7 @@ typedef struct {
 /*
  * TRGTMODSEL3 (rw)
  *
- * Target Time Register Mode for PPS3 Output 
+ * Target Time Register Mode for PPS3 Output
  * This field indicates the Target Time registers (register 496 and 497) mode for PPS3 output signal. This field is similar to the TRGTMODSEL0 field.
  */
 #define ENET_PPS_CTRL_TRGTMODSEL3_MASK (0x60000000UL)
@@ -5181,7 +5252,7 @@ typedef struct {
 /*
  * PPSCMD3 (rw)
  *
- * Flexible PPS3 Output Control 
+ * Flexible PPS3 Output Control
  * This field controls the flexible PPS3 output (ptp_pps_o[3]) signal. This field is similar to PPSCMD0[2:0] in functionality.
  */
 #define ENET_PPS_CTRL_PPSCMD3_MASK (0x7000000UL)
@@ -5192,7 +5263,7 @@ typedef struct {
 /*
  * TRGTMODSEL2 (rw)
  *
- * Target Time Register Mode for PPS2 Output 
+ * Target Time Register Mode for PPS2 Output
  * This field indicates the Target Time registers (register 488 and 489) mode for PPS2 output signal. This field is similar to the TRGTMODSEL0 field.
  */
 #define ENET_PPS_CTRL_TRGTMODSEL2_MASK (0x600000UL)
@@ -5203,7 +5274,7 @@ typedef struct {
 /*
  * PPSCMD2 (rw)
  *
- * Flexible PPS2 Output Control 
+ * Flexible PPS2 Output Control
  * This field controls the flexible PPS2 output (ptp_pps_o[2]) signal. This field is similar to PPSCMD0[2:0] in functionality.
  */
 #define ENET_PPS_CTRL_PPSCMD2_MASK (0x70000UL)
@@ -5214,7 +5285,7 @@ typedef struct {
 /*
  * TRGTMODSEL1 (rw)
  *
- * Target Time Register Mode for PPS1 Output 
+ * Target Time Register Mode for PPS1 Output
  * This field indicates the Target Time registers (register 480 and 481) mode for PPS1 output signal. This field is similar to the TRGTMODSEL0 field.
  */
 #define ENET_PPS_CTRL_TRGTMODSEL1_MASK (0x6000U)
@@ -5225,7 +5296,7 @@ typedef struct {
 /*
  * PPSCMD1 (rw)
  *
- * Flexible PPS1 Output Control 
+ * Flexible PPS1 Output Control
  * This field controls the flexible PPS1 output (ptp_pps_o[1]) signal. This field is similar to PPSCMD0[2:0] in functionality.
  */
 #define ENET_PPS_CTRL_PPSCMD1_MASK (0x700U)
@@ -5251,7 +5322,7 @@ typedef struct {
 /*
  * PPSEN0 (rw)
  *
- * Flexible PPS Output Mode Enable 
+ * Flexible PPS Output Mode Enable
  * When set low, Bits [3:0] function as PPSCTRL (backward compatible). When set high, Bits[3:0] function as PPSCMD.
  */
 #define ENET_PPS_CTRL_PPSEN0_MASK (0x10U)
@@ -5262,7 +5333,7 @@ typedef struct {
 /*
  * PPSCTRL0 (rw)
  *
- * PPSCTRL0: PPS0 Output Frequency Control 
+ * PPSCTRL0: PPS0 Output Frequency Control
  * This field controls the frequency of the PPS0 output (ptp_pps_o[0]) signal. The default value of PPSCTRL is 0000, and the PPS output is 1 pulse (of width clk_ptp_i) every second. For other values of PPSCTRL, the PPS output becomes a generated clock of following frequencies:
  * - 0001: The binary rollover is 2 Hz, and the digital rollover is 1 Hz.
  * - 0010: The binary rollover is 4 Hz, and the digital rollover is 2 Hz.
@@ -5301,7 +5372,7 @@ typedef struct {
 /*
  * PPSINT (rw)
  *
- * PPS0 Output Signal Interval 
+ * PPS0 Output Signal Interval
  * These bits store the interval between the rising edges of PPS0 signal output in terms of units of sub-second increment value. You need to program one value less than the required interval. For example, if the PTP reference clock is 50 MHz (period of 20ns), and desired interval between rising edges of PPS0 signal output is 100ns (that is, five units of sub-second increment value), then you should program value 4 (5 – 1) in this register.
  */
 #define ENET_PPS0_INTERVAL_PPSINT_MASK (0xFFFFFFFFUL)
@@ -5313,7 +5384,7 @@ typedef struct {
 /*
  * PPSWIDTH (rw)
  *
- * PPS0 Output Signal Width 
+ * PPS0 Output Signal Width
  * These bits store the width between the rising edge and corresponding falling edge of the PPS0 signal output in terms of units of sub-second increment value. You need to program one value less than the required interval. For example, if PTP reference clock is 50 MHz (period of 20ns), and desired width between the rising and corresponding falling edges of PPS0 signal output is 80ns (that is, four units of sub-second increment value), then you should program value 3 (4 – 1) in this register.
  */
 #define ENET_PPS0_WIDTH_PPSWIDTH_MASK (0xFFFFFFFFUL)
@@ -5325,7 +5396,7 @@ typedef struct {
 /*
  * TSTRH1 (rw)
  *
- * PPS1 Target Time Seconds Register 
+ * PPS1 Target Time Seconds Register
  * This register stores the time in seconds. When the timestamp value matches or exceeds both Target Timestamp registers, then based on Bits [14:13], TRGTMODSEL1, of Register 459 (PPS Control Register), the MAC starts or stops the PPS signal output and generates an interrupt (if enabled).
  */
 #define ENET_PPS_TGTTM_SEC_TSTRH1_MASK (0xFFFFFFFFUL)
@@ -5337,7 +5408,7 @@ typedef struct {
 /*
  * TRGTBUSY1 (rw)
  *
- * PPS1 Target Time Register Busy 
+ * PPS1 Target Time Register Busy
  * The MAC sets this bit when the PPSCMD1 field (Bits [10:8]) in Register 459 (PPS Control Register) is programmed to 010 or 011. Programming the PPSCMD1 field to 010 or 011 instructs the MAC to synchronize the Target Time Registers to the PTP clock domain. The MAC clears this bit after synchronizing the Target Time Registers to the PTP clock domain The application must not update the Target Time Registers when this bit is read as 1. Otherwise, the synchronization of the previous programmed time gets corrupted.
  */
 #define ENET_PPS_TGTTM_NSEC_TRGTBUSY1_MASK (0x80000000UL)
@@ -5348,7 +5419,7 @@ typedef struct {
 /*
  * TTSL1 (rw)
  *
- * Target Time Low for PPS1 Register 
+ * Target Time Low for PPS1 Register
  * This register stores the time in (signed) nanoseconds. When the value of the timestamp matches the both Target Timestamp registers, then based on the TRGTMODSEL1 field (Bits [14:13]) in Register 459 (PPS Control Register), the MAC starts or stops the PPS signal output and generates an interrupt (if enabled). This value should not exceed 0x3B9A_C9FF when Bit 9 (TSCTRLSSR) is set in Register 448 (Timestamp Control Register). The actual start or stop time of the PPS signal output may have an error margin up to one unit of sub-second increment value.
  */
 #define ENET_PPS_TGTTM_NSEC_TTSL1_MASK (0x7FFFFFFFUL)
@@ -5360,7 +5431,7 @@ typedef struct {
 /*
  * PPSINT (rw)
  *
- * PPS1 Output Signal Interval 
+ * PPS1 Output Signal Interval
  * These bits store the interval between the rising edges of PPS1 signal output in terms of units of sub-second increment value. You need to program one value less than the required interval. For example, if the PTP reference clock is 50 MHz (period of 20ns), and desired interval between rising edges of PPS1 signal output is 100ns (that is, five units of sub-second increment value), then you should program value 4 (5 – 1) in this register.
  */
 #define ENET_PPS_INTERVAL_PPSINT_MASK (0xFFFFFFFFUL)
@@ -5372,7 +5443,7 @@ typedef struct {
 /*
  * PPSWIDTH (rw)
  *
- * PPS1 Output Signal Width 
+ * PPS1 Output Signal Width
  * These bits store the width between the rising edge and corresponding falling edge of the PPS1 signal output in terms of units of sub-second increment value. You need to program one value less than the required interval. For example, if PTP reference clock is 50 MHz (period of 20ns), and desired width between the rising and corresponding falling edges of PPS1 signal output is 80ns (that is, four units of sub-second increment value), then you should program value 3 (4 – 1) in this register.
  */
 #define ENET_PPS_WIDTH_PPSWIDTH_MASK (0xFFFFFFFFUL)
@@ -5384,8 +5455,8 @@ typedef struct {
 /*
  * RIB (rw)
  *
- * Rebuild INCRx Burst 
- * When this bit is set high and the AHB master gets an EBT (Retry, Split, or Losing bus grant), the AHB master interface rebuilds the pending beats of any burst transfer initiated with INCRx. The AHB master interface rebuilds the beats with a combination of specified bursts with INCRx and SINGLE. By default, the AHB master interface rebuilds pending beats of an EBT with an unspecified (INCR) burst. 
+ * Rebuild INCRx Burst
+ * When this bit is set high and the AHB master gets an EBT (Retry, Split, or Losing bus grant), the AHB master interface rebuilds the pending beats of any burst transfer initiated with INCRx. The AHB master interface rebuilds the beats with a combination of specified bursts with INCRx and SINGLE. By default, the AHB master interface rebuilds pending beats of an EBT with an unspecified (INCR) burst.
  */
 #define ENET_DMA_BUS_MODE_RIB_MASK (0x80000000UL)
 #define ENET_DMA_BUS_MODE_RIB_SHIFT (31U)
@@ -5395,7 +5466,7 @@ typedef struct {
 /*
  * PRWG (rw)
  *
- * Channel Priority 
+ * Channel Priority
  * Weights This field sets the priority weights for Channel 0 during the round-robin arbitration between the DMA channels for the system bus.
  * - 00: The priority weight is 1.
  * - 01: The priority weight is 2.
@@ -5410,8 +5481,8 @@ typedef struct {
 /*
  * TXPR (rw)
  *
- * Transmit Priority 
- * When set, this bit indicates that the transmit DMA has higher priority than the receive DMA during arbitration for the system-side bus. In the GMAC-AXI configuration, this bit is reserved and read-only (RO). 
+ * Transmit Priority
+ * When set, this bit indicates that the transmit DMA has higher priority than the receive DMA during arbitration for the system-side bus. In the GMAC-AXI configuration, this bit is reserved and read-only (RO).
  */
 #define ENET_DMA_BUS_MODE_TXPR_MASK (0x8000000UL)
 #define ENET_DMA_BUS_MODE_TXPR_SHIFT (27U)
@@ -5421,7 +5492,7 @@ typedef struct {
 /*
  * MB (rw)
  *
- * Mixed Burst 
+ * Mixed Burst
  * When this bit is set high and the FB bit is low, the AHB master interface starts all bursts of length more than 16 with INCR (undefined burst), whereas it reverts to fixed burst transfers (INCRx and SINGLE) for burst length of 16 and less.
  */
 #define ENET_DMA_BUS_MODE_MB_MASK (0x4000000UL)
@@ -5432,7 +5503,7 @@ typedef struct {
 /*
  * AAL (rw)
  *
- * Address-Aligned Beats 
+ * Address-Aligned Beats
  * When this bit is set high and the FB bit is equal to 1, the AHB or AXI interface generates all bursts aligned to the start address LS bits. If the FB bit is equal to 0, the first burst (accessing the start address of data buffer) is not aligned, but subsequent bursts are aligned to the address.
  */
 #define ENET_DMA_BUS_MODE_AAL_MASK (0x2000000UL)
@@ -5443,7 +5514,7 @@ typedef struct {
 /*
  * PBLX8 (rw)
  *
- * PBLx8 Mode 
+ * PBLx8 Mode
  * When set high, this bit multiplies the programmed PBL value (Bits [22:17] and Bits[13:8]) eight times. Therefore, the DMA transfers the data in 8, 16, 32, 64, 128, and 256 beats depending on the PBL value.
  */
 #define ENET_DMA_BUS_MODE_PBLX8_MASK (0x1000000UL)
@@ -5454,7 +5525,7 @@ typedef struct {
 /*
  * USP (rw)
  *
- * Use Separate PBL 
+ * Use Separate PBL
  * When set high, this bit configures the Rx DMA to use the value configured in Bits [22:17] as PBL. The PBL value in Bits [13:8] is applicable only to the Tx DMA operations. When reset to low, the PBL value in Bits [13:8] is applicable for both DMA engines.
  */
 #define ENET_DMA_BUS_MODE_USP_MASK (0x800000UL)
@@ -5502,7 +5573,7 @@ typedef struct {
 /*
  * PBL (rw)
  *
- * Programmable Burst Length 
+ * Programmable Burst Length
  * These bits indicate the maximum number of beats to be transferred in one DMA transaction. This is the maximum value that is used in a single block Read or Write. The DMA always attempts to burst as specified in PBL each time it starts a Burst transfer on the host bus. PBL can be programmed with permissible values of 1, 2, 4, 8, 16, and 32. Any other value results in undefined behavior. When USP is set high, this PBL value is applicable only for Tx DMA transactions. If the number of beats to be transferred is more than 32, then perform the following steps: 1. Set the PBLx8 mode. 2. Set the PBL.
  */
 #define ENET_DMA_BUS_MODE_PBL_MASK (0x3F00U)
@@ -5513,7 +5584,7 @@ typedef struct {
 /*
  * ATDS (rw)
  *
- * Alternate Descriptor Size 
+ * Alternate Descriptor Size
  * When set, the size of the alternate descriptor (described in “Alternate or Enhanced Descriptors” on page 545) increases to 32 bytes (8 DWORDS). This is required when the Advanced Timestamp feature or the IPC Full Checksum Offload Engine (Type 2) is enabled in the receiver. The enhanced descriptor is not required if the Advanced Timestamp and IPC Full Checksum Offload Engine (Type 2) features are not enabled. In such case, you can use the 16 bytes descriptor to save 4 bytes of memory. This bit is present only when you select the Alternate Descriptor feature and any one of the following features during core configuration: - Advanced Timestamp feature - IPC Full Checksum Offload Engine (Type 2) feature Otherwise, this bit is reserved and is read-only. When reset, the descriptor size reverts back to 4 DWORDs (16 bytes).
  */
 #define ENET_DMA_BUS_MODE_ATDS_MASK (0x80U)
@@ -5535,7 +5606,7 @@ typedef struct {
 /*
  * DA (rw)
  *
- * DMA Arbitration Scheme 
+ * DMA Arbitration Scheme
  * This bit specifies the arbitration scheme between the transmit and receive paths of Channel 0.
  * - 0: Weighted round-robin with Rx:Tx or Tx:Rx The priority between the paths is according to the priority specified in Bits [15:14] (PR) and priority weights specified in Bit 27 (TXPR).
  * - 1: Fixed priority The transmit path has priority over receive path when Bit 27 (TXPR) is set. Otherwise, receive path has priority over the transmit path.
@@ -5560,7 +5631,7 @@ typedef struct {
 /*
  * TPD (rw)
  *
- * Transmit Poll Demand 
+ * Transmit Poll Demand
  * When these bits are written with any value, the DMA reads the current descriptor to which the Register 18 (Current Host Transmit Descriptor Register) is pointing. If that descriptor is not available (owned by the Host), the transmission returns to the Suspend state and Bit 2 (TU) of Register 5 (Status Register) is asserted. If the descriptor is available, the transmission resumes.
  */
 #define ENET_DMA_TX_POLL_DEMAND_TPD_MASK (0xFFFFFFFFUL)
@@ -5572,7 +5643,7 @@ typedef struct {
 /*
  * RPD (rw)
  *
- * Receive Poll Demand 
+ * Receive Poll Demand
  * When these bits are written with any value, the DMA reads the current descriptor to which the Register 19 (Current Host Receive Descriptor Register) is pointing. If that descriptor is not available (owned by the Host), the reception returns to the Suspended state and Bit 7 (RU) of Register 5 (Status Register) is asserted. If the descriptor is available, the Rx DMA returns to the active state.
  */
 #define ENET_DMA_RX_POLL_DEMAND_RPD_MASK (0xFFFFFFFFUL)
@@ -5584,7 +5655,7 @@ typedef struct {
 /*
  * RDESLA (rw)
  *
- * Start of Receive List 
+ * Start of Receive List
  * This field contains the base address of the first descriptor in the Receive Descriptor list. The LSB bits (1:0, 2:0, or 3:0) for 32-bit, 64-bit, or 128-bit bus width are ignored and internally taken as all-zero by the DMA. Therefore, these LSB bits are read-only (RO).
  */
 #define ENET_DMA_RX_DESC_LIST_ADDR_RDESLA_MASK (0xFFFFFFFFUL)
@@ -5596,7 +5667,7 @@ typedef struct {
 /*
  * TDESLA (rw)
  *
- * Start of Transmit List 
+ * Start of Transmit List
  * This field contains the base address of the first descriptor in the Transmit Descriptor list. The LSB bits (1:0, 2:0, 3:0) for 32-bit, 64-bit, or 128-bit bus width are ignored and are internally taken as all-zero by the DMA. Therefore, these LSB bits are read-only (RO).
  */
 #define ENET_DMA_TX_DESC_LIST_ADDR_TDESLA_MASK (0xFFFFFFFFUL)
@@ -5608,7 +5679,7 @@ typedef struct {
 /*
  * GLPII (rw)
  *
- * GLPII: GMAC LPI Interrupt (for Channel 0) 
+ * GLPII: GMAC LPI Interrupt (for Channel 0)
  * This bit indicates an interrupt event in the LPI logic of the MAC. To reset this bit to 1'b0, the software must read the corresponding registers in the DWC_gmac to get the exact cause of the interrupt and clear its source. Note: GLPII status is given only in Channel 0 DMA register and is applicable only when the Energy Efficient Ethernet feature is enabled. Otherwise, this bit is reserved. When this bit is high, the interrupt signal from the MAC (sbd_intr_o) is high. -or- GTMSI: GMAC TMS Interrupt (for Channel 1 and Channel 2) This bit indicates an interrupt event in the traffic manager and scheduler logic of DWC_gmac. To reset this bit, the software must read the corresponding registers (Channel Status Register) to get the exact cause of the interrupt and clear its source. Note: GTMSI status is given only in Channel 1 and Channel 2 DMA register when the AV feature is enabled and corresponding additional transmit channels are present. Otherwise, this bit is reserved. When this bit is high, the interrupt signal from the MAC (sbd_intr_o) is high.
  */
 #define ENET_DMA_STATUS_GLPII_MASK (0x40000000UL)
@@ -5619,7 +5690,7 @@ typedef struct {
 /*
  * TTI (rw)
  *
- * Timestamp Trigger Interrupt 
+ * Timestamp Trigger Interrupt
  * This bit indicates an interrupt event in the Timestamp Generator block of the DWC_gmac. The software must read the corresponding registers in the DWC_gmac to get the exact cause of the interrupt and clear its source to reset this bit to 1'b0. When this bit is high, the interrupt signal from the DWC_gmac subsystem (sbd_intr_o) is high. This bit is applicable only when the IEEE 1588 Timestamp feature is enabled. Otherwise, this bit is reserved.
  */
 #define ENET_DMA_STATUS_TTI_MASK (0x20000000UL)
@@ -5630,7 +5701,7 @@ typedef struct {
 /*
  * GPI (rw)
  *
- * GMAC PMT Interrupt 
+ * GMAC PMT Interrupt
  * This bit indicates an interrupt event in the PMT module of the DWC_gmac. The software must read the PMT Control and Status Register in the MAC to get the exact cause of interrupt and clear its source to reset this bit to 1’b0. The interrupt signal from the DWC_gmac subsystem (sbd_intr_o) is high when this bit is high. This bit is applicable only when the Power Management feature is enabled. Otherwise, this bit is reserved. Note: The GPI and pmt_intr_o interrupts are generated in different clock domains.
  */
 #define ENET_DMA_STATUS_GPI_MASK (0x10000000UL)
@@ -5652,7 +5723,7 @@ typedef struct {
 /*
  * GLI (rw)
  *
- * GMAC Line Interface Interrupt 
+ * GMAC Line Interface Interrupt
  * When set, this bit reflects any of the following interrupt events in the DWC_gmac interfaces (if present and enabled in your configuration): - PCS (TBI, RTBI, or SGMII): Link change or auto-negotiation complete event - SMII or RGMII: Link change event - General Purpose Input Status (GPIS): Any LL or LH event on the gpi_i input ports To identify the exact cause of the interrupt, the software must first read Bit 11 and Bits[2:0] of Register 14 (Interrupt Status Register) and then to clear the source of interrupt (which also clears the GLI interrupt), read any of the following corresponding registers: - PCS (TBI, RTBI, or SGMII): Register 49 (AN Status Register) - SMII or RGMII: Register 54 (SGMII/RGMII/SMII Control and Status Register) - General Purpose Input (GPI): Register 56 (General Purpose IO Register) The interrupt signal from the DWC_gmac subsystem (sbd_intr_o) is high when this bit is high.
  */
 #define ENET_DMA_STATUS_GLI_MASK (0x4000000UL)
@@ -5663,7 +5734,7 @@ typedef struct {
 /*
  * EB (rw)
  *
- * Error Bits 
+ * Error Bits
  * This field indicates the type of error that caused a Bus Error, for example, error response on the AHB or AXI interface. This field is valid only when Bit 13 (FBI) is set. This field does not generate an interrupt.
  * - 0 0 0: Error during Rx DMA Write Data Transfer
  * - 0 1 1: Error during Tx DMA Read Data Transfer
@@ -5680,7 +5751,7 @@ typedef struct {
 /*
  * TS (rw)
  *
- * Transmit Process State 
+ * Transmit Process State
  * This field indicates the Transmit DMA FSM state. This field does not generate an interrupt.
  * - 3’b000: Stopped; Reset or Stop Transmit Command issued
  * - 3’b001: Running; Fetching Transmit Transfer Descriptor
@@ -5699,7 +5770,7 @@ typedef struct {
 /*
  * RS (rw)
  *
- * Receive Process State 
+ * Receive Process State
  * This field indicates the Receive DMA FSM state. This field does not generate an interrupt.
  * - 3’b000: Stopped: Reset or Stop Receive Command issued
  * - 3’b001: Running: Fetching Receive Transfer Descriptor
@@ -5718,7 +5789,7 @@ typedef struct {
 /*
  * NIS (rw)
  *
- * Normal Interrupt Summary 
+ * Normal Interrupt Summary
  * Normal Interrupt Summary bit value is the logical OR of the following bits when the corresponding interrupt bits are enabled in Register 7 (Interrupt Enable Register): - Register 5[0]: Transmit Interrupt - Register 5[2]: Transmit Buffer Unavailable - Register 5[6]: Receive Interrupt - Register 5[14]: Early Receive Interrupt Only unmasked bits (interrupts for which interrupt enable is set in Register 7) affect the Normal Interrupt Summary bit. This is a sticky bit and must be cleared (by writing 1 to this bit) each time a corresponding bit, which causes NIS to be set, is cleared.
  */
 #define ENET_DMA_STATUS_NIS_MASK (0x10000UL)
@@ -5729,7 +5800,7 @@ typedef struct {
 /*
  * AIS (rw)
  *
- * Abnormal Interrupt Summary 
+ * Abnormal Interrupt Summary
  * Abnormal Interrupt Summary bit value is the logical OR of the following when the corresponding interrupt bits are enabled in Register 7 (Interrupt Enable Register): - Register 5[1]: Transmit Process Stopped - Register 5[3]: Transmit Jabber Timeout - Register 5[4]: Receive FIFO Overflow - Register 5[5]: Transmit Underflow - Register 5[7]: Receive Buffer Unavailable - Register 5[8]: Receive Process Stopped - Register 5[9]: Receive Watchdog Timeout - Register 5[10]: Early Transmit Interrupt - Register 5[13]: Fatal Bus Error Only unmasked bits affect the Abnormal Interrupt Summary bit. This is a sticky bit and must be cleared (by writing 1 to this bit) each time a corresponding bit, which causes AIS to be set, is cleared.
  */
 #define ENET_DMA_STATUS_AIS_MASK (0x8000U)
@@ -5740,7 +5811,7 @@ typedef struct {
 /*
  * ERI (rw)
  *
- * Early Receive Interrupt 
+ * Early Receive Interrupt
  * This bit indicates that the DMA filled the first data buffer of the packet. This bit is cleared when the software writes 1 to this bit or Bit 6 (RI) of this register is set (whichever occurs earlier).
  */
 #define ENET_DMA_STATUS_ERI_MASK (0x4000U)
@@ -5751,7 +5822,7 @@ typedef struct {
 /*
  * FBI (rw)
  *
- * Fatal Bus Error Interrupt 
+ * Fatal Bus Error Interrupt
  * This bit indicates that a bus error occurred, as described in Bits [25:23]. When this bit is set, the corresponding DMA engine disables all of its bus accesses.
  */
 #define ENET_DMA_STATUS_FBI_MASK (0x2000U)
@@ -5762,8 +5833,8 @@ typedef struct {
 /*
  * ETI (rw)
  *
- * Early Transmit Interrupt 
- * This bit indicates that the frame to be transmitted is fully transferred to the MTL Transmit FIFO. 
+ * Early Transmit Interrupt
+ * This bit indicates that the frame to be transmitted is fully transferred to the MTL Transmit FIFO.
  */
 #define ENET_DMA_STATUS_ETI_MASK (0x400U)
 #define ENET_DMA_STATUS_ETI_SHIFT (10U)
@@ -5773,8 +5844,8 @@ typedef struct {
 /*
  * RWT (rw)
  *
- * Receive Watchdog Timeout 
- * When set, this bit indicates that the Receive Watchdog Timer expired while receiving the current frame and the current frame is truncated after the watchdog timeout. 
+ * Receive Watchdog Timeout
+ * When set, this bit indicates that the Receive Watchdog Timer expired while receiving the current frame and the current frame is truncated after the watchdog timeout.
  */
 #define ENET_DMA_STATUS_RWT_MASK (0x200U)
 #define ENET_DMA_STATUS_RWT_SHIFT (9U)
@@ -5784,8 +5855,8 @@ typedef struct {
 /*
  * RPS (rw)
  *
- * Receive Process Stopped 
- * This bit is asserted when the Receive Process enters the Stopped state. 
+ * Receive Process Stopped
+ * This bit is asserted when the Receive Process enters the Stopped state.
  */
 #define ENET_DMA_STATUS_RPS_MASK (0x100U)
 #define ENET_DMA_STATUS_RPS_SHIFT (8U)
@@ -5795,8 +5866,8 @@ typedef struct {
 /*
  * RU (rw)
  *
- * Receive Buffer Unavailable 
- * This bit indicates that the host owns the Next Descriptor in the Receive List and the DMA cannot acquire it. The Receive Process is suspended. To resume processing Receive descriptors, the host should change the ownership of the descriptor and issue a Receive Poll Demand command. If no Receive Poll Demand is issued, the Receive Process resumes when the next recognized incoming frame is received. This bit is set only when the previous Receive Descriptor is owned by the DMA. 
+ * Receive Buffer Unavailable
+ * This bit indicates that the host owns the Next Descriptor in the Receive List and the DMA cannot acquire it. The Receive Process is suspended. To resume processing Receive descriptors, the host should change the ownership of the descriptor and issue a Receive Poll Demand command. If no Receive Poll Demand is issued, the Receive Process resumes when the next recognized incoming frame is received. This bit is set only when the previous Receive Descriptor is owned by the DMA.
  */
 #define ENET_DMA_STATUS_RU_MASK (0x80U)
 #define ENET_DMA_STATUS_RU_SHIFT (7U)
@@ -5806,7 +5877,7 @@ typedef struct {
 /*
  * RI (rw)
  *
- * Receive Interrupt 
+ * Receive Interrupt
  * This bit indicates that the frame reception is complete. When reception is complete, the Bit 31 of RDES1 (Disable Interrupt on Completion) is reset in the last Descriptor, and the specific frame status information is updated in the descriptor. The reception remains in the Running state.
  */
 #define ENET_DMA_STATUS_RI_MASK (0x40U)
@@ -5817,7 +5888,7 @@ typedef struct {
 /*
  * UNF (rw)
  *
- * Transmit Underflow 
+ * Transmit Underflow
  * This bit indicates that the Transmit Buffer had an Underflow during frame transmission. Transmission is suspended and an Underflow Error TDES0[1] is set.
  */
 #define ENET_DMA_STATUS_UNF_MASK (0x20U)
@@ -5828,7 +5899,7 @@ typedef struct {
 /*
  * OVF (rw)
  *
- * Receive Overflow 
+ * Receive Overflow
  * This bit indicates that the Receive Buffer had an Overflow during frame reception. If the partial frame is transferred to the application, the overflow status is set in RDES0[11].
  */
 #define ENET_DMA_STATUS_OVF_MASK (0x10U)
@@ -5839,7 +5910,7 @@ typedef struct {
 /*
  * TJT (rw)
  *
- * Transmit Jabber Timeout 
+ * Transmit Jabber Timeout
  * This bit indicates that the Transmit Jabber Timer expired, which happens when the frame size exceeds 2,048 (10,240 bytes when the Jumbo frame is enabled). When the Jabber Timeout occurs, the transmission process is aborted and placed in the Stopped state. This causes the Transmit Jabber Timeout TDES0[14] flag to assert.
  */
 #define ENET_DMA_STATUS_TJT_MASK (0x8U)
@@ -5850,7 +5921,7 @@ typedef struct {
 /*
  * TU (rw)
  *
- * Transmit Buffer Unavailable 
+ * Transmit Buffer Unavailable
  * This bit indicates that the host owns the Next Descriptor in the Transmit List and the DMA cannot acquire it. Transmission is suspended. Bits[22:20] explain the Transmit Process state transitions. To resume processing Transmit descriptors, the host should change the ownership of the descriptor by setting TDES0[31] and then issue a Transmit Poll Demand command.
  */
 #define ENET_DMA_STATUS_TU_MASK (0x4U)
@@ -5861,8 +5932,8 @@ typedef struct {
 /*
  * TPS (rw)
  *
- * Transmit Process Stopped 
- * This bit is set when the transmission is stopped. 
+ * Transmit Process Stopped
+ * This bit is set when the transmission is stopped.
  */
 #define ENET_DMA_STATUS_TPS_MASK (0x2U)
 #define ENET_DMA_STATUS_TPS_SHIFT (1U)
@@ -5872,7 +5943,7 @@ typedef struct {
 /*
  * TI (rw)
  *
- * Transmit Interrupt 
+ * Transmit Interrupt
  * This bit indicates that the frame transmission is complete. When transmission is complete, Bit 31 (OWN) of TDES0 is reset, and the specific frame status information is updated in the descriptor.
  */
 #define ENET_DMA_STATUS_TI_MASK (0x1U)
@@ -5884,7 +5955,7 @@ typedef struct {
 /*
  * DT (rw)
  *
- * Disable Dropping of TCP/IP Checksum Error Frames 
+ * Disable Dropping of TCP/IP Checksum Error Frames
  * When this bit is set, the MAC does not drop the frames which only have errors detected by the Receive Checksum Offload engine. Such frames do not have any errors (including FCS error) in the Ethernet frame received by the MAC but have errors only in the encapsulated payload. When this bit is reset, all error frames are dropped if the FEF bit is reset. If the IPC Full Checksum Offload Engine (Type 2) is disabled, this bit is reserved (RO with value 1'b0).
  */
 #define ENET_DMA_OP_MODE_DT_MASK (0x10000000UL)
@@ -5895,8 +5966,8 @@ typedef struct {
 /*
  * RSF (rw)
  *
- * Receive Store and Forward 
- * When this bit is set, the MTL reads a frame from the Rx FIFO only after the complete frame has been written to it, ignoring the RTC bits. When this bit is reset, the Rx FIFO operates in the cut-through mode, subject to the threshold specified by the RTC bits. 
+ * Receive Store and Forward
+ * When this bit is set, the MTL reads a frame from the Rx FIFO only after the complete frame has been written to it, ignoring the RTC bits. When this bit is reset, the Rx FIFO operates in the cut-through mode, subject to the threshold specified by the RTC bits.
  */
 #define ENET_DMA_OP_MODE_RSF_MASK (0x2000000UL)
 #define ENET_DMA_OP_MODE_RSF_SHIFT (25U)
@@ -5906,7 +5977,7 @@ typedef struct {
 /*
  * DFF (rw)
  *
- * Disable Flushing of Received Frames 
+ * Disable Flushing of Received Frames
  * When this bit is set, the Rx DMA does not flush any frames because of the unavailability of receive descriptors or buffers as it does normally when this bit is reset. (See “Receive Process Suspended” on page 83.)
  */
 #define ENET_DMA_OP_MODE_DFF_MASK (0x1000000UL)
@@ -5917,7 +5988,7 @@ typedef struct {
 /*
  * RFA_2 (rw)
  *
- * MSB of Threshold for Activating Flow Control 
+ * MSB of Threshold for Activating Flow Control
  * If the DWC_gmac is configured for an Rx FIFO size of 8 KB or more, this bit (when set) provides additional threshold levels for activating the flow control in both half-duplex and full-duplex modes. This bit (as Most Significant Bit), along with the RFA (Bits [10:9]), gives the following thresholds for activating flow control:
  * - 100: Full minus 5 KB, that is, FULL — 5 KB
  * - 101: Full minus 6 KB, that is, FULL — 6 KB
@@ -5932,7 +6003,7 @@ typedef struct {
 /*
  * RFD_2 (rw)
  *
- * MSB of Threshold for Deactivating Flow Control 
+ * MSB of Threshold for Deactivating Flow Control
  * If the DWC_gmac is configured for Rx FIFO size of 8 KB or more, this bit (when set) provides additional threshold levels for deactivating the flow control in both half-duplex and full-duplex modes. This bit (as Most Significant Bit) along with the RFD (Bits [12:11]) gives the following thresholds for deactivating flow control:
  * - 100: Full minus 5 KB, that is, FULL — 5 KB
  * - 101: Full minus 6 KB, that is, FULL — 6 KB
@@ -5947,7 +6018,7 @@ typedef struct {
 /*
  * TSF (rw)
  *
- * Transmit Store and Forward 
+ * Transmit Store and Forward
  * When this bit is set, transmission starts when a full frame resides in the MTL Transmit FIFO. When this bit is set, the TTC values specified in Bits [16:14] are ignored. This bit should be changed only when the transmission is stopped.
  */
 #define ENET_DMA_OP_MODE_TSF_MASK (0x200000UL)
@@ -5958,8 +6029,8 @@ typedef struct {
 /*
  * FTF (rw)
  *
- * Flush Transmit FIFO 
- * When this bit is set, the transmit FIFO controller logic is reset to its default values and thus all data in the Tx FIFO is lost or flushed. This bit is cleared internally when the flushing operation is complete. The Operation Mode register should not be written to until this bit is cleared. The data which is already accepted by the MAC transmitter is not flushed. It is scheduled for transmission and results in underflow and runt frame transmission. 
+ * Flush Transmit FIFO
+ * When this bit is set, the transmit FIFO controller logic is reset to its default values and thus all data in the Tx FIFO is lost or flushed. This bit is cleared internally when the flushing operation is complete. The Operation Mode register should not be written to until this bit is cleared. The data which is already accepted by the MAC transmitter is not flushed. It is scheduled for transmission and results in underflow and runt frame transmission.
  */
 #define ENET_DMA_OP_MODE_FTF_MASK (0x100000UL)
 #define ENET_DMA_OP_MODE_FTF_SHIFT (20U)
@@ -5969,7 +6040,7 @@ typedef struct {
 /*
  * TTC (rw)
  *
- * Transmit Threshold Control 
+ * Transmit Threshold Control
  * These bits control the threshold level of the MTL Transmit FIFO. Transmission starts when the frame size within the MTL Transmit FIFO is larger than the threshold. In addition, full frames with a length less than the threshold are also transmitted. These bits are used only when Bit 21 (TSF) is reset.
  * - 000: 64
  * - 001: 128
@@ -5988,7 +6059,7 @@ typedef struct {
 /*
  * ST (rw)
  *
- * Start or Stop Transmission Command 
+ * Start or Stop Transmission Command
  * When this bit is set, transmission is placed in the Running state, and the DMA checks the Transmit List at the current position for a frame to be transmitted. Descriptor acquisition is attempted either from the current position in the list, which is the Transmit List Base Address set by Register 4 (Transmit Descriptor List Address Register), or from the position retained when transmission was stopped previously. If the DMA does not own the current descriptor, transmission enters the Suspended state and Bit 2 (Transmit Buffer Unavailable) of Register 5 (Status Register) is set. The Start Transmission command is effective only when transmission is stopped. If the command is issued before setting Register 4 (Transmit Descriptor List Address Register), then the DMA behavior is unpredictable. When this bit is reset, the transmission process is placed in the Stopped state after completing the transmission of the current frame. The Next Descriptor position in the Transmit List is saved, and it becomes the current position when transmission is restarted. To change the list address, you need to program Register 4 (Transmit Descriptor List Address Register) with a new value when this bit is reset. The new value is considered when this bit is set again. The stop transmission command is effective only when the transmission of the current frame is complete or the transmission is in the Suspended state.
  */
 #define ENET_DMA_OP_MODE_ST_MASK (0x2000U)
@@ -6027,7 +6098,7 @@ typedef struct {
 /*
  * EFC (rw)
  *
- * Enable HW Flow Control 
+ * Enable HW Flow Control
  * When this bit is set, the flow control signal operation based on the fill-level of Rx FIFO is enabled. When reset, the flow control operation is disabled. This bit is not used (reserved and always reset) when the Rx FIFO is less than 4 KB.
  */
 #define ENET_DMA_OP_MODE_EFC_MASK (0x100U)
@@ -6038,7 +6109,7 @@ typedef struct {
 /*
  * FEF (rw)
  *
- * Forward Error Frames 
+ * Forward Error Frames
  * When this bit is reset, the Rx FIFO drops frames with error status (CRC error, collision error, GMII_ER, giant frame, watchdog timeout, or overflow). However, if the start byte (write) pointer of a frame is already transferred to the read controller side (in Threshold mode), then the frame is not dropped. In the GMAC-MTL configuration in which the Frame Length FIFO is also enabled during core configuration, the Rx FIFO drops the error frames if that frame's start byte is not transferred (output) on the ARI bus. When the FEF bit is set, all frames except runt error frames are forwarded to the DMA. If the Bit 25 (RSF) is set and the Rx FIFO overflows when a partial frame is written, then the frame is dropped irrespective of the FEF bit setting. However, if the Bit 25 (RSF) is reset and the Rx FIFO overflows when a partial frame is written, then a partial frame may be forwarded to the DMA. Note: When FEF bit is reset, the giant frames are dropped if the giant frame status is given in Rx Status (in Table 8-6 or Table 8-23) in the following configurations: - The IP checksum engine (Type 1) and full checksum offload engine (Type 2) are not selected. - The advanced timestamp feature is not selected but the extended status is selected. The extended status is available with the following features: - L3-L4 filter in GMAC-CORE or GMAC-MTL configurations - Full checksum offload engine (Type 2) with enhanced descriptor format in the GMAC-DMA, GMAC-AHB, or GMAC-AXI configurations.
  */
 #define ENET_DMA_OP_MODE_FEF_MASK (0x80U)
@@ -6049,7 +6120,7 @@ typedef struct {
 /*
  * FUF (rw)
  *
- * Forward Undersized Good Frames 
+ * Forward Undersized Good Frames
  * When set, the Rx FIFO forwards Undersized frames (that is, frames with no Error and length less than 64 bytes) including pad-bytes and CRC. When reset, the Rx FIFO drops all frames of less than 64 bytes, unless a frame is already transferred because of the lower value of Receive Threshold, for example, RTC = 01.
  */
 #define ENET_DMA_OP_MODE_FUF_MASK (0x40U)
@@ -6060,7 +6131,7 @@ typedef struct {
 /*
  * DGF (rw)
  *
- * Drop Giant Frames 
+ * Drop Giant Frames
  * When set, the MAC drops the received giant frames in the Rx FIFO, that is, frames that are larger than the computed giant frame limit. When reset, the MAC does not drop the giant frames in the Rx FIFO. Note: This bit is available in the following configurations in which the giant frame status is not provided in Rx status and giant frames are not dropped by default: - Configurations in which IP Checksum Offload (Type 1) is selected in Rx - Configurations in which the IPC Full Checksum Offload Engine (Type 2) is selected in Rx with normal descriptor format - Configurations in which the Advanced Timestamp feature is selected In all other configurations, this bit is not used (reserved and always reset).
  */
 #define ENET_DMA_OP_MODE_DGF_MASK (0x20U)
@@ -6071,7 +6142,7 @@ typedef struct {
 /*
  * RTC (rw)
  *
- * Receive Threshold Control 
+ * Receive Threshold Control
  * These two bits control the threshold level of the MTL Receive FIFO. Transfer (request) to DMA starts when the frame size within the MTL Receive FIFO is larger than the threshold. In addition, full frames with length less than the threshold are automatically transferred. The value of 11 is not applicable if the configured Receive FIFO size is 128 bytes. These bits are valid only when the RSF bit is zero, and are ignored when the RSF bit is set to 1.
  * - 00: 64
  * - 01: 32
@@ -6086,8 +6157,8 @@ typedef struct {
 /*
  * OSF (rw)
  *
- * Operate on Second Frame 
- * When this bit is set, it instructs the DMA to process the second frame of the Transmit data even before the status for the first frame is obtained. 
+ * Operate on Second Frame
+ * When this bit is set, it instructs the DMA to process the second frame of the Transmit data even before the status for the first frame is obtained.
  */
 #define ENET_DMA_OP_MODE_OSF_MASK (0x4U)
 #define ENET_DMA_OP_MODE_OSF_SHIFT (2U)
@@ -6097,7 +6168,7 @@ typedef struct {
 /*
  * SR (rw)
  *
- * Start or Stop Receive 
+ * Start or Stop Receive
  * When this bit is set, the Receive process is placed in the Running state. The DMA attempts to acquire the descriptor from the Receive list and processes the incoming frames. The descriptor acquisition is attempted from the current position in the list, which is the address set by the Register 3 (Receive Descriptor List Address Register) or the position retained when the Receive process was previously stopped. If the DMA does not own the descriptor, reception is suspended and Bit 7 (Receive Buffer Unavailable) of Register 5 (Status Register) is set. The Start Receive command is effective only when the reception has stopped. If the command is issued before setting Register 3 (Receive Descriptor List Address Register), the DMA behavior is unpredictable. When this bit is cleared, the Rx DMA operation is stopped after the transfer of the current frame. The next descriptor position in the Receive list is saved and becomes the current position after the Receive process is restarted. The Stop Receive command is effective only when the Receive process is in either the Running (waiting for receive packet) or in the Suspended state.
  */
 #define ENET_DMA_OP_MODE_SR_MASK (0x2U)
@@ -6109,7 +6180,7 @@ typedef struct {
 /*
  * NIE (rw)
  *
- * Normal Interrupt Summary Enable 
+ * Normal Interrupt Summary Enable
  * When this bit is set, normal interrupt summary is enabled. When this bit is reset, normal interrupt summary is disabled. This bit enables the following interrupts in Register 5 (Status Register): - Register 5[0]: Transmit Interrupt - Register 5[2]: Transmit Buffer Unavailable - Register 5[6]: Receive Interrupt - Register 5[14]: Early Receive Interrupt
  */
 #define ENET_DMA_INTR_EN_NIE_MASK (0x10000UL)
@@ -6120,7 +6191,7 @@ typedef struct {
 /*
  * AIE (rw)
  *
- * Abnormal Interrupt Summary Enable 
+ * Abnormal Interrupt Summary Enable
  * When this bit is set, abnormal interrupt summary is enabled. When this bit is reset, the abnormal interrupt summary is disabled. This bit enables the following interrupts in Register 5 (Status Register): - Register 5[1]: Transmit Process Stopped - Register 5[3]: Transmit Jabber Timeout - Register 5[4]: Receive Overflow - Register 5[5]: Transmit Underflow - Register 5[7]: Receive Buffer Unavailable - Register 5[8]: Receive Process Stopped - Register 5[9]: Receive Watchdog Timeout - Register 5[10]: Early Transmit Interrupt - Register 5[13]: Fatal Bus Error
  */
 #define ENET_DMA_INTR_EN_AIE_MASK (0x8000U)
@@ -6131,7 +6202,7 @@ typedef struct {
 /*
  * ERE (rw)
  *
- * Early Receive Interrupt Enable 
+ * Early Receive Interrupt Enable
  * When this bit is set with Normal Interrupt Summary Enable (Bit 16), the Early Receive Interrupt is enabled. When this bit is reset, the Early Receive Interrupt is disabled.
  */
 #define ENET_DMA_INTR_EN_ERE_MASK (0x4000U)
@@ -6142,7 +6213,7 @@ typedef struct {
 /*
  * FBE (rw)
  *
- * Fatal Bus Error Enable 
+ * Fatal Bus Error Enable
  * When this bit is set with Abnormal Interrupt Summary Enable (Bit 15), the Fatal Bus Error Interrupt is enabled. When this bit is reset, the Fatal Bus Error Enable Interrupt is disabled.
  */
 #define ENET_DMA_INTR_EN_FBE_MASK (0x2000U)
@@ -6153,7 +6224,7 @@ typedef struct {
 /*
  * ETE (rw)
  *
- * Early Transmit Interrupt Enable 
+ * Early Transmit Interrupt Enable
  * When this bit is set with an Abnormal Interrupt Summary Enable (Bit 15), the Early Transmit Interrupt is enabled. When this bit is reset, the Early Transmit Interrupt is disabled.
  */
 #define ENET_DMA_INTR_EN_ETE_MASK (0x400U)
@@ -6164,7 +6235,7 @@ typedef struct {
 /*
  * RWE (rw)
  *
- * Receive Watchdog Timeout Enable 
+ * Receive Watchdog Timeout Enable
  * When this bit is set with Abnormal Interrupt Summary Enable (Bit 15), the Receive Watchdog Timeout Interrupt is enabled. When this bit is reset, the Receive Watchdog Timeout Interrupt is disabled.
  */
 #define ENET_DMA_INTR_EN_RWE_MASK (0x200U)
@@ -6175,7 +6246,7 @@ typedef struct {
 /*
  * RSE (rw)
  *
- * Receive Stopped Enable 
+ * Receive Stopped Enable
  * When this bit is set with Abnormal Interrupt Summary Enable (Bit 15), the Receive Stopped Interrupt is enabled. When this bit is reset, the Receive Stopped Interrupt is disabled.
  */
 #define ENET_DMA_INTR_EN_RSE_MASK (0x100U)
@@ -6186,7 +6257,7 @@ typedef struct {
 /*
  * RUE (rw)
  *
- * Receive Buffer Unavailable Enable 
+ * Receive Buffer Unavailable Enable
  * When this bit is set with Abnormal Interrupt Summary Enable (Bit 15), the Receive Buffer Unavailable Interrupt is enabled. When this bit is reset, the Receive Buffer Unavailable Interrupt is disabled.
  */
 #define ENET_DMA_INTR_EN_RUE_MASK (0x80U)
@@ -6197,7 +6268,7 @@ typedef struct {
 /*
  * RIE (rw)
  *
- * Receive Interrupt Enable 
+ * Receive Interrupt Enable
  * When this bit is set with Normal Interrupt Summary Enable (Bit 16), the Receive Interrupt is enabled. When this bit is reset, the Receive Interrupt is disabled.
  */
 #define ENET_DMA_INTR_EN_RIE_MASK (0x40U)
@@ -6208,7 +6279,7 @@ typedef struct {
 /*
  * UNE (rw)
  *
- * Underflow Interrupt Enable 
+ * Underflow Interrupt Enable
  * When this bit is set with Abnormal Interrupt Summary Enable (Bit 15), the Transmit Underflow Interrupt is enabled. When this bit is reset, the Underflow Interrupt is disabled.
  */
 #define ENET_DMA_INTR_EN_UNE_MASK (0x20U)
@@ -6219,7 +6290,7 @@ typedef struct {
 /*
  * OVE (rw)
  *
- * Overflow Interrupt Enable 
+ * Overflow Interrupt Enable
  * When this bit is set with Abnormal Interrupt Summary Enable (Bit 15), the Receive Overflow Interrupt is enabled. When this bit is reset, the Overflow Interrupt is disabled.
  */
 #define ENET_DMA_INTR_EN_OVE_MASK (0x10U)
@@ -6230,7 +6301,7 @@ typedef struct {
 /*
  * TJE (rw)
  *
- * Transmit Jabber Timeout Enable 
+ * Transmit Jabber Timeout Enable
  * When this bit is set with Abnormal Interrupt Summary Enable (Bit 15), the Transmit Jabber Timeout Interrupt is enabled. When this bit is reset, the Transmit Jabber Timeout Interrupt is disabled.
  */
 #define ENET_DMA_INTR_EN_TJE_MASK (0x8U)
@@ -6241,7 +6312,7 @@ typedef struct {
 /*
  * TUE (rw)
  *
- * Transmit Buffer Unavailable Enable 
+ * Transmit Buffer Unavailable Enable
  * When this bit is set with Normal Interrupt Summary Enable (Bit 16), the Transmit Buffer Unavailable Interrupt is enabled. When this bit is reset, the Transmit Buffer Unavailable Interrupt is disabled.
  */
 #define ENET_DMA_INTR_EN_TUE_MASK (0x4U)
@@ -6252,7 +6323,7 @@ typedef struct {
 /*
  * TSE (rw)
  *
- * Transmit Stopped Enable 
+ * Transmit Stopped Enable
  * When this bit is set with Abnormal Interrupt Summary Enable (Bit 15), the Transmission Stopped Interrupt is enabled. When this bit is reset, the Transmission Stopped Interrupt is disabled.
  */
 #define ENET_DMA_INTR_EN_TSE_MASK (0x2U)
@@ -6263,7 +6334,7 @@ typedef struct {
 /*
  * TIE (rw)
  *
- * Transmit Interrupt Enable 
+ * Transmit Interrupt Enable
  * When this bit is set with Normal Interrupt Summary Enable (Bit 16), the Transmit Interrupt is enabled. When this bit is reset, the Transmit Interrupt is disabled.
  */
 #define ENET_DMA_INTR_EN_TIE_MASK (0x1U)
@@ -6275,7 +6346,7 @@ typedef struct {
 /*
  * ONFCNTOVF (rw)
  *
- * Overflow Bit for FIFO Overflow Counter 
+ * Overflow Bit for FIFO Overflow Counter
  * This bit is set every time the Overflow Frame Counter (Bits[27:17]) overflows, that is, the Rx FIFO overflows with the overflow frame counter at maximum value. In such a scenario, the overflow frame counter is reset to all-zeros and this bit indicates that the rollover happened.
  */
 #define ENET_DMA_MISS_OVF_CNT_ONFCNTOVF_MASK (0x10000000UL)
@@ -6286,7 +6357,7 @@ typedef struct {
 /*
  * OVFFRMCNT (rw)
  *
- * Overflow Frame Counter 
+ * Overflow Frame Counter
  * This field indicates the number of frames missed by the application. This counter is incremented each time the MTL FIFO overflows. The counter is cleared when this register is read with mci_be_i[2] at 1’b1.
  */
 #define ENET_DMA_MISS_OVF_CNT_OVFFRMCNT_MASK (0xFFE0000UL)
@@ -6297,7 +6368,7 @@ typedef struct {
 /*
  * MISCNTOVF (rw)
  *
- * Overflow Bit for Missed Frame Counter 
+ * Overflow Bit for Missed Frame Counter
  * This bit is set every time Missed Frame Counter (Bits[15:0]) overflows, that is, the DMA discards an incoming frame because of the Host Receive Buffer being unavailable with the missed frame counter at maximum value. In such a scenario, the Missed frame counter is reset to all-zeros and this bit indicates that the rollover happened.
  */
 #define ENET_DMA_MISS_OVF_CNT_MISCNTOVF_MASK (0x10000UL)
@@ -6308,7 +6379,7 @@ typedef struct {
 /*
  * MISFRMCNT (rw)
  *
- * Missed Frame Counter 
+ * Missed Frame Counter
  * This field indicates the number of frames missed by the controller because of the Host Receive Buffer being unavailable. This counter is incremented each time the DMA discards an incoming frame. The counter is cleared when this register is read with mci_be_i[0] at 1’b1.
  */
 #define ENET_DMA_MISS_OVF_CNT_MISFRMCNT_MASK (0xFFFFU)
@@ -6320,7 +6391,7 @@ typedef struct {
 /*
  * RIWT (rw)
  *
- * RI Watchdog Timer Count 
+ * RI Watchdog Timer Count
  * This bit indicates the number of system clock cycles multiplied by 256 for which the watchdog timer is set. The watchdog timer gets triggered with the programmed value after the Rx DMA completes the transfer of a frame for which the RI status bit is not set because of the setting in the corresponding descriptor RDES1[31]. When the watchdog timer runs out, the RI bit is set and the timer is stopped. The watchdog timer is reset when the RI bit is set high because of automatic setting of RI as per RDES1[31] of any received frame.
  */
 #define ENET_DMA_RX_INTR_WDOG_RIWT_MASK (0xFFU)
@@ -6332,7 +6403,7 @@ typedef struct {
 /*
  * EN_LPI (rw)
  *
- * Enable Low Power Interface (LPI) 
+ * Enable Low Power Interface (LPI)
  * When set to 1, this bit enables the LPI mode supported by the GMAC-AXI configuration and accepts the LPI request from the AXI System Clock controller. When set to 0, this bit disables the LPI mode and always denies the LPI request from the AXI System Clock controller.
  */
 #define ENET_DMA_AXI_MODE_EN_LPI_MASK (0x80000000UL)
@@ -6343,7 +6414,7 @@ typedef struct {
 /*
  * LPI_XIT_FRM (rw)
  *
- * Unlock on Magic Packet or Remote Wake-Up Frame 
+ * Unlock on Magic Packet or Remote Wake-Up Frame
  * When set to 1, this bit enables the GMAC-AXI to come out of the LPI mode only when the magic packet or remote wake-up frame is received. When set to 0, this bit enables the GMAC-AXI to come out of LPI mode when any frame is received.
  */
 #define ENET_DMA_AXI_MODE_LPI_XIT_FRM_MASK (0x40000000UL)
@@ -6354,7 +6425,7 @@ typedef struct {
 /*
  * WR_OSR_LMT (rw)
  *
- * AXI Maximum Write Outstanding Request Limit 
+ * AXI Maximum Write Outstanding Request Limit
  * This value limits the maximum outstanding request on the AXI write interface. Maximum outstanding requests = WR_OSR_LMT+1 Note: - Bit 22 is reserved if AXI_GM_MAX_WR_REQUESTS = 4. - Bit 23 bit is reserved if AXI_GM_MAX_WR_REQUESTS != 16.
  */
 #define ENET_DMA_AXI_MODE_WR_OSR_LMT_MASK (0xF00000UL)
@@ -6365,7 +6436,7 @@ typedef struct {
 /*
  * RD_OSR_LMT (rw)
  *
- * AXI Maximum Read Outstanding Request Limit 
+ * AXI Maximum Read Outstanding Request Limit
  * This value limits the maximum outstanding request on the AXI read interface. Maximum outstanding requests = RD_OSR_LMT+1 Note: - Bit 18 is reserved if AXI_GM_MAX_RD_REQUESTS = 4. - Bit 19 is reserved if AXI_GM_MAX_RD_REQUESTS != 16.
  */
 #define ENET_DMA_AXI_MODE_RD_OSR_LMT_MASK (0xF0000UL)
@@ -6376,7 +6447,7 @@ typedef struct {
 /*
  * ONEKBBE (rw)
  *
- * 1 KB Boundary Crossing Enable for the GMAC-AXI Master 
+ * 1 KB Boundary Crossing Enable for the GMAC-AXI Master
  * When set, the GMAC-AXI master performs burst transfers that do not cross 1 KB boundary. When reset, the GMAC-AXI master performs burst transfers that do not cross 4 KB boundary.
  */
 #define ENET_DMA_AXI_MODE_ONEKBBE_MASK (0x2000U)
@@ -6387,7 +6458,7 @@ typedef struct {
 /*
  * AXI_AAL (rw)
  *
- * Address-Aligned Beats 
+ * Address-Aligned Beats
  * This bit is read-only bit and reflects the Bit 25 (AAL) of Register 0 (Bus Mode Register). When this bit is set to 1, the GMAC-AXI performs address-aligned burst transfers on both read and write channels.
  */
 #define ENET_DMA_AXI_MODE_AXI_AAL_MASK (0x1000U)
@@ -6398,7 +6469,7 @@ typedef struct {
 /*
  * BLEN256 (rw)
  *
- * AXI Burst Length 256 
+ * AXI Burst Length 256
  * When this bit is set to 1, the GMAC-AXI is allowed to select a burst length of 256 on the AXI master interface. This bit is present only when the configuration parameter AXI_BL is set to 256. Otherwise, this bit is reserved and is read-only (RO).
  */
 #define ENET_DMA_AXI_MODE_BLEN256_MASK (0x80U)
@@ -6409,7 +6480,7 @@ typedef struct {
 /*
  * BLEN128 (rw)
  *
- * AXI Burst Length 128 
+ * AXI Burst Length 128
  * When this bit is set to 1, the GMAC-AXI is allowed to select a burst length of 128 on the AXI master interface. This bit is present only when the configuration parameter AXI_BL is set to 128 or more. Otherwise, this bit is reserved and is read-only (RO).
  */
 #define ENET_DMA_AXI_MODE_BLEN128_MASK (0x40U)
@@ -6420,7 +6491,7 @@ typedef struct {
 /*
  * BLEN64 (rw)
  *
- * AXI Burst Length 64 
+ * AXI Burst Length 64
  * When this bit is set to 1, the GMAC-AXI is allowed to select a burst length of 64 on the AXI master interface. This bit is present only when the configuration parameter AXI_BL is set to 64 or more. Otherwise, this bit is reserved and is read-only (RO).
  */
 #define ENET_DMA_AXI_MODE_BLEN64_MASK (0x20U)
@@ -6431,7 +6502,7 @@ typedef struct {
 /*
  * BLEN32 (rw)
  *
- * AXI Burst Length 32 
+ * AXI Burst Length 32
  * When this bit is set to 1, the GMAC-AXI is allowed to select a burst length of 32 on the AXI master interface. This bit is present only when the configuration parameter AXI_BL is set to 32 or more. Otherwise, this bit is reserved and is read-only (RO).
  */
 #define ENET_DMA_AXI_MODE_BLEN32_MASK (0x10U)
@@ -6442,7 +6513,7 @@ typedef struct {
 /*
  * BLEN16 (rw)
  *
- * AXI Burst Length 16 
+ * AXI Burst Length 16
  * When this bit is set to 1 or UNDEF is set to 1, the GMAC-AXI is allowed to select a burst length of 16 on the AXI master interface.
  */
 #define ENET_DMA_AXI_MODE_BLEN16_MASK (0x8U)
@@ -6464,7 +6535,7 @@ typedef struct {
 /*
  * BLEN4 (rw)
  *
- * AXI Burst Length 4 
+ * AXI Burst Length 4
  * When this bit is set to 1, the GMAC-AXI is allowed to select a burst length of 4 on the AXI master interface. Setting this bit has no effect when UNDEF is set to 1.
  */
 #define ENET_DMA_AXI_MODE_BLEN4_MASK (0x2U)
@@ -6475,7 +6546,7 @@ typedef struct {
 /*
  * UNDEF (rw)
  *
- * AXI Undefined Burst Length 
+ * AXI Undefined Burst Length
  * This bit is read-only bit and indicates the complement (invert) value of Bit 16 (FB) in Register 0 (Bus Mode Register). - When this bit is set to 1, the GMAC-AXI is allowed to perform any burst length equal to or below the maximum allowed burst length programmed in Bits[7:3]. - When this bit is set to 0, the GMAC-AXI is allowed to perform only fixed burst lengths as indicated by BLEN256, BLEN128, BLEN64, BLEN32, BLEN16, BLEN8, or BLEN4, or a burst length of 1. If UNDEF is set and none of the BLEN bits is set, then GMAC-AXI is allowed to perform a burst length of 16.
  */
 #define ENET_DMA_AXI_MODE_UNDEF_MASK (0x1U)
@@ -6487,8 +6558,8 @@ typedef struct {
 /*
  * AXIRDSTS (rw)
  *
- * AXI Master Read Channel Status 
- * When high, it indicates that AXI master's read channel is active and transferring data. 
+ * AXI Master Read Channel Status
+ * When high, it indicates that AXI master's read channel is active and transferring data.
  */
 #define ENET_DMA_BUS_STATUS_AXIRDSTS_MASK (0x2U)
 #define ENET_DMA_BUS_STATUS_AXIRDSTS_SHIFT (1U)
@@ -6498,8 +6569,8 @@ typedef struct {
 /*
  * AXWHSTS (rw)
  *
- * AXI Master Write Channel or AHB Master Status 
- * When high, it indicates that AXI master's write channel is active and transferring data in the GMAC-AXI configuration. In the GMAC-AHB configuration, it indicates that the AHB master interface FSMs are in the non-idle state. 
+ * AXI Master Write Channel or AHB Master Status
+ * When high, it indicates that AXI master's write channel is active and transferring data in the GMAC-AXI configuration. In the GMAC-AHB configuration, it indicates that the AHB master interface FSMs are in the non-idle state.
  */
 #define ENET_DMA_BUS_STATUS_AXWHSTS_MASK (0x1U)
 #define ENET_DMA_BUS_STATUS_AXWHSTS_SHIFT (0U)
@@ -6510,8 +6581,8 @@ typedef struct {
 /*
  * CURTDESAPTR (rw)
  *
- * Host Transmit Descriptor Address Pointer 
- * Cleared on Reset. Pointer updated by the DMA during operation. 
+ * Host Transmit Descriptor Address Pointer
+ * Cleared on Reset. Pointer updated by the DMA during operation.
  */
 #define ENET_DMA_CURR_HOST_TX_DESC_CURTDESAPTR_MASK (0xFFFFFFFFUL)
 #define ENET_DMA_CURR_HOST_TX_DESC_CURTDESAPTR_SHIFT (0U)
@@ -6522,8 +6593,8 @@ typedef struct {
 /*
  * CURRDESAPTR (rw)
  *
- * Host Receive Descriptor Address Pointer 
- * Cleared on Reset. Pointer updated by the DMA during operation. 
+ * Host Receive Descriptor Address Pointer
+ * Cleared on Reset. Pointer updated by the DMA during operation.
  */
 #define ENET_DMA_CURR_HOST_RX_DESC_CURRDESAPTR_MASK (0xFFFFFFFFUL)
 #define ENET_DMA_CURR_HOST_RX_DESC_CURRDESAPTR_SHIFT (0U)
@@ -6534,8 +6605,8 @@ typedef struct {
 /*
  * CURTBUFAPTR (rw)
  *
- * Host Transmit Buffer Address Pointer 
- * Cleared on Reset. Pointer updated by the DMA during operation. 
+ * Host Transmit Buffer Address Pointer
+ * Cleared on Reset. Pointer updated by the DMA during operation.
  */
 #define ENET_DMA_CURR_HOST_TX_BUF_CURTBUFAPTR_MASK (0xFFFFFFFFUL)
 #define ENET_DMA_CURR_HOST_TX_BUF_CURTBUFAPTR_SHIFT (0U)
@@ -6546,8 +6617,8 @@ typedef struct {
 /*
  * CURRBUFAPTR (rw)
  *
- * Host Receive Buffer Address Pointer 
- * Cleared on Reset. Pointer updated by the DMA during operation. 
+ * Host Receive Buffer Address Pointer
+ * Cleared on Reset. Pointer updated by the DMA during operation.
  */
 #define ENET_DMA_CURR_HOST_RX_BUF_CURRBUFAPTR_MASK (0xFFFFFFFFUL)
 #define ENET_DMA_CURR_HOST_RX_BUF_CURRBUFAPTR_SHIFT (0U)
@@ -6558,7 +6629,7 @@ typedef struct {
 /*
  * ACTPHYIF (rw)
  *
- * Active or selected PHY interface 
+ * Active or selected PHY interface
  * When you have multiple PHY interfaces in your configuration, this field indicates the sampled value of phy_intf_sel_i during reset de-assertion.
  * - 000: GMII or MII
  * - 001: RGMII
@@ -6577,7 +6648,7 @@ typedef struct {
 /*
  * SAVLANINS (rw)
  *
- * Source Address or VLAN Insertion 
+ * Source Address or VLAN Insertion
  */
 #define ENET_DMA_HW_FEATURE_SAVLANINS_MASK (0x8000000UL)
 #define ENET_DMA_HW_FEATURE_SAVLANINS_SHIFT (27U)
@@ -6587,7 +6658,7 @@ typedef struct {
 /*
  * FLEXIPPSEN (rw)
  *
- * Flexible Pulse-Per-Second Output 
+ * Flexible Pulse-Per-Second Output
  */
 #define ENET_DMA_HW_FEATURE_FLEXIPPSEN_MASK (0x4000000UL)
 #define ENET_DMA_HW_FEATURE_FLEXIPPSEN_SHIFT (26U)
@@ -6597,7 +6668,7 @@ typedef struct {
 /*
  * INTTSEN (rw)
  *
- * Timestamping with Internal System Time 
+ * Timestamping with Internal System Time
  */
 #define ENET_DMA_HW_FEATURE_INTTSEN_MASK (0x2000000UL)
 #define ENET_DMA_HW_FEATURE_INTTSEN_SHIFT (25U)
@@ -6607,7 +6678,7 @@ typedef struct {
 /*
  * ENHDESSEL (rw)
  *
- * Alternate (Enhanced Descriptor) 
+ * Alternate (Enhanced Descriptor)
  */
 #define ENET_DMA_HW_FEATURE_ENHDESSEL_MASK (0x1000000UL)
 #define ENET_DMA_HW_FEATURE_ENHDESSEL_SHIFT (24U)
@@ -6617,7 +6688,7 @@ typedef struct {
 /*
  * TXCHCNT (rw)
  *
- * Number of additional Tx Channels 
+ * Number of additional Tx Channels
  */
 #define ENET_DMA_HW_FEATURE_TXCHCNT_MASK (0xC00000UL)
 #define ENET_DMA_HW_FEATURE_TXCHCNT_SHIFT (22U)
@@ -6627,7 +6698,7 @@ typedef struct {
 /*
  * RXCHCNT (rw)
  *
- * Number of additional Rx Channels 
+ * Number of additional Rx Channels
  */
 #define ENET_DMA_HW_FEATURE_RXCHCNT_MASK (0x300000UL)
 #define ENET_DMA_HW_FEATURE_RXCHCNT_SHIFT (20U)
@@ -6667,7 +6738,7 @@ typedef struct {
 /*
  * TXCOESEL (rw)
  *
- * Checksum Offload in Tx 
+ * Checksum Offload in Tx
  */
 #define ENET_DMA_HW_FEATURE_TXCOESEL_MASK (0x10000UL)
 #define ENET_DMA_HW_FEATURE_TXCOESEL_SHIFT (16U)
@@ -6677,7 +6748,7 @@ typedef struct {
 /*
  * AVSEL (rw)
  *
- * AV feature 
+ * AV feature
  */
 #define ENET_DMA_HW_FEATURE_AVSEL_MASK (0x8000U)
 #define ENET_DMA_HW_FEATURE_AVSEL_SHIFT (15U)
@@ -6687,7 +6758,7 @@ typedef struct {
 /*
  * EEESEL (rw)
  *
- * Energy Efficient Ethernet 
+ * Energy Efficient Ethernet
  */
 #define ENET_DMA_HW_FEATURE_EEESEL_MASK (0x4000U)
 #define ENET_DMA_HW_FEATURE_EEESEL_SHIFT (14U)
@@ -6737,7 +6808,7 @@ typedef struct {
 /*
  * RWKSEL (rw)
  *
- * PMT remote wake-up frame 
+ * PMT remote wake-up frame
  */
 #define ENET_DMA_HW_FEATURE_RWKSEL_MASK (0x200U)
 #define ENET_DMA_HW_FEATURE_RWKSEL_SHIFT (9U)
@@ -6747,7 +6818,7 @@ typedef struct {
 /*
  * SMASEL (rw)
  *
- * SMA (MDIO) Interface 
+ * SMA (MDIO) Interface
  */
 #define ENET_DMA_HW_FEATURE_SMASEL_MASK (0x100U)
 #define ENET_DMA_HW_FEATURE_SMASEL_SHIFT (8U)
@@ -6767,7 +6838,7 @@ typedef struct {
 /*
  * PCSSEL (rw)
  *
- * PCS registers (TBI, SGMII, or RTBI PHY interface) 
+ * PCS registers (TBI, SGMII, or RTBI PHY interface)
  */
 #define ENET_DMA_HW_FEATURE_PCSSEL_MASK (0x40U)
 #define ENET_DMA_HW_FEATURE_PCSSEL_SHIFT (6U)
@@ -6777,7 +6848,7 @@ typedef struct {
 /*
  * ADDMACADRSEL (rw)
  *
- * Multiple MAC Address registers 
+ * Multiple MAC Address registers
  */
 #define ENET_DMA_HW_FEATURE_ADDMACADRSEL_MASK (0x20U)
 #define ENET_DMA_HW_FEATURE_ADDMACADRSEL_SHIFT (5U)
@@ -6787,7 +6858,7 @@ typedef struct {
 /*
  * HASHSEL (rw)
  *
- * HASH filter 
+ * HASH filter
  */
 #define ENET_DMA_HW_FEATURE_HASHSEL_MASK (0x10U)
 #define ENET_DMA_HW_FEATURE_HASHSEL_SHIFT (4U)
@@ -6797,7 +6868,7 @@ typedef struct {
 /*
  * EXTHASHEN (rw)
  *
- * Expanded DA Hash filter 
+ * Expanded DA Hash filter
  */
 #define ENET_DMA_HW_FEATURE_EXTHASHEN_MASK (0x8U)
 #define ENET_DMA_HW_FEATURE_EXTHASHEN_SHIFT (3U)
@@ -6807,7 +6878,7 @@ typedef struct {
 /*
  * HDSEL (rw)
  *
- * Half-duplex support 
+ * Half-duplex support
  */
 #define ENET_DMA_HW_FEATURE_HDSEL_MASK (0x4U)
 #define ENET_DMA_HW_FEATURE_HDSEL_SHIFT (2U)

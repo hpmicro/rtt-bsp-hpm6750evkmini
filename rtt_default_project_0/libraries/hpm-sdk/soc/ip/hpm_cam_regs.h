@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -13,7 +13,7 @@ typedef struct {
     __RW uint32_t CR1;                         /* 0x0: Control Register */
     __RW uint32_t INT_EN;                      /* 0x4: Interrupt Enable Register */
     __R  uint8_t  RESERVED0[8];                /* 0x8 - 0xF: Reserved */
-    __RW uint32_t CR2;                         /* 0x10: Condition 2 Register */
+    __RW uint32_t CR2;                         /* 0x10: Control 2 Register */
     __R  uint8_t  RESERVED1[16];               /* 0x14 - 0x23: Reserved */
     __RW uint32_t STA;                         /* 0x24: Status Register */
     __R  uint8_t  RESERVED2[8];                /* 0x28 - 0x2F: Reserved */
@@ -42,7 +42,8 @@ typedef struct {
 /*
  * COLOR_EXT (RW)
  *
- * If asserted, will change the color to ARGB8888 mode. Used by RGB565, RGB888, YUV888, etc.
+ * If asserted, will change the output color to ARGB8888 mode. Used by input color as RGB565, RGB888, YUV888, etc.
+ * The byte sequence is B,G,R,A. Depends on correct CR2[ClrBitFormat] configuration.
  */
 #define CAM_CR1_COLOR_EXT_MASK (0x20000000UL)
 #define CAM_CR1_COLOR_EXT_SHIFT (29U)
@@ -101,8 +102,8 @@ typedef struct {
  * PACK_DIR (RW)
  *
  * Data Packing Direction. This bit Controls how 8-bit/10-bit image data is packed into 32-bit RX FIFO.
- * 0 Pack from LSB first. For image data, 0x11, 0x22, 0x33, 0x44, it will appear as 0x44332211 in RX FIFO. 
- * 1 Pack from MSB first. For image data, 0x11, 0x22, 0x33, 0x44, it will appear as 0x11223344 in RX FIFO. 
+ * 0 Pack from LSB first. For image data, 0x11, 0x22, 0x33, 0x44, it will appear as 0x44332211 in RX FIFO.
+ * 1 Pack from MSB first. For image data, 0x11, 0x22, 0x33, 0x44, it will appear as 0x11223344 in RX FIFO.
  */
 #define CAM_CR1_PACK_DIR_MASK (0x1000000UL)
 #define CAM_CR1_PACK_DIR_SHIFT (24U)
@@ -122,8 +123,8 @@ typedef struct {
 /*
  * ASYNC_RXFIFO_CLR (RW)
  *
- * ASynchronous Rx FIFO Clear. 
- * When asserted, this bit clears RXFIFO immediately. 
+ * ASynchronous Rx FIFO Clear.
+ * When asserted, this bit clears RXFIFO immediately.
  * It will be auto-cleared.
  */
 #define CAM_CR1_ASYNC_RXFIFO_CLR_MASK (0x100000UL)
@@ -134,9 +135,8 @@ typedef struct {
 /*
  * SYNC_RXFIFO_CLR (RW)
  *
- * Synchronous Rx FIFO Clear. 
- * When asserted, this bit clears RXFIFO on every SOF. 
- * 
+ * Synchronous Rx FIFO Clear.
+ * When asserted, this bit clears RXFIFO on every SOF.
  */
 #define CAM_CR1_SYNC_RXFIFO_CLR_MASK (0x80000UL)
 #define CAM_CR1_SYNC_RXFIFO_CLR_SHIFT (19U)
@@ -172,8 +172,8 @@ typedef struct {
  *
  * 00: Normal Mode (one plane mode)
  * 01: Two Plane Mode (Y, UV plane)
- * 10: Y-only Mode
- * 11: Binary Mode
+ * 10: Y-only Mode, byte sequence as Y0,Y1,Y2,Y3
+ * 11: Binary Mode, bit sequence is from LSB to MSB when CR20[BIG_END]=0
  */
 #define CAM_CR1_STORAGE_MODE_MASK (0xC00U)
 #define CAM_CR1_STORAGE_MODE_SHIFT (10U)
@@ -184,7 +184,6 @@ typedef struct {
  * COLOR_FORMATS (RW)
  *
  * input color formats:
- * 0000b: Bayer Mode
  * 0010b: 24bit: RGB888
  * 0100b: 16bit: RGB565
  * 0111b: 16bit: YCbCr422 (Y0 Cb Y1 Cr, each 8-bit)
@@ -320,7 +319,7 @@ typedef struct {
 /*
  * FRMCNT_RST (RW)
  *
- * Frame Count Reset. Resets the Frame Counter. 
+ * Frame Count Reset. Resets the Frame Counter.
  * 0 Do not reset
  * 1 Reset frame counter immediately
  */
@@ -406,7 +405,6 @@ typedef struct {
 /*
  * DMA_TSF_DONE_FB2 (W1C)
  *
- * (Implemented to field instead)
  * DMA Transfer Done in Frame Buffer2. Indicates that the DMA transfer from RxFIFO to Frame Buffer2 is completed. It can trigger an interrupt if the corresponding enable bit is set in CAM_CR1. This bit can be cleared by by writting 1 or reflashing the RxFIFO dma controller in CAM_CR3. (Cleared by writing 1)
  * 0 DMA transfer is not completed.
  * 1 DMA transfer is completed.
@@ -419,7 +417,6 @@ typedef struct {
 /*
  * DMA_TSF_DONE_FB1 (W1C)
  *
- * (Implemented to field instead)
  * DMA Transfer Done in Frame Buffer1. Indicates that the DMA transfer from RxFIFO to Frame Buffer1 is completed. It can trigger an interrupt if the corresponding enable bit is set in CAM_CR1. This bit can be cleared by by writting 1 or reflashing the RxFIFO dma controller in CAM_CR3. (Cleared by writing 1)
  * 0 DMA transfer is not completed.
  * 1 DMA transfer is completed.
@@ -471,7 +468,6 @@ typedef struct {
  * PTR (RW)
  *
  * DMA Start Address in Frame Buffer1. Indicates the start address to write data. The embedded DMA controller will read data from RxFIFO and write it from this address through AHB bus. The address should be double words aligned.
- * 
  * In Two-Plane Mode, Y buffer1
  */
 #define CAM_DMASA_FB1_PTR_MASK (0xFFFFFFFCUL)
@@ -484,7 +480,6 @@ typedef struct {
  * PTR (RW)
  *
  * DMA Start Address in Frame Buffer2. Indicates the start address to write data. The embedded DMA controller will read data from RxFIFO and write it from this address through AHB bus. The address should be double words aligned.
- * 
  * In Two-Plane Mode, Y buffer2
  */
 #define CAM_DMASA_FB2_PTR_MASK (0xFFFFFFFCUL)
@@ -496,7 +491,7 @@ typedef struct {
 /*
  * LINEBSP_STRIDE (RW)
  *
- * Line Blank Space Stride. Indicates the space between the end of line image storage and the start of a new line storage in the frame buffer. 
+ * Line Blank Space Stride. Indicates the space between the end of line image storage and the start of a new line storage in the frame buffer.
  * The width of the line storage in frame buffer(in double words) minus the width of the image(in double words) is the stride. The stride should be double words aligned. The embedded DMA controller will skip the stride before starting to write the next row of the image.
  */
 #define CAM_BUF_PARA_LINEBSP_STRIDE_MASK (0xFFFFU)
@@ -508,7 +503,7 @@ typedef struct {
 /*
  * HEIGHT (RW)
  *
- * Image Height. Indicates how many active pixels in a column of the image from the sensor. 
+ * Image Height. Indicates how many active pixels in a column of the image from the sensor.
  */
 #define CAM_IDEAL_WN_SIZE_HEIGHT_MASK (0xFFFF0000UL)
 #define CAM_IDEAL_WN_SIZE_HEIGHT_SHIFT (16U)
@@ -518,11 +513,9 @@ typedef struct {
 /*
  * WIDTH (RW)
  *
- * Image Width. Indicates how many active pixels in a line of the image from the sensor. 
+ * Image Width. Indicates how many active pixels in a line of the image from the sensor.
  * The number of bytes to be transfered is re-calculated automatically in hardware based on cr1[color_ext] and cr1[store_mode]. Default value is 2*pixel number.
- * 
- * If the input data from the sensor is 8-bit/pixel format, the IMAGE_WIDTH should be a multiple of 8 pixels.
- * If the input data from the sensor is 10-bit/pixel or 16-bit/pixel format, the IMAGE_WIDTH should be a multiple of 4 pixels.
+ * As the input data from the sensor is 8-bit/pixel format, the IMAGE_WIDTH should be a multiple of 8 pixels.
  */
 #define CAM_IDEAL_WN_SIZE_WIDTH_MASK (0xFFFFU)
 #define CAM_IDEAL_WN_SIZE_WIDTH_SHIFT (0U)
@@ -543,7 +536,6 @@ typedef struct {
 /*
  * AWQOS (RW)
  *
- * 
  * AWQOS for bus fabric arbitration
  */
 #define CAM_CR18_AWQOS_MASK (0x780U)
@@ -651,10 +643,9 @@ typedef struct {
 /*
  * ENABLE (RW)
  *
- * Enable the CSC unit in the LCDC plane data path.
+ * Enable the CSC unit
  * 0b - The CSC is bypassed and the input pixels are RGB data already
  * 1b - The CSC is enabled and the pixels will be converted to RGB data
- * This bit will be shadowed.
  */
 #define CAM_CSC_COEF0_ENABLE_MASK (0x40000000UL)
 #define CAM_CSC_COEF0_ENABLE_SHIFT (30U)

@@ -74,13 +74,13 @@ static int hpm_get_gpi_irq_num(uint32_t gpio_idx)
 static void hpm_gpio_isr(uint32_t gpio_index, GPIO_Type *base)
 {
     uint32_t pin_idx = 0;
-    uint32_t isr_status = gpio_get_interrupt_flag(base, gpio_index);
+    uint32_t isr_status = gpio_get_port_interrupt_flags(base, gpio_index);
     for(pin_idx = 0; pin_idx < 32; pin_idx++)
     {
-        if (gpio_check_interrupt_flag(base, gpio_index, pin_idx))
+        if (gpio_check_pin_interrupt_flag(base, gpio_index, pin_idx))
         {
             uint32_t pin = gpio_index * 32U + pin_idx;
-            gpio_clear_interrupt_flag(base, gpio_index, pin_idx);
+            gpio_clear_pin_interrupt_flag(base, gpio_index, pin_idx);
             if (hpm_gpio_pin_hdr_tbl[pin].hdr != RT_NULL)
             {
                 hpm_gpio_pin_hdr_tbl[pin].hdr(hpm_gpio_pin_hdr_tbl[pin].args);
@@ -212,7 +212,7 @@ static void hpm_pin_write(rt_device_t dev, rt_base_t pin, rt_base_t value)
     uint32_t gpio_idx = pin >> 5;
     uint32_t pin_idx = pin & 0x1FU;
 
-    gpio_write_pin(HPM_GPIO0, gpio_idx, pin_idx, (gpio_pin_level_t) value);
+    gpio_write_pin(HPM_GPIO0, gpio_idx, pin_idx, value);
 }
 
 static rt_err_t hpm_pin_attach_irq(struct rt_device *device, rt_int32_t pin, rt_uint32_t mode,

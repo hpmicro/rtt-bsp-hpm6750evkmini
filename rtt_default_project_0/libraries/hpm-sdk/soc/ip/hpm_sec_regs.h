@@ -90,67 +90,7 @@ typedef struct {
 #define SEC_SECURE_STATE_PMIC_INS_SET(x) (((uint32_t)(x) << SEC_SECURE_STATE_PMIC_INS_SHIFT) & SEC_SECURE_STATE_PMIC_INS_MASK)
 #define SEC_SECURE_STATE_PMIC_INS_GET(x) (((uint32_t)(x) & SEC_SECURE_STATE_PMIC_INS_MASK) >> SEC_SECURE_STATE_PMIC_INS_SHIFT)
 
-/*
- * BATT_FAIL (RW)
- *
- * BATT secure state one hot indicator
- * 0: secure state is not in fail state
- * 1: secure state is in fail state
- */
-#define SEC_SECURE_STATE_BATT_FAIL_MASK (0x8U)
-#define SEC_SECURE_STATE_BATT_FAIL_SHIFT (3U)
-#define SEC_SECURE_STATE_BATT_FAIL_SET(x) (((uint32_t)(x) << SEC_SECURE_STATE_BATT_FAIL_SHIFT) & SEC_SECURE_STATE_BATT_FAIL_MASK)
-#define SEC_SECURE_STATE_BATT_FAIL_GET(x) (((uint32_t)(x) & SEC_SECURE_STATE_BATT_FAIL_MASK) >> SEC_SECURE_STATE_BATT_FAIL_SHIFT)
-
-/*
- * BATT_NSC (RW)
- *
- * BATT secure state one hot indicator
- * 0: secure state is not in non-secure state
- * 1: secure state is in non-secure state
- */
-#define SEC_SECURE_STATE_BATT_NSC_MASK (0x4U)
-#define SEC_SECURE_STATE_BATT_NSC_SHIFT (2U)
-#define SEC_SECURE_STATE_BATT_NSC_SET(x) (((uint32_t)(x) << SEC_SECURE_STATE_BATT_NSC_SHIFT) & SEC_SECURE_STATE_BATT_NSC_MASK)
-#define SEC_SECURE_STATE_BATT_NSC_GET(x) (((uint32_t)(x) & SEC_SECURE_STATE_BATT_NSC_MASK) >> SEC_SECURE_STATE_BATT_NSC_SHIFT)
-
-/*
- * BATT_SEC (RW)
- *
- * BATT secure state one hot indicator
- * 0: secure state is not in secure state
- * 1: secure state is in secure state
- */
-#define SEC_SECURE_STATE_BATT_SEC_MASK (0x2U)
-#define SEC_SECURE_STATE_BATT_SEC_SHIFT (1U)
-#define SEC_SECURE_STATE_BATT_SEC_SET(x) (((uint32_t)(x) << SEC_SECURE_STATE_BATT_SEC_SHIFT) & SEC_SECURE_STATE_BATT_SEC_MASK)
-#define SEC_SECURE_STATE_BATT_SEC_GET(x) (((uint32_t)(x) & SEC_SECURE_STATE_BATT_SEC_MASK) >> SEC_SECURE_STATE_BATT_SEC_SHIFT)
-
-/*
- * BATT_INS (RW)
- *
- * BATT secure state one hot indicator
- * 0: secure state is not in inspect state
- * 1: secure state is in inspect state
- */
-#define SEC_SECURE_STATE_BATT_INS_MASK (0x1U)
-#define SEC_SECURE_STATE_BATT_INS_SHIFT (0U)
-#define SEC_SECURE_STATE_BATT_INS_SET(x) (((uint32_t)(x) << SEC_SECURE_STATE_BATT_INS_SHIFT) & SEC_SECURE_STATE_BATT_INS_MASK)
-#define SEC_SECURE_STATE_BATT_INS_GET(x) (((uint32_t)(x) & SEC_SECURE_STATE_BATT_INS_MASK) >> SEC_SECURE_STATE_BATT_INS_SHIFT)
-
 /* Bitfield definition for register: SECURE_STATE_CONFIG */
-/*
- * ROM_SECRETS (RW)
- *
- * ROM secrets presents bit, indicate ROM secrets not hidden, write 1 to clear this bit.  Once cleared, it will not set, until next POR reset.
- * 0: ROM secrets not present, jtag access allowed.
- * 1: ROM srcrets present, jtag access blocked
- */
-#define SEC_SECURE_STATE_CONFIG_ROM_SECRETS_MASK (0x10000UL)
-#define SEC_SECURE_STATE_CONFIG_ROM_SECRETS_SHIFT (16U)
-#define SEC_SECURE_STATE_CONFIG_ROM_SECRETS_SET(x) (((uint32_t)(x) << SEC_SECURE_STATE_CONFIG_ROM_SECRETS_SHIFT) & SEC_SECURE_STATE_CONFIG_ROM_SECRETS_MASK)
-#define SEC_SECURE_STATE_CONFIG_ROM_SECRETS_GET(x) (((uint32_t)(x) & SEC_SECURE_STATE_CONFIG_ROM_SECRETS_MASK) >> SEC_SECURE_STATE_CONFIG_ROM_SECRETS_SHIFT)
-
 /*
  * LOCK (RW)
  *
@@ -295,35 +235,17 @@ typedef struct {
 /*
  * PMIC_ESC_SEC (RO)
  *
- * PMIC is escalting ssecure event
+ * PMIC is escalting secure event
  */
 #define SEC_EVENT_PMIC_ESC_SEC_MASK (0x4U)
 #define SEC_EVENT_PMIC_ESC_SEC_SHIFT (2U)
 #define SEC_EVENT_PMIC_ESC_SEC_GET(x) (((uint32_t)(x) & SEC_EVENT_PMIC_ESC_SEC_MASK) >> SEC_EVENT_PMIC_ESC_SEC_SHIFT)
 
-/*
- * BATT_ESC_NSC (RO)
- *
- * BATT is escalating non-secure event
- */
-#define SEC_EVENT_BATT_ESC_NSC_MASK (0x2U)
-#define SEC_EVENT_BATT_ESC_NSC_SHIFT (1U)
-#define SEC_EVENT_BATT_ESC_NSC_GET(x) (((uint32_t)(x) & SEC_EVENT_BATT_ESC_NSC_MASK) >> SEC_EVENT_BATT_ESC_NSC_SHIFT)
-
-/*
- * BATT_ESC_SEC (RO)
- *
- * BATT is escalting ssecure event
- */
-#define SEC_EVENT_BATT_ESC_SEC_MASK (0x1U)
-#define SEC_EVENT_BATT_ESC_SEC_SHIFT (0U)
-#define SEC_EVENT_BATT_ESC_SEC_GET(x) (((uint32_t)(x) & SEC_EVENT_BATT_ESC_SEC_MASK) >> SEC_EVENT_BATT_ESC_SEC_SHIFT)
-
 /* Bitfield definition for register: LIFECYCLE */
 /*
  * LIFECYCLE (RO)
  *
- * lifecycle status,  
+ * lifecycle status,
  * bit7: lifecycle_debate, 
  * bit6: lifecycle_scribe, 
  * bit5: lifecycle_no_ret, 

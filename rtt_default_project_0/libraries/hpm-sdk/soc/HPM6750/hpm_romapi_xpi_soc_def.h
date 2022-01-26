@@ -25,20 +25,18 @@
 #define XPI_CLK_OUT_FREQ_OPTION_166MHz (8U)
 #define XPI_CLK_OUT_FREQ_OPTION_200MHz (9U)
 
-typedef struct
-{
-    struct
-    {
+typedef struct {
+    struct {
         uint8_t priority;                   /* Offset: 0x00 */
         uint8_t master_idx;                 /* Offset: 0x01 */
         uint8_t buf_size_in_dword;          /* Offset: 0x02 */
         bool enable_prefetch;               /* Offset: 0x03 */
-    }entry[8];
-}xpi_ahb_buffer_cfg_t;
+    } entry[8];
+} xpi_ahb_buffer_cfg_t;
 
 typedef struct {
-    xpi_data_pad_t data_pads;
-    xpi_port_t port;
+    uint8_t data_pads;
+    xpi_channel_t channel;
     xpi_io_group_t io_group;
     uint8_t drive_strength;
     bool enable_dqs;
@@ -48,7 +46,7 @@ typedef struct {
 typedef enum {
     xpi_freq_type_typical,
     xpi_freq_type_mhz,
-}clk_freq_type_t;
+} clk_freq_type_t;
 
 typedef enum {
     xpi_clk_src_auto,
@@ -60,7 +58,7 @@ typedef enum {
     xpi_clk_src_pll2clk1,
     xpi_clk_src_pll3clk0,
     xpi_clk_src_pll4clk0,
-}xpi_clk_src_t;
+} xpi_clk_src_t;
 
 
 typedef union
@@ -72,12 +70,12 @@ typedef union
         clk_freq_type_t freq_type;
     };
     uint32_t freq_opt;
-}xpi_clk_config_t;
+} xpi_clk_config_t;
 
 typedef enum {
     xpi_clock_bus,
     xpi_clock_serial_root,
     xpi_clock_serial,
-}xpi_clock_t;
+} xpi_clock_t;
 
 #endif /* HPM_ROMAPI_XPI_SOC_DEF_H */

@@ -76,7 +76,8 @@ hpm_stat_t dma_start_memcpy(DMA_Type *ptr, uint8_t ch_num,
                                uint32_t size, uint32_t burst_len_in_byte)
 {
     hpm_stat_t stat = status_success;
-    uint32_t burst_size, width, count;
+    uint32_t width, count;
+    int32_t burst_size;
     dma_channel_config_t config = {0};
     dma_default_channel_config(ptr, &config);
 
@@ -98,7 +99,7 @@ hpm_stat_t dma_start_memcpy(DMA_Type *ptr, uint8_t ch_num,
             || (src & (burst_len_in_byte - 1))) {
         return status_dma_alignment_error;
     }
-    burst_size = get_first_set_bit(burst_len_in_byte);
+    burst_size = get_first_set_bit_from_lsb(burst_len_in_byte);
 
     config.src_width = DMA_TRANSFER_WIDTH_HALF_WORD;
     config.dst_width = DMA_TRANSFER_WIDTH_HALF_WORD;

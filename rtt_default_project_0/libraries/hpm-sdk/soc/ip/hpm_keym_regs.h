@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -12,10 +12,10 @@
 typedef struct {
     __RW uint32_t SOFTMKEY[8];                 /* 0x0 - 0x1C: software set symmetric key */
     __RW uint32_t SOFTPKEY[8];                 /* 0x20 - 0x3C: system asymmetric key */
-    __RW uint32_t SEC_KEY_CTL;                 /* 0x40: Random number interface behavior */
-    __RW uint32_t NSC_KEY_CTL;                 /* 0x44: Random number interface behavior */
+    __RW uint32_t SEC_KEY_CTL;                 /* 0x40: secure key generation */
+    __RW uint32_t NSC_KEY_CTL;                 /* 0x44: non-secure key generation */
     __RW uint32_t RNG;                         /* 0x48: Random number interface behavior */
-    __RW uint32_t READ_CONTROL;                /* 0x4C: symmetric and asymmetric key read out control */
+    __RW uint32_t READ_CONTROL;                /* 0x4C: key read out control */
 } KEYM_Type;
 
 
@@ -38,7 +38,7 @@ typedef struct {
  * KEY (RW)
  *
  * software asymmetric key
- * key is XOR version of scrambles of fuse private key, software input key, SRK, and system security status.
+ * key is derived from scrambles of fuse private key, software input key, SRK, and system security status.
  * This key os read once, sencondary read will read out 0
  */
 #define KEYM_SOFTPKEY_KEY_MASK (0xFFFFFFFFUL)
@@ -83,7 +83,7 @@ typedef struct {
 /*
  * ZMK_SEL (RW)
  *
- * software symmetric key selection
+ * batt symmetric key selection
  * 0: use scramble version of software symmetric key
  * 1: use origin value in software symmetric key
  */
@@ -154,7 +154,7 @@ typedef struct {
 /*
  * ZMK_SEL (RW)
  *
- * software symmetric key selection
+ * batt symmetric key selection
  * 0: use scramble version of software symmetric key
  * 1: use origin value in software symmetric key
  */

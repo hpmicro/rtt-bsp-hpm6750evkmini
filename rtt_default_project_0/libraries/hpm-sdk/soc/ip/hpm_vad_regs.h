@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -21,9 +21,8 @@ typedef struct {
     __RW uint32_t RUN;                         /* 0x20: Run Command Register */
     __RW uint32_t OFIFO_CTRL;                  /* 0x24: Out FIFO Control Register */
     __RW uint32_t CIC_CFG;                     /* 0x28: CIC Configuration Register */
-    __RW uint32_t IIR_ORDER;                   /* 0x2C: IIR Control Register */
-    __RW uint32_t IIR_B;                       /* 0x30: IIR Coef B Control Register */
-    __RW uint32_t COEF[28];                    /* 0x34 - 0xA0: IIR Stage 0 Coef B1 Register */
+    __R  uint8_t  RESERVED1[116];              /* 0x2C - 0x9F: Reserved */
+    __R  uint32_t COEF[1];                     /* 0xA0: Short Time Energy Register */
 } VAD_Type;
 
 
@@ -41,26 +40,16 @@ typedef struct {
 /*
  * PDM_CLK_HFDIV (RW)
  *
- * AT least 2. So the clock divider will work at least 4.
+ * The clock divider will work at least 4.
  * 0: div-by-2,
  * 1: div-by-4
- * ...
+ * . . .
  * n: div-by-2*(n+1)
  */
 #define VAD_CTRL_PDM_CLK_HFDIV_MASK (0xF00000UL)
 #define VAD_CTRL_PDM_CLK_HFDIV_SHIFT (20U)
 #define VAD_CTRL_PDM_CLK_HFDIV_SET(x) (((uint32_t)(x) << VAD_CTRL_PDM_CLK_HFDIV_SHIFT) & VAD_CTRL_PDM_CLK_HFDIV_MASK)
 #define VAD_CTRL_PDM_CLK_HFDIV_GET(x) (((uint32_t)(x) & VAD_CTRL_PDM_CLK_HFDIV_MASK) >> VAD_CTRL_PDM_CLK_HFDIV_SHIFT)
-
-/*
- * DMA_EN (RW)
- *
- * enable dma transfer for ofifo (After boot-up from low-power state, or in normal state)
- */
-#define VAD_CTRL_DMA_EN_MASK (0x80000UL)
-#define VAD_CTRL_DMA_EN_SHIFT (19U)
-#define VAD_CTRL_DMA_EN_SET(x) (((uint32_t)(x) << VAD_CTRL_DMA_EN_SHIFT) & VAD_CTRL_DMA_EN_MASK)
-#define VAD_CTRL_DMA_EN_GET(x) (((uint32_t)(x) & VAD_CTRL_DMA_EN_MASK) >> VAD_CTRL_DMA_EN_SHIFT)
 
 /*
  * VAD_IE (RW)
@@ -105,7 +94,7 @@ typedef struct {
 /*
  * IIR_OVLD_ERR_IE (RW)
  *
- * IIR overload error interrupt enable 
+ * IIR overload error interrupt enable
  */
 #define VAD_CTRL_IIR_OVLD_ERR_IE_MASK (0x4000U)
 #define VAD_CTRL_IIR_OVLD_ERR_IE_SHIFT (14U)
@@ -381,7 +370,7 @@ typedef struct {
 /*
  * D (RW)
  *
- * The PCM data. 
+ * The PCM data.
  * When there is only one channel, the samples are from Ch0, and the 2 samples in the 32-bits are: bit [31:16]: the samples earlier in time ([T-1]). Bit [15:0]: the samples later in time ([T]).
  * When there is two channels, the samples in the 32-bits are: bit [31:16]: the samples belong to Ch 1 (when ch_pol[1:0]==2, the data is captured at the positive part of the pdm clk). bit [15:0]: the samples belong to Ch 0 (when ch_pol[1:0]==2, the data is captured at the negtive part of the pdm clk).
  */
@@ -433,237 +422,20 @@ typedef struct {
 #define VAD_CIC_CFG_POST_SCALE_SET(x) (((uint32_t)(x) << VAD_CIC_CFG_POST_SCALE_SHIFT) & VAD_CIC_CFG_POST_SCALE_MASK)
 #define VAD_CIC_CFG_POST_SCALE_GET(x) (((uint32_t)(x) & VAD_CIC_CFG_POST_SCALE_MASK) >> VAD_CIC_CFG_POST_SCALE_SHIFT)
 
-/*
- * SGD (RW)
- *
- * Sigma_delta_order[1:0]
- * 2'b00: 7
- * 2'b01: 6
- * 2'b10: 5
- * Others: unused
- */
-#define VAD_CIC_CFG_SGD_MASK (0x300U)
-#define VAD_CIC_CFG_SGD_SHIFT (8U)
-#define VAD_CIC_CFG_SGD_SET(x) (((uint32_t)(x) << VAD_CIC_CFG_SGD_SHIFT) & VAD_CIC_CFG_SGD_MASK)
-#define VAD_CIC_CFG_SGD_GET(x) (((uint32_t)(x) & VAD_CIC_CFG_SGD_MASK) >> VAD_CIC_CFG_SGD_SHIFT)
-
-/*
- * CIC_DEC_RATIO (RW)
- *
- * CIC decimation factor
- */
-#define VAD_CIC_CFG_CIC_DEC_RATIO_MASK (0xFFU)
-#define VAD_CIC_CFG_CIC_DEC_RATIO_SHIFT (0U)
-#define VAD_CIC_CFG_CIC_DEC_RATIO_SET(x) (((uint32_t)(x) << VAD_CIC_CFG_CIC_DEC_RATIO_SHIFT) & VAD_CIC_CFG_CIC_DEC_RATIO_MASK)
-#define VAD_CIC_CFG_CIC_DEC_RATIO_GET(x) (((uint32_t)(x) & VAD_CIC_CFG_CIC_DEC_RATIO_MASK) >> VAD_CIC_CFG_CIC_DEC_RATIO_SHIFT)
-
-/* Bitfield definition for register: IIR_ORDER */
-/*
- * S7 (RW)
- *
- * 3-square. No coefs
- */
-#define VAD_IIR_ORDER_S7_MASK (0xC000U)
-#define VAD_IIR_ORDER_S7_SHIFT (14U)
-#define VAD_IIR_ORDER_S7_SET(x) (((uint32_t)(x) << VAD_IIR_ORDER_S7_SHIFT) & VAD_IIR_ORDER_S7_MASK)
-#define VAD_IIR_ORDER_S7_GET(x) (((uint32_t)(x) & VAD_IIR_ORDER_S7_MASK) >> VAD_IIR_ORDER_S7_SHIFT)
-
-/*
- * S6 (RW)
- *
- * 0--mult only. Here is post-amplification. One B coef only
- */
-#define VAD_IIR_ORDER_S6_MASK (0x3000U)
-#define VAD_IIR_ORDER_S6_SHIFT (12U)
-#define VAD_IIR_ORDER_S6_SET(x) (((uint32_t)(x) << VAD_IIR_ORDER_S6_SHIFT) & VAD_IIR_ORDER_S6_MASK)
-#define VAD_IIR_ORDER_S6_GET(x) (((uint32_t)(x) & VAD_IIR_ORDER_S6_MASK) >> VAD_IIR_ORDER_S6_SHIFT)
-
-/*
- * S5 (RW)
- *
- * 2--LP, Order 2. Three B coefs, and two MA coefs
- */
-#define VAD_IIR_ORDER_S5_MASK (0xC00U)
-#define VAD_IIR_ORDER_S5_SHIFT (10U)
-#define VAD_IIR_ORDER_S5_SET(x) (((uint32_t)(x) << VAD_IIR_ORDER_S5_SHIFT) & VAD_IIR_ORDER_S5_MASK)
-#define VAD_IIR_ORDER_S5_GET(x) (((uint32_t)(x) & VAD_IIR_ORDER_S5_MASK) >> VAD_IIR_ORDER_S5_SHIFT)
-
-/*
- * S4 (RW)
- *
- * 2--LP, Order 2. Three B coefs, and two MA coefs
- */
-#define VAD_IIR_ORDER_S4_MASK (0x300U)
-#define VAD_IIR_ORDER_S4_SHIFT (8U)
-#define VAD_IIR_ORDER_S4_SET(x) (((uint32_t)(x) << VAD_IIR_ORDER_S4_SHIFT) & VAD_IIR_ORDER_S4_MASK)
-#define VAD_IIR_ORDER_S4_GET(x) (((uint32_t)(x) & VAD_IIR_ORDER_S4_MASK) >> VAD_IIR_ORDER_S4_SHIFT)
-
-/*
- * S3 (RW)
- *
- * 2--LP, Order 2. Three B coefs, and two MA coefs
- */
-#define VAD_IIR_ORDER_S3_MASK (0xC0U)
-#define VAD_IIR_ORDER_S3_SHIFT (6U)
-#define VAD_IIR_ORDER_S3_SET(x) (((uint32_t)(x) << VAD_IIR_ORDER_S3_SHIFT) & VAD_IIR_ORDER_S3_MASK)
-#define VAD_IIR_ORDER_S3_GET(x) (((uint32_t)(x) & VAD_IIR_ORDER_S3_MASK) >> VAD_IIR_ORDER_S3_SHIFT)
-
-/*
- * S2 (RW)
- *
- * 2--LP, Order 2. Three B coefs, and two MA coefs
- */
-#define VAD_IIR_ORDER_S2_MASK (0x30U)
-#define VAD_IIR_ORDER_S2_SHIFT (4U)
-#define VAD_IIR_ORDER_S2_SET(x) (((uint32_t)(x) << VAD_IIR_ORDER_S2_SHIFT) & VAD_IIR_ORDER_S2_MASK)
-#define VAD_IIR_ORDER_S2_GET(x) (((uint32_t)(x) & VAD_IIR_ORDER_S2_MASK) >> VAD_IIR_ORDER_S2_SHIFT)
-
-/*
- * S1 (RW)
- *
- * 1--HP, Order 1. Two B coefs, and one MA coef
- */
-#define VAD_IIR_ORDER_S1_MASK (0xCU)
-#define VAD_IIR_ORDER_S1_SHIFT (2U)
-#define VAD_IIR_ORDER_S1_SET(x) (((uint32_t)(x) << VAD_IIR_ORDER_S1_SHIFT) & VAD_IIR_ORDER_S1_MASK)
-#define VAD_IIR_ORDER_S1_GET(x) (((uint32_t)(x) & VAD_IIR_ORDER_S1_MASK) >> VAD_IIR_ORDER_S1_SHIFT)
-
-/*
- * S0 (RW)
- *
- * 0--mult only. Here is pre-amplification. One B coef only
- */
-#define VAD_IIR_ORDER_S0_MASK (0x3U)
-#define VAD_IIR_ORDER_S0_SHIFT (0U)
-#define VAD_IIR_ORDER_S0_SET(x) (((uint32_t)(x) << VAD_IIR_ORDER_S0_SHIFT) & VAD_IIR_ORDER_S0_MASK)
-#define VAD_IIR_ORDER_S0_GET(x) (((uint32_t)(x) & VAD_IIR_ORDER_S0_MASK) >> VAD_IIR_ORDER_S0_SHIFT)
-
-/* Bitfield definition for register: IIR_B */
-/*
- * S7 (RW)
- *
- * 
- */
-#define VAD_IIR_B_S7_MASK (0xC000U)
-#define VAD_IIR_B_S7_SHIFT (14U)
-#define VAD_IIR_B_S7_SET(x) (((uint32_t)(x) << VAD_IIR_B_S7_SHIFT) & VAD_IIR_B_S7_MASK)
-#define VAD_IIR_B_S7_GET(x) (((uint32_t)(x) & VAD_IIR_B_S7_MASK) >> VAD_IIR_B_S7_SHIFT)
-
-/*
- * S6 (RW)
- *
- * 
- */
-#define VAD_IIR_B_S6_MASK (0x3000U)
-#define VAD_IIR_B_S6_SHIFT (12U)
-#define VAD_IIR_B_S6_SET(x) (((uint32_t)(x) << VAD_IIR_B_S6_SHIFT) & VAD_IIR_B_S6_MASK)
-#define VAD_IIR_B_S6_GET(x) (((uint32_t)(x) & VAD_IIR_B_S6_MASK) >> VAD_IIR_B_S6_SHIFT)
-
-/*
- * S5 (RW)
- *
- * 
- */
-#define VAD_IIR_B_S5_MASK (0xC00U)
-#define VAD_IIR_B_S5_SHIFT (10U)
-#define VAD_IIR_B_S5_SET(x) (((uint32_t)(x) << VAD_IIR_B_S5_SHIFT) & VAD_IIR_B_S5_MASK)
-#define VAD_IIR_B_S5_GET(x) (((uint32_t)(x) & VAD_IIR_B_S5_MASK) >> VAD_IIR_B_S5_SHIFT)
-
-/*
- * S4 (RW)
- *
- * 
- */
-#define VAD_IIR_B_S4_MASK (0x300U)
-#define VAD_IIR_B_S4_SHIFT (8U)
-#define VAD_IIR_B_S4_SET(x) (((uint32_t)(x) << VAD_IIR_B_S4_SHIFT) & VAD_IIR_B_S4_MASK)
-#define VAD_IIR_B_S4_GET(x) (((uint32_t)(x) & VAD_IIR_B_S4_MASK) >> VAD_IIR_B_S4_SHIFT)
-
-/*
- * S3 (RW)
- *
- * 
- */
-#define VAD_IIR_B_S3_MASK (0xC0U)
-#define VAD_IIR_B_S3_SHIFT (6U)
-#define VAD_IIR_B_S3_SET(x) (((uint32_t)(x) << VAD_IIR_B_S3_SHIFT) & VAD_IIR_B_S3_MASK)
-#define VAD_IIR_B_S3_GET(x) (((uint32_t)(x) & VAD_IIR_B_S3_MASK) >> VAD_IIR_B_S3_SHIFT)
-
-/*
- * S2 (RW)
- *
- * 
- */
-#define VAD_IIR_B_S2_MASK (0x30U)
-#define VAD_IIR_B_S2_SHIFT (4U)
-#define VAD_IIR_B_S2_SET(x) (((uint32_t)(x) << VAD_IIR_B_S2_SHIFT) & VAD_IIR_B_S2_MASK)
-#define VAD_IIR_B_S2_GET(x) (((uint32_t)(x) & VAD_IIR_B_S2_MASK) >> VAD_IIR_B_S2_SHIFT)
-
-/*
- * S1 (RW)
- *
- * 
- */
-#define VAD_IIR_B_S1_MASK (0xCU)
-#define VAD_IIR_B_S1_SHIFT (2U)
-#define VAD_IIR_B_S1_SET(x) (((uint32_t)(x) << VAD_IIR_B_S1_SHIFT) & VAD_IIR_B_S1_MASK)
-#define VAD_IIR_B_S1_GET(x) (((uint32_t)(x) & VAD_IIR_B_S1_MASK) >> VAD_IIR_B_S1_SHIFT)
-
-/*
- * S0 (RW)
- *
- * 2'b00: No shift to the prod. Thus B coef is not shifted when assigned.
- * 2'b01: multiplied the production value, and then do saturaion before further usage of the prod value.
- * 2'b11: divide the production value by 8 before it is used by furthur operations.
- * 2'b10: reserved. No operation.
- */
-#define VAD_IIR_B_S0_MASK (0x3U)
-#define VAD_IIR_B_S0_SHIFT (0U)
-#define VAD_IIR_B_S0_SET(x) (((uint32_t)(x) << VAD_IIR_B_S0_SHIFT) & VAD_IIR_B_S0_MASK)
-#define VAD_IIR_B_S0_GET(x) (((uint32_t)(x) & VAD_IIR_B_S0_MASK) >> VAD_IIR_B_S0_SHIFT)
-
 /* Bitfield definition for register array: COEF */
 /*
- * COEF (RW)
+ * VAL (ROI)
  *
- * 
+ * The current detected short time energy
  */
-#define VAD_COEF_COEF_MASK (0xFFFFFFFFUL)
-#define VAD_COEF_COEF_SHIFT (0U)
-#define VAD_COEF_COEF_SET(x) (((uint32_t)(x) << VAD_COEF_COEF_SHIFT) & VAD_COEF_COEF_MASK)
-#define VAD_COEF_COEF_GET(x) (((uint32_t)(x) & VAD_COEF_COEF_MASK) >> VAD_COEF_COEF_SHIFT)
+#define VAD_COEF_VAL_MASK (0xFFFFFFFFUL)
+#define VAD_COEF_VAL_SHIFT (0U)
+#define VAD_COEF_VAL_GET(x) (((uint32_t)(x) & VAD_COEF_VAL_MASK) >> VAD_COEF_VAL_SHIFT)
 
 
 
 /* COEF register group index macro definition */
-#define VAD_COEF_S0B1 (0UL)
-#define VAD_COEF_S1B1 (1UL)
-#define VAD_COEF_S1B2 (2UL)
-#define VAD_COEF_S1B3 (3UL)
-#define VAD_COEF_S1MA2 (4UL)
-#define VAD_COEF_S1MA3 (5UL)
-#define VAD_COEF_S2B1 (6UL)
-#define VAD_COEF_S2B2 (7UL)
-#define VAD_COEF_S2B3 (8UL)
-#define VAD_COEF_S2MA2 (9UL)
-#define VAD_COEF_S2MA3 (10UL)
-#define VAD_COEF_S3B1 (11UL)
-#define VAD_COEF_S3B2 (12UL)
-#define VAD_COEF_S3B3 (13UL)
-#define VAD_COEF_S3MA2 (14UL)
-#define VAD_COEF_S3MA3 (15UL)
-#define VAD_COEF_S4B1 (16UL)
-#define VAD_COEF_S4B2 (17UL)
-#define VAD_COEF_S4B3 (18UL)
-#define VAD_COEF_S4MA2 (19UL)
-#define VAD_COEF_S4MA3 (20UL)
-#define VAD_COEF_S5B1 (21UL)
-#define VAD_COEF_S5B2 (22UL)
-#define VAD_COEF_S5B3 (23UL)
-#define VAD_COEF_S5MA2 (24UL)
-#define VAD_COEF_S5MA3 (25UL)
-#define VAD_COEF_S6B1 (26UL)
-#define VAD_COEF_STE_ACT (27UL)
+#define VAD_COEF_STE_ACT (0UL)
 
 
 #endif /* HPM_VAD_H */

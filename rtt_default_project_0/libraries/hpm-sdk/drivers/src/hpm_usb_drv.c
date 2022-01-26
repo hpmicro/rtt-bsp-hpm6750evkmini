@@ -45,7 +45,7 @@ static void usb_phy_init(USB_Type *ptr)
     ptr->OTG_CTRL0 |= USB_OTG_CTRL0_OTG_UTMI_SUSPENDM_SW_MASK;        /* set otg_utmi_suspend_m for naneng usbphy */
 
     for (int i = 0; i < USB_PHY_INIT_DELAY_COUNT; i++) {
-        ptr->OTG_CTRL1 = USB_OTG_CTRL1_OTG_DEBUG_SEL_SET(i);          /* used for delay */
+        ptr->PHY_CTRL0 = USB_PHY_CTRL0_GPIO_ID_SEL_N_SET(0);          /* used for delay */
     }
 
     ptr->OTG_CTRL0 &= ~USB_OTG_CTRL0_OTG_UTMI_RESET_SW_MASK;          /* clear otg_utmi_reset_sw for naneng usbphy */
@@ -135,7 +135,7 @@ void usb_dcd_init(USB_Type *ptr)
 
 void usb_dcd_deinit(USB_Type *ptr)
 {
-    /* Disconnect */
+    /* Stop */
     ptr->USBCMD &= ~USB_USBCMD_RS_MASK;
 
     /* Reset controller */
@@ -153,6 +153,33 @@ void usb_dcd_deinit(USB_Type *ptr)
 
     /* Reset interrupt enable register */
     ptr->USBINTR = 0;
+}
+
+/* Connect by enabling internal pull-up resistor on D+/D- */
+void usb_dcd_connect(USB_Type *ptr)
+{
+    ptr->USBCMD |= USB_USBCMD_RS_MASK;
+}
+
+/* Disconnect by disabling internal pull-up resistor on D+/D- */
+void usb_dcd_disconnect(USB_Type *ptr)
+{
+    /* Stop */
+    ptr->USBCMD &= ~USB_USBCMD_RS_MASK;
+
+    /* Pullup DP to make the phy switch into full speed mode */
+    ptr->USBCMD |= USB_USBCMD_RS_MASK;
+
+    /* Clear the sof flag */
+    ptr->USBSTS |= USB_USBSTS_SRI_MASK;
+
+    /* Wait a SOF (It will not be a dead loop even usb cable is not connnected.) */
+    while (USB_USBSTS_SRI_GET(ptr->USBSTS) == 0) {
+
+    }
+
+    /* Disconnect */
+    ptr->USBCMD &= ~USB_USBCMD_RS_MASK;
 }
 
 /*---------------------------------------------------------------------*
@@ -231,9 +258,9 @@ bool usb_hcd_init(USB_Type *ptr, uint32_t int_mask, uint16_t framelist_size)
         return false;
     }
 
-    framelist_size_bf = 10 - get_first_set_bit(framelist_size);
+    framelist_size_bf = 10 - get_first_set_bit_from_lsb(framelist_size);
 
-    if (framelist_size != (1 << get_first_set_bit(framelist_size))) {
+    if (framelist_size != (1 << get_first_set_bit_from_lsb(framelist_size))) {
         return false;
     }
 

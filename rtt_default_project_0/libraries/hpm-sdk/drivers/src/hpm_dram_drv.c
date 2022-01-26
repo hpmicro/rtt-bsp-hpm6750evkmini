@@ -18,6 +18,13 @@
 
 #define DRAM_PRESCALER_MAX (256UL)
 
+static void dram_config_delay_cell(DRAM_Type *ptr, uint32_t delay_cell_value)
+{
+    ptr->DLYCFG &= ~DRAM_DLYCFG_OE_MASK;
+    ptr->DLYCFG = DRAM_DLYCFG_DLYSEL_SET(delay_cell_value) | DRAM_DLYCFG_DLYEN_MASK;
+    ptr->DLYCFG |= DRAM_DLYCFG_OE_MASK;
+}
+
 static hpm_stat_t dram_ip_cmd_done(DRAM_Type *ptr)
 { 
     uint32_t intr_status = 0;
@@ -207,7 +214,6 @@ hpm_stat_t dram_config_sdram(DRAM_Type *ptr, uint32_t clk_in_hz, dram_sdram_conf
     hpm_stat_t err;
     uint32_t prescaler;
     uint32_t refresh_cycle;
-    uint32_t iocr;
     uint32_t clk_in_khz = clk_in_hz / 1000;
     dram_cmd_t cmd = {0};
     uint8_t size = dram_convert_actual_size_to_memory_size(config->size_in_byte >> 10);
@@ -231,33 +237,6 @@ hpm_stat_t dram_config_sdram(DRAM_Type *ptr, uint32_t clk_in_hz, dram_sdram_conf
 
     ptr->BR[config->cs] = DRAM_BR_BASE_SET(config->base_address >> DRAM_BR_BASE_SHIFT)
              | DRAM_BR_SIZE_SET(size) | DRAM_BR_VLD_MASK;
-
-    iocr =  (ptr->IOCTRL & ~DRAM_IOCTRL_IO_A8_MASK);
-    if (config->cs > 0) {
-        if (config->cs_mux_pin == DRAM_IO_MUX_NOT_USED) {
-            return status_invalid_argument;
-        }
-        switch(config->cs_mux_pin) {
-            case DRAM_IO_MUX_CSX0:
-                iocr |= DRAM_IOCTRL_IO_CSX0_SET(config->cs);
-                break;
-            case DRAM_IO_MUX_CSX1:
-                iocr |= DRAM_IOCTRL_IO_CSX1_SET(config->cs);
-                break;
-            case DRAM_IO_MUX_CSX2:
-                iocr |= DRAM_IOCTRL_IO_CSX2_SET(config->cs);
-                break;
-            case DRAM_IO_MUX_CSX3:
-                iocr |= DRAM_IOCTRL_IO_CSX3_SET(config->cs);
-                break;
-            case DRAM_IO_MUX_RDY:
-                iocr |= DRAM_IOCTRL_IO_RDY_SET(config->cs);
-                break;
-            default:
-                return status_invalid_argument;
-        }
-    }
-    ptr->IOCTRL = iocr;
 
     ptr->SDRCTRL0 = DRAM_SDRCTRL0_PORTSZ_SET(config->port_size)
                   | DRAM_SDRCTRL0_BURSTLEN_SET(burst_len)
@@ -325,8 +304,7 @@ hpm_stat_t dram_config_sdram(DRAM_Type *ptr, uint32_t clk_in_hz, dram_sdram_conf
     /*
      * config delay cell
      */
-    *(volatile uint32_t*)(0xF3050150) = (config->delay_cell_value << 1) | 1;
-    *(volatile uint32_t*)(0xF3050150) |= (1 << 13);
+    dram_config_delay_cell(ptr, config->delay_cell_value);
 
     cmd.opcode = DRAM_CMD_SDRAM_PRECHARGE_ALL;
     cmd.data = 0;

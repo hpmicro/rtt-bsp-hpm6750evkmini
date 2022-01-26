@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -21,7 +21,7 @@ typedef struct {
 /*
  * LOOP_BACK (RW)
  *
- * force input on 
+ * force input on
  * 0: disable
  * 1: enable
  */
@@ -60,7 +60,7 @@ typedef struct {
 /*
  * MS (RW)
  *
- * pin voltage select:
+ * pin voltage select, only available in high-speed IO
  * 0: 3.3V
  * 1: 1.8V
  */
@@ -84,7 +84,7 @@ typedef struct {
 /*
  * SMT (RW)
  *
- * schmitt trigger enable
+ * schmitt trigger enable, only avaiable in high-speed IO
  * 0: disable
  * 1: enable
  */
@@ -121,7 +121,22 @@ typedef struct {
  * DS (RW)
  *
  * drive strength
- * 
+ * for high-speed IO 3.3V:
+ * 000: 85.61Ohm
+ * 001: 61.2  Ohm
+ * 010: 42.88Ohm
+ * 011: 35.76Ohm
+ * 111: 30.67Ohm
+ * for high-speed IO 1.8V:
+ * 000: 84.07Ohm
+ * 001: 60.14Ohm
+ * 010: 42.15Ohm
+ * 011: 35.19Ohm
+ * 111: 30.2  Ohm
+ * for general IO:
+ * 00: 4mA
+ * 01: 8mA
+ * 11: 12mA
  */
 #define IOC_PAD_PAD_CTL_DS_MASK (0x7U)
 #define IOC_PAD_PAD_CTL_DS_SHIFT (0U)

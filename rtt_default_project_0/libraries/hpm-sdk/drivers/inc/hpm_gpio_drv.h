@@ -8,13 +8,19 @@
 #ifndef HPM_GPIO_DRV_H
 #define HPM_GPIO_DRV_H
 
+#include "hpm_common.h"
 #include "hpm_gpio_regs.h"
+/**
+ *
+ * @brief GPIO driver APIs
+ * @defgroup gpio_interface GPIO driver APIs
+ * @ingroup io_interfaces
+ * @{
+ */
 
-typedef enum gpio_pin_level {
-    gpio_pin_level_low = 0,
-    gpio_pin_level_high,
-} gpio_pin_level_t;
-
+/**
+ * @brief Interrupt trigger type
+ */
 typedef enum gpio_interrupt_trigger {
     gpio_interrupt_trigger_level_high = 0,
     gpio_interrupt_trigger_level_low,
@@ -26,187 +32,335 @@ typedef enum gpio_interrupt_trigger {
 extern "C" {
 #endif
 
-/*
- * get gpio pin level
+/**
+ * @brief   Read target pin level
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param pin Pin index
+ *
+ * @return Pin status mask
  */
-static inline gpio_pin_level_t gpio_read_pin(GPIO_Type *ptr,
-                                             uint32_t gpio_index,
-                                             uint8_t pin_index)
+static inline uint8_t gpio_read_pin(GPIO_Type *ptr, uint32_t port, uint8_t pin)
 {
-    return ptr->DI[gpio_index].VALUE & (1 << pin_index)
-            ? gpio_pin_level_high : gpio_pin_level_low;
+    return (ptr->DI[port].VALUE & (1 << pin)) >> pin;
 }
 
-static inline void gpio_toggle_pin(GPIO_Type *ptr,
-                                         uint32_t gpio_index,
-                                         uint8_t pin_index)
+/**
+ * @brief   Toggle pin level
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param pin Pin index
+ */
+static inline void gpio_toggle_pin(GPIO_Type *ptr, uint32_t port, uint8_t pin)
 {
-    ptr->DO[gpio_index].TOGGLE = 1 << pin_index;
+    ptr->DO[port].TOGGLE = 1 << pin;
 }
 
-static inline void gpio_write_pin(GPIO_Type *ptr,
-                                  uint32_t gpio_index,
-                                  uint8_t pin_index,
-                                  gpio_pin_level_t level)
+/**
+ * @brief   Write pin level
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param pin Pin index
+ * @param high Pin level set to high when it is set to true
+ */
+static inline void gpio_write_pin(GPIO_Type *ptr, uint32_t port, uint8_t pin, uint8_t high)
 {
-    if (level == gpio_pin_level_high) {
-        ptr->DO[gpio_index].SET = 1 << pin_index;
+    if (high) {
+        ptr->DO[port].SET = 1 << pin;
     } else {
-        ptr->DO[gpio_index].CLEAR = 1 << pin_index;
+        ptr->DO[port].CLEAR = 1 << pin;
     }
 }
 
-static inline void gpio_disable_pin_output(GPIO_Type *ptr,
-                                      uint32_t gpio_index,
-                                      uint8_t pin_index)
-{
-    ptr->OE[gpio_index].CLEAR = 1 << pin_index;
-}
-
-static inline void gpio_enable_pin_output(GPIO_Type *ptr,
-                                      uint32_t gpio_index,
-                                      uint8_t pin_index)
-{
-    ptr->OE[gpio_index].SET = 1 << pin_index;
-}
-
-static inline bool gpio_check_interrupt_flag(GPIO_Type *ptr,
-                                       uint32_t gpio_index,
-                                       uint8_t pin_index)
-{
-    return ptr->IF[gpio_index].VALUE & (1 << pin_index);
-}
-
-static inline void gpio_clear_interrupt_flag(GPIO_Type *ptr,
-                                       uint32_t gpio_index,
-                                       uint8_t pin_index)
-{
-    ptr->IF[gpio_index].VALUE |= 1 << pin_index;
-}
-
-static inline uint32_t gpio_read_pins_with_mask(GPIO_Type *ptr,
-                                               uint32_t gpio_index,
-                                               uint32_t pin_mask)
-{
-    return ptr->DI[gpio_index].VALUE & pin_mask;
-}
-
-static inline void gpio_toggle_pins_with_mask(GPIO_Type *ptr,
-                                         uint32_t gpio_index,
-                                         uint32_t pin_mask)
-{
-    ptr->DO[gpio_index].TOGGLE = pin_mask;
-}
-
-static inline void gpio_write_pins_with_mask(GPIO_Type *ptr,
-                                      uint32_t gpio_index,
-                                      uint32_t pin_mask,
-                                      gpio_pin_level_t level)
-{
-    if (level == gpio_pin_level_high) {
-        ptr->DO[gpio_index].SET = pin_mask;
-    } else {
-        ptr->DO[gpio_index].CLEAR = pin_mask;
-    }
-}
-
-static inline void gpio_enable_pins_output_with_mask(GPIO_Type *ptr,
-                                      uint32_t gpio_index,
-                                      uint32_t pin_mask)
-{
-    ptr->OE[gpio_index].SET = pin_mask;
-}
-
-static inline void gpio_disable_pins_output_with_mask(GPIO_Type *ptr,
-                                      uint32_t gpio_index,
-                                      uint32_t pin_mask)
-{
-    ptr->OE[gpio_index].CLEAR = pin_mask;
-}
-
-static inline bool gpio_check_pin_interrupt_flag_with_mask(GPIO_Type *ptr,
-                                       uint32_t gpio_index,
-                                       uint32_t pin_mask)
-{
-    return ptr->IF[gpio_index].VALUE & pin_mask;
-}
-
-static inline void gpio_clear_pin_interrupt_flag_with_mask(GPIO_Type *ptr,
-                                       uint32_t gpio_index,
-                                       uint32_t pin_mask)
-{
-    ptr->IF[gpio_index].SET = pin_mask;
-}
-
-static inline void gpio_enable_pins_interrupt_with_mask(GPIO_Type *ptr,
-                                          uint32_t gpio_index,
-                                          uint8_t pin_mask)
-{
-    ptr->IE[gpio_index].SET = pin_mask;
-}
-
-static inline void gpio_disable_pins_interrupt_with_mask(GPIO_Type *ptr,
-                                          uint32_t gpio_index,
-                                          uint8_t pin_mask)
-{
-    ptr->IE[gpio_index].CLEAR = pin_mask;
-}
-
-static inline uint32_t gpio_get_interrupt_flag(GPIO_Type *ptr,
-                                          uint32_t gpio_index)
-{
-    return ptr->IF[gpio_index].VALUE;
-}
-
-static inline bool gpio_is_pin_interrupt_enabled(GPIO_Type *ptr,
-                                          uint32_t gpio_index,
-                                          uint8_t pin_index)
-{
-    return (ptr->IE[gpio_index].VALUE & (1 << pin_index)) == (1 << pin_index);
-}
-
-static inline void gpio_enable_pin_interrupt(GPIO_Type *ptr,
-                                          uint32_t gpio_index,
-                                          uint8_t pin_index)
-{
-    ptr->IE[gpio_index].SET = 1 << pin_index;
-}
-
-static inline void gpio_disable_pin_interrupt(GPIO_Type *ptr,
-                                          uint32_t gpio_index,
-                                          uint8_t pin_index)
-{
-    ptr->IE[gpio_index].CLEAR = 1 << pin_index;
-}
-
-
-/*
- * check if interrupt flag is set for specific pin, if so, clear it and return true,
- * otherwise, return false
+/**
+ * @brief   Disable pin output
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param pin Pin index
  */
-static inline bool gpio_check_clear_interrupt_flag(GPIO_Type *ptr,
-                                             uint32_t gpio_index,
-                                             uint8_t pin_index)
+static inline void gpio_disable_pin_output(GPIO_Type *ptr, uint32_t port, uint8_t pin)
 {
-    if (!gpio_check_interrupt_flag(ptr, gpio_index, pin_index)) {
+    ptr->OE[port].CLEAR = 1 << pin;
+}
+
+/**
+ * @brief   Enable pin output
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param pin Pin index
+ */
+static inline void gpio_enable_pin_output(GPIO_Type *ptr, uint32_t port, uint8_t pin)
+{
+    ptr->OE[port].SET = 1 << pin;
+}
+
+/**
+ * @brief   Enable pin output with initial value
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param pin Pin index
+ * @param initial Initial value
+ */
+void gpio_enable_pin_output_with_initial(GPIO_Type *ptr, uint32_t port, uint8_t pin, uint8_t initial);
+
+/**
+ * @brief   Check specific pin interrupt status
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param pin Pin index
+ *
+ * @return true if interrupt flag is set
+ */
+static inline bool gpio_check_pin_interrupt_flag(GPIO_Type *ptr, uint32_t port, uint8_t pin)
+{
+    return ptr->IF[port].VALUE & (1 << pin);
+}
+
+/**
+ * @brief   Clear specific pin interrupt flag
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param pin Pin index
+ */
+static inline void gpio_clear_pin_interrupt_flag(GPIO_Type *ptr, uint32_t port, uint8_t pin)
+{
+    ptr->IF[port].VALUE = 1 << pin;
+}
+
+/**
+ * @brief   Check if specific pin interrupt is enabled or not
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param pin Pin index
+ *
+ * @return true if interrupt is enabled
+ */
+static inline bool gpio_check_pin_interrupt_enabled(GPIO_Type *ptr, uint32_t port, uint8_t pin)
+{
+    return (ptr->IE[port].VALUE & (1 << pin)) == (1 << pin);
+}
+
+/**
+ * @brief  Enable interrupt for specific pin
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param pin Pin index
+ */
+static inline void gpio_enable_pin_interrupt(GPIO_Type *ptr, uint32_t port, uint8_t pin)
+{
+    ptr->IE[port].SET = 1 << pin;
+}
+
+/**
+ * @brief   Disable interrupt for specific pin
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param pin Pin index
+ */
+static inline void gpio_disable_pin_interrupt(GPIO_Type *ptr, uint32_t port, uint8_t pin)
+{
+    ptr->IE[port].CLEAR = 1 << pin;
+}
+
+/**
+ * @brief   Check interrupt flag of specific pin and clear if it is set
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param pin Pin index
+ *
+ * @return true if the interrupt flag is set and cleared
+ * @return false if the interrupt flag is not set
+ */
+static inline bool gpio_check_clear_interrupt_flag(GPIO_Type *ptr, uint32_t port, uint8_t pin)
+{
+    if (!gpio_check_pin_interrupt_flag(ptr, port, pin)) {
         return false;
     }
-    gpio_clear_interrupt_flag(ptr, gpio_index, pin_index);
+    gpio_clear_pin_interrupt_flag(ptr, port, pin);
     return true;
 }
 
-void gpio_config_pin_interrupt(GPIO_Type *ptr, uint32_t gpio_index,
-                         uint8_t pin_index, gpio_interrupt_trigger_t trigger);
+
+/**
+ * @brief   Read all pins level on specific port
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ *
+ * @return Port pin level status
+ */
+static inline uint32_t gpio_read_port(GPIO_Type *ptr, uint32_t port)
+{
+    return ptr->DI[port].VALUE;
+}
+
+/**
+ * @brief   Toggle port with specific pin mask
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param mask Mask pins to be toggled
+ */
+static inline void gpio_toggle_port_with_mask(GPIO_Type *ptr, uint32_t port, uint32_t mask)
+{
+    ptr->DO[port].TOGGLE = mask;
+}
+
+/**
+ * @brief   Write specific port with value
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param value Value to be written
+ */
+static inline void gpio_write_port(GPIO_Type *ptr, uint32_t port, uint32_t value)
+{
+    ptr->DO[port].VALUE = value;
+}
+
+/**
+ * @brief   Set spcific port pin high according to the given mask
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param mask Mask of pins to be set to low
+ */
+static inline void gpio_set_port_low_with_mask(GPIO_Type *ptr, uint32_t port, uint32_t mask)
+{
+    ptr->DO[port].CLEAR = mask;
+}
+
+/**
+ * @brief   Set spcific port pin high according to the given mask
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param mask Mask of pins to be set to high
+ */
+static inline void gpio_set_port_high_with_mask(GPIO_Type *ptr, uint32_t port, uint32_t mask)
+{
+    ptr->DO[port].SET = mask;
+}
+
+/**
+ * @brief   Enable pins output of specific port according to the given mask
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param mask Mask of pins to be enabled
+ */
+static inline void gpio_enable_port_output_with_mask(GPIO_Type *ptr, uint32_t port, uint32_t mask)
+{
+    ptr->OE[port].SET = mask;
+}
+
+/**
+ * @brief   Disable pins output of specific port according to the given mask
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param mask Mask of pins to be disabled
+ */
+static inline void gpio_disable_port_output_with_mask(GPIO_Type *ptr, uint32_t port, uint32_t mask)
+{
+    ptr->OE[port].CLEAR = mask;
+}
+
+/**
+ * @brief   Get current interrupt flags on specific port
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ *
+ * @return Current interrupt flags on specific port
+ */
+static inline bool gpio_get_port_interrupt_flags(GPIO_Type *ptr, uint32_t port)
+{
+    return ptr->IF[port].VALUE;
+}
 
 
-void gpio_toggle_pin_interrupt_trigger_polarity(GPIO_Type *ptr,
-                                                 uint32_t gpio_index,
-                                                 uint8_t pin_index);
+/**
+ * @brief   Clear interrupt flags with given mask on specific port
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param mask Mask of interrupts to be cleared
+ */
+static inline void gpio_clear_port_interrupt_flags_with_mask(GPIO_Type *ptr, uint32_t port, uint32_t mask)
+{
+    ptr->IF[port].VALUE |= mask;
+}
 
-void gpio_toggle_pin_interrupt_trigger_type(GPIO_Type *ptr,
-                                                 uint32_t gpio_index,
-                                                 uint8_t pin_index);
+/**
+ * @brief   Enable interrupts with given mask on specific port
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param mask Mask of interrupts to be enabled
+ */
+static inline void gpio_enable_port_interrupt_with_mask(GPIO_Type *ptr, uint32_t port, uint8_t mask)
+{
+    ptr->IE[port].SET = mask;
+}
+
+/**
+ * @brief   Disable interrupts with given mask on specific port
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param mask Mask of interrupts to be disabled
+ */
+static inline void gpio_disable_port_interrupt_with_mask(GPIO_Type *ptr, uint32_t port, uint8_t mask)
+{
+    ptr->IE[port].CLEAR = mask;
+}
+
+
+/**
+ * @brief   Config pin interrupt
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param pin Pin index
+ * @param trigger Trigger type
+ */
+void gpio_config_pin_interrupt(GPIO_Type *ptr, uint32_t port, uint8_t pin, gpio_interrupt_trigger_t trigger);
+
+
+/**
+ * @brief   Toggle pin interrupt trigger polarity
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param pin Pin index
+ */
+void gpio_toggle_pin_interrupt_trigger_polarity(GPIO_Type *ptr, uint32_t port, uint8_t pin);
+
+/**
+ * @brief   Toggle pin interrupt trigger type
+ *
+ * @param ptr GPIO base address
+ * @param port Port index
+ * @param pin Pin index
+ */
+void gpio_toggle_pin_interrupt_trigger_type(GPIO_Type *ptr, uint32_t port, uint8_t pin);
 #ifdef __cplusplus
 }
 #endif
+/**
+ * @}
+ */
 #endif /* HPM_GPIO_DRV_H */

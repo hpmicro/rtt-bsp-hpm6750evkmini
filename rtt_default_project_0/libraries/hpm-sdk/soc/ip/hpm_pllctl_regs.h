@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -119,7 +119,9 @@ typedef struct {
 /*
  * SS_DOWNSPREAD (RW)
  *
- * 
+ * Downspread control
+ * 1’b0 –> Center-Spread
+ * 1’b1 –> Downspread
  */
 #define PLLCTL_PLL_CFG0_SS_DOWNSPREAD_MASK (0x80U)
 #define PLLCTL_PLL_CFG0_SS_DOWNSPREAD_SHIFT (7U)
@@ -129,7 +131,6 @@ typedef struct {
 /*
  * SS_RESET (RW)
  *
- * 
  */
 #define PLLCTL_PLL_CFG0_SS_RESET_MASK (0x40U)
 #define PLLCTL_PLL_CFG0_SS_RESET_SHIFT (6U)
@@ -139,7 +140,6 @@ typedef struct {
 /*
  * SS_DISABLE_SSCG (RW)
  *
- * 
  */
 #define PLLCTL_PLL_CFG0_SS_DISABLE_SSCG_MASK (0x20U)
 #define PLLCTL_PLL_CFG0_SS_DISABLE_SSCG_SHIFT (5U)
@@ -218,7 +218,7 @@ typedef struct {
 /*
  * FRAC (RW)
  *
- * PLL output frequency is : 
+ * PLL output frequency is :
  * Fout = Fref/refdiv*(fbdiv + frac/2^24)/postdiv1
  * for default refdiv=1 and postdiv1=1, 24MHz refclk
  * Fout is 24*fbdiv in int mode
@@ -324,7 +324,6 @@ typedef struct {
 /*
  * PLL_LOCK_COMB (RO)
  *
- * 
  */
 #define PLLCTL_PLL_STATUS_PLL_LOCK_COMB_MASK (0x2U)
 #define PLLCTL_PLL_STATUS_PLL_LOCK_COMB_SHIFT (1U)
@@ -333,7 +332,6 @@ typedef struct {
 /*
  * PLL_LOCK_SYNC (RO)
  *
- * 
  */
 #define PLLCTL_PLL_STATUS_PLL_LOCK_SYNC_MASK (0x1U)
 #define PLLCTL_PLL_STATUS_PLL_LOCK_SYNC_SHIFT (0U)

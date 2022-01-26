@@ -237,12 +237,12 @@ static inline void pcfg_config_debug_stop_source(PCFG_Type *ptr, uint8_t mask)
 
 static inline bool pcfg_irc24m_is_trimmed(PCFG_Type *ptr)
 {
-    return ptr->IRC24M & PCFG_IRC24M_IRC_TRIMMED_MASK;
+    return ptr->RC24M & PCFG_RC24M_RC_TRIMMED_MASK;
 }
 
 static inline void pcfg_irc24m_reload_trim(PCFG_Type *ptr)
 {
-    ptr->IRC24M &= ~PCFG_IRC24M_IRC_TRIMMED_MASK;
+    ptr->RC24M &= ~PCFG_RC24M_RC_TRIMMED_MASK;
 }
 
 void pcfg_irc24m_config_track(PCFG_Type *ptr, pcfg_irc24m_config_t *config);

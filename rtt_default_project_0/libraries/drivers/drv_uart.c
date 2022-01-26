@@ -2,7 +2,7 @@
  * Copyright (c) 2021 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
- * 
+ *
  * Change Logs:
  * Date         Author      Notes
  * 2021-09-19   HPMICRO     First version
@@ -38,7 +38,7 @@ static int hpm_uart_getc(struct rt_serial_device *serial);
 
 #if defined(BSP_USING_UART0)
 struct rt_serial_device serial0;
-void uart0_isr(void) 
+void uart0_isr(void)
 {
     hpm_uart_isr(&serial0);
 }
@@ -48,7 +48,7 @@ SDK_DECLARE_EXT_ISR_M(IRQn_UART0,uart0_isr)
 
 #if defined(BSP_USING_UART1)
 struct rt_serial_device serial1;
-void uart1_isr(void) 
+void uart1_isr(void)
 {
     hpm_uart_isr(&serial1);
 }
@@ -58,7 +58,7 @@ SDK_DECLARE_EXT_ISR_M(IRQn_UART1,uart1_isr)
 
 #if defined(BSP_USING_UART2)
 struct rt_serial_device serial2;
-void uart2_isr(void) 
+void uart2_isr(void)
 {
     hpm_uart_isr(&serial2);
 }
@@ -68,7 +68,7 @@ SDK_DECLARE_EXT_ISR_M(IRQn_UART2,uart2_isr)
 
 #if defined(BSP_USING_UART3)
 struct rt_serial_device serial3;
-void uart3_isr(void) 
+void uart3_isr(void)
 {
     hpm_uart_isr(&serial3);
 }
@@ -78,7 +78,7 @@ SDK_DECLARE_EXT_ISR_M(IRQn_UART3,uart3_isr)
 
 #if defined(BSP_USING_UART4)
 struct rt_serial_device serial4;
-void uart4_isr(void) 
+void uart4_isr(void)
 {
     hpm_uart_isr(&serial4);
 }
@@ -88,7 +88,7 @@ SDK_DECLARE_EXT_ISR_M(IRQn_UART4,uart4_isr)
 
 #if defined(BSP_USING_UART5)
 struct rt_serial_device serial0;
-void uart5_isr(void) 
+void uart5_isr(void)
 {
     hpm_uart_isr(&serial5);
 }
@@ -98,7 +98,7 @@ SDK_DECLARE_EXT_ISR_M(IRQn_UART5,uart5_isr)
 
 #if defined(BSP_USING_UART6)
 struct rt_serial_device serial6;
-void uart6_isr(void) 
+void uart6_isr(void)
 {
     hpm_uart_isr(&serial6);
 }
@@ -108,7 +108,7 @@ SDK_DECLARE_EXT_ISR_M(IRQn_UART6,uart6_isr)
 
 #if defined(BSP_USING_UART7)
 struct rt_serial_device serial7;
-void uart7_isr(void) 
+void uart7_isr(void)
 {
     hpm_uart_isr(&serial7);
 }
@@ -118,7 +118,7 @@ SDK_DECLARE_EXT_ISR_M(IRQn_UART7,uart7_isr)
 
 #if defined(BSP_USING_UART8)
 struct rt_serial_device serial8;
-void uart8_isr(void) 
+void uart8_isr(void)
 {
     hpm_uart_isr(&serial8);
 }
@@ -128,7 +128,7 @@ SDK_DECLARE_EXT_ISR_M(IRQn_UART8,uart8_isr)
 
 #if defined(BSP_USING_UART9)
 struct rt_serial_device serial9;
-void uart9_isr(void) 
+void uart9_isr(void)
 {
     hpm_uart_isr(&serial9);
 }
@@ -138,7 +138,7 @@ SDK_DECLARE_EXT_ISR_M(IRQn_UART9,uart9_isr)
 
 #if defined(BSP_USING_UART10)
 struct rt_serial_device serial10;
-void uart10_isr(void) 
+void uart10_isr(void)
 {
     hpm_uart_isr(&serial10);
 }
@@ -147,7 +147,7 @@ SDK_DECLARE_EXT_ISR_M(IRQn_UART10,uart10_isr)
 
 #if defined(BSP_USING_UART11)
 struct rt_serial_device serial11;
-void uart11_isr(void) 
+void uart11_isr(void)
 {
     hpm_uart_isr(&serial11);
 }
@@ -156,7 +156,7 @@ SDK_DECLARE_EXT_ISR_M(IRQn_UART11,uart11_isr)
 
 #if defined(BSP_USING_UART12)
 struct rt_serial_device serial12;
-void uart12_isr(void) 
+void uart12_isr(void)
 {
     hpm_uart_isr(&serial12);
 }
@@ -165,7 +165,7 @@ SDK_DECLARE_EXT_ISR_M(IRQn_UART12,uart12_isr)
 
 #if defined(BSP_USING_UART13)
 struct rt_serial_device serial13;
-void uart13_isr(void) 
+void uart13_isr(void)
 {
     hpm_uart_isr(&serial13);
 }
@@ -174,7 +174,7 @@ SDK_DECLARE_EXT_ISR_M(IRQn_UART13,uart13_isr)
 
 #if defined(BSP_USING_UART14)
 struct rt_serial_device serial14;
-void uart14_isr(void) 
+void uart14_isr(void)
 {
     hpm_uart_isr(&serial14);
 }
@@ -183,7 +183,7 @@ SDK_DECLARE_EXT_ISR_M(IRQn_UART14,uart14_isr)
 
 #if defined(BSP_USING_UART15)
 struct rt_serial_device serial15;
-void uart15_isr(void) 
+void uart15_isr(void)
 {
     hpm_uart_isr(&serial15);
 }
@@ -334,12 +334,12 @@ static const struct hpm_uart uarts[] = {
     "uart15",
 },
 #endif
-    
+
 };
 
 /**
  * @brief UART common interrupt process. This
- * 
+ *
  * @param serial Serial device
  */
 static void hpm_uart_isr(struct rt_serial_device *serial)
@@ -364,7 +364,7 @@ static void hpm_uart_isr(struct rt_serial_device *serial)
 
 static rt_err_t hpm_uart_configure(struct rt_serial_device *serial, struct serial_configure *cfg)
 {
-    
+
     RT_ASSERT(serial != RT_NULL);
     RT_ASSERT(cfg != RT_NULL);
 
@@ -397,13 +397,13 @@ static rt_err_t hpm_uart_control(struct rt_serial_device *serial, int cmd, void 
     switch (cmd) {
         case RT_DEVICE_CTRL_CLR_INT:
             /* disable rx irq */
-            uart_enable_irq(uart->uart_base, uart_intr_rx_data_avail_or_timeout, false);
+            uart_disable_irq(uart->uart_base, uart_intr_rx_data_avail_or_timeout);
             intc_m_disable_irq(uart->irq_num);
             break;
-            
+
         case RT_DEVICE_CTRL_SET_INT:
             /* enable rx irq */
-            uart_enable_irq(uart->uart_base, uart_intr_rx_data_avail_or_timeout, true);
+            uart_enable_irq(uart->uart_base, uart_intr_rx_data_avail_or_timeout);
             intc_m_enable_irq_with_priority(uart->irq_num, 1);
             break;
     }
@@ -422,7 +422,7 @@ static int hpm_uart_getc(struct rt_serial_device *serial)
 {
     int result = -1;
     struct hpm_uart *uart  = (struct hpm_uart *)serial->parent.user_data;
-    
+
     if (uart_check_status(uart->uart_base, uart_stat_data_ready)) {
         uart_receive_byte(uart->uart_base, (uint8_t*)&result);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -11,12 +11,12 @@
 
 typedef struct {
     struct {
-        __RW uint32_t CFG;                     /* 0x0:  */
-        __RW uint32_t DACCFG;                  /* 0x4:  */
+        __RW uint32_t CFG;                     /* 0x0: Configure Register */
+        __RW uint32_t DACCFG;                  /* 0x4: DAC configure register */
         __R  uint8_t  RESERVED0[8];            /* 0x8 - 0xF: Reserved */
-        __RW uint32_t SR;                      /* 0x10:  */
-        __RW uint32_t IRQEN;                   /* 0x14:  */
-        __RW uint32_t DMAEN;                   /* 0x18:  */
+        __RW uint32_t SR;                      /* 0x10: Status register */
+        __RW uint32_t IRQEN;                   /* 0x14: Interrupt request enable register */
+        __RW uint32_t DMAEN;                   /* 0x18: DMA request enable register */
         __R  uint8_t  RESERVED1[4];            /* 0x1C - 0x1F: Reserved */
     } CHANNEL[4];
 } ACMP_Type;
@@ -97,8 +97,8 @@ typedef struct {
  * CMPOEN (RW)
  *
  * This bit enable the comparator output on pad.
- * 0: ACMP disabled
- * 1: ACMP enabled
+ * 0: ACMP output disabled
+ * 1: ACMP output enabled
  */
 #define ACMP_CHANNEL_CFG_CMPOEN_MASK (0x80000UL)
 #define ACMP_CHANNEL_CFG_CMPOEN_SHIFT (19U)
@@ -147,9 +147,9 @@ typedef struct {
  * This bitfield define the ACMP output digital filter mode:
  * 000-bypass
  * 100-change immediately;
- * 101-change after filter; 
+ * 101-change after filter;
  * 110-stalbe low;
- * 111-stable high 
+ * 111-stable high
  */
 #define ACMP_CHANNEL_CFG_FLTMODE_MASK (0xE000U)
 #define ACMP_CHANNEL_CFG_FLTMODE_SHIFT (13U)

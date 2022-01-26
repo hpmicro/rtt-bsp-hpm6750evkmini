@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -61,8 +61,8 @@ typedef struct {
 /*
  * MAX_OT (RW)
  *
- * max_ot when input are RGB pixels. 
- * For 16 bits per pixel, it can be set as 4. 
+ * max_ot when input are RGB pixels.
+ * For 16 bits per pixel, it can be set as 4.
  * For 32 bits per pixel, it will be set as 2.
  */
 #define JPEG_INDMA_MISC_MAX_OT_MASK (0x78000UL)
@@ -154,7 +154,6 @@ typedef struct {
  * 4: HuffMin
  * 5: HuffBase
  * 6: HuffSymb
- * 
  */
 #define JPEG_INDMA_MISC_IN_DMA_ID_MASK (0x70U)
 #define JPEG_INDMA_MISC_IN_DMA_ID_SHIFT (4U)
@@ -196,7 +195,7 @@ typedef struct {
 /*
  * TTLEN (RW)
  *
- * Total length (Low 16 bits) in Bytes -1 for transfer when  In_DMA_ID!=Pixel. 
+ * Total length (Low 16 bits) in Bytes -1 for transfer when  In_DMA_ID!=Pixel.
  */
 #define JPEG_INDMA_CTRL0_TTLEN_MASK (0xFFFF0000UL)
 #define JPEG_INDMA_CTRL0_TTLEN_SHIFT (16U)
@@ -259,7 +258,6 @@ typedef struct {
 /*
  * AWQOS (RW)
  *
- * 
  */
 #define JPEG_OUTDMA_MISC_AWQOS_MASK (0x3C000UL)
 #define JPEG_OUTDMA_MISC_AWQOS_SHIFT (14U)
@@ -469,7 +467,10 @@ typedef struct {
 /*
  * CFG_IPATH_SEL (RW)
  *
- * 2'b0:2-plane (Y- and UV- plane) or 1-plane (Y-only) as determined by the original data, 2'b01:ARGB8888, 2'b10:RGB565, 2'b11: YUV422H
+ * 2'b0:2-plane (Y- and UV- plane) or 1-plane (Y-only) as determined by the original data, byte sequence as Y0,Y1, or U,V
+ * 2'b01:ARGB8888, byte sequence as B,G,R,A
+ * 2'b10:RGB565, byte sequence as B,R
+ * 2'b11: YUV422H, byte sequence as Y0,U0,Y1,V0
  */
 #define JPEG_CFG_CFG_IPATH_SEL_MASK (0x300000UL)
 #define JPEG_CFG_CFG_IPATH_SEL_SHIFT (20U)
@@ -519,7 +520,10 @@ typedef struct {
 /*
  * CFG_OPATH_SEL (RW)
  *
- * 2'b0:2-plane (Y- and UV- plane) or 1-plane (Y-only) as determined by the original data, 2'b01:ARGB8888, 2'b10:RGB565, 2'b11: YUV422H1P
+ * 2'b0:2-plane (Y- and UV- plane) or 1-plane (Y-only) as determined by the original data, byte sequence as Y0,Y1, or U,V
+ * 2'b01:ARGB8888, byte sequence as B,G,R,A
+ * 2'b10:RGB565, byte sequence as R,B
+ * 2'b11: YUV422H1P, byte sequence as Y0,U0,Y1,V0
  */
 #define JPEG_CFG_CFG_OPATH_SEL_MASK (0x180U)
 #define JPEG_CFG_CFG_OPATH_SEL_SHIFT (7U)
@@ -533,7 +537,7 @@ typedef struct {
  * 3'b001: for 422h, hy=2, vy=1, hc=1, vc=1 // 4 sub-blocks per MCU
  * 3'b010: for 422v, hy=1, vy=2, hc=1, vc=1 // 4 sub-blocks per MCU
  * 3'b011: for 444,  hy=1, vy=1, hc=1, vc=1 // 3 sub-blocks per MCU
- * 3'b100: for 400,  hy=2, vy=2, hc=0, vc=0 // 4 sub-blocks  per MCU  
+ * 3'b100: for 400,  hy=2, vy=2, hc=0, vc=0 // 4 sub-blocks  per MCU
  * Others: Undefined
  */
 #define JPEG_CFG_JDATA_FORMAT_MASK (0x70U)
@@ -554,7 +558,7 @@ typedef struct {
 /*
  * START (RW)
  *
- * Asserted if to start a new encoder/decoder conversion. 
+ * Asserted if to start a new encoder/decoder conversion.
  * It will at first stop the inner JPEG module, then reset it, and then re-run it.
  * It is a different mode from DMA phase mode.
  * It cannot be configured in the DMA chain descriptor. It should be configured by the core processor.
@@ -697,7 +701,7 @@ typedef struct {
 /*
  * IMG (RW)
  *
- * Image Width (it is the max index of pixel counting from 0, assuming the rop left pixel is indexed as [0,0])
+ * Image Width (it is the max index of pixel counting from 0, assuming the top left pixel is indexed as [0,0])
  */
 #define JPEG_WIDTH_IMG_MASK (0xFFFFU)
 #define JPEG_WIDTH_IMG_SHIFT (0U)
@@ -708,7 +712,7 @@ typedef struct {
 /*
  * IMG (RW)
  *
- * Image Height  (it is the max index of pixel counting from 0, assuming the rop left pixel is indexed as [0,0])
+ * Image Height  (it is the max index of pixel counting from 0, assuming the top left pixel is indexed as [0,0])
  */
 #define JPEG_HEIGHT_IMG_MASK (0xFFFFU)
 #define JPEG_HEIGHT_IMG_SHIFT (0U)
@@ -719,13 +723,13 @@ typedef struct {
 /*
  * ADDR (RW)
  *
- * ADDR[31:28]:
+ * ADDR[31:28] denotes the buffer type:
  * 0x2: Qmem
  * 0x3: HuffEnc
  * 0x4: HuffMin
  * 0x5: HuffBase
  * 0x6: HuffSymb
- * 
+ * ADDR[27:0] is the address inside the buffer
  */
 #define JPEG_BUFADDR_ADDR_MASK (0xFFFFFFFFUL)
 #define JPEG_BUFADDR_ADDR_SHIFT (0U)
@@ -770,10 +774,9 @@ typedef struct {
 /*
  * ENABLE (RW)
  *
- * Enable the CSC unit in the LCDC plane data path.
- * 0b - The CSC is bypassed and the input pixels are RGB data already
- * 1b - The CSC is enabled and the pixels will be converted to RGB data
- * This bit will be shadowed.
+ * Enable the CSC unit.
+ * 0b - The CSC is bypassed
+ * 1b - The CSC is enabled
  */
 #define JPEG_CSC_COEF0_ENABLE_MASK (0x40000000UL)
 #define JPEG_CSC_COEF0_ENABLE_SHIFT (30U)
@@ -783,7 +786,7 @@ typedef struct {
 /*
  * C0 (RW)
  *
- * Two's compliment Y multiplier coefficient. YUV=0x100 (1.000) YCbCr=0x12A (1.164)
+ * Two's compliment Y multiplier coefficient C0. YUV=0x100 (1.000) YCbCr=0x12A (1.164)
  */
 #define JPEG_CSC_COEF0_C0_MASK (0x1FFC0000UL)
 #define JPEG_CSC_COEF0_C0_SHIFT (18U)
@@ -793,7 +796,7 @@ typedef struct {
 /*
  * UV_OFFSET (RW)
  *
- * Two's compliment phase offset implicit for CbCr data. Generally used for YCbCr to RGB conversion.
+ * Two's compliment phase offset implicit for CbCr data UV_OFFSET. Generally used for YCbCr to RGB conversion.
  * YCbCr=0x180, YUV=0x000 (typically -128 or 0x180 to indicate normalized -0.5 to 0.5 range).
  */
 #define JPEG_CSC_COEF0_UV_OFFSET_MASK (0x3FE00UL)
@@ -804,7 +807,7 @@ typedef struct {
 /*
  * Y_OFFSET (RW)
  *
- * Two's compliment amplitude offset implicit in the Y data. For YUV, this is typically 0 and for YCbCr, this is
+ * Two's compliment amplitude offset implicit in the Y data Y_OFFSET. For YUV, this is typically 0 and for YCbCr, this is
  * typically -16 (0x1F0).
  */
 #define JPEG_CSC_COEF0_Y_OFFSET_MASK (0x1FFU)
@@ -816,7 +819,7 @@ typedef struct {
 /*
  * C1 (RW)
  *
- * Two's compliment Red V/Cr multiplier coefficient. YUV=0x123 (1.140) YCbCr=0x198 (1.596).
+ * Two's compliment Red V/Cr multiplier coefficient C1. YUV=0x123 (1.140) YCbCr=0x198 (1.596).
  */
 #define JPEG_CSC_COEF1_C1_MASK (0x7FF0000UL)
 #define JPEG_CSC_COEF1_C1_SHIFT (16U)
@@ -826,7 +829,7 @@ typedef struct {
 /*
  * C4 (RW)
  *
- * Two's compliment Blue U/Cb multiplier coefficient. YUV=0x208 (2.032) YCbCr=0x204 (2.017).
+ * Two's compliment Blue U/Cb multiplier coefficient C4. YUV=0x208 (2.032) YCbCr=0x204 (2.017).
  */
 #define JPEG_CSC_COEF1_C4_MASK (0x7FFU)
 #define JPEG_CSC_COEF1_C4_SHIFT (0U)
@@ -837,7 +840,7 @@ typedef struct {
 /*
  * C2 (RW)
  *
- * Two's compliment Green V/Cr multiplier coefficient. YUV=0x76B (-0.581) YCbCr=0x730 (-0.813).
+ * Two's compliment Green V/Cr multiplier coefficient C2. YUV=0x76B (-0.581) YCbCr=0x730 (-0.813).
  */
 #define JPEG_CSC_COEF2_C2_MASK (0x7FF0000UL)
 #define JPEG_CSC_COEF2_C2_SHIFT (16U)
@@ -847,7 +850,7 @@ typedef struct {
 /*
  * C3 (RW)
  *
- * Two's compliment Green U/Cb multiplier coefficient. YUV=0x79C (-0.394) YCbCr=0x79C (-0.392).
+ * Two's compliment Green U/Cb multiplier coefficient C3. YUV=0x79C (-0.394) YCbCr=0x79C (-0.392).
  */
 #define JPEG_CSC_COEF2_C3_MASK (0x7FFU)
 #define JPEG_CSC_COEF2_C3_SHIFT (0U)
@@ -858,7 +861,7 @@ typedef struct {
 /*
  * YCBCR_MODE (RW)
  *
- * YUV mode or YCrCb mode
+ * Asserted to use YCrCb mode. Must be assigned as 1.
  */
 #define JPEG_RGB2YUV_COEF0_YCBCR_MODE_MASK (0x80000000UL)
 #define JPEG_RGB2YUV_COEF0_YCBCR_MODE_SHIFT (31U)
@@ -868,7 +871,7 @@ typedef struct {
 /*
  * ENABLE (RW)
  *
- * Asserted to enable this RGB2YUV CSC stage
+ * Asserted to enable this RGB2YCbCr CSC stage
  */
 #define JPEG_RGB2YUV_COEF0_ENABLE_MASK (0x40000000UL)
 #define JPEG_RGB2YUV_COEF0_ENABLE_SHIFT (30U)
@@ -878,7 +881,7 @@ typedef struct {
 /*
  * C0 (RW)
  *
- * CSC parameters
+ * CSC parameters C0
  */
 #define JPEG_RGB2YUV_COEF0_C0_MASK (0x1FFC0000UL)
 #define JPEG_RGB2YUV_COEF0_C0_SHIFT (18U)
@@ -888,7 +891,7 @@ typedef struct {
 /*
  * UV_OFFSET (RW)
  *
- * CSC parameters
+ * CSC parameters UV_OFFSET
  */
 #define JPEG_RGB2YUV_COEF0_UV_OFFSET_MASK (0x3FE00UL)
 #define JPEG_RGB2YUV_COEF0_UV_OFFSET_SHIFT (9U)
@@ -898,7 +901,7 @@ typedef struct {
 /*
  * Y_OFFSET (RW)
  *
- * CSC parameters
+ * CSC parameters Y_OFFSET
  */
 #define JPEG_RGB2YUV_COEF0_Y_OFFSET_MASK (0x1FFU)
 #define JPEG_RGB2YUV_COEF0_Y_OFFSET_SHIFT (0U)
@@ -909,7 +912,7 @@ typedef struct {
 /*
  * C1 (RW)
  *
- * CSC parameters
+ * CSC parameters C1
  */
 #define JPEG_RGB2YUV_COEF1_C1_MASK (0x7FF0000UL)
 #define JPEG_RGB2YUV_COEF1_C1_SHIFT (16U)
@@ -919,7 +922,7 @@ typedef struct {
 /*
  * C4 (RW)
  *
- * CSC parameters
+ * CSC parameters C4
  */
 #define JPEG_RGB2YUV_COEF1_C4_MASK (0x7FFU)
 #define JPEG_RGB2YUV_COEF1_C4_SHIFT (0U)
@@ -930,7 +933,7 @@ typedef struct {
 /*
  * C2 (RW)
  *
- * CSC parameters
+ * CSC parameters C2
  */
 #define JPEG_RGB2YUV_COEF2_C2_MASK (0x7FF0000UL)
 #define JPEG_RGB2YUV_COEF2_C2_SHIFT (16U)
@@ -940,7 +943,7 @@ typedef struct {
 /*
  * C3 (RW)
  *
- * CSC parameters
+ * CSC parameters C3
  */
 #define JPEG_RGB2YUV_COEF2_C3_MASK (0x7FFU)
 #define JPEG_RGB2YUV_COEF2_C3_SHIFT (0U)
@@ -951,7 +954,7 @@ typedef struct {
 /*
  * C6 (RW)
  *
- * CSC parameters
+ * CSC parameters C6
  */
 #define JPEG_RGB2YUV_COEF3_C6_MASK (0x7FF0000UL)
 #define JPEG_RGB2YUV_COEF3_C6_SHIFT (16U)
@@ -961,7 +964,7 @@ typedef struct {
 /*
  * C5 (RW)
  *
- * CSC parameters
+ * CSC parameters C5
  */
 #define JPEG_RGB2YUV_COEF3_C5_MASK (0x7FFU)
 #define JPEG_RGB2YUV_COEF3_C5_SHIFT (0U)
@@ -972,7 +975,7 @@ typedef struct {
 /*
  * C8 (RW)
  *
- * CSC parameters
+ * CSC parameters C8
  */
 #define JPEG_RGB2YUV_COEF4_C8_MASK (0x7FF0000UL)
 #define JPEG_RGB2YUV_COEF4_C8_SHIFT (16U)
@@ -982,7 +985,7 @@ typedef struct {
 /*
  * C7 (RW)
  *
- * CSC parameters
+ * CSC parameters C7
  */
 #define JPEG_RGB2YUV_COEF4_C7_MASK (0x7FFU)
 #define JPEG_RGB2YUV_COEF4_C7_SHIFT (0U)
@@ -1015,7 +1018,7 @@ typedef struct {
 /*
  * NMCU (RW)
  *
- * Encoder Use only. 
+ * Encoder Use only.
  * The number of NMCU to be generated in encoder mode
  */
 #define JPEG_IMGREG2_NMCU_MASK (0x3FFFFFFUL)
@@ -1062,7 +1065,7 @@ typedef struct {
  * HA (RW)
  *
  * Encoder use only.
- * The selection of the Huffman table for the encoding of the AC coefficients in the data units belonging to the color component. table.
+ * The selection of the Huffman table for the encoding of the AC coefficients in the data units belonging to the color component.
  */
 #define JPEG_IMGREG_HA_MASK (0x2U)
 #define JPEG_IMGREG_HA_SHIFT (1U)
@@ -1073,7 +1076,7 @@ typedef struct {
  * HD (RW)
  *
  * Encoder use only.
- * The selection of the Huffman table for the encoding of the DC coefficients in the data units belonging to the color component. table.
+ * The selection of the Huffman table for the encoding of the DC coefficients in the data units belonging to the color component.
  */
 #define JPEG_IMGREG_HD_MASK (0x1U)
 #define JPEG_IMGREG_HD_SHIFT (0U)

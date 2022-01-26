@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -13,7 +13,7 @@ typedef struct {
     __RW uint32_t CTRL;                        /* 0x0: Control Register */
     __RW uint32_t STAT;                        /* 0x4: Status Register */
     __RW uint32_t OUT_CTRL;                    /* 0x8: Out Layer Control Register */
-    __RW uint32_t OUT_BUF;                     /* 0xC:  */
+    __RW uint32_t OUT_BUF;                     /* 0xC: Output buffer address */
     __R  uint8_t  RESERVED0[4];                /* 0x10 - 0x13: Reserved */
     __RW uint32_t OUT_PITCH;                   /* 0x14: Outlayer Pitch Register */
     __RW uint32_t OUT_LRC;                     /* 0x18: Output Lower Right Corner Register */
@@ -255,7 +255,7 @@ typedef struct {
 /*
  * DSTALPHA (RW)
  *
- * The candidate destination (P1) system ALPHA value.
+ * The destination (P1) system ALPHA value.
  */
 #define PDMA_OUT_CTRL_DSTALPHA_MASK (0xFF000000UL)
 #define PDMA_OUT_CTRL_DSTALPHA_SHIFT (24U)
@@ -265,7 +265,7 @@ typedef struct {
 /*
  * SRCALPHA (RW)
  *
- * The candidate source (P0) system ALPHA value.
+ * The source (P0) system ALPHA value.
  */
 #define PDMA_OUT_CTRL_SRCALPHA_MASK (0xFF0000UL)
 #define PDMA_OUT_CTRL_SRCALPHA_SHIFT (16U)
@@ -306,16 +306,16 @@ typedef struct {
  * Alpha Blending Mode
  * 0: SKBlendMode_Clear (If PS1_CTRL[BKGNDCL4CLR] is asserted, use PS1_BKGRND color to fill the range determined by PS1, else fill the range determined by PS1 with zero);
  * 1: SKBlendMode_Src ;
- * 2: SKBlendMode_Dst     
- * 3: SKBlendMode_SrcOver 
- * 4: SKBlendMode_DstOver 
- * 5: SKBlendMode_SrcIn   
- * 6: SKBlendMode_DstIn   
- * 7: SKBlendMode_SrcOut  
- * 8: SKBlendMode_DstOut  
- * 9: SKBlendMode_SrcATop 
- * 10: SKBlendMode_DstATop 
- * 11: SKBlendMode_Xor     
+ * 2: SKBlendMode_Dst
+ * 3: SKBlendMode_SrcOver
+ * 4: SKBlendMode_DstOver
+ * 5: SKBlendMode_SrcIn
+ * 6: SKBlendMode_DstIn
+ * 7: SKBlendMode_SrcOut
+ * 8: SKBlendMode_DstOut
+ * 9: SKBlendMode_SrcATop
+ * 10: SKBlendMode_DstATop
+ * 11: SKBlendMode_Xor
  * 12: SKBlendMode_Plus    (The conventional belding mode)
  * 13: SKBlendMode_Modulate
  * 14: SRC org
@@ -330,11 +330,10 @@ typedef struct {
 /*
  * FORMAT (RW)
  *
- * Output buffer format. To select between YUV and YCbCr formats, see bit 31 of the CSC1_COEF0 register.
- * 0x0 ARGB8888 - 32-bit pixles
- * 0xE RGB565 - 16-bit pixels
- * 0x12 UYVY1P422 - 16-bit pixels (1-plane U0,Y0,V0,Y1 interleaved bytes)
- * 
+ * Output buffer format.
+ * 0x0 ARGB8888 - 32-bit pixles, byte sequence as B,G,R,A
+ * 0xE RGB565 - 16-bit pixels, byte sequence as B,R
+ * 0x12 UYVY1P422 - 16-bit pixels (1-plane , byte sequence as U0,Y0,V0,Y1)
  */
 #define PDMA_OUT_CTRL_FORMAT_MASK (0x3FU)
 #define PDMA_OUT_CTRL_FORMAT_SHIFT (0U)
@@ -346,7 +345,6 @@ typedef struct {
  * ADDR (RW)
  *
  * Current address pointer for the output frame buffer. The address can have any byte alignment. 64B alignment is recommended for optimal performance.
- * 
  */
 #define PDMA_OUT_BUF_ADDR_MASK (0xFFFFFFFFUL)
 #define PDMA_OUT_BUF_ADDR_SHIFT (0U)
@@ -358,7 +356,6 @@ typedef struct {
  * BYTELEN (RW)
  *
  * Indicates the number of bytes in memory between two vertically adjacent pixels.
- * 
  */
 #define PDMA_OUT_PITCH_BYTELEN_MASK (0xFFFFU)
 #define PDMA_OUT_PITCH_BYTELEN_SHIFT (0U)
@@ -369,9 +366,8 @@ typedef struct {
 /*
  * Y (RW)
  *
- * This field indicates the lower right X-coordinate (in pixels) of the processed surface  in the output frame buffer.
+ * This field indicates the lower right Y-coordinate (in pixels) of the output frame buffer.
  * The value is the height of the output image size.
- * 
  */
 #define PDMA_OUT_LRC_Y_MASK (0x3FFF0000UL)
 #define PDMA_OUT_LRC_Y_SHIFT (16U)
@@ -381,7 +377,8 @@ typedef struct {
 /*
  * X (RW)
  *
- * This field indicates the lower right Y-coordinate (in pixels) of the processed surface in the output frame buffer. Should be the width of the output image size.
+ * This field indicates the lower right X-coordinate (in pixels) of the output frame buffer.
+ * Should be the width of the output image size.
  */
 #define PDMA_OUT_LRC_X_MASK (0x3FFFU)
 #define PDMA_OUT_LRC_X_SHIFT (0U)
@@ -392,7 +389,7 @@ typedef struct {
 /*
  * Y (RW)
  *
- * This field indicates the upper left X-coordinate (in pixels) of the processed surface in the output frame buffer.
+ * This field indicates the upper left Y-coordinate (in pixels) of the processed surface in the output frame buffer.
  */
 #define PDMA_OUT_PS_ULC_Y_MASK (0x3FFF0000UL)
 #define PDMA_OUT_PS_ULC_Y_SHIFT (16U)
@@ -402,7 +399,7 @@ typedef struct {
 /*
  * X (RW)
  *
- * This field indicates the upper left Y-coordinate (in pixels) of the processed surface in the output frame buffer.
+ * This field indicates the upper left X-coordinate (in pixels) of the processed surface in the output frame buffer.
  */
 #define PDMA_OUT_PS_ULC_X_MASK (0x3FFFU)
 #define PDMA_OUT_PS_ULC_X_SHIFT (0U)
@@ -413,7 +410,7 @@ typedef struct {
 /*
  * Y (RW)
  *
- * This field indicates the lower right X-coordinate (in pixels) of the processed surface in the output frame buffer.
+ * This field indicates the lower right Y-coordinate (in pixels) of the processed surface in the output frame buffer.
  */
 #define PDMA_OUT_PS_LRC_Y_MASK (0x3FFF0000UL)
 #define PDMA_OUT_PS_LRC_Y_SHIFT (16U)
@@ -423,7 +420,7 @@ typedef struct {
 /*
  * X (RW)
  *
- * This field indicates the lower right Y-coordinate (in pixels) of the processed surface in the output frame buffer.
+ * This field indicates the lower right X-coordinate (in pixels) of the processed surface in the output frame buffer.
  */
 #define PDMA_OUT_PS_LRC_X_MASK (0x3FFFU)
 #define PDMA_OUT_PS_LRC_X_SHIFT (0U)
@@ -434,7 +431,7 @@ typedef struct {
 /*
  * INB13_SWAP (RW)
  *
- * Swap bit[31:24] and bit [15:8] before pack_dir operation. 
+ * Swap bit[31:24] and bit [15:8] before pack_dir operation.
  */
 #define PDMA_PS_CTRL_INB13_SWAP_MASK (0x100000UL)
 #define PDMA_PS_CTRL_INB13_SWAP_SHIFT (20U)
@@ -510,9 +507,9 @@ typedef struct {
  *
  * Indicates the clockwise rotation to be applied at the input buffer. The rotation effect is defined as occurring
  * after the FLIP_X and FLIP_Y permutation.
- * 0x0 ROT_0 
- * 0x1 ROT_90 
- * 0x2 ROT_180 
+ * 0x0 ROT_0
+ * 0x1 ROT_90
+ * 0x2 ROT_180
  * 0x3 ROT_270
  */
 #define PDMA_PS_CTRL_ROTATE_MASK (0x1800U)
@@ -561,11 +558,10 @@ typedef struct {
 /*
  * FORMAT (RW)
  *
- * PS buffer format. To select between YUV and YCbCr formats, see bit 31 of the CSC1_COEF0 register.
- * 0x0 ARGB888 - 32-bit pixels
- * 0xE RGB565 - 16-bit pixels
- * 0x13 VYUY1P422 - 16-bit pixels (1-plane V0,Y0,U0,Y1 interleaved bytes) (this is the camera data as Y is the first in low byte address)
- * 
+ * PS buffer format. To select between YUV and YCbCr formats, see bit 16 of this register.
+ * 0x0 ARGB888 - 32-bit pixels, byte sequence as B,G,R,A
+ * 0xE RGB565 - 16-bit pixels, byte sequence as B,R
+ * 0x13 YUYV1P422 - 16-bit pixels (1-plane byte sequence Y0,U0,Y1,V0 interleaved bytes)
  */
 #define PDMA_PS_CTRL_FORMAT_MASK (0x3FU)
 #define PDMA_PS_CTRL_FORMAT_SHIFT (0U)
@@ -588,7 +584,6 @@ typedef struct {
  * BYTELEN (RW)
  *
  * Indicates the number of bytes in memory between two vertically adjacent pixels.
- * 
  */
 #define PDMA_PS_PITCH_BYTELEN_MASK (0xFFFFU)
 #define PDMA_PS_PITCH_BYTELEN_SHIFT (0U)
@@ -642,7 +637,7 @@ typedef struct {
 /*
  * X (RW)
  *
- * This is a 12 bit fractional representation (0.####_####_####) of the X scaling offset. This represents a fixed pixel offset which gets added to the scaled address to determine source data for the scaling engine. 
+ * This is a 12 bit fractional representation (0.####_####_####) of the X scaling offset. This represents a fixed pixel offset which gets added to the scaled address to determine source data for the scaling engine.
  * It is applied after the decimation filter stage, and before the bilinear filter stage.
  */
 #define PDMA_PS_OFFSET_X_MASK (0xFFFU)
@@ -697,7 +692,7 @@ typedef struct {
 /*
  * C0 (RW)
  *
- * CSC parameters
+ * Two's compliment Y multiplier coefficient C0. YUV=0x100 (1.000) YCbCr=0x12A (1.164)
  */
 #define PDMA_YUV2RGB_COEF0_C0_MASK (0x1FFC0000UL)
 #define PDMA_YUV2RGB_COEF0_C0_SHIFT (18U)
@@ -707,7 +702,8 @@ typedef struct {
 /*
  * UV_OFFSET (RW)
  *
- * CSC parameters
+ * Two's compliment phase offset implicit for CbCr data UV_OFFSET. Generally used for YCbCr to RGB conversion.
+ * YCbCr=0x180, YUV=0x000 (typically -128 or 0x180 to indicate normalized -0.5 to 0.5 range).
  */
 #define PDMA_YUV2RGB_COEF0_UV_OFFSET_MASK (0x3FE00UL)
 #define PDMA_YUV2RGB_COEF0_UV_OFFSET_SHIFT (9U)
@@ -717,7 +713,8 @@ typedef struct {
 /*
  * Y_OFFSET (RW)
  *
- * CSC parameters
+ * Two's compliment amplitude offset implicit in the Y data Y_OFFSET. For YUV, this is typically 0 and for YCbCr, this is
+ * typically -16 (0x1F0).
  */
 #define PDMA_YUV2RGB_COEF0_Y_OFFSET_MASK (0x1FFU)
 #define PDMA_YUV2RGB_COEF0_Y_OFFSET_SHIFT (0U)
@@ -728,7 +725,7 @@ typedef struct {
 /*
  * C1 (RW)
  *
- * CSC parameters
+ * Two's compliment Red V/Cr multiplier coefficient C1. YUV=0x123 (1.140) YCbCr=0x198 (1.596).
  */
 #define PDMA_YUV2RGB_COEF1_C1_MASK (0x7FF0000UL)
 #define PDMA_YUV2RGB_COEF1_C1_SHIFT (16U)
@@ -738,7 +735,7 @@ typedef struct {
 /*
  * C4 (RW)
  *
- * CSC parameters
+ * Two's compliment Blue U/Cb multiplier coefficient C4. YUV=0x208 (2.032) YCbCr=0x204 (2.017).
  */
 #define PDMA_YUV2RGB_COEF1_C4_MASK (0x7FFU)
 #define PDMA_YUV2RGB_COEF1_C4_SHIFT (0U)
@@ -749,7 +746,7 @@ typedef struct {
 /*
  * C2 (RW)
  *
- * CSC parameters
+ * Two's compliment Green V/Cr multiplier coefficient C2. YUV=0x76B (-0.581) YCbCr=0x730 (-0.813).
  */
 #define PDMA_YUV2RGB_COEF2_C2_MASK (0x7FF0000UL)
 #define PDMA_YUV2RGB_COEF2_C2_SHIFT (16U)
@@ -759,7 +756,7 @@ typedef struct {
 /*
  * C3 (RW)
  *
- * CSC parameters
+ * Two's compliment Green U/Cb multiplier coefficient C3. YUV=0x79C (-0.394) YCbCr=0x79C (-0.392).
  */
 #define PDMA_YUV2RGB_COEF2_C3_MASK (0x7FFU)
 #define PDMA_YUV2RGB_COEF2_C3_SHIFT (0U)
@@ -770,7 +767,7 @@ typedef struct {
 /*
  * YCBCR_MODE (RW)
  *
- * YUV mode or YCrCb mode
+ * Asserted to use YCrCb mode
  */
 #define PDMA_RGB2YUV_COEF0_YCBCR_MODE_MASK (0x80000000UL)
 #define PDMA_RGB2YUV_COEF0_YCBCR_MODE_SHIFT (31U)
@@ -790,7 +787,7 @@ typedef struct {
 /*
  * C0 (RW)
  *
- * CSC parameters
+ * CSC parameters C0
  */
 #define PDMA_RGB2YUV_COEF0_C0_MASK (0x1FFC0000UL)
 #define PDMA_RGB2YUV_COEF0_C0_SHIFT (18U)
@@ -800,7 +797,7 @@ typedef struct {
 /*
  * UV_OFFSET (RW)
  *
- * CSC parameters
+ * CSC parameters UV_OFFSET
  */
 #define PDMA_RGB2YUV_COEF0_UV_OFFSET_MASK (0x3FE00UL)
 #define PDMA_RGB2YUV_COEF0_UV_OFFSET_SHIFT (9U)
@@ -810,7 +807,7 @@ typedef struct {
 /*
  * Y_OFFSET (RW)
  *
- * CSC parameters
+ * CSC parameters Y_OFFSET
  */
 #define PDMA_RGB2YUV_COEF0_Y_OFFSET_MASK (0x1FFU)
 #define PDMA_RGB2YUV_COEF0_Y_OFFSET_SHIFT (0U)
@@ -821,7 +818,7 @@ typedef struct {
 /*
  * C1 (RW)
  *
- * CSC parameters
+ * CSC parameters C1
  */
 #define PDMA_RGB2YUV_COEF1_C1_MASK (0x7FF0000UL)
 #define PDMA_RGB2YUV_COEF1_C1_SHIFT (16U)
@@ -831,7 +828,7 @@ typedef struct {
 /*
  * C4 (RW)
  *
- * CSC parameters
+ * CSC parameters C4
  */
 #define PDMA_RGB2YUV_COEF1_C4_MASK (0x7FFU)
 #define PDMA_RGB2YUV_COEF1_C4_SHIFT (0U)
@@ -842,7 +839,7 @@ typedef struct {
 /*
  * C2 (RW)
  *
- * CSC parameters
+ * CSC parameters C2
  */
 #define PDMA_RGB2YUV_COEF2_C2_MASK (0x7FF0000UL)
 #define PDMA_RGB2YUV_COEF2_C2_SHIFT (16U)
@@ -852,7 +849,7 @@ typedef struct {
 /*
  * C3 (RW)
  *
- * CSC parameters
+ * CSC parameters C3
  */
 #define PDMA_RGB2YUV_COEF2_C3_MASK (0x7FFU)
 #define PDMA_RGB2YUV_COEF2_C3_SHIFT (0U)
@@ -863,7 +860,7 @@ typedef struct {
 /*
  * C6 (RW)
  *
- * CSC parameters
+ * CSC parameters C6
  */
 #define PDMA_RGB2YUV_COEF3_C6_MASK (0x7FF0000UL)
 #define PDMA_RGB2YUV_COEF3_C6_SHIFT (16U)
@@ -873,7 +870,7 @@ typedef struct {
 /*
  * C5 (RW)
  *
- * CSC parameters
+ * CSC parameters C5
  */
 #define PDMA_RGB2YUV_COEF3_C5_MASK (0x7FFU)
 #define PDMA_RGB2YUV_COEF3_C5_SHIFT (0U)
@@ -884,7 +881,7 @@ typedef struct {
 /*
  * C8 (RW)
  *
- * CSC parameters
+ * CSC parameters C8
  */
 #define PDMA_RGB2YUV_COEF4_C8_MASK (0x7FF0000UL)
 #define PDMA_RGB2YUV_COEF4_C8_SHIFT (16U)
@@ -894,7 +891,7 @@ typedef struct {
 /*
  * C7 (RW)
  *
- * CSC parameters
+ * CSC parameters C7
  */
 #define PDMA_RGB2YUV_COEF4_C7_MASK (0x7FFU)
 #define PDMA_RGB2YUV_COEF4_C7_SHIFT (0U)

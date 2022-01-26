@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -19,7 +19,7 @@ typedef struct {
     __RW uint32_t ALARM1;                      /* 0x18: RTC alarm1 */
     __RW uint32_t ALARM1_INC;                  /* 0x1C: Alarm1 incremental */
     __RW uint32_t ALARM_FLAG;                  /* 0x20: RTC alarm flag */
-    __RW uint32_t ALARM_EN;                    /* 0x24: RTC alarm mask */
+    __RW uint32_t ALARM_EN;                    /* 0x24: RTC alarm enable */
 } RTC_Type;
 
 

@@ -7,24 +7,12 @@
 
 #include "hpm_i2s_drv.h"
 
-void i2s_set_mclk_div(I2S_Type *ptr,
-                      uint32_t div,
-                      bool enable_i2s_after_update)
-{
-    i2s_disable(ptr);
-    ptr->MISC_CFGR = (ptr->MISC_CFGR & I2S_MISC_CFGR_MCLK_DIV_MASK)
-        | I2S_MISC_CFGR_MCLK_DIV_SET(div);
-    if (enable_i2s_after_update) {
-        i2s_enable(ptr);
-    }
-}
-
 void i2s_reset_all(I2S_Type *ptr)
 {
     /* gate off bclk */
     ptr->CFGR |= I2S_CFGR_BCLK_GATEOFF_MASK;
-    /* gate off mclk and reset mclk div */
-    ptr->MISC_CFGR |= I2S_MISC_CFGR_MCLK_GATEOFF_MASK | I2S_MISC_CFGR_RST_MCLKDIV_MASK;
+    /* gate off mclk */
+    ptr->MISC_CFGR |= I2S_MISC_CFGR_MCLK_GATEOFF_MASK;
     /*
      * clear fifos
      */
@@ -74,10 +62,8 @@ void i2s_init(I2S_Type *ptr, i2s_config_t *config)
         | I2S_CFGR_FRAME_EDGE_SET(config->frame_start_at_rising_edge);
     ptr->MISC_CFGR = (ptr->MISC_CFGR
             & ~(I2S_MISC_CFGR_MCLKOE_MASK
-                | I2S_MISC_CFGR_MCLK_DIV_MASK
                 | I2S_MISC_CFGR_MCLK_GATEOFF_MASK))
-        | I2S_MISC_CFGR_MCLKOE_SET(config->enable_mclk_out)
-        | I2S_MISC_CFGR_MCLK_DIV_SET(config->mclk_div);
+        | I2S_MISC_CFGR_MCLKOE_SET(config->enable_mclk_out);
     ptr->FIFO_THRESH = I2S_FIFO_THRESH_TX_SET(config->fifo_threshold)
         | I2S_FIFO_THRESH_RX_SET(config->fifo_threshold);
 }

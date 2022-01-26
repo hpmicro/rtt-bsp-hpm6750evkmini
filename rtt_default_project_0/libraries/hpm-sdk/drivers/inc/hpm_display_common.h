@@ -10,6 +10,16 @@
 
 #include "hpm_common.h"
 
+/**
+ * @brief Display_common driver APIs
+ * @defgroup Display_common_interface Display_common driver APIs
+ * @ingroup io_interfaces
+ * @{
+ */
+
+/**
+ * @brief display alphablend mode
+ */
 typedef enum display_alphablend_mode {
     display_alphablend_mode_clear = 0,
     display_alphablend_mode_src = 1,
@@ -29,6 +39,9 @@ typedef enum display_alphablend_mode {
     display_alphablend_mode_dst_org = 15,
 } display_alphablend_mode_t;
 
+/**
+ * @brief display pixel format
+ */
 typedef enum display_pixel_format {
     display_pixel_format_argb8888,
     display_pixel_format_rgb565,
@@ -39,6 +52,9 @@ typedef enum display_pixel_format {
     display_pixel_format_ycbcr422,
 } display_pixel_format_t;
 
+/**
+ * @brief display data byte order
+ */
 typedef enum display_byteorder {
     display_byteorder_a3a2a1a0 = 0,
     display_byteorder_a2a3a0a1 = 1,
@@ -46,6 +62,9 @@ typedef enum display_byteorder {
     display_byteorder_a0a1a2a3 = 3,
 } display_byteorder_t;
 
+/**
+ * @brief display yuv format
+ */
 typedef enum display_yuv_format {
     display_yuv_mode_422_u1y1v1y2 = 0,
     display_yuv_mode_422_v1y1u1y2,
@@ -53,6 +72,9 @@ typedef enum display_yuv_format {
     display_yuv_mode_422_y1v1y2u1,
 } display_yuv_format_t;
 
+/**
+ * @brief display data 32 bits argb
+ */
 typedef union display_color_32b {
     uint32_t u;
     struct {
@@ -63,12 +85,18 @@ typedef union display_color_32b {
     };
 } display_color_32b_t;
 
+/**
+ * @brief display data alpha value usage option
+ */
 typedef enum display_alpha_op {
     display_alpha_op_invalid = 0,
     display_alpha_op_override = 1,
     display_alpha_op_scale = 2,
 } display_alpha_op_t;
 
+/**
+ * @brief display data alphablend option
+ */
 typedef struct dispaly_alphablend_option {
     uint8_t dst_alpha;
     uint8_t src_alpha;
@@ -77,6 +105,9 @@ typedef struct dispaly_alphablend_option {
     display_alphablend_mode_t mode;
 } display_alphablend_option_t;
 
+/**
+ * @brief display yuv to rgb format conversion coefficient
+ */
 typedef struct dispaly_yuv2rgb_coef {
     uint16_t c0;
     uint16_t c1;
@@ -87,12 +118,18 @@ typedef struct dispaly_yuv2rgb_coef {
     uint16_t y_offset;
 } display_yuv2rgb_coef_t;
 
+/**
+ * @brief display yuv to rgb format conversion config
+ */
 typedef struct display_yuv2rgb_config {
     bool enable;
     bool ycbcr_mode;
     display_yuv2rgb_coef_t yuv2rgb_coef;
 } display_yuv2rgb_config_t;
 
+/**
+ * @brief display rgb to yuv format conversion config
+ */
 typedef struct display_rgb2yuv_config {
     bool enable;
     bool ycbcr_mode;
@@ -112,6 +149,14 @@ typedef struct display_rgb2yuv_config {
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @brief Display get pixel size in bit
+ *
+ * @param [in] format display_pixel_format_t
+ *
+ * @retval pixel size in bit
+ */
 static inline
     uint8_t display_get_pixel_size_in_bit(display_pixel_format_t format)
 {
@@ -129,6 +174,13 @@ static inline
     }
 }
 
+/**
+ * @brief Check whether the pixel data is yuv format
+ *
+ * @param [in] format display_pixel_format_t
+ *
+ * @retval bool: true or false
+ */
 static inline bool display_pixel_format_is_yuv_format(display_pixel_format_t format)
 {
     switch(format) {
@@ -141,18 +193,39 @@ static inline bool display_pixel_format_is_yuv_format(display_pixel_format_t for
     }
 }
 
+/**
+ * @brief Display get pixel size in byte
+ *
+ * @param [in] format display_pixel_format_t
+ *
+ * @retval pixel size in byte
+ */
 static inline
     uint8_t display_get_pixel_size_in_byte(display_pixel_format_t format)
 {
     return display_get_pixel_size_in_bit(format) >> 3;
 }
 
+/**
+ * @brief Display get pitch length in byte
+ *
+ * @param [in] format display_pixel_format_t
+ * @param [in] width_in_pixel pixel width
+ *
+ * @retval pitch length in byte
+ */
 static inline
     uint32_t display_get_pitch_length_in_byte(display_pixel_format_t format,
                                             uint32_t width_in_pixel)
 {
     return width_in_pixel * (display_get_pixel_size_in_bit(format) >> 3);
 }
+
+/**
+ * @}
+ *
+ */
+
 #ifdef __cplusplus
 }
 #endif

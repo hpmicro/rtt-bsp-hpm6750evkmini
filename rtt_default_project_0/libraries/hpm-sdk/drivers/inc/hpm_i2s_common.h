@@ -8,6 +8,13 @@
 #ifndef HPM_I2S_COMMON_H 
 #define HPM_I2S_COMMON_H 
 
+/**
+ * @brief I2S common driver APIs
+ * @defgroup i2s_common_interface I2S common driver APIs
+ * @ingroup io_interfaces
+ * @{
+ */
+
 #define I2S_PROTOCOL_I2S_PHILIPS (0U)
 #define I2S_PROTOCOL_MSB_JUSTIFIED (1U)
 #define I2S_PROTOCOL_LEFT_JUSTIFIED (1U)
@@ -22,5 +29,9 @@
 
 #define I2S_CHANNEL_LENGTH_16_BITS (0U)
 #define I2S_CHANNEL_LENGTH_32_BITS (1U)
+
+/**
+ * @}
+ */
 
 #endif /* HPM_I2S_COMMON_H */

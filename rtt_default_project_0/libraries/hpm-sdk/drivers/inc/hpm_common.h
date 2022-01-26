@@ -14,6 +14,14 @@
 #include <string.h>
 #include <stdlib.h>
 
+/**
+ *
+ * @brief COMMON driver APIs
+ * @defgroup common_interface COMMON driver APIs
+ * @{
+ *
+ */
+
 #define __R volatile const /* Define "read-only" permission */
 #define __RW volatile      /* Define "read-write" permission */
 #define __W volatile       /* Define "write-only" permission */
@@ -65,7 +73,7 @@
 
 typedef uint32_t hpm_stat_t;
 
-/* Enum definition for the Status group
+/* @brief Enum definition for the Status group
  * Rule:
  *  [Group] 0-999 for the SoC driver and the corresponding components
  *       1000 or above for the application status group
@@ -73,7 +81,7 @@ typedef uint32_t hpm_stat_t;
  *
  * */
 #define MAKE_STATUS(group,code) ((uint32_t)(group)*1000U + (uint32_t)(code))
-/* System status group definitions */
+/* @brief System status group definitions */
 enum
 {
     status_group_common = 0,
@@ -105,7 +113,7 @@ enum
     status_group_sdmmc = status_group_middleware_start,
 };
 
-/* Common status code definitions */
+/* @brief Common status code definitions */
 enum
 {
     status_success = MAKE_STATUS(status_group_common, 0),
@@ -144,6 +152,14 @@ enum
 extern "C" {
 #endif
 
+
+/**
+ * @brief   Count bits set to 1
+ *
+ * @param value Data to be counted
+ *
+ * @return number of bits set to 1
+ */
 static inline uint32_t count_set_bits(uint32_t value)
 {
     if (value == 0) {
@@ -152,12 +168,45 @@ static inline uint32_t count_set_bits(uint32_t value)
     return 1 + count_set_bits(value & (value - 1));
 }
 
-static inline uint32_t get_first_set_bit(uint32_t value)
+/**
+ * @brief   Count bits set to 1 from least significant bit
+ *
+ * @param value Data to be counted
+ *
+ * @return number of bits set to 1
+ * @return 0xFFFFFFFF if no bit was set to 1
+ */
+static inline uint32_t get_first_set_bit_from_lsb(uint32_t value)
 {
     uint32_t i = 0;
-    while (!(value & 0x1)) {
+    if (!value) {
+        return 0xFFFFFFFFUL;
+    }
+    while (value && !(value & 0x1)) {
         value >>= 1;
         i++;
+    }
+    return i;
+}
+
+/**
+ * @brief   Count bits set to 1 from most significant bit
+ *
+ * @param value Data to be counted
+ *
+ * @return number of bits set to 1
+ * @return 0xFFFFFFFF if no bit was set to 1
+ */
+static inline uint32_t get_first_set_bit_from_msb(uint32_t value)
+{
+    uint32_t i = 31;
+    if (!value) {
+        return 0xFFFFFFFFUL;
+    }
+    while (value && !(value & 0x80000000)) {
+        value <<= 1;
+        value &= ~1;
+        i--;
     }
     return i;
 }
@@ -166,4 +215,7 @@ static inline uint32_t get_first_set_bit(uint32_t value)
 }
 #endif
 
+/**
+ * @}
+ */
 #endif /* _HPM_COMMON_H */

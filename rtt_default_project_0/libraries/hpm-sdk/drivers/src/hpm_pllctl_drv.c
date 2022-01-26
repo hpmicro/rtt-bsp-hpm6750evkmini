@@ -27,7 +27,8 @@ hpm_stat_t pllctl_set_refdiv(PLLCTL_Type *ptr, uint8_t pll, uint8_t div)
     uint32_t min_ref;
 
     if ((pll > (PLLCTL_SOC_PLL_MAX_COUNT - 1))
-            || ((div - 1) > (PLLCTL_PLL_CFG0_REFDIV_MASK >> PLLCTL_PLL_CFG0_REFDIV_SHIFT))) {
+            || (!div)
+            || (div > (PLLCTL_PLL_CFG0_REFDIV_MASK >> PLLCTL_PLL_CFG0_REFDIV_SHIFT))) {
         return status_invalid_argument;
     }
 

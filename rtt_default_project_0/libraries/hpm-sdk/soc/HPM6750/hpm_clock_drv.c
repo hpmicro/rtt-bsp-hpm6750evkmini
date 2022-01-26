@@ -105,22 +105,22 @@ uint32_t clock_get_frequency(clock_name_t clock_name)
         clk_freq = FREQ_PRESET1_OSC0_CLK0;
         break;
     case CLK_SRC_GROUP_AHB:
-        clk_freq = get_frequency_for_ip_in_common_group(clock_ahb);
+        clk_freq = get_frequency_for_ip_in_common_group(clock_node_ahb0);
         break;
     case CLK_SRC_GROUP_AXI0:
-        clk_freq = get_frequency_for_ip_in_common_group(clock_axi0);
+        clk_freq = get_frequency_for_ip_in_common_group(clock_node_axi0);
         break;
     case CLK_SRC_GROUP_AXI1:
-        clk_freq = get_frequency_for_ip_in_common_group(clock_axi1);
+        clk_freq = get_frequency_for_ip_in_common_group(clock_node_axi1);
         break;
     case CLK_SRC_GROUP_AXI2:
-        clk_freq = get_frequency_for_ip_in_common_group(clock_axi2);
+        clk_freq = get_frequency_for_ip_in_common_group(clock_node_axi2);
         break;
     case CLK_SRC_GROUP_CPU0:
-        clk_freq = get_frequency_for_ip_in_common_group(clock_cpu0);
+        clk_freq = get_frequency_for_ip_in_common_group(clock_node_cpu0);
         break;
     case CLK_SRC_GROUP_CPU1:
-        clk_freq = get_frequency_for_ip_in_common_group(clock_cpu1);
+        clk_freq = get_frequency_for_ip_in_common_group(clock_node_cpu1);
         break;
     case CLK_SRC_GROUP_SRC:
         clk_freq = get_frequency_for_source((clock_source_t) node_or_instance);
@@ -224,7 +224,7 @@ static uint32_t get_frequency_for_wdg(uint32_t instance)
     uint32_t freq_in_hz;
     /* EXT clock is chosen */
     if (WDG_CTRL_CLKSEL_GET(s_wdgs[instance]->CTRL) == 0) {
-        freq_in_hz = get_frequency_for_ip_in_common_group(clock_ahb);
+        freq_in_hz = get_frequency_for_ip_in_common_group(clock_node_ahb0);
     }
         /* PCLK is chosen */
     else {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -14,8 +14,6 @@ typedef struct {
         __RW uint32_t CONTROL;                 /* 0x0: Glitch and clock monitor control */
         __RW uint32_t STATUS;                  /* 0x4: Glitch and clock monitor status */
     } MONITOR[3];
-    __R  uint8_t  RESERVED0[8];                /* 0x18 - 0x1F: Reserved */
-    __RW uint32_t TEST_MODE;                   /* 0x20:  */
 } BMON_Type;
 
 
@@ -56,19 +54,6 @@ typedef struct {
 #define BMON_MONITOR_STATUS_FLAG_SHIFT (0U)
 #define BMON_MONITOR_STATUS_FLAG_SET(x) (((uint32_t)(x) << BMON_MONITOR_STATUS_FLAG_SHIFT) & BMON_MONITOR_STATUS_FLAG_MASK)
 #define BMON_MONITOR_STATUS_FLAG_GET(x) (((uint32_t)(x) & BMON_MONITOR_STATUS_FLAG_MASK) >> BMON_MONITOR_STATUS_FLAG_SHIFT)
-
-/* Bitfield definition for register: TEST_MODE */
-/*
- * DISABLE (RW)
- *
- * disable test mode entry, any non-zero value written to this register causes disable bit set
- * 0: test mode enabled
- * 1: test mode disabled
- */
-#define BMON_TEST_MODE_DISABLE_MASK (0xFFFFFFFFUL)
-#define BMON_TEST_MODE_DISABLE_SHIFT (0U)
-#define BMON_TEST_MODE_DISABLE_SET(x) (((uint32_t)(x) << BMON_TEST_MODE_DISABLE_SHIFT) & BMON_TEST_MODE_DISABLE_MASK)
-#define BMON_TEST_MODE_DISABLE_GET(x) (((uint32_t)(x) & BMON_TEST_MODE_DISABLE_MASK) >> BMON_TEST_MODE_DISABLE_SHIFT)
 
 
 

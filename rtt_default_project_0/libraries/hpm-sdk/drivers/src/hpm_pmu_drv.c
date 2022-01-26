@@ -40,24 +40,24 @@ uint16_t pcfg_dcdc_get_current_level(PCFG_Type *ptr)
     return PCFG_DCDC_CURRENT_LEVEL_GET(ptr->DCDC_CURRENT) * PCFG_CURRENT_MEASUREMENT_STEP;
 }
 
-#define PCFG_IRC24M_FREQ (24000000UL)
+#define PCFG_RC24M_FREQ (24000000UL)
 void pcfg_irc24m_config_track(PCFG_Type *ptr, pcfg_irc24m_config_t *config)
 {
     uint32_t calculated_freq;
     uint16_t mul = 1;
     uint16_t div = 1;
 
-    if (!(config->freq_in_hz < PCFG_IRC24M_FREQ)) {
+    if (!(config->freq_in_hz < PCFG_RC24M_FREQ)) {
         /* calculate div */
-        div = PCFG_IRC24M_FREQ / config->freq_in_hz;
+        div = PCFG_RC24M_FREQ / config->freq_in_hz;
     } 
-    calculated_freq = PCFG_IRC24M_FREQ / div;
+    calculated_freq = PCFG_RC24M_FREQ / div;
     while (calculated_freq < config->freq_in_hz) {
         calculated_freq *= (mul++);
     }
     ptr->TRACK_TARGET = PCFG_TRACK_TARGET_PRE_DIV_SET(div - 1)
         | PCFG_TRACK_TARGET_TARGET_SET(mul - 1);
-    ptr->IRC24M_TRACK = PCFG_IRC24M_TRACK_SEL24M_SET(config->reference)
-        | PCFG_IRC24M_TRACK_RETURN_SET(config->return_to_default_on_xtal_loss)
-        | PCFG_IRC24M_TRACK_TRACK_SET(config->free_run);
+    ptr->RC24M_TRACK = PCFG_RC24M_TRACK_SEL24M_SET(config->reference)
+        | PCFG_RC24M_TRACK_RETURN_SET(config->return_to_default_on_xtal_loss)
+        | PCFG_RC24M_TRACK_TRACK_SET(config->free_run);
 }

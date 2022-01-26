@@ -8,6 +8,14 @@
 #ifndef HPM_WDG_DRV_H
 #define HPM_WDG_DRV_H
 
+/**
+ * @brief WDG APIs
+ * @defgroup wdg_interface WDG driver APIs
+ * @ingroup wdg_interfaces
+ * @{
+ */
+
+
 #include "hpm_common.h"
 #include "hpm_wdg_regs.h"
 
@@ -56,26 +64,28 @@ typedef enum interrupt_interval_enum {
  * @brief WDG clock source definitions
  */
 typedef enum wdg_clksrc_enum {
-    wdg_clksrc_extclk,
-    wdg_clksrc_pclk,
+    wdg_clksrc_extclk,                  /**< WDG clock source: external clock */
+    wdg_clksrc_pclk,                    /**< WDG clock source: Peripheral clock */
     wdg_clksrc_max = wdg_clksrc_pclk
 } wdg_clksrc_t;
 
 /**
  * @brief WDG Control configuration structure
+ * @note WDG reset time = reset_interval + interrupt interval
  */
 typedef struct wdg_control_struct {
-    reset_interval_t reset_interval;
-    interrupt_interval_t interrupt_interval;
-    bool reset_enable;
-    bool interrupt_enable;
-    wdg_clksrc_t clksrc;
-    bool wdg_enable;
+    reset_interval_t reset_interval;            /**< WDG reset interval */
+    interrupt_interval_t interrupt_interval;    /**< WDG interrupt interval */
+    bool reset_enable;                          /**< WDG reset enable */
+    bool interrupt_enable;                      /**< WDG interrupt enable */
+    wdg_clksrc_t clksrc;                        /**< WDG clock source */
+    bool wdg_enable;                            /**< WDG enable */
 } wdg_control_t;
 
-#define WDG_WRITE_ENABLE_MAGIC_NUM (0x5AA5UL)
-#define WDG_RESTART_MAGIC_NUM (0xCAFEUL)
+#define WDG_WRITE_ENABLE_MAGIC_NUM (0x5AA5UL)   /**< WDG enable magic number */
+#define WDG_RESTART_MAGIC_NUM (0xCAFEUL)        /**< WDG restart magic number */
 
+#define WDG_EXT_CLK_FREQ (32768UL) /**< WDG External CLock frequency: 32768 Hz */
 
 #ifdef __cplusplus
 extern "C" {
@@ -83,8 +93,8 @@ extern "C" {
 
 /**
  * @brief WDG write enable function
- * 
- * @param base WDG base address
+ *
+ * @param [in] base WDG base address
  */
 static inline void wdg_write_enable(WDG_Type *base)
 {
@@ -93,69 +103,78 @@ static inline void wdg_write_enable(WDG_Type *base)
 
 /**
  * @brief WDG Enable function
- * 
- * @param base  WDG base address
- * @param enable WDG enable option
- *               true  - enable
- *               false - disable
- *                 
+ *
+ * @param [in] base  WDG base address
  */
-static inline void wdg_enable(WDG_Type *base, bool enable)
+static inline void wdg_enable(WDG_Type *base)
 {
     wdg_write_enable(base);
-    if (enable) {
-        base->CTRL |= WDG_CTRL_EN_MASK;
-    }
-    else {
-        base->CTRL &= ~WDG_CTRL_EN_MASK;
-    }
+    base->CTRL |= WDG_CTRL_EN_MASK;
+}
+
+/**
+ * @brief WDG Disable function
+ *
+ * @param [in] base  WDG base address
+ */
+static inline void wdg_disable(WDG_Type *base)
+{
+    wdg_write_enable(base);
+    base->CTRL &= ~WDG_CTRL_EN_MASK;
 }
 
 /**
  * @brief WDG reset enable function
- * 
- * @param base WDG base address
- * @param enable Reset enable option
- *               true - enable
- *               false - disable
+ *
+ * @param [in] base WDG base address
  */
-static inline void wdg_reset_enable(WDG_Type *base, bool enable)
+static inline void wdg_reset_enable(WDG_Type *base)
 {
     wdg_write_enable(base);
-    if (enable) {
-        base->CTRL |= WDG_CTRL_RSTEN_MASK;
-    }
-    else {
-        base->CTRL &= ~WDG_CTRL_RSTEN_MASK;
-    }
+    base->CTRL |= WDG_CTRL_RSTEN_MASK;
 }
 
 /**
- * @brief WDG interrupt enable function
- * 
- * @param base WDG base address
- * @param enable Interrupt enable option
- *               true - enable
- *               false - disable
+ * @brief WDG reset disable function
+ *
+ * @param [in] base WDG base address
  */
-static inline void wdg_interrupt_enable(WDG_Type *base, bool enable)
+static inline void wdg_reset_disable(WDG_Type *base)
 {
     wdg_write_enable(base);
-    if (enable) {
-        base->CTRL |= WDG_CTRL_INTEN_MASK;
-    }
-    else {
-        base->CTRL &= ~WDG_CTRL_INTEN_MASK;
-    }
+    base->CTRL &= ~WDG_CTRL_RSTEN_MASK;
+}
+
+
+/**
+ * @brief WDG interrupt enable function
+ *
+ * @param [in] base WDG base address
+ */
+static inline void wdg_interrupt_enable(WDG_Type *base)
+{
+    wdg_write_enable(base);
+    base->CTRL |= WDG_CTRL_INTEN_MASK;
+}
+
+/**
+ * @brief WDG interrupt disable function
+ *
+ * @param [in] base WDG base address
+ */
+static inline void wdg_interrupt_disable(WDG_Type *base)
+{
+    wdg_write_enable(base);
+    base->CTRL &= ~WDG_CTRL_INTEN_MASK;
 }
 
 /**
  * @brief WDG Clock Source selection function
- * 
- * @param base WDG base address
- * @param clksrc WDG clock source
- *               wdg_clksrc_extclk - External clock
- *               wdg_clksrc_pclk - Peripheral clock
+ *
+ * @param [in] base WDG base address
+ * @param [in] clksrc WDG clock source
+ *   @arg wdg_clksrc_extclk     External clock
+ *   @arg wdg_clksrc_pclk       Peripheral clock
  */
 static inline void wdg_clksrc_select(WDG_Type *base, wdg_clksrc_t clksrc)
 {
@@ -169,8 +188,8 @@ static inline void wdg_clksrc_select(WDG_Type *base, wdg_clksrc_t clksrc)
 
 /**
  * @brief WDG restart function
- * 
- * @param base WDG base address
+ *
+ * @param [in] base WDG base address
  */
 static inline void wdg_restart(WDG_Type *base)
 {
@@ -180,9 +199,9 @@ static inline void wdg_restart(WDG_Type *base)
 
 /**
  * @brief WDG Get Status function
- * 
- * @param base WDG base address
- * @return WDG status register value
+ *
+ * @param [in] base WDG base address
+ * @retval WDG status register value
  */
 static inline uint32_t wdg_get_status(WDG_Type *base)
 {
@@ -191,9 +210,9 @@ static inline uint32_t wdg_get_status(WDG_Type *base)
 
 /**
  * @brief WDG clear status function
- * 
- * @param base WDG base address
- * @param status_mask WDG status mask value
+ *
+ * @param [in] base WDG base address
+ * @param [in] status_mask WDG status mask value
  */
 static inline void wdg_clear_status(WDG_Type *base, uint32_t status_mask)
 {
@@ -202,31 +221,30 @@ static inline void wdg_clear_status(WDG_Type *base, uint32_t status_mask)
 
 /**
  * @brief WDG initialization function
- * 
- * @param base WDG base address
- * @param wdg_ctrl WDG control structure
- * @return status_invalid_argument - Invalid parameters were detected
- *         status_success - WDG initialization completed without errors
+ *
+ * @param [in] base WDG base address
+ * @param [in] wdg_ctrl WDG control structure
+ * @retval API execution status
  */
 hpm_stat_t wdg_init(WDG_Type *base, wdg_control_t *wdg_ctrl);
 
 /**
  * @brief Get the Reset interval value based on the WDG source clock frequency and the expected reset interval
  *        in terms of microseconds
- * 
- * @param src_freq WDG source clock frequency
- * @param reset_us Expected Reset interval in terms of microseconds
- * @return Converted WDG reset interval
+ *
+ * @param [in] src_freq WDG source clock frequency
+ * @param [in] reset_us Expected Reset interval in terms of microseconds
+ * @retval Converted WDG reset interval
  */
 reset_interval_t wdg_get_reset_interval(const uint32_t src_freq, const uint32_t reset_us);
 
 /**
  * @brief Get the interrupt interval value based on the WDG source clock frequency and the expected interrupt interval
  *        in terms of microseconds
- * 
- * @param src_freq WDG source clock frequency
- * @param interval_us Expected Interrupt interval in terms of microseconds
- * @return Converted WDG interrupt interval
+ *
+ * @param [in] src_freq WDG source clock frequency
+ * @param [in] interval_us Expected Interrupt interval in terms of microseconds
+ * @retval Converted WDG interrupt interval
  */
 interrupt_interval_t wdg_get_interrupt_interval(const uint32_t src_freq, uint32_t interval_us);
 
@@ -234,5 +252,9 @@ interrupt_interval_t wdg_get_interrupt_interval(const uint32_t src_freq, uint32_
 #ifdef __cplusplus
 }
 #endif
+
+/**
+ * @}
+ */
 
 #endif /* HPM_WDG_DRV_H */

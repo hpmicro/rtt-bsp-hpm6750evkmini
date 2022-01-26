@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -15,13 +15,13 @@ typedef struct {
     __RW uint32_t LDO2P5;                      /* 0x8: 2.5V LDO config */
     __R  uint8_t  RESERVED0[4];                /* 0xC - 0xF: Reserved */
     __RW uint32_t DCDC_MODE;                   /* 0x10: DCDC mode select */
-    __RW uint32_t DCDC_LPMODE;                 /* 0x14: DCDC mode select */
+    __RW uint32_t DCDC_LPMODE;                 /* 0x14: DCDC low power mode */
     __RW uint32_t DCDC_PROT;                   /* 0x18: DCDC protection */
     __RW uint32_t DCDC_CURRENT;                /* 0x1C: DCDC current estimation */
     __RW uint32_t DCDC_ADVMODE;                /* 0x20: DCDC advance setting */
     __RW uint32_t DCDC_ADVPARAM;               /* 0x24: DCDC advance parameter */
     __RW uint32_t DCDC_MISC;                   /* 0x28: DCDC misc parameter */
-    __RW uint32_t DCDC_DEBUG;                  /* 0x2C: Reserved */
+    __RW uint32_t DCDC_DEBUG;                  /* 0x2C: DCDC Debug */
     __RW uint32_t DCDC_START_TIME;             /* 0x30: DCDC ramp time */
     __RW uint32_t DCDC_RESUME_TIME;            /* 0x34: DCDC resume time */
     __R  uint8_t  RESERVED1[8];                /* 0x38 - 0x3F: Reserved */
@@ -31,10 +31,10 @@ typedef struct {
     __RW uint32_t SCG_CTRL;                    /* 0x4C: Clock gate control in PMIC */
     __RW uint32_t DEBUG_STOP;                  /* 0x50: Debug stop config */
     __R  uint8_t  RESERVED2[12];               /* 0x54 - 0x5F: Reserved */
-    __RW uint32_t IRC24M;                      /* 0x60: IRC 24M config */
-    __RW uint32_t IRC24M_TRACK;                /* 0x64: IRC 24M track mode */
-    __RW uint32_t TRACK_TARGET;                /* 0x68: IRC 24M track target */
-    __R  uint32_t STATUS;                      /* 0x6C: IRC 24M track status */
+    __RW uint32_t RC24M;                       /* 0x60: RC 24M config */
+    __RW uint32_t RC24M_TRACK;                 /* 0x64: RC 24M track mode */
+    __RW uint32_t TRACK_TARGET;                /* 0x68: RC 24M track target */
+    __R  uint32_t STATUS;                      /* 0x6C: RC 24M track status */
 } PCFG_Type;
 
 
@@ -55,7 +55,7 @@ typedef struct {
  * LOWPOWER_MODE (RW)
  *
  * Banggap work in low power mode, banggap function limited
- * 0: banggap works in normal mode 
+ * 0: banggap works in normal mode
  * 1: banggap works in low power mode
  */
 #define PCFG_BANDGAP_LOWPOWER_MODE_MASK (0x2000000UL)
@@ -67,7 +67,7 @@ typedef struct {
  * POWER_SAVE (RW)
  *
  * Banggap work in power save mode, banggap function normally
- * 0: banggap works in high performance mode 
+ * 0: banggap works in high performance mode
  * 1: banggap works in power saving mode
  */
 #define PCFG_BANDGAP_POWER_SAVE_MASK (0x1000000UL)
@@ -107,18 +107,6 @@ typedef struct {
 
 /* Bitfield definition for register: LDO1P1 */
 /*
- * TESTEN (RW)
- *
- * LDO test
- * 0: LDO test signal keep high Z
- * 1: LDO test signal output to test bus
- */
-#define PCFG_LDO1P1_TESTEN_MASK (0x80000000UL)
-#define PCFG_LDO1P1_TESTEN_SHIFT (31U)
-#define PCFG_LDO1P1_TESTEN_SET(x) (((uint32_t)(x) << PCFG_LDO1P1_TESTEN_SHIFT) & PCFG_LDO1P1_TESTEN_MASK)
-#define PCFG_LDO1P1_TESTEN_GET(x) (((uint32_t)(x) & PCFG_LDO1P1_TESTEN_MASK) >> PCFG_LDO1P1_TESTEN_SHIFT)
-
-/*
  * ENABLE (RW)
  *
  * LDO enable
@@ -145,18 +133,6 @@ typedef struct {
 #define PCFG_LDO1P1_VOLT_GET(x) (((uint32_t)(x) & PCFG_LDO1P1_VOLT_MASK) >> PCFG_LDO1P1_VOLT_SHIFT)
 
 /* Bitfield definition for register: LDO2P5 */
-/*
- * TESTEN (RW)
- *
- * LDO test
- * 0: LDO test signal keep high Z
- * 1: LDO test signal output to test bus
- */
-#define PCFG_LDO2P5_TESTEN_MASK (0x80000000UL)
-#define PCFG_LDO2P5_TESTEN_SHIFT (31U)
-#define PCFG_LDO2P5_TESTEN_SET(x) (((uint32_t)(x) << PCFG_LDO2P5_TESTEN_SHIFT) & PCFG_LDO2P5_TESTEN_MASK)
-#define PCFG_LDO2P5_TESTEN_GET(x) (((uint32_t)(x) & PCFG_LDO2P5_TESTEN_MASK) >> PCFG_LDO2P5_TESTEN_SHIFT)
-
 /*
  * READY (RO)
  *
@@ -211,7 +187,7 @@ typedef struct {
  *
  * DCDC work mode
  * XX0: trun off
- * 001: performance mode
+ * 001: basic mode
  * 011: generic mode
  * 101: automatic mode
  * 111: expert mode
@@ -613,7 +589,7 @@ typedef struct {
  *
  * clock selection
  * 0: select DCDC internal oscillator
- * 1: select IRC24M oscillator
+ * 1: select RC24M oscillator
  */
 #define PCFG_DCDC_MISC_CLK_SEL_MASK (0x2U)
 #define PCFG_DCDC_MISC_CLK_SEL_SHIFT (1U)
@@ -634,19 +610,9 @@ typedef struct {
 
 /* Bitfield definition for register: DCDC_DEBUG */
 /*
- * DEBUG (RW)
- *
- * debug bits
- */
-#define PCFG_DCDC_DEBUG_DEBUG_MASK (0xFF000000UL)
-#define PCFG_DCDC_DEBUG_DEBUG_SHIFT (24U)
-#define PCFG_DCDC_DEBUG_DEBUG_SET(x) (((uint32_t)(x) << PCFG_DCDC_DEBUG_DEBUG_SHIFT) & PCFG_DCDC_DEBUG_DEBUG_MASK)
-#define PCFG_DCDC_DEBUG_DEBUG_GET(x) (((uint32_t)(x) & PCFG_DCDC_DEBUG_DEBUG_MASK) >> PCFG_DCDC_DEBUG_DEBUG_SHIFT)
-
-/*
  * UPDATE_TIME (RW)
  *
- * DCDC voltage change time in 24M clock cycles, default value is 128
+ * DCDC voltage change time in 24M clock cycles, default value is 1mS
  */
 #define PCFG_DCDC_DEBUG_UPDATE_TIME_MASK (0xFFFFFUL)
 #define PCFG_DCDC_DEBUG_UPDATE_TIME_SHIFT (0U)
@@ -668,7 +634,7 @@ typedef struct {
 /*
  * RESUME_TIME (RW)
  *
- * Start delay for DCDC to resume from low power mode, in 24M clock cycles, default value is 1.5mS
+ * Resume delay for DCDC to recover from low power mode, in 24M clock cycles, default value is 1.5mS
  */
 #define PCFG_DCDC_RESUME_TIME_RESUME_TIME_MASK (0xFFFFFUL)
 #define PCFG_DCDC_RESUME_TIME_RESUME_TIME_SHIFT (0U)
@@ -812,40 +778,40 @@ typedef struct {
 #define PCFG_DEBUG_STOP_CPU0_SET(x) (((uint32_t)(x) << PCFG_DEBUG_STOP_CPU0_SHIFT) & PCFG_DEBUG_STOP_CPU0_MASK)
 #define PCFG_DEBUG_STOP_CPU0_GET(x) (((uint32_t)(x) & PCFG_DEBUG_STOP_CPU0_MASK) >> PCFG_DEBUG_STOP_CPU0_SHIFT)
 
-/* Bitfield definition for register: IRC24M */
+/* Bitfield definition for register: RC24M */
 /*
- * IRC_TRIMMED (RW)
+ * RC_TRIMMED (RW)
  *
- * IRC24M trim happened, this bit set by hardware after trim value loaded, and stop load, write 0 will clear this bit and reload trim value
- * 0: irc is not trimmed
- * 1: irc is trimmed
+ * RC24M trim happened, this bit set by hardware after trim value loaded, and stop load, write 0 will clear this bit and reload trim value
+ * 0: RC is not trimmed
+ * 1: RC is trimmed
  */
-#define PCFG_IRC24M_IRC_TRIMMED_MASK (0x80000000UL)
-#define PCFG_IRC24M_IRC_TRIMMED_SHIFT (31U)
-#define PCFG_IRC24M_IRC_TRIMMED_SET(x) (((uint32_t)(x) << PCFG_IRC24M_IRC_TRIMMED_SHIFT) & PCFG_IRC24M_IRC_TRIMMED_MASK)
-#define PCFG_IRC24M_IRC_TRIMMED_GET(x) (((uint32_t)(x) & PCFG_IRC24M_IRC_TRIMMED_MASK) >> PCFG_IRC24M_IRC_TRIMMED_SHIFT)
+#define PCFG_RC24M_RC_TRIMMED_MASK (0x80000000UL)
+#define PCFG_RC24M_RC_TRIMMED_SHIFT (31U)
+#define PCFG_RC24M_RC_TRIMMED_SET(x) (((uint32_t)(x) << PCFG_RC24M_RC_TRIMMED_SHIFT) & PCFG_RC24M_RC_TRIMMED_MASK)
+#define PCFG_RC24M_RC_TRIMMED_GET(x) (((uint32_t)(x) & PCFG_RC24M_RC_TRIMMED_MASK) >> PCFG_RC24M_RC_TRIMMED_SHIFT)
 
 /*
  * TRIM_C (RW)
  *
- * Coarse trim for IRC24M, bigger value means faster
+ * Coarse trim for RC24M, bigger value means faster
  */
-#define PCFG_IRC24M_TRIM_C_MASK (0x700U)
-#define PCFG_IRC24M_TRIM_C_SHIFT (8U)
-#define PCFG_IRC24M_TRIM_C_SET(x) (((uint32_t)(x) << PCFG_IRC24M_TRIM_C_SHIFT) & PCFG_IRC24M_TRIM_C_MASK)
-#define PCFG_IRC24M_TRIM_C_GET(x) (((uint32_t)(x) & PCFG_IRC24M_TRIM_C_MASK) >> PCFG_IRC24M_TRIM_C_SHIFT)
+#define PCFG_RC24M_TRIM_C_MASK (0x700U)
+#define PCFG_RC24M_TRIM_C_SHIFT (8U)
+#define PCFG_RC24M_TRIM_C_SET(x) (((uint32_t)(x) << PCFG_RC24M_TRIM_C_SHIFT) & PCFG_RC24M_TRIM_C_MASK)
+#define PCFG_RC24M_TRIM_C_GET(x) (((uint32_t)(x) & PCFG_RC24M_TRIM_C_MASK) >> PCFG_RC24M_TRIM_C_SHIFT)
 
 /*
  * TRIM_F (RW)
  *
- * Fine trim for IRC24M, bigger value means faster
+ * Fine trim for RC24M, bigger value means faster
  */
-#define PCFG_IRC24M_TRIM_F_MASK (0x1FU)
-#define PCFG_IRC24M_TRIM_F_SHIFT (0U)
-#define PCFG_IRC24M_TRIM_F_SET(x) (((uint32_t)(x) << PCFG_IRC24M_TRIM_F_SHIFT) & PCFG_IRC24M_TRIM_F_MASK)
-#define PCFG_IRC24M_TRIM_F_GET(x) (((uint32_t)(x) & PCFG_IRC24M_TRIM_F_MASK) >> PCFG_IRC24M_TRIM_F_SHIFT)
+#define PCFG_RC24M_TRIM_F_MASK (0x1FU)
+#define PCFG_RC24M_TRIM_F_SHIFT (0U)
+#define PCFG_RC24M_TRIM_F_SET(x) (((uint32_t)(x) << PCFG_RC24M_TRIM_F_SHIFT) & PCFG_RC24M_TRIM_F_MASK)
+#define PCFG_RC24M_TRIM_F_GET(x) (((uint32_t)(x) & PCFG_RC24M_TRIM_F_MASK) >> PCFG_RC24M_TRIM_F_SHIFT)
 
-/* Bitfield definition for register: IRC24M_TRACK */
+/* Bitfield definition for register: RC24M_TRACK */
 /*
  * SEL24M (RW)
  *
@@ -853,34 +819,34 @@ typedef struct {
  * 0: select 32K as reference
  * 1: select 24M XTAL as reference
  */
-#define PCFG_IRC24M_TRACK_SEL24M_MASK (0x10000UL)
-#define PCFG_IRC24M_TRACK_SEL24M_SHIFT (16U)
-#define PCFG_IRC24M_TRACK_SEL24M_SET(x) (((uint32_t)(x) << PCFG_IRC24M_TRACK_SEL24M_SHIFT) & PCFG_IRC24M_TRACK_SEL24M_MASK)
-#define PCFG_IRC24M_TRACK_SEL24M_GET(x) (((uint32_t)(x) & PCFG_IRC24M_TRACK_SEL24M_MASK) >> PCFG_IRC24M_TRACK_SEL24M_SHIFT)
+#define PCFG_RC24M_TRACK_SEL24M_MASK (0x10000UL)
+#define PCFG_RC24M_TRACK_SEL24M_SHIFT (16U)
+#define PCFG_RC24M_TRACK_SEL24M_SET(x) (((uint32_t)(x) << PCFG_RC24M_TRACK_SEL24M_SHIFT) & PCFG_RC24M_TRACK_SEL24M_MASK)
+#define PCFG_RC24M_TRACK_SEL24M_GET(x) (((uint32_t)(x) & PCFG_RC24M_TRACK_SEL24M_MASK) >> PCFG_RC24M_TRACK_SEL24M_SHIFT)
 
 /*
  * RETURN (RW)
  *
  * Retrun default value when XTAL loss
- * 0: remain last tracking value 
+ * 0: remain last tracking value
  * 1: switch to default value
  */
-#define PCFG_IRC24M_TRACK_RETURN_MASK (0x10U)
-#define PCFG_IRC24M_TRACK_RETURN_SHIFT (4U)
-#define PCFG_IRC24M_TRACK_RETURN_SET(x) (((uint32_t)(x) << PCFG_IRC24M_TRACK_RETURN_SHIFT) & PCFG_IRC24M_TRACK_RETURN_MASK)
-#define PCFG_IRC24M_TRACK_RETURN_GET(x) (((uint32_t)(x) & PCFG_IRC24M_TRACK_RETURN_MASK) >> PCFG_IRC24M_TRACK_RETURN_SHIFT)
+#define PCFG_RC24M_TRACK_RETURN_MASK (0x10U)
+#define PCFG_RC24M_TRACK_RETURN_SHIFT (4U)
+#define PCFG_RC24M_TRACK_RETURN_SET(x) (((uint32_t)(x) << PCFG_RC24M_TRACK_RETURN_SHIFT) & PCFG_RC24M_TRACK_RETURN_MASK)
+#define PCFG_RC24M_TRACK_RETURN_GET(x) (((uint32_t)(x) & PCFG_RC24M_TRACK_RETURN_MASK) >> PCFG_RC24M_TRACK_RETURN_SHIFT)
 
 /*
  * TRACK (RW)
  *
  * track mode
- * 0: IRC24M free running
- * 1: track IRC24M to external XTAL
+ * 0: RC24M free running
+ * 1: track RC24M to external XTAL
  */
-#define PCFG_IRC24M_TRACK_TRACK_MASK (0x1U)
-#define PCFG_IRC24M_TRACK_TRACK_SHIFT (0U)
-#define PCFG_IRC24M_TRACK_TRACK_SET(x) (((uint32_t)(x) << PCFG_IRC24M_TRACK_TRACK_SHIFT) & PCFG_IRC24M_TRACK_TRACK_MASK)
-#define PCFG_IRC24M_TRACK_TRACK_GET(x) (((uint32_t)(x) & PCFG_IRC24M_TRACK_TRACK_MASK) >> PCFG_IRC24M_TRACK_TRACK_SHIFT)
+#define PCFG_RC24M_TRACK_TRACK_MASK (0x1U)
+#define PCFG_RC24M_TRACK_TRACK_SHIFT (0U)
+#define PCFG_RC24M_TRACK_TRACK_SET(x) (((uint32_t)(x) << PCFG_RC24M_TRACK_TRACK_SHIFT) & PCFG_RC24M_TRACK_TRACK_MASK)
+#define PCFG_RC24M_TRACK_TRACK_GET(x) (((uint32_t)(x) & PCFG_RC24M_TRACK_TRACK_MASK) >> PCFG_RC24M_TRACK_TRACK_SHIFT)
 
 /* Bitfield definition for register: TRACK_TARGET */
 /*

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -11,7 +11,7 @@
 
 typedef struct {
     __RW uint32_t CTRL;                        /* 0x0: Control Register */
-    __RW uint32_t ST;                          /* 0x4: Status Register */
+    __R  uint8_t  RESERVED0[4];                /* 0x4 - 0x7: Reserved */
     __RW uint32_t CMD;                         /* 0x8: Command Register */
     __RW uint32_t RX_CFGR;                     /* 0xC: Configuration Register */
     __RW uint32_t RXSLT;                       /* 0x10: RX Slot Control Register */
@@ -119,17 +119,6 @@ typedef struct {
 #define DAO_CTRL_FALSE_RUN_SET(x) (((uint32_t)(x) << DAO_CTRL_FALSE_RUN_SHIFT) & DAO_CTRL_FALSE_RUN_MASK)
 #define DAO_CTRL_FALSE_RUN_GET(x) (((uint32_t)(x) & DAO_CTRL_FALSE_RUN_MASK) >> DAO_CTRL_FALSE_RUN_SHIFT)
 
-/* Bitfield definition for register: ST */
-/*
- * SAT_ERR (W1C)
- *
- * Saturation error found. Write 1 to clear.
- */
-#define DAO_ST_SAT_ERR_MASK (0x1U)
-#define DAO_ST_SAT_ERR_SHIFT (0U)
-#define DAO_ST_SAT_ERR_SET(x) (((uint32_t)(x) << DAO_ST_SAT_ERR_SHIFT) & DAO_ST_SAT_ERR_MASK)
-#define DAO_ST_SAT_ERR_GET(x) (((uint32_t)(x) & DAO_ST_SAT_ERR_MASK) >> DAO_ST_SAT_ERR_SHIFT)
-
 /* Bitfield definition for register: CMD */
 /*
  * SFTRST (RW)
@@ -144,7 +133,7 @@ typedef struct {
 /*
  * RUN (RW)
  *
- * Enable toe module to run.
+ * Enable this module to run.
  */
 #define DAO_CMD_RUN_MASK (0x1U)
 #define DAO_CMD_RUN_SHIFT (0U)
@@ -155,7 +144,7 @@ typedef struct {
 /*
  * CH_MAX (RW)
  *
- * CH_MAX[3:0] s the number if channels supported in TDM mode. When not in TDM mode, it must be set as 2.
+ * CH_MAX[3:0] is the number if channels supported in TDM mode. When not in TDM mode, it must be set as 2.
  * It must be an even number, so CH_MAX[0] is always 0.
  * 4'h2: 2 channels
  * 4'h4: 4 channels

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -339,8 +339,8 @@ typedef struct {
 /*
  * PHASE_START (RW)
  *
- * Enable this bit to send a START condition at the beginning of transaction. 
- * Master mode only. 
+ * Enable this bit to send a START condition at the beginning of transaction.
+ * Master mode only.
  */
 #define I2C_CTRL_PHASE_START_MASK (0x1000U)
 #define I2C_CTRL_PHASE_START_SHIFT (12U)
@@ -350,8 +350,8 @@ typedef struct {
 /*
  * PHASE_ADDR (RW)
  *
- * Enable this bit to send the address after START condition. 
- * Master mode only. 
+ * Enable this bit to send the address after START condition.
+ * Master mode only.
  */
 #define I2C_CTRL_PHASE_ADDR_MASK (0x800U)
 #define I2C_CTRL_PHASE_ADDR_SHIFT (11U)
@@ -361,9 +361,8 @@ typedef struct {
 /*
  * PHASE_DATA (RW)
  *
- * Enable this bit to send the data after Address phase. 
- * Master mode only. 
- * 
+ * Enable this bit to send the data after Address phase.
+ * Master mode only.
  */
 #define I2C_CTRL_PHASE_DATA_MASK (0x400U)
 #define I2C_CTRL_PHASE_DATA_SHIFT (10U)
@@ -373,9 +372,8 @@ typedef struct {
 /*
  * PHASE_STOP (RW)
  *
- * Enable this bit to send a STOP condition at the end of a transaction. 
- * Master mode only. 
- * 
+ * Enable this bit to send a STOP condition at the end of a transaction.
+ * Master mode only.
  */
 #define I2C_CTRL_PHASE_STOP_MASK (0x200U)
 #define I2C_CTRL_PHASE_STOP_SHIFT (9U)
@@ -385,12 +383,12 @@ typedef struct {
 /*
  * DIR (RW)
  *
- * Transaction direction 
- * Master: Set this bit to determine the direction for the next transaction. 
- * 0: Transmitter 
- * 1: Receiver 
- * Slave: The direction of the last received transaction. 
- * 0: Receiver 
+ * Transaction direction
+ * Master: Set this bit to determine the direction for the next transaction.
+ * 0: Transmitter
+ * 1: Receiver
+ * Slave: The direction of the last received transaction.
+ * 0: Receiver
  * 1: Transmitter
  */
 #define I2C_CTRL_DIR_MASK (0x100U)
@@ -401,10 +399,10 @@ typedef struct {
 /*
  * DATACNT (RW)
  *
- * Data counts in bytes. 
- * Master: The number of bytes to transmit/receive. 0 means 256 bytes. DataCnt will be decreased by one for each byte transmitted/received. 
- * Slave: the meaning of DataCnt depends on the DMA mode: 
- * If DMA is not enabled, DataCnt is the number of bytes transmitted/received from the bus master. It is reset to 0 when the controller is addressed and then increased by one for each byte of data transmitted/received. 
+ * Data counts in bytes.
+ * Master: The number of bytes to transmit/receive. 0 means 256 bytes. DataCnt will be decreased by one for each byte transmitted/received.
+ * Slave: the meaning of DataCnt depends on the DMA mode:
+ * If DMA is not enabled, DataCnt is the number of bytes transmitted/received from the bus master. It is reset to 0 when the controller is addressed and then increased by one for each byte of data transmitted/received.
  * If DMA is enabled, DataCnt is the number of bytes to transmit/receive. It will not be reset to 0 when the slave is addressed and it will be decreased by one for each byte of data transmitted/received.
  */
 #define I2C_CTRL_DATACNT_MASK (0xFFU)
@@ -416,14 +414,14 @@ typedef struct {
 /*
  * CMD (RW)
  *
- * Write this register with the following values to perform the corresponding actions: 
- * 0x0: no action 
- * 0x1: issue a data transaction (Master only) 
- * 0x2: respond with an ACK to the received byte 
- * 0x3: respond with a NACK to the received byte 
- * 0x4: clear the FIFO 
- * 0x5: reset the I2C controller (abort current transaction, set the SDA and SCL line to the open-drain mode, reset the Status Register and the Interrupt Enable Register, and empty the FIFO) 
- * When issuing a data transaction by writing 0x1 to this register, the CMD field stays at 0x1 for the duration of the entire transaction, and it is only cleared to 0x0 after when the transaction has completed or when the controller loses the arbitration. 
+ * Write this register with the following values to perform the corresponding actions:
+ * 0x0: no action
+ * 0x1: issue a data transaction (Master only)
+ * 0x2: respond with an ACK to the received byte
+ * 0x3: respond with a NACK to the received byte
+ * 0x4: clear the FIFO
+ * 0x5: reset the I2C controller (abort current transaction, set the SDA and SCL line to the open-drain mode, reset the Status Register and the Interrupt Enable Register, and empty the FIFO)
+ * When issuing a data transaction by writing 0x1 to this register, the CMD field stays at 0x1 for the duration of the entire transaction, and it is only cleared to 0x0 after when the transaction has completed or when the controller loses the arbitration.
  * Note: No transaction will be issued by the controller when all phases (Start, Address, Data and Stop) are disabled.
  */
 #define I2C_CMD_CMD_MASK (0x7U)
@@ -435,9 +433,9 @@ typedef struct {
 /*
  * T_SUDAT (RW)
  *
- * T_SUDAT defines the data setup time before releasing the SCL. 
- * Setup time = (2 * tpclk) + (2 + T_SP + T_SUDAT) * tpclk* (TPM+1) 
- * tpclk = PCLK period 
+ * T_SUDAT defines the data setup time before releasing the SCL.
+ * Setup time = (2 * tpclk) + (2 + T_SP + T_SUDAT) * tpclk* (TPM+1)
+ * tpclk = PCLK period
  * TPM = The multiplier value in Timing Parameter Multiplier Register
  */
 #define I2C_SETUP_T_SUDAT_MASK (0x1F000000UL)
@@ -448,7 +446,7 @@ typedef struct {
 /*
  * T_SP (RW)
  *
- * T_SP defines the pulse width of spikes that must be suppressed by the input filter. 
+ * T_SP defines the pulse width of spikes that must be suppressed by the input filter.
  * Pulse width = T_SP * tpclk* (TPM+1)
  */
 #define I2C_SETUP_T_SP_MASK (0xE00000UL)
@@ -459,7 +457,7 @@ typedef struct {
 /*
  * T_HDDAT (RW)
  *
- * T_HDDAT defines the data hold time after SCL goes LOW 
+ * T_HDDAT defines the data hold time after SCL goes LOW
  * Hold time = (2 * tpclk) + (2 + T_SP + T_HDDAT) * tpclk* (TPM+1)
  */
 #define I2C_SETUP_T_HDDAT_MASK (0x1F0000UL)
@@ -470,10 +468,10 @@ typedef struct {
 /*
  * T_SCLRADIO (RW)
  *
- * The LOW period of the generated SCL clock is defined by the combination of T_SCLRatio and T_SCLHi values. When T_SCLRatio = 0, the LOW period is equal to HIGH period. When T_SCLRatio = 1, the LOW period is roughly two times of HIGH period. 
- * SCL LOW period = (2 * tpclk) + (2 + T_SP + T_SCLHi * ratio) * tpclk * (TPM+1) 
- * 1: ratio = 2 
- * 0: ratio = 1 
+ * The LOW period of the generated SCL clock is defined by the combination of T_SCLRatio and T_SCLHi values. When T_SCLRatio = 0, the LOW period is equal to HIGH period. When T_SCLRatio = 1, the LOW period is roughly two times of HIGH period.
+ * SCL LOW period = (2 * tpclk) + (2 + T_SP + T_SCLHi * ratio) * tpclk * (TPM+1)
+ * 1: ratio = 2
+ * 0: ratio = 1
  * This field is only valid when the controller is in the master mode.
  */
 #define I2C_SETUP_T_SCLRADIO_MASK (0x2000U)
@@ -484,9 +482,9 @@ typedef struct {
 /*
  * T_SCLHI (RW)
  *
- * The HIGH period of generated SCL clock is defined by T_SCLHi. 
- * SCL HIGH period = (2 * tpclk) + (2 + T_SP + T_SCLHi) * tpclk* (TPM+1) 
- * The T_SCLHi value must be greater than T_SP and T_HDDAT values. 
+ * The HIGH period of generated SCL clock is defined by T_SCLHi.
+ * SCL HIGH period = (2 * tpclk) + (2 + T_SP + T_SCLHi) * tpclk* (TPM+1)
+ * The T_SCLHi value must be greater than T_SP and T_HDDAT values.
  * This field is only valid when the controller is in the master mode.
  */
 #define I2C_SETUP_T_SCLHI_MASK (0x1FF0U)
@@ -497,8 +495,8 @@ typedef struct {
 /*
  * DMAEN (RW)
  *
- * Enable the direct memory access mode data transfer. 
- * 1: Enable 
+ * Enable the direct memory access mode data transfer.
+ * 1: Enable
  * 0: Disable
  */
 #define I2C_SETUP_DMAEN_MASK (0x8U)
@@ -509,8 +507,8 @@ typedef struct {
 /*
  * MASTER (RW)
  *
- * Configure this device as a master or a slave. 
- * 1: Master mode 
+ * Configure this device as a master or a slave.
+ * 1: Master mode
  * 0: Slave mode
  */
 #define I2C_SETUP_MASTER_MASK (0x4U)
@@ -521,8 +519,8 @@ typedef struct {
 /*
  * ADDRESSING (RW)
  *
- * I2C addressing mode: 
- * 1: 10-bit addressing mode 
+ * I2C addressing mode:
+ * 1: 10-bit addressing mode
  * 0: 7-bit addressing mode
  */
 #define I2C_SETUP_ADDRESSING_MASK (0x2U)
@@ -533,8 +531,8 @@ typedef struct {
 /*
  * IICEN (RW)
  *
- * Enable the ATCIIC100 I2C controller. 
- * 1: Enable 
+ * Enable the I2C controller.
+ * 1: Enable
  * 0: Disable
  */
 #define I2C_SETUP_IICEN_MASK (0x1U)

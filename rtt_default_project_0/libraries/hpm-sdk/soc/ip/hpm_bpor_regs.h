@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -14,7 +14,6 @@ typedef struct {
     __RW uint32_t POR_SELECT;                  /* 0x4: Power on select */
     __RW uint32_t POR_CONFIG;                  /* 0x8: Power on reset config */
     __RW uint32_t POR_CONTROL;                 /* 0xC: Power down control */
-    __R  uint32_t POR_MODE;                    /* 0x10: Power on mode */
 } BPOR_Type;
 
 
@@ -73,25 +72,6 @@ typedef struct {
 #define BPOR_POR_CONTROL_COUNTER_SHIFT (0U)
 #define BPOR_POR_CONTROL_COUNTER_SET(x) (((uint32_t)(x) << BPOR_POR_CONTROL_COUNTER_SHIFT) & BPOR_POR_CONTROL_COUNTER_MASK)
 #define BPOR_POR_CONTROL_COUNTER_GET(x) (((uint32_t)(x) & BPOR_POR_CONTROL_COUNTER_MASK) >> BPOR_POR_CONTROL_COUNTER_SHIFT)
-
-/* Bitfield definition for register: POR_MODE */
-/*
- * TEST (RO)
- *
- * Chip test mode
- */
-#define BPOR_POR_MODE_TEST_MASK (0x80000000UL)
-#define BPOR_POR_MODE_TEST_SHIFT (31U)
-#define BPOR_POR_MODE_TEST_GET(x) (((uint32_t)(x) & BPOR_POR_MODE_TEST_MASK) >> BPOR_POR_MODE_TEST_SHIFT)
-
-/*
- * MODE (RO)
- *
- * chip boot mode
- */
-#define BPOR_POR_MODE_MODE_MASK (0xFFFU)
-#define BPOR_POR_MODE_MODE_SHIFT (0U)
-#define BPOR_POR_MODE_MODE_GET(x) (((uint32_t)(x) & BPOR_POR_MODE_MODE_MASK) >> BPOR_POR_MODE_MODE_SHIFT)
 
 
 

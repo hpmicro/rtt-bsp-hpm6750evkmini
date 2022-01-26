@@ -5,11 +5,17 @@
  *
  */
 
-
 #ifndef _HPM_L1_CACHE_H
 #define _HPM_L1_CACHE_H
-
 #include "riscv/riscv_core.h"
+#include "hpm_common.h"
+
+/**
+ *
+ * @brief L1CACHE driver APIs
+ * @defgroup l1cache_interface L1CACHE driver APIs
+ * @{
+ */
 
 /* cache size is 32KB */
 #define HPM_L1C_CACHE_SIZE (uint32_t)(32 * SIZE_1KB)
@@ -34,7 +40,7 @@
 
 /*
  * Controls if the data cache is enabled or not.
- * 
+ *
  * 0 D-Cache is disabled
  * 1 D-Cache is enabled
  */
@@ -45,7 +51,7 @@
 
 /*
  * Parity/ECC error checking enable control for the instruction cache.
- * 
+ *
  * 0 Disable parity/ECC
  * 1 Reserved
  * 2 Generate exceptions only on uncorrectable parity/ECC errors
@@ -57,9 +63,9 @@
     (uint32_t)(((x) << HPM_MCACHE_CTL_IC_ECCEN_SHIFT) & HPM_MCACHE_CTL_IC_ECCEN_MASK)
 
 /*
- * 
+ *
  * Parity/ECC error checking enable control for the data cache.
- * 
+ *
  * 0 Disable parity/ECC
  * 1 Reserved
  * 2 Generate exceptions only on uncorrectable parity/ECC errors
@@ -71,11 +77,11 @@
     (uint32_t)(((x) << HPM_MCACHE_CTL_DC_ECCEN_SHIFT) & HPM_MCACHE_CTL_DC_ECCEN_MASK)
 
 /*
- * 
+ *
  * Controls diagnostic accesses of ECC codes of the instruction cache RAMs.
  * It is set to enable CCTL operations to access the ECC codes. This bit
  * can be set for injecting ECC errors to test the ECC handler.
- * 
+ *
  * 0 Disable diagnostic accesses of ECC codes
  * 1 Enable diagnostic accesses of ECC codes
  */
@@ -85,11 +91,11 @@
     (uint32_t)(((x) << HPM_MCACHE_CTL_IC_RWECC_SHIFT) & HPM_MCACHE_CTL_IC_RWECC_MASK)
 
 /*
- * 
+ *
  * Controls diagnostic accesses of ECC codes of the data cache RAMs. It is
  * set to enable CCTL operations to access the ECC codes. This bit can be
  * set for injecting
- * 
+ *
  * ECC errors to test the ECC handler.
  * 0 Disable diagnostic accesses of ECC codes
  * 1 Enable diagnostic accesses of ECC codes
@@ -102,7 +108,7 @@
 /*
  * Enable bit for Superuser-mode and User-mode software to access
  * ucctlbeginaddr and ucctlcommand CSRs.
- * 
+ *
  * 0 Disable ucctlbeginaddr and ucctlcommand accesses in S/U mode
  * 1 Enable ucctlbeginaddr and ucctlcommand accesses in S/U mode
  */
@@ -114,7 +120,7 @@
 /*
  * This bit controls hardware prefetch for instruction fetches to cacheable
  * memory regions when I-Cache size is not 0.
- * 
+ *
  * 0 Disable hardware prefetch on instruction fetches
  * 1 Enable hardware prefetch on instruction fetches
  */
@@ -126,7 +132,7 @@
 /*
  * This bit controls hardware prefetch for load/store accesses to cacheable
  * memory regions when D-Cache size is not 0.
- * 
+ *
  * 0 Disable hardware prefetch on load/store memory accesses.
  * 1 Enable hardware prefetch on load/store memory accesses.
  */
@@ -137,7 +143,7 @@
 
 /*
  * I-Cache miss allocation filling policy Value Meaning
- * 
+ *
  * 0 Cache line data is returned critical (double) word first
  * 1 Cache line data is returned the lowest address (double) word first
  */
@@ -148,7 +154,7 @@
 
 /*
  * D-Cache miss allocation filling policy
- * 
+ *
  * 0 Cache line data is returned critical (double) word first
  * 1 Cache line data is returned the lowest address (double) word first
  */
@@ -159,7 +165,7 @@
 
 /*
  * D-Cache Write-Around threshold
- * 
+ *
  * 0 Disables streaming. All cacheable write misses allocate a cache line
  * according to PMA settings.
  * 1 Override PMA setting and do not allocate D-Cache entries after
@@ -300,8 +306,16 @@ __attribute__((always_inline)) static inline
 #define HPM_MCCTLDATA_D_TAG_TAG(x) \
     (uint32_t)(((x) << HPM_MCCTLDATA_D_TAG_TAG_SHIFT) & HPM_MCCTLDATA_D_TAG_TAG_MASK)
 
-/* send IX read tag/data cmd */
-__attribute__((always_inline)) static inline
+/*
+ * @brief Cache control command read address
+ *
+ * Send IX read tag/data cmd
+ * @param[in] cmd Command code
+ * @param[in] address Target address
+ * @param[in] ecc_data ECC value
+ * @return data read
+ */
+ATTR_ALWAYS_INLINE static inline
     uint32_t l1c_cctl_address_cmd_read(uint8_t cmd, uint32_t address, uint32_t *ecc_data)
 {
     write_csr(CSR_MCCTLBEGINADDR, address);
@@ -310,8 +324,16 @@ __attribute__((always_inline)) static inline
     return read_csr(CSR_MCCTLDATA);
 }
 
-/* send IX write tag/data cmd */
-__attribute__((always_inline)) static inline
+/*
+ * @brief Cache control command write address
+ *
+ * Send IX write tag/data cmd
+ * @param[in] cmd Command code
+ * @param[in] address Target address
+ * @param[in] data Data to be written
+ * @param[in] ecc_data ECC of data
+ */
+ATTR_ALWAYS_INLINE static inline
     void l1c_cctl_address_cmd_write(uint8_t cmd, uint32_t address, uint32_t data, uint32_t ecc_data)
 {
     write_csr(CSR_MCCTLBEGINADDR, address);
@@ -339,85 +361,109 @@ __attribute__((always_inline)) static inline
 #define HPM_L1C_CFG_SETH_SHIFT     (24UL)
 #define HPM_L1C_CFG_SETH_MASK      (uint32_t)(0x1 << HPM_L1C_CFG_SETH_SHIFT)
 
-/* i-cache: get configuration */
-__attribute__((always_inline)) static inline uint32_t l1c_ic_get_config(void)
+/**
+ * @brief   Get I-cache configuration
+ *
+ * @return I-cache config register
+ */
+ATTR_ALWAYS_INLINE static inline uint32_t l1c_ic_get_config(void)
 {
     return read_csr(CSR_MICM_CFG);
 }
 
-/* d-cache: get configuration */
-__attribute__((always_inline)) static inline uint32_t l1c_dc_get_config(void)
+/**
+ * @brief   Get D-cache configuration
+ *
+ * @return D-cache config register
+ */
+ATTR_ALWAYS_INLINE static inline uint32_t l1c_dc_get_config(void)
 {
     return read_csr(CSR_MDCM_CFG);
 }
 
 /*
- * d-cache: disable
+ * @brief D-cache disable
  */
 void l1c_dc_disable(void);
 
 /*
- * d-cache: enable
+ * @brief D-cache enable
  */
 void l1c_dc_enable(void);
 
 /*
- * d-cache: invalidate by address
+ * @brief D-cache invalidate by address
+ * @param[in] address Start address to be invalidated
+ * @param[in] size Size of memory to be invalidated
  */
 void l1c_dc_invalidate(uint32_t address, uint32_t size);
 
 /*
- * d-cache: writeback by address
+ * @brief D-cache writeback by address
+ * @param[in] address Start address to be writtenback
+ * @param[in] size Size of memory to be writtenback
  */
 void l1c_dc_writeback(uint32_t address, uint32_t size);
 
 /*
- * d-cache: invalidate and writeback by address
+ * @brief D-cache invalidate and writeback by address
+ * @param[in] address Start address to be invalidated and writtenback
+ * @param[in] size Size of memory to be invalidted and writtenback
  */
 void l1c_dc_flush(uint32_t address, uint32_t size);
 
 /*
- * d-cache: fill and lock by address
+ * @brief D-cache fill and lock by address
+ * @param[in] address Start address to be filled and locked
+ * @param[in] size Size of memory to be filled and locked
  */
 void l1c_dc_fill_lock(uint32_t address, uint32_t size);
 
 /*
- * i-cache: disable
+ * @brief I-cache disable
  */
 void l1c_ic_disable(void);
 
 /*
- * i-cache: enable
+ * @brief I-cache enable
  */
 void l1c_ic_enable(void);
 
 /*
- * i-cache: invalidate by address
+ * @brief I-cache invalidate by address
+ * @param[in] address Start address to be invalidated
+ * @param[in] size Size of memory to be invalidated
  */
 void l1c_ic_invalidate(uint32_t address, uint32_t size);
 
 /*
- * i-cache: fill and lock by address
+ * @brief I-cache fill and lock by address
+ * @param[in] address Start address to be locked
+ * @param[in] size Size of memory to be locked
  */
 void l1c_ic_fill_lock(uint32_t address, uint32_t size);
 
 /*
- * invalidate all icache and writeback all dcache
+ * @brief Invalidate all icache and writeback all dcache
  */
 void l1c_fence_i(void);
 
 /*
- * invalidate all d-cache
+ * @brief Invalidate all d-cache
  */
 void l1c_dc_invalidate_all(void);
 
 /*
- * writeback all d-cache
+ * @brief Writeback all d-cache
  */
 void l1c_dc_writeback_all(void);
 
 #ifdef __cplusplus
 }
 #endif
+
+/**
+ * @}
+ */
 
 #endif /* _HPM_L1_CACHE_H */

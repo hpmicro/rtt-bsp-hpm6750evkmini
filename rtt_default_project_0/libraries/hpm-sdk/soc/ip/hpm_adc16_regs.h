@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -83,7 +83,6 @@ typedef struct {
 /*
  * INTEN2 (rw)
  *
- * 
  */
 #define ADC16_CONFIG_INTEN2_MASK (0x200000UL)
 #define ADC16_CONFIG_INTEN2_SHIFT (21U)
@@ -93,7 +92,6 @@ typedef struct {
 /*
  * CHAN2 (rw)
  *
- * 
  */
 #define ADC16_CONFIG_CHAN2_MASK (0x1F0000UL)
 #define ADC16_CONFIG_CHAN2_SHIFT (16U)
@@ -103,7 +101,6 @@ typedef struct {
 /*
  * INTEN1 (rw)
  *
- * 
  */
 #define ADC16_CONFIG_INTEN1_MASK (0x2000U)
 #define ADC16_CONFIG_INTEN1_SHIFT (13U)
@@ -113,7 +110,6 @@ typedef struct {
 /*
  * CHAN1 (rw)
  *
- * 
  */
 #define ADC16_CONFIG_CHAN1_MASK (0x1F00U)
 #define ADC16_CONFIG_CHAN1_SHIFT (8U)
@@ -358,7 +354,7 @@ typedef struct {
 /*
  * PRD (rw)
  *
- * conver period, with prescale. 
+ * conver period, with prescale.
  * Set to 0 means disable current channel
  */
 #define ADC16_PRD_CFG_PRD_CFG_PRD_MASK (0xFFU)
@@ -500,7 +496,6 @@ typedef struct {
 /*
  * TRIG_SW_CFLCT (W1C)
  *
- * 
  */
 #define ADC16_INT_STS_TRIG_SW_CFLCT_MASK (0x40000000UL)
 #define ADC16_INT_STS_TRIG_SW_CFLCT_SHIFT (30U)
@@ -510,7 +505,6 @@ typedef struct {
 /*
  * TRIG_HW_CFLCT (rw)
  *
- * 
  */
 #define ADC16_INT_STS_TRIG_HW_CFLCT_MASK (0x20000000UL)
 #define ADC16_INT_STS_TRIG_HW_CFLCT_SHIFT (29U)
@@ -540,7 +534,6 @@ typedef struct {
 /*
  * SEQ_HW_CFLCT (rw)
  *
- * 
  */
 #define ADC16_INT_STS_SEQ_HW_CFLCT_MASK (0x4000000UL)
 #define ADC16_INT_STS_SEQ_HW_CFLCT_SHIFT (26U)
@@ -621,7 +614,6 @@ typedef struct {
 /*
  * TRIG_SW_CFLCT (W1C)
  *
- * 
  */
 #define ADC16_INT_EN_TRIG_SW_CFLCT_MASK (0x40000000UL)
 #define ADC16_INT_EN_TRIG_SW_CFLCT_SHIFT (30U)
@@ -631,7 +623,6 @@ typedef struct {
 /*
  * TRIG_HW_CFLCT (rw)
  *
- * 
  */
 #define ADC16_INT_EN_TRIG_HW_CFLCT_MASK (0x20000000UL)
 #define ADC16_INT_EN_TRIG_HW_CFLCT_SHIFT (29U)
@@ -661,7 +652,6 @@ typedef struct {
 /*
  * SEQ_HW_CFLCT (rw)
  *
- * 
  */
 #define ADC16_INT_EN_SEQ_HW_CFLCT_MASK (0x4000000UL)
 #define ADC16_INT_EN_SEQ_HW_CFLCT_SHIFT (26U)
@@ -765,7 +755,6 @@ typedef struct {
 /*
  * PARAM_VAL (RW)
  *
- * 
  */
 #define ADC16_ADC16_PARAMS_PARAM_VAL_MASK (0xFFFFU)
 #define ADC16_ADC16_PARAMS_PARAM_VAL_SHIFT (0U)
@@ -773,17 +762,6 @@ typedef struct {
 #define ADC16_ADC16_PARAMS_PARAM_VAL_GET(x) (((uint16_t)(x) & ADC16_ADC16_PARAMS_PARAM_VAL_MASK) >> ADC16_ADC16_PARAMS_PARAM_VAL_SHIFT)
 
 /* Bitfield definition for register: ADC16_CONFIG0 */
-/*
- * CONV_LOOP_EN (rw)
- *
- * set to use cal_avg_cfg for loop low 4bit in conversion.
- * The loop numbers will be added to normal conversion, and the low 4bit in normal conversion will be discarded, and use the average of looped result
- */
-#define ADC16_ADC16_CONFIG0_CONV_LOOP_EN_MASK (0x10000000UL)
-#define ADC16_ADC16_CONFIG0_CONV_LOOP_EN_SHIFT (28U)
-#define ADC16_ADC16_CONFIG0_CONV_LOOP_EN_SET(x) (((uint32_t)(x) << ADC16_ADC16_CONFIG0_CONV_LOOP_EN_SHIFT) & ADC16_ADC16_CONFIG0_CONV_LOOP_EN_MASK)
-#define ADC16_ADC16_CONFIG0_CONV_LOOP_EN_GET(x) (((uint32_t)(x) & ADC16_ADC16_CONFIG0_CONV_LOOP_EN_MASK) >> ADC16_ADC16_CONFIG0_CONV_LOOP_EN_SHIFT)
-
 /*
  * TEMPSNS_EN (rw)
  *

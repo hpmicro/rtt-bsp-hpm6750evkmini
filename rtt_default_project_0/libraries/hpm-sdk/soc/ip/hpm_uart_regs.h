@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -31,7 +31,6 @@ typedef struct {
     __RW uint32_t MCR;                         /* 0x30: Modem Control Register ( */
     __R  uint32_t LSR;                         /* 0x34: Line Status Register */
     __R  uint32_t MSR;                         /* 0x38: Modem Status Register */
-    __RW uint32_t SCR;                         /* 0x3C: Scratch Register */
 } UART_Type;
 
 
@@ -56,9 +55,9 @@ typedef struct {
  * Over-sample control
  * The value must be an even number; any odd value
  * writes to this field will be converted to an even value.
- * 𝐎𝐎𝐎𝐎𝐎𝐎 = 𝟎𝟎: The over-sample ratio is 32
- * 𝐎𝐎𝐎𝐎𝐎𝐎 �?8: The over-sample ratio is 8
- * 𝟖𝟖 < 𝐎𝐎𝐒𝐒𝐒𝐒< 𝟑𝟑𝟐𝟐: The over sample ratio is OSC
+ * OSC=0: The over-sample ratio is 32
+ * OSC<=8: The over-sample ratio is 8
+ * 8 < OSC< 32: The over sample ratio is OSC
  */
 #define UART_OSCR_OSC_MASK (0x1FU)
 #define UART_OSCR_OSC_SHIFT (0U)
@@ -368,32 +367,6 @@ typedef struct {
 #define UART_MCR_LOOP_GET(x) (((uint32_t)(x) & UART_MCR_LOOP_MASK) >> UART_MCR_LOOP_SHIFT)
 
 /*
- * OUT2 (RW)
- *
- * User-defined output 2
- * This bit controls the uart_out2n output.
- * 0: The uart_out2n output signal will be driven HIGH
- * 1: The uart_out2n output signal will be driven LOW
- */
-#define UART_MCR_OUT2_MASK (0x8U)
-#define UART_MCR_OUT2_SHIFT (3U)
-#define UART_MCR_OUT2_SET(x) (((uint32_t)(x) << UART_MCR_OUT2_SHIFT) & UART_MCR_OUT2_MASK)
-#define UART_MCR_OUT2_GET(x) (((uint32_t)(x) & UART_MCR_OUT2_MASK) >> UART_MCR_OUT2_SHIFT)
-
-/*
- * OUT1 (RW)
- *
- * User-defined output 1
- * This bit controls the uart_out1n output.
- * 0: The uart_out1n output signal will be driven HIGH
- * 1: The uart_out1n output signal will be driven LOW
- */
-#define UART_MCR_OUT1_MASK (0x4U)
-#define UART_MCR_OUT1_SHIFT (2U)
-#define UART_MCR_OUT1_SET(x) (((uint32_t)(x) << UART_MCR_OUT1_SHIFT) & UART_MCR_OUT1_MASK)
-#define UART_MCR_OUT1_GET(x) (((uint32_t)(x) & UART_MCR_OUT1_MASK) >> UART_MCR_OUT1_SHIFT)
-
-/*
  * RTS (RW)
  *
  * Request to send
@@ -405,19 +378,6 @@ typedef struct {
 #define UART_MCR_RTS_SHIFT (1U)
 #define UART_MCR_RTS_SET(x) (((uint32_t)(x) << UART_MCR_RTS_SHIFT) & UART_MCR_RTS_MASK)
 #define UART_MCR_RTS_GET(x) (((uint32_t)(x) & UART_MCR_RTS_MASK) >> UART_MCR_RTS_SHIFT)
-
-/*
- * DTR (RW)
- *
- * Data terminal ready
- * This bit controls the modem_dtrn output.
- * 0: The modem_dtrn output signal will be driven HIGH
- * 1: The modem_dtrn output signal will be driven LOW
- */
-#define UART_MCR_DTR_MASK (0x1U)
-#define UART_MCR_DTR_SHIFT (0U)
-#define UART_MCR_DTR_SET(x) (((uint32_t)(x) << UART_MCR_DTR_SHIFT) & UART_MCR_DTR_MASK)
-#define UART_MCR_DTR_GET(x) (((uint32_t)(x) & UART_MCR_DTR_MASK) >> UART_MCR_DTR_SHIFT)
 
 /* Bitfield definition for register: LSR */
 /*
@@ -527,39 +487,6 @@ typedef struct {
 
 /* Bitfield definition for register: MSR */
 /*
- * DCD (RO)
- *
- * Data carrier detect
- * 0: The modem_dcdn input signal is HIGH.
- * 1: The modem_dcdn input signal is LOW.
- */
-#define UART_MSR_DCD_MASK (0x80U)
-#define UART_MSR_DCD_SHIFT (7U)
-#define UART_MSR_DCD_GET(x) (((uint32_t)(x) & UART_MSR_DCD_MASK) >> UART_MSR_DCD_SHIFT)
-
-/*
- * RI (RO)
- *
- * Ring indicator
- * 0: The modem_rin input signal is HIGH.
- * 1: The modem_rin input signal is LOW.
- */
-#define UART_MSR_RI_MASK (0x40U)
-#define UART_MSR_RI_SHIFT (6U)
-#define UART_MSR_RI_GET(x) (((uint32_t)(x) & UART_MSR_RI_MASK) >> UART_MSR_RI_SHIFT)
-
-/*
- * DSR (RO)
- *
- * Data set ready
- * 0: The modem_dsrn input signal is HIGH.
- * 1: The modem_dsrn input signal is LOW.
- */
-#define UART_MSR_DSR_MASK (0x20U)
-#define UART_MSR_DSR_SHIFT (5U)
-#define UART_MSR_DSR_GET(x) (((uint32_t)(x) & UART_MSR_DSR_MASK) >> UART_MSR_DSR_SHIFT)
-
-/*
  * CTS (RO)
  *
  * Clear to send
@@ -569,42 +496,6 @@ typedef struct {
 #define UART_MSR_CTS_MASK (0x10U)
 #define UART_MSR_CTS_SHIFT (4U)
 #define UART_MSR_CTS_GET(x) (((uint32_t)(x) & UART_MSR_CTS_MASK) >> UART_MSR_CTS_SHIFT)
-
-/*
- * DDCD (RC)
- *
- * Delta data carrier detect
- * This bit is set when the state of the modem_dcdn
- * input signal has been changed since the last time this
- * register is read. Otherwise, it is zero.
- */
-#define UART_MSR_DDCD_MASK (0x8U)
-#define UART_MSR_DDCD_SHIFT (3U)
-#define UART_MSR_DDCD_GET(x) (((uint32_t)(x) & UART_MSR_DDCD_MASK) >> UART_MSR_DDCD_SHIFT)
-
-/*
- * TERI (RC)
- *
- * Trailing edge ring indicator
- * This bit is set when the state of the modem_rin input
- * signal has been changed from LOWto HIGH since the
- * last time this register is read.
- */
-#define UART_MSR_TERI_MASK (0x4U)
-#define UART_MSR_TERI_SHIFT (2U)
-#define UART_MSR_TERI_GET(x) (((uint32_t)(x) & UART_MSR_TERI_MASK) >> UART_MSR_TERI_SHIFT)
-
-/*
- * DDSR (RC)
- *
- * Delta data set ready
- * This bit is set when the state of the modem_dsrn input
- * signal has been changed since the last time this
- * register is read.
- */
-#define UART_MSR_DDSR_MASK (0x2U)
-#define UART_MSR_DDSR_SHIFT (1U)
-#define UART_MSR_DDSR_GET(x) (((uint32_t)(x) & UART_MSR_DDSR_MASK) >> UART_MSR_DDSR_SHIFT)
 
 /*
  * DCTS (RC)
@@ -617,19 +508,6 @@ typedef struct {
 #define UART_MSR_DCTS_MASK (0x1U)
 #define UART_MSR_DCTS_SHIFT (0U)
 #define UART_MSR_DCTS_GET(x) (((uint32_t)(x) & UART_MSR_DCTS_MASK) >> UART_MSR_DCTS_SHIFT)
-
-/* Bitfield definition for register: SCR */
-/*
- * SCR (RW)
- *
- * An one-byte storage register with no UART related
- * function; available to software with no usage
- * restrictions.
- */
-#define UART_SCR_SCR_MASK (0xFFU)
-#define UART_SCR_SCR_SHIFT (0U)
-#define UART_SCR_SCR_SET(x) (((uint32_t)(x) << UART_SCR_SCR_SHIFT) & UART_SCR_SCR_MASK)
-#define UART_SCR_SCR_GET(x) (((uint32_t)(x) & UART_SCR_SCR_MASK) >> UART_SCR_SCR_SHIFT)
 
 
 

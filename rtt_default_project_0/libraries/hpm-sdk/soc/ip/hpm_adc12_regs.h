@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -79,7 +79,6 @@ typedef struct {
 /*
  * INTEN2 (rw)
  *
- * 
  */
 #define ADC12_CONFIG_INTEN2_MASK (0x200000UL)
 #define ADC12_CONFIG_INTEN2_SHIFT (21U)
@@ -89,7 +88,6 @@ typedef struct {
 /*
  * CHAN2 (rw)
  *
- * 
  */
 #define ADC12_CONFIG_CHAN2_MASK (0x1F0000UL)
 #define ADC12_CONFIG_CHAN2_SHIFT (16U)
@@ -99,7 +97,6 @@ typedef struct {
 /*
  * INTEN1 (rw)
  *
- * 
  */
 #define ADC12_CONFIG_INTEN1_MASK (0x2000U)
 #define ADC12_CONFIG_INTEN1_SHIFT (13U)
@@ -109,7 +106,6 @@ typedef struct {
 /*
  * CHAN1 (rw)
  *
- * 
  */
 #define ADC12_CONFIG_CHAN1_MASK (0x1F00U)
 #define ADC12_CONFIG_CHAN1_SHIFT (8U)
@@ -354,7 +350,7 @@ typedef struct {
 /*
  * PRD (rw)
  *
- * conver period, with prescale. 
+ * conver period, with prescale.
  * Set to 0 means disable current channel
  */
 #define ADC12_PRD_CFG_PRD_CFG_PRD_MASK (0xFFU)
@@ -486,7 +482,6 @@ typedef struct {
 /*
  * TRIG_SW_CFLCT (W1C)
  *
- * 
  */
 #define ADC12_INT_STS_TRIG_SW_CFLCT_MASK (0x40000000UL)
 #define ADC12_INT_STS_TRIG_SW_CFLCT_SHIFT (30U)
@@ -496,7 +491,6 @@ typedef struct {
 /*
  * TRIG_HW_CFLCT (rw)
  *
- * 
  */
 #define ADC12_INT_STS_TRIG_HW_CFLCT_MASK (0x20000000UL)
 #define ADC12_INT_STS_TRIG_HW_CFLCT_SHIFT (29U)
@@ -526,7 +520,6 @@ typedef struct {
 /*
  * SEQ_HW_CFLCT (rw)
  *
- * 
  */
 #define ADC12_INT_STS_SEQ_HW_CFLCT_MASK (0x4000000UL)
 #define ADC12_INT_STS_SEQ_HW_CFLCT_SHIFT (26U)
@@ -566,7 +559,6 @@ typedef struct {
 /*
  * DMA_FIFO_FULL (rw)
  *
- * 
  */
 #define ADC12_INT_STS_DMA_FIFO_FULL_MASK (0x400000UL)
 #define ADC12_INT_STS_DMA_FIFO_FULL_SHIFT (22U)
@@ -607,7 +599,6 @@ typedef struct {
 /*
  * TRIG_SW_CFLCT (W1C)
  *
- * 
  */
 #define ADC12_INT_EN_TRIG_SW_CFLCT_MASK (0x40000000UL)
 #define ADC12_INT_EN_TRIG_SW_CFLCT_SHIFT (30U)
@@ -617,7 +608,6 @@ typedef struct {
 /*
  * TRIG_HW_CFLCT (rw)
  *
- * 
  */
 #define ADC12_INT_EN_TRIG_HW_CFLCT_MASK (0x20000000UL)
 #define ADC12_INT_EN_TRIG_HW_CFLCT_SHIFT (29U)
@@ -647,7 +637,6 @@ typedef struct {
 /*
  * SEQ_HW_CFLCT (rw)
  *
- * 
  */
 #define ADC12_INT_EN_SEQ_HW_CFLCT_MASK (0x4000000UL)
 #define ADC12_INT_EN_SEQ_HW_CFLCT_SHIFT (26U)
@@ -817,16 +806,6 @@ typedef struct {
 #define ADC12_ANA_CTRL0_LOADCAL_SET(x) (((uint32_t)(x) << ADC12_ANA_CTRL0_LOADCAL_SHIFT) & ADC12_ANA_CTRL0_LOADCAL_MASK)
 #define ADC12_ANA_CTRL0_LOADCAL_GET(x) (((uint32_t)(x) & ADC12_ANA_CTRL0_LOADCAL_MASK) >> ADC12_ANA_CTRL0_LOADCAL_SHIFT)
 
-/*
- * BYPASSCAL (rw)
- *
- * Signal that bypasses the offset calibration block (Active H)
- */
-#define ADC12_ANA_CTRL0_BYPASSCAL_MASK (0x1U)
-#define ADC12_ANA_CTRL0_BYPASSCAL_SHIFT (0U)
-#define ADC12_ANA_CTRL0_BYPASSCAL_SET(x) (((uint32_t)(x) << ADC12_ANA_CTRL0_BYPASSCAL_SHIFT) & ADC12_ANA_CTRL0_BYPASSCAL_MASK)
-#define ADC12_ANA_CTRL0_BYPASSCAL_GET(x) (((uint32_t)(x) & ADC12_ANA_CTRL0_BYPASSCAL_MASK) >> ADC12_ANA_CTRL0_BYPASSCAL_SHIFT)
-
 /* Bitfield definition for register: ANA_CTRL1 */
 /*
  * SELRES (rw)
@@ -855,7 +834,6 @@ typedef struct {
 /*
  * CAL_OUT (rw)
  *
- * 
  */
 #define ADC12_ANA_STATUS_CAL_OUT_MASK (0x7FU)
 #define ADC12_ANA_STATUS_CAL_OUT_SHIFT (0U)

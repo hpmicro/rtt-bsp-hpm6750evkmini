@@ -3,7 +3,7 @@
 #ifdef RT_USING_WIFI
 #include <rtdevice.h>
 #include <drv_spi.h>
-#include <board.h>
+#include <rtt_board.h>
 #include <spi_wifi_rw007.h>
 
 #define RW007_AT_MODE   3

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -302,7 +302,6 @@ typedef struct {
 /*
  * D (ROI)
  *
- * 
  */
 #define I2S_RXD_D_MASK (0xFFFFFFFFUL)
 #define I2S_RXD_D_SHIFT (0U)
@@ -312,7 +311,6 @@ typedef struct {
 /*
  * D (WO)
  *
- * 
  */
 #define I2S_TXD_D_MASK (0xFFFFFFFFUL)
 #define I2S_TXD_D_SHIFT (0U)
@@ -323,7 +321,7 @@ typedef struct {
 /*
  * BCLK_GATEOFF (RW)
  *
- * Gate off the bclk. Asserted to gate-off the BCLK. 
+ * Gate off the bclk. Asserted to gate-off the BCLK.
  */
 #define I2S_CFGR_BCLK_GATEOFF_MASK (0x40000000UL)
 #define I2S_CFGR_BCLK_GATEOFF_SHIFT (30U)
@@ -449,7 +447,7 @@ typedef struct {
 /*
  * CH_MAX (RW)
  *
- * CH_MAX[3:0] s the number if channels supported in TDM mode. When not in TDM mode, it must be set as 2.
+ * CH_MAX[3:0] s the number of channels supported in TDM mode. When not in TDM mode, it must be set as 2.
  * It must be an even number, so CH_MAX[0] is always 0.
  * 4'h2: 2 channels
  * 4'h4: 4 channels
@@ -480,7 +478,6 @@ typedef struct {
  * 01: MSB justified standard (left justified)
  * 10: LSB justified standard (right justified)
  * 11: PCM standard
- * For more details on I2S standards.
  * Note: For correct operation, these bits should be configured when the I2S is disabled.
  */
 #define I2S_CFGR_STD_MASK (0x18U)
@@ -521,36 +518,12 @@ typedef struct {
 /*
  * MCLK_GATEOFF (RW)
  *
- * Gate off the mclk. This mclk is th output of a glitch prone mux, so every time to switch the mclk, the gate off clock should be asserted at first. After the clock is switched, de-assert this bit to ungate off the mclk. 
+ * Gate off the mclk. This mclk is the output of a glitch prone mux, so every time to switch the mclk, the gate off clock should be asserted at first. After the clock is switched, de-assert this bit to ungate off the mclk.
  */
 #define I2S_MISC_CFGR_MCLK_GATEOFF_MASK (0x2000U)
 #define I2S_MISC_CFGR_MCLK_GATEOFF_SHIFT (13U)
 #define I2S_MISC_CFGR_MCLK_GATEOFF_SET(x) (((uint32_t)(x) << I2S_MISC_CFGR_MCLK_GATEOFF_SHIFT) & I2S_MISC_CFGR_MCLK_GATEOFF_MASK)
 #define I2S_MISC_CFGR_MCLK_GATEOFF_GET(x) (((uint32_t)(x) & I2S_MISC_CFGR_MCLK_GATEOFF_MASK) >> I2S_MISC_CFGR_MCLK_GATEOFF_SHIFT)
-
-/*
- * RST_MCLKDIV (RW)
- *
- * reset MCLKDIV. Auto clear.
- */
-#define I2S_MISC_CFGR_RST_MCLKDIV_MASK (0x1000U)
-#define I2S_MISC_CFGR_RST_MCLKDIV_SHIFT (12U)
-#define I2S_MISC_CFGR_RST_MCLKDIV_SET(x) (((uint32_t)(x) << I2S_MISC_CFGR_RST_MCLKDIV_SHIFT) & I2S_MISC_CFGR_RST_MCLKDIV_MASK)
-#define I2S_MISC_CFGR_RST_MCLKDIV_GET(x) (((uint32_t)(x) & I2S_MISC_CFGR_RST_MCLKDIV_MASK) >> I2S_MISC_CFGR_RST_MCLKDIV_SHIFT)
-
-/*
- * MCLK_DIV (RW)
- *
- * Linear prescaler to generate MCLK from system audio clk.
- * MCLK_DIV [8:0] = 0: No MCLK output.
- * MCLK_DIV [8:0] = 1: MCLK=system clk.
- * MCLK_DIV [8:0] = n: MCLK=system clk/n.
- * Note: These bits should be configured when the I2S is disabled. It is used only when the I2S is in master mode.
- */
-#define I2S_MISC_CFGR_MCLK_DIV_MASK (0x3FEU)
-#define I2S_MISC_CFGR_MCLK_DIV_SHIFT (1U)
-#define I2S_MISC_CFGR_MCLK_DIV_SET(x) (((uint32_t)(x) << I2S_MISC_CFGR_MCLK_DIV_SHIFT) & I2S_MISC_CFGR_MCLK_DIV_MASK)
-#define I2S_MISC_CFGR_MCLK_DIV_GET(x) (((uint32_t)(x) & I2S_MISC_CFGR_MCLK_DIV_MASK) >> I2S_MISC_CFGR_MCLK_DIV_SHIFT)
 
 /*
  * MCLKOE (RW)
@@ -569,7 +542,6 @@ typedef struct {
 /*
  * EN (RW)
  *
- * 
  */
 #define I2S_RXDSLOT_EN_MASK (0xFFFFFFFFUL)
 #define I2S_RXDSLOT_EN_SHIFT (0U)
@@ -580,7 +552,6 @@ typedef struct {
 /*
  * EN (RW)
  *
- * 
  */
 #define I2S_TXDSLOT_EN_MASK (0xFFFFFFFFUL)
 #define I2S_TXDSLOT_EN_SHIFT (0U)

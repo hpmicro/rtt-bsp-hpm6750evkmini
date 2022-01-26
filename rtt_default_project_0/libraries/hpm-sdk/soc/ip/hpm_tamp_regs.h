@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -133,9 +133,9 @@ typedef struct {
 
 /* Bitfield definition for register of struct array TAMP: LFSR */
 /*
- * LFSR (RW)
+ * LFSR (WO)
  *
- * LFSR for active tamper
+ * LFSR for active tamper, write only register, always read 0
  */
 #define TAMP_TAMP_LFSR_LFSR_MASK (0xFFFFFFFFUL)
 #define TAMP_TAMP_LFSR_LFSR_SHIFT (0U)

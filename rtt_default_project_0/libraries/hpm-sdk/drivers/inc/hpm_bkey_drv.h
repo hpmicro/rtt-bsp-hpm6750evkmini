@@ -1,7 +1,3 @@
-/**
-* @file
-* @brief BATT_KEY driver public API header file
-*/
 /*
  * Copyright (c) 2021 hpmicro
  *
@@ -9,93 +5,97 @@
  *
  */
 
-#ifndef HPM_BATT_KEY_DRV_H
-#define HPM_BATT_KEY_DRV_H
+#ifndef HPM_BKEY_DRV_H
+#define HPM_BKEY_DRV_H
 
 #include "hpm_common.h"
-#include "hpm_batt_key_regs.h"
-
-typedef enum batt_key_lock_type {
-    batt_key_lock_write = BATT_KEY_ECC_WLOCK_MASK,
-    batt_key_lock_read = BATT_KEY_ECC_RLOCK_MASK,
-    batt_key_lock_both = BATT_KEY_ECC_RLOCK_MASK | BATT_KEY_ECC_WLOCK_MASK,
-} batt_key_lock_type_t;
+#include "hpm_bkey_regs.h"
 
 /**
  *
- * @brief BATT_KEY driver APIs
- * @defgroup dramc_interface DRAMC driver APIs
+ * @brief BKEY driver APIs
+ * @defgroup bkey_interface BKEY driver APIs
  * @ingroup io_interfaces
  * @{
  */
+
+/**
+ * @brief Lock type
+ */
+typedef enum bkey_lock_type {
+    bkey_lock_write = BKEY_ECC_WLOCK_MASK,
+    bkey_lock_read = BKEY_ECC_RLOCK_MASK,
+    bkey_lock_both = BKEY_ECC_RLOCK_MASK | BKEY_ECC_WLOCK_MASK,
+} bkey_lock_type_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * @brief batt_key set key content
+ * @brief bkey set key content
  *
  * Program key content
  *
- * @param ptr BATT_KEY base address
- * @param key key index
- * @param start key content data start index
- * @param data pointer of actual data to be programmed
- * @param size data total size in 32-bit
+ * @param[in] ptr BKEY base address
+ * @param[in] key Key index
+ * @param[in] start Key content data start index
+ * @param[in] data pointer of actual data to be programmed
+ * @param[in] size data total size in 32-bit
  */
-static inline void batt_key_set_key_data(BATT_KEY_Type *ptr, uint8_t key, uint8_t start, uint32_t *data, uint8_t size_in_4bytes)
+static inline void bkey_set_key_data(BKEY_Type *ptr, uint8_t key, uint8_t start, uint32_t *data, uint8_t size)
 {
-    for (uint8_t i = 0; i < size_in_4bytes; i++) {
+    for (uint8_t i = 0; i < size; i++) {
         ptr->KEY[key].DATA[start + i] = *(data + i);
     }
 }
 
 /**
- * @brief batt_key fetch key content
+ * @brief bkey fetch key content
  *
  * Fetch key content
  *
- * @param ptr BATT_KEY base address
- * @param key key index
- * @param start key content data start index
- * @param data pointer of buffer to received key content
- * @param size data total size in 32-bit
+ * @param[in] ptr BKEY base address
+ * @param[in] key key index
+ * @param[in] start key content data start index
+ * @param[in] data pointer of buffer to received key content
+ * @param[in] size data total size in 32-bit
  */
-static inline void batt_key_get_key_data(BATT_KEY_Type *ptr, uint8_t key, uint8_t start, uint32_t *data, uint8_t size_in_4bytes)
+static inline void bkey_get_key_data(BKEY_Type *ptr, uint8_t key, uint8_t start, uint32_t *data, uint8_t size)
 {
-    for (uint8_t i = 0; i < size_in_4bytes; i++) {
+    for (uint8_t i = 0; i < size; i++) {
         *(data + i) = ptr->KEY[key].DATA[start + i];
     }
 }
 
 /**
- * @brief batt_key lock key
+ * @brief bkey lock key
  *
  * Feed correct ecc data of current key content and lock it
  *
- * @param ptr BATT_KEY base address
- * @param key key index
- * @param lock lock type
- * @param ecc ecc value of current key content
+ * @param[in] ptr BKEY base address
+ * @param[in] key key index
+ * @param[in] lock lock type
+ * @param[in] ecc ecc value of current key content
  */
-static inline void batt_key_lock(BATT_KEY_Type *ptr, uint8_t key, batt_key_lock_type_t lock, uint16_t ecc)
+static inline void bkey_lock(BKEY_Type *ptr, uint8_t key, bkey_lock_type_t lock, uint16_t ecc)
 {
-    ptr->ECC[key] = BATT_KEY_ECC_ECC_SET(ecc) | lock;
+    ptr->ECC[key] = BKEY_ECC_ECC_SET(ecc) | lock;
 }
 
 /**
- * @brief batt_key select key
+ * @brief bkey select key
  *
  * Select which key to use
  *
- * @param ptr BATT_KEY base address
- * @param key key index
+ * @param[in] ptr BKEY base address
+ * @param[in] key key index
+ *   @arg 0 select key0 in secure mode, key1 in non-secure mode
+ *   @arg 1 select key1 in secure or non-secure mode
  */
-
-static inline void batt_key_select_key(BATT_KEY_Type *ptr, uint8_t key)
+static inline void bkey_select_key(BKEY_Type *ptr, uint8_t key)
 {
-    ptr->SELECT = BATT_KEY_SELECT_SELECT_SET(key);
+    ptr->SELECT = BKEY_SELECT_SELECT_SET(key);
 }
 
 #ifdef __cplusplus
@@ -104,4 +104,4 @@ static inline void batt_key_select_key(BATT_KEY_Type *ptr, uint8_t key)
 /**
  * @}
  */
-#endif /* HPM_BATT_KEY_DRV_H */
+#endif /* HPM_BKEY_DRV_H */

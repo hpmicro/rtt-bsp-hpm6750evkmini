@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -245,7 +245,7 @@ typedef struct {
 /*
  * FRCPOL (RW)
  *
- * polarity of input pwm_force, 
+ * polarity of input pwm_force,
  * 1- active low
  * 0- active high
  */
@@ -257,7 +257,7 @@ typedef struct {
 /*
  * HWSHDWEDG (RW)
  *
- * When hardware event is selected as shawdow register effective time and the select comparator is configured as input capture mode. This bit assign its which edge is used as shadow register hardware load event. 
+ * When hardware event is selected as shawdow register effective time and the select comparator is configured as input capture mode. This bit assign its which edge is used as shadow register hardware load event.
  * 1- Falling edge
  * 0- Rising edge
  */
@@ -279,7 +279,7 @@ typedef struct {
 /*
  * FAULTRECEDG (RW)
  *
- * When hardware load is selected as output fault recover trigger and the selected channel is capture mode. This bit assign its effective edge of fault recover trigger. 
+ * When hardware load is selected as output fault recover trigger and the selected channel is capture mode. This bit assign its effective edge of fault recover trigger.
  * 1- Falling edge
  * 0- Rising edge
  */
@@ -321,7 +321,7 @@ typedef struct {
 /*
  * FAULTEXPOL (RW)
  *
- * external fault polarity 
+ * external fault polarity
  * 1-active low
  * 0-active high
  */
@@ -422,7 +422,7 @@ typedef struct {
  * This bitfield select when the counter related shadow registers (STA and RLD) will be loaded to its work register
  * 00:  after software set shlk bit of shlk register
  * 01:  immediately after the register being modified
- * 10:  after hardware event assert, user can select one of the comparators to generate this hardware event. The comparator can be either output compare mode or input capture mode. 
+ * 10:  after hardware event assert, user can select one of the comparators to generate this hardware event. The comparator can be either output compare mode or input capture mode.
  * 11:  after SHSYNCI assert
  */
 #define PWM_SHCR_CNTSHDWUPT_MASK (0x6U)
@@ -433,7 +433,7 @@ typedef struct {
 /*
  * SHLKEN (RW)
  *
- * 1- enable shadow registers lock feature, 
+ * 1- enable shadow registers lock feature,
  * 0- disable shadow registers lock, shlk bit will always be 0
  */
 #define PWM_SHCR_SHLKEN_MASK (0x1U)
@@ -443,13 +443,13 @@ typedef struct {
 
 /* Bitfield definition for register array: CAPPOS */
 /*
- * CAPTURE_POS (RO)
+ * CAPPOS (RO)
  *
  * counter value captured at input posedge
  */
-#define PWM_CAPPOS_CAPTURE_POS_MASK (0xFFFFFFF0UL)
-#define PWM_CAPPOS_CAPTURE_POS_SHIFT (4U)
-#define PWM_CAPPOS_CAPTURE_POS_GET(x) (((uint32_t)(x) & PWM_CAPPOS_CAPTURE_POS_MASK) >> PWM_CAPPOS_CAPTURE_POS_SHIFT)
+#define PWM_CAPPOS_CAPPOS_MASK (0xFFFFFFF0UL)
+#define PWM_CAPPOS_CAPPOS_SHIFT (4U)
+#define PWM_CAPPOS_CAPPOS_GET(x) (((uint32_t)(x) & PWM_CAPPOS_CAPPOS_MASK) >> PWM_CAPPOS_CAPPOS_SHIFT)
 
 /* Bitfield definition for register: CNT */
 /*
@@ -518,7 +518,7 @@ typedef struct {
  * This bitfield select when the FRCMD shadow register will be loaded to its work register
  * 00:  after software set shlk bit of shlk register
  * 01:  immediately after the register being modified
- * 10:  after hardware event assert, user can select one of the comparators to generate this hardware event. The comparator can be either output compare mode or input capture mode. 
+ * 10:  after hardware event assert, user can select one of the comparators to generate this hardware event. The comparator can be either output compare mode or input capture mode.
  * 11:  after SHSYNCI assert
  */
 #define PWM_PWMCFG_FRCSHDWUPT_MASK (0xC000000UL)
@@ -545,7 +545,7 @@ typedef struct {
  * This bitfield select when to recover PWM output after fault condition removed.
  * 00:  immediately
  * 01:  after pwm timer counter reload time
- * 10:  after hardware event assert, user can select one of the comparators to generate this hardware event. The comparator can be either output compare mode or input capture mode. 
+ * 10:  after hardware event assert, user can select one of the comparators to generate this hardware event. The comparator can be either output compare mode or input capture mode.
  * 11:  after software write faultclr bit in GCR register
  */
 #define PWM_PWMCFG_FAULTRECTIME_MASK (0xC00000UL)
@@ -569,7 +569,7 @@ typedef struct {
  * PAIR (rw)
  *
  * 1- PWM output is in pair mode. Note the two PWM outputs need to be both set to pair mode.
- * 0- PWM output is in indepandent mode. 
+ * 0- PWM output is in indepandent mode.
  */
 #define PWM_PWMCFG_PAIR_MASK (0x100000UL)
 #define PWM_PWMCFG_PAIR_SHIFT (20U)
@@ -579,7 +579,7 @@ typedef struct {
 /*
  * DEADAREA (rw)
  *
- * This bitfield define the PWM pair deadarea length. The unit is 0.5 cycle. The minimum length of deadarea is 1 cycle. 
+ * This bitfield define the PWM pair deadarea length. The unit is 0.5 cycle. The minimum length of deadarea is 1 cycle.
  * Note: user should configure pair bit and this bitfield before PWM output is enabled.
  */
 #define PWM_PWMCFG_DEADAREA_MASK (0xFFFFFUL)
@@ -757,7 +757,7 @@ typedef struct {
  * This bitfield select when the comparator shadow register will be loaded to its work register
  * 00:  after software set shlk bit of shlk register
  * 01:  immediately after the register being modified
- * 10:  after hardware event assert, user can select one of the comparators to generate this hardware event. The comparator can be either output compare mode or input capture mode. 
+ * 10:  after hardware event assert, user can select one of the comparators to generate this hardware event. The comparator can be either output compare mode or input capture mode.
  * 11:  after SHSYNCI assert
  */
 #define PWM_CMPCFG_CMPSHDWUPT_MASK (0xCU)

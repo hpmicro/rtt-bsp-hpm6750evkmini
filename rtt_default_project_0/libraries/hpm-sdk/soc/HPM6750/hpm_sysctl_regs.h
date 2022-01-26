@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -49,7 +49,7 @@ typedef struct {
     struct {
         __RW uint32_t CONTROL;                 /* 0x1400: Reset Setting */
         __RW uint32_t CONFIG;                  /* 0x1404: Reset Setting */
-        __R  uint32_t STATUS;                  /* 0x1408: Reset Setting */
+        __R  uint8_t  RESERVED0[4];            /* 0x1408 - 0x140B: Reserved */
         __RW uint32_t COUNTER;                 /* 0x140C: Reset Setting */
     } RESET[5];
     __R  uint8_t  RESERVED5[944];              /* 0x1450 - 0x17FF: Reserved */
@@ -59,10 +59,7 @@ typedef struct {
     __RW uint32_t I2SCLK[4];                   /* 0x1C10 - 0x1C1C: Clock setting */
     __R  uint8_t  RESERVED7[992];              /* 0x1C20 - 0x1FFF: Reserved */
     __RW uint32_t GLOBAL00;                    /* 0x2000: Clock senario */
-    __R  uint32_t GLOBAL01;                    /* 0x2004: USB expose mode */
-    __R  uint32_t GLOBAL02;                    /* 0x2008: Debug control */
-    __R  uint32_t GLOBAL03;                    /* 0x200C: ROM debug */
-    __R  uint8_t  RESERVED8[1008];             /* 0x2010 - 0x23FF: Reserved */
+    __R  uint8_t  RESERVED8[1020];             /* 0x2004 - 0x23FF: Reserved */
     struct {
         __RW uint32_t CONTROL;                 /* 0x2400: Clock measure and monitor control */
         __R  uint32_t CURRENT;                 /* 0x2404: Clock measure result */
@@ -289,7 +286,6 @@ typedef struct {
  * LINK (RW)
  *
  * retention setting while system sleep, each bit represents a resource
- * 
  */
 #define SYSCTL_RETENTION_VALUE_LINK_MASK (0x3FFFFUL)
 #define SYSCTL_RETENTION_VALUE_LINK_SHIFT (0U)
@@ -301,7 +297,6 @@ typedef struct {
  * LINK (RW)
  *
  * retention setting while system sleep
- * 
  */
 #define SYSCTL_RETENTION_SET_LINK_MASK (0x3FFFFUL)
 #define SYSCTL_RETENTION_SET_LINK_SHIFT (0U)
@@ -313,7 +308,6 @@ typedef struct {
  * LINK (RW)
  *
  * retention setting while system  sleep
- * 
  */
 #define SYSCTL_RETENTION_CLEAR_LINK_MASK (0x3FFFFUL)
 #define SYSCTL_RETENTION_CLEAR_LINK_SHIFT (0U)
@@ -325,7 +319,6 @@ typedef struct {
  * LINK (RW)
  *
  * retention setting while system  sleep
- * 
  */
 #define SYSCTL_RETENTION_TOGGLE_LINK_MASK (0x3FFFFUL)
 #define SYSCTL_RETENTION_TOGGLE_LINK_SHIFT (0U)
@@ -503,7 +496,6 @@ typedef struct {
 #define SYSCTL_RESET_CONFIG_POST_WAIT_SET(x) (((uint32_t)(x) << SYSCTL_RESET_CONFIG_POST_WAIT_SHIFT) & SYSCTL_RESET_CONFIG_POST_WAIT_MASK)
 #define SYSCTL_RESET_CONFIG_POST_WAIT_GET(x) (((uint32_t)(x) & SYSCTL_RESET_CONFIG_POST_WAIT_MASK) >> SYSCTL_RESET_CONFIG_POST_WAIT_SHIFT)
 
-/* Bitfield definition for register of struct array RESET: STATUS */
 /* Bitfield definition for register of struct array RESET: COUNTER */
 /*
  * COUNTER (RW)
@@ -664,9 +656,6 @@ typedef struct {
 #define SYSCTL_GLOBAL00_PRESET_SET(x) (((uint32_t)(x) << SYSCTL_GLOBAL00_PRESET_SHIFT) & SYSCTL_GLOBAL00_PRESET_MASK)
 #define SYSCTL_GLOBAL00_PRESET_GET(x) (((uint32_t)(x) & SYSCTL_GLOBAL00_PRESET_MASK) >> SYSCTL_GLOBAL00_PRESET_SHIFT)
 
-/* Bitfield definition for register: GLOBAL01 */
-/* Bitfield definition for register: GLOBAL02 */
-/* Bitfield definition for register: GLOBAL03 */
 /* Bitfield definition for register of struct array MONITOR: CONTROL */
 /*
  * VALID (RW)
@@ -754,7 +743,7 @@ typedef struct {
 /*
  * ACCURACY (RW)
  *
- * measurement accuracy, 
+ * measurement accuracy,
  * 0: resolution is 1kHz
  * 1: resolution is 1Hz
  */
@@ -767,7 +756,7 @@ typedef struct {
  * REFERENCE (RW)
  *
  * refrence clock selection,
- * 0: 32k 
+ * 0: 32k
  * 1: 24M
  */
 #define SYSCTL_MONITOR_CONTROL_REFERENCE_MASK (0x100U)
@@ -779,7 +768,6 @@ typedef struct {
  * SELECTION (RW)
  *
  * clock measurement selection
- * 
  */
 #define SYSCTL_MONITOR_CONTROL_SELECTION_MASK (0xFFU)
 #define SYSCTL_MONITOR_CONTROL_SELECTION_SHIFT (0U)

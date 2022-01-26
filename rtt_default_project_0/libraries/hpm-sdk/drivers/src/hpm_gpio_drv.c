@@ -8,11 +8,9 @@
 #include "hpm_common.h"
 #include "hpm_gpio_drv.h"
 
-void gpio_toggle_pin_interrupt_trigger_polarity(GPIO_Type *ptr,
-                                                 uint32_t gpio_index,
-                                                 uint8_t pin_index)
+void gpio_toggle_pin_interrupt_trigger_polarity(GPIO_Type *ptr, uint32_t gpio_index, uint8_t pin_index)
 {
-    bool intr_was_enabled = gpio_is_pin_interrupt_enabled(ptr, gpio_index, pin_index);
+    bool intr_was_enabled = gpio_check_pin_interrupt_enabled(ptr, gpio_index, pin_index);
     gpio_disable_pin_interrupt(ptr, gpio_index, pin_index);
     ptr->PL[gpio_index].TOGGLE = 1 << pin_index;
     if (intr_was_enabled) {
@@ -20,11 +18,9 @@ void gpio_toggle_pin_interrupt_trigger_polarity(GPIO_Type *ptr,
     }
 }
 
-void gpio_toggle_pin_interrupt_trigger_type(GPIO_Type *ptr,
-                                                 uint32_t gpio_index,
-                                                 uint8_t pin_index)
+void gpio_toggle_pin_interrupt_trigger_type(GPIO_Type *ptr, uint32_t gpio_index, uint8_t pin_index)
 {
-    bool intr_was_enabled = gpio_is_pin_interrupt_enabled(ptr, gpio_index, pin_index);
+    bool intr_was_enabled = gpio_check_pin_interrupt_enabled(ptr, gpio_index, pin_index);
     gpio_disable_pin_interrupt(ptr, gpio_index, pin_index);
     ptr->TP[gpio_index].TOGGLE = 1 << pin_index;
     if (intr_was_enabled) {
@@ -33,10 +29,7 @@ void gpio_toggle_pin_interrupt_trigger_type(GPIO_Type *ptr,
 }
 
 
-void gpio_config_pin_interrupt(GPIO_Type *ptr,
-                         uint32_t gpio_index,
-                         uint8_t pin_index,
-                         gpio_interrupt_trigger_t trigger)
+void gpio_config_pin_interrupt(GPIO_Type *ptr, uint32_t gpio_index, uint8_t pin_index, gpio_interrupt_trigger_t trigger)
 {
     switch(trigger) {
         case gpio_interrupt_trigger_level_high:
@@ -61,3 +54,14 @@ void gpio_config_pin_interrupt(GPIO_Type *ptr,
             return;
     }
 }
+
+void gpio_enable_pin_output_with_initial(GPIO_Type *ptr, uint32_t port, uint8_t pin, uint8_t initial)
+{
+    ptr->OE[port].SET = 1 << pin;
+    if (initial & 1) {
+        ptr->DO[port].SET = 1 << pin;
+    } else {
+        ptr->DO[port].CLEAR = 1 << pin;
+    }
+}
+

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -32,7 +32,7 @@ typedef struct {
 /*
  * HIDE (RW)
  *
- * pin value visibility to gpios, 
+ * pin value visibility to gpios,
  * bit0: 1, invisible to soc gpio0; 0: visible to soc gpio0
  * bit1: 1, invisible to soc gpio1; 0: visible to soc gpio1
  * bit2: 1, invisible to cpu0 fast gpio; 0: visible to cpu0 fast gpio

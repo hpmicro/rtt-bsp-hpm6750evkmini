@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -16,9 +16,9 @@ typedef struct {
     __RW uint32_t STA;                         /* 0xC: Status Registers */
     __RW uint32_t KEYADDR;                     /* 0x10: Key Address */
     __RW uint32_t KEYDAT;                      /* 0x14: Key Data */
-    __RW uint32_t CIPHIV[4];                   /* 0x18 - 0x24: Cipher Initializtion Vector */
-    __RW uint32_t HASWRD[8];                   /* 0x28 - 0x44: Hash Data Word */
-    __RW uint32_t CMDPTR;                      /* 0x48: Command Point */
+    __RW uint32_t CIPHIV[4];                   /* 0x18 - 0x24: Cipher Initializtion Vector 0 */
+    __RW uint32_t HASWRD[8];                   /* 0x28 - 0x44: Hash Data Word 0 */
+    __RW uint32_t CMDPTR;                      /* 0x48: Command Pointer */
     __RW uint32_t NPKTPTR;                     /* 0x4C: Next Packet Address Pointer */
     __RW uint32_t PKTCTL;                      /* 0x50: Packet Control Registers */
     __RW uint32_t PKTSRC;                      /* 0x54: Packet Memory Source Address */
@@ -31,7 +31,7 @@ typedef struct {
 /*
  * SFTRST (RW)
  *
- * soft reset. 
+ * soft reset.
  * Write 1 then 0, to reset the SDP block.
  */
 #define SDP_SDPCR_SFTRST_MASK (0x80000000UL)
@@ -131,16 +131,6 @@ typedef struct {
 #define SDP_SDPCR_DCRPDI_GET(x) (((uint32_t)(x) & SDP_SDPCR_DCRPDI_MASK) >> SDP_SDPCR_DCRPDI_SHIFT)
 
 /*
- * UNQKDI (RW)
- *
- * Uniqkey disable, controlled by SW.
- */
-#define SDP_SDPCR_UNQKDI_MASK (0x40000UL)
-#define SDP_SDPCR_UNQKDI_SHIFT (18U)
-#define SDP_SDPCR_UNQKDI_SET(x) (((uint32_t)(x) << SDP_SDPCR_UNQKDI_SHIFT) & SDP_SDPCR_UNQKDI_MASK)
-#define SDP_SDPCR_UNQKDI_GET(x) (((uint32_t)(x) & SDP_SDPCR_UNQKDI_MASK) >> SDP_SDPCR_UNQKDI_SHIFT)
-
-/*
  * TSTPKT0IRQ (RW)
  *
  * Test purpose for interrupt when Packet counter reachs "0", but CHAIN=1 in the current packet.
@@ -149,6 +139,17 @@ typedef struct {
 #define SDP_SDPCR_TSTPKT0IRQ_SHIFT (17U)
 #define SDP_SDPCR_TSTPKT0IRQ_SET(x) (((uint32_t)(x) << SDP_SDPCR_TSTPKT0IRQ_SHIFT) & SDP_SDPCR_TSTPKT0IRQ_MASK)
 #define SDP_SDPCR_TSTPKT0IRQ_GET(x) (((uint32_t)(x) & SDP_SDPCR_TSTPKT0IRQ_MASK) >> SDP_SDPCR_TSTPKT0IRQ_SHIFT)
+
+/*
+ * RDSCEN (RW)
+ *
+ * when set to "1", the 1st data packet descriptor loacted in the register(CMDPTR, NPKTPTR, ...)
+ * when set to "0", the 1st data packet descriptor loacted in the memeory(pointed by CMDPTR)
+ */
+#define SDP_SDPCR_RDSCEN_MASK (0x100U)
+#define SDP_SDPCR_RDSCEN_SHIFT (8U)
+#define SDP_SDPCR_RDSCEN_SET(x) (((uint32_t)(x) << SDP_SDPCR_RDSCEN_SHIFT) & SDP_SDPCR_RDSCEN_MASK)
+#define SDP_SDPCR_RDSCEN_GET(x) (((uint32_t)(x) & SDP_SDPCR_RDSCEN_MASK) >> SDP_SDPCR_RDSCEN_SHIFT)
 
 /*
  * INTEN (RW)
@@ -167,8 +168,8 @@ typedef struct {
  * AESALG (RW)
  *
  * AES algorithem selection.
- * 4x0 = AES 128; 
- * 4x1 = AES 256;
+ * 0x0 = AES 128;
+ * 0x1 = AES 256;
  * Others, reserved.
  */
 #define SDP_MODCTRL_AESALG_MASK (0xF0000000UL)
@@ -180,8 +181,8 @@ typedef struct {
  * ASEMOD (RW)
  *
  * AES mode selection.
- * 4x0 = ECB; 
- * 4x1 = CBC;
+ * 0x0 = ECB;
+ * 0x1 = CBC;
  * Others, reserved.
  */
 #define SDP_MODCTRL_ASEMOD_MASK (0xF000000UL)
@@ -192,14 +193,13 @@ typedef struct {
 /*
  * AESKS (RW)
  *
- * ASE Key Selection. 
+ * ASE Key Selection.
  * These regisgers are being used to select the AES key that stored in the 16x128 key ram of the SDP, or select the key from the OTP. Detail as following:
  * 0x00: key from the 16x128, this is the key read address, valid for AES128; AES256 will use 128 bit from this address and 128 bit key from next address as 256 bit AES key.
  * 0x01: key from the 16x128, this is the key read address, valid for AES128, not valid for AES286.
  * ....
  * 0x0E: key from the 16x128, this is the key read address, valid for AES128; AES256 will use 128 from this add and 128 from next add for the AES key.
  * 0x0F: key from the 16x128, this is the key read address, valid for AES128, not valid for AES286.
- * 
  * 0x20: kman_sk0[127:0] from the key manager for AES128; AES256 will use kman_sk0[255:0] as AES key.
  * 0x21: kman_sk0[255:128] from the key manager for AES128; not valid for AES256.
  * 0x22: kman_sk1[127:0] from the key manager for AES128; AES256 will use kman_sk1[255:0] as AES key.
@@ -208,9 +208,11 @@ typedef struct {
  * 0x25: kman_sk2[255:128] from the key manager for AES128; not valid for AES256.
  * 0x26: kman_sk3[127:0] from the key manager for AES128; AES256 will use kman_sk3[255:0] as AES key.
  * 0x27: kman_sk3[255:128] from the key manager for AES128; not valid for AES256.
- * 
- * 0x3E UNIQUE_KEY —
- * 0x3F OTP_KEY —
+ * 0x30: exip0_key[127:0] from OTP for AES128; AES256 will use exip0_key[255:0] as AES key.
+ * 0x31: exip0_key[255:128] from OTP for AES128; not valid for AES256.
+ * 0x32: exip1_key[127:0] from OTP for AES128; AES256 will use exip1_key[255:0] as AES key.
+ * 0x33: exip1_key[255:128] from OTP for AES128; not valid for AES256.
+ * Other values, reserved.
  */
 #define SDP_MODCTRL_AESKS_MASK (0xFC0000UL)
 #define SDP_MODCTRL_AESKS_SHIFT (18U)
@@ -220,7 +222,7 @@ typedef struct {
 /*
  * AESDIR (RW)
  *
- * AES Key direction
+ * AES direction
  * 1x1, AES Decryption
  * 1x0, AES Encryption.
  */
@@ -257,7 +259,7 @@ typedef struct {
 /*
  * HASCHK (RW)
  *
- * HASH Check Enabled.
+ * HASH Check Enable Bit.
  * 1x1, HASH check need, hash result will compare with the HASHRSLT 0-7 registers;
  * 1x0, HASH check is not enabled, HASHRSLT0-7 store the HASH result.
  * For SHA1, will use HASHRSLT0-3 words, and HASH 256 will use HASH0-7 words.
@@ -402,7 +404,7 @@ typedef struct {
 /*
  * ERRSET (W1C)
  *
- * Error working mode setup.
+ * Working mode setup error.
  */
 #define SDP_STA_ERRSET_MASK (0x20U)
 #define SDP_STA_ERRSET_SHIFT (5U)
@@ -475,9 +477,8 @@ typedef struct {
 /*
  * SUBWRD (RW)
  *
- * To write a key, the software must first write the desired key index/subword to this register.
  * Key subword pointer. The valid indices are 0-3. After each write to the key data register, this field
- * increments
+ * increments; To write a key, the software must first write the desired key index/subword to this register.
  */
 #define SDP_KEYADDR_SUBWRD_MASK (0x3U)
 #define SDP_KEYADDR_SUBWRD_SHIFT (0U)
@@ -502,7 +503,7 @@ typedef struct {
 /*
  * CIPHIV (RW)
  *
- * cipher initialization vector
+ * cipher initialization vector.
  */
 #define SDP_CIPHIV_CIPHIV_MASK (0xFFFFFFFFUL)
 #define SDP_CIPHIV_CIPHIV_SHIFT (0U)
@@ -513,7 +514,7 @@ typedef struct {
 /*
  * HASWRD (RW)
  *
- * Hash Data Word x - HASH result bit; will store the expected hash result bit if hash check enabled; when hash check is not enabled,  the hash engine will store the final hash result[31:0] here.  
+ * Hash Data Word x - HASH result bit; will store the expected hash result bit if hash check enabled; when hash check is not enabled,  the hash engine will store the final hash result[31:0] here.
  * If CRC mode enabled, this work store the CRC expected result if the check enabled, or store the final calcuated CRC result.
  */
 #define SDP_HASWRD_HASWRD_MASK (0xFFFFFFFFUL)
@@ -643,7 +644,6 @@ typedef struct {
 /*
  * PKTBUF (rw)
  *
- * 
  */
 #define SDP_PKTBUF_PKTBUF_MASK (0xFFFFFFFFUL)
 #define SDP_PKTBUF_PKTBUF_SHIFT (0U)

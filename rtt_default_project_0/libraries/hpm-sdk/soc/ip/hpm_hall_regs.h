@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -17,7 +17,7 @@ typedef struct {
     __RW uint32_t TRGOEN;                      /* 0x10: Trigger output enable register */
     __RW uint32_t READEN;                      /* 0x14: Read event enable register */
     __R  uint8_t  RESERVED0[12];               /* 0x18 - 0x23: Reserved */
-    __RW uint32_t DMAEN;                       /* 0x24:  */
+    __RW uint32_t DMAEN;                       /* 0x24: DMA enable register */
     __RW uint32_t SR;                          /* 0x28: Status register */
     __RW uint32_t IRQEN;                       /* 0x2C: Interrupt request enable register */
     struct {

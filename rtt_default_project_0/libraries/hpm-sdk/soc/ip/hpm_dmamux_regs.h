@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -34,8 +34,6 @@ typedef struct {
  *
  * DMA Channel Source
  * Specifies which DMA source, if any, is routed to a particular DMA channel. See the "DMA MUX Mapping"
- * table in the "Interrupts, DMA Events, and XBAR Assignments" chapter for details about DMA source and
- * channel information.
  */
 #define DMAMUX_MUXCFG_SOURCE_MASK (0x7FU)
 #define DMAMUX_MUXCFG_SOURCE_SHIFT (0U)

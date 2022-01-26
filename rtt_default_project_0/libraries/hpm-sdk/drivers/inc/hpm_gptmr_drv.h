@@ -10,6 +10,16 @@
 #include "hpm_common.h"
 #include "hpm_gptmr_regs.h"
 
+/**
+ * @brief GPTMR driver APIs
+ * @defgroup gptmr_interface GPTMR driver APIs
+ * @ingroup io_interfaces
+ * @{
+ */
+
+/**
+ * @brief GPTMR channel IRQ mask
+ */
 #define _GPTMR_CH_CMP_IRQ_MASK(ch, cmp) GPTMR_IRQEN_CH##ch##CMP##cmp##EN_MASK
 #define _GPTMR_CH_CAP_IRQ_MASK(ch) GPTMR_IRQEN_CH##ch##CAPEN_MASK
 #define _GPTMR_CH_RLD_IRQ_MASK(ch) GPTMR_IRQEN_CH##ch##RLDEN_MASK
@@ -18,6 +28,9 @@
 #define GPTMR_CH_CAP_IRQ_MASK(ch) _GPTMR_CH_CAP_IRQ_MASK(ch)
 #define GPTMR_CH_RLD_IRQ_MASK(ch) _GPTMR_CH_RLD_IRQ_MASK(ch)
 
+/**
+ * @brief GPTMR channel status
+ */
 #define _GPTMR_CH_CMP_STAT_MASK(ch, cmp) GPTMR_SR_CH##ch##CMP##cmp##F_MASK
 #define _GPTMR_CH_CAP_STAT_MASK(ch) GPTMR_SR_CH##ch##CAPF_MASK
 #define _GPTMR_CH_RLD_STAT_MASK(ch) GPTMR_SR_CH##ch##RLDF_MASK
@@ -26,8 +39,14 @@
 #define GPTMR_CH_CAP_STAT_MASK(ch) _GPTMR_CH_CAP_STAT_MASK(ch)
 #define GPTMR_CH_RLD_STAT_MASK(ch) _GPTMR_CH_RLD_STAT_MASK(ch)
 
+/**
+ * @brief GPTMR one channel support output comparator count
+ */
 #define GPTMR_CH_CMP_COUNT (2U)
 
+/**
+ * @brief GPTMR synci valid edge
+ */
 typedef enum gptmr_synci_edge {
     gptmr_synci_edge_none = 0,
     gptmr_synci_edge_falling = GPTMR_CHANNEL_CR_SYNCIFEN_MASK,
@@ -35,6 +54,9 @@ typedef enum gptmr_synci_edge {
     gptmr_synci_edge_both = gptmr_synci_edge_falling | gptmr_synci_edge_rising,
 } gptmr_synci_edge_t;
 
+/**
+ * @brief GPTMR work mode
+ */
 typedef enum gptmr_work_mode {
     gptmr_work_mode_no_capture = 0,
     gptmr_work_mode_capture_at_rising_edge = 1,
@@ -43,6 +65,9 @@ typedef enum gptmr_work_mode {
     gptmr_work_mode_measure_width = 4,
 } gptmr_work_mode_t;
 
+/**
+ * @brief GPTMR DMA request event
+ */
 typedef enum gptmr_dma_request_event {
     gptmr_dma_request_on_reload = 0,
     gptmr_dma_request_on_input_signal_toggle = 1,
@@ -51,6 +76,9 @@ typedef enum gptmr_dma_request_event {
     gptmr_dma_request_disabled = 0xFF,
 } gptmr_dma_request_event_t;
 
+/**
+ * @brief GPTMR counter type
+ */
 typedef enum gptmr_counter_type {
     gptmr_counter_type_rising_edge,
     gptmr_counter_type_falling_edge,
@@ -59,6 +87,9 @@ typedef enum gptmr_counter_type {
     gptmr_counter_type_normal,
 } gptmr_counter_type_t;
 
+/**
+ * @brief GPTMR channel config
+ */
 typedef struct gptmr_channel_config {
     gptmr_work_mode_t mode;
     gptmr_dma_request_event_t dma_request_event;
@@ -76,6 +107,15 @@ typedef struct gptmr_channel_config {
 extern "C" {
 #endif
 
+/**
+ * @brief gptmr channel enable
+ *
+ * @param [in] ptr GPTMR base address
+ * @param [in] ch_index channel index
+ * @param [in] enable
+ *  @arg true: enable
+ *  @arg false: disable
+ */
 static inline void gptmr_channel_enable(GPTMR_Type *ptr, uint8_t ch_index, bool enable)
 {
     ptr->CHANNEL[ch_index].CR = (ptr->CHANNEL[ch_index].CR
@@ -83,12 +123,25 @@ static inline void gptmr_channel_enable(GPTMR_Type *ptr, uint8_t ch_index, bool 
         | GPTMR_CHANNEL_CR_CMPEN_SET(enable);
 }
 
+/**
+ * @brief gptmr channel reset counter
+ *
+ * @param [in] ptr GPTMR base address
+ * @param [in] ch_index channel index
+ */
 static inline void gptmr_channel_reset_count(GPTMR_Type *ptr, uint8_t ch_index)
 {
     ptr->CHANNEL[ch_index].CR |= GPTMR_CHANNEL_CR_CNTRST_MASK;
     ptr->CHANNEL[ch_index].CR &= ~GPTMR_CHANNEL_CR_CNTRST_MASK;
 }
 
+/**
+ * @brief gptmr channel update counter
+ *
+ * @param [in] ptr GPTMR base address
+ * @param [in] ch_index channel index
+ * @param [in] value updated vaue
+ */
 static inline void gptmr_channel_update_count(GPTMR_Type *ptr,
                                              uint8_t ch_index,
                                              uint32_t value)
@@ -97,6 +150,13 @@ static inline void gptmr_channel_update_count(GPTMR_Type *ptr,
     ptr->CHANNEL[ch_index].CR |= GPTMR_CHANNEL_CR_CNTUPT_MASK;
 }
 
+/**
+ * @brief gptmr channel slect synci valid edge
+ *
+ * @param [in] ptr GPTMR base address
+ * @param [in] ch_index channel index
+ * @param [in] edge gptmr_synci_edge_t
+ */
 static inline void gptmr_channel_select_synci_valid_edge(GPTMR_Type *ptr,
                                                         uint8_t ch_index,
                                                         gptmr_synci_edge_t edge)
@@ -106,6 +166,15 @@ static inline void gptmr_channel_select_synci_valid_edge(GPTMR_Type *ptr,
               | GPTMR_CHANNEL_CR_SYNCIREN_MASK)) | edge;
 }
 
+/**
+ * @brief gptmr channel enable dma request
+ *
+ * @param [in] ptr GPTMR base address
+ * @param [in] ch_index channel index
+ * @param [in] enable
+ *  @arg true: enable
+ *  @arg false: disable
+ */
 static inline void gptmr_channel_enable_dma_request(GPTMR_Type *ptr,
                                                    uint8_t ch_index,
                                                    bool enable)
@@ -114,6 +183,13 @@ static inline void gptmr_channel_enable_dma_request(GPTMR_Type *ptr,
             & ~(GPTMR_CHANNEL_CR_DMAEN_MASK)) | GPTMR_CHANNEL_CR_DMAEN_SET(enable);
 }
 
+/**
+ * @brief gptmr channel get counter value
+ *
+ * @param [in] ptr GPTMR base address
+ * @param [in] ch_index channel index
+ * @param [in] capture gptmr_counter_type_t
+ */
 static inline uint32_t gptmr_channel_get_counter(GPTMR_Type *ptr,
                                                      uint8_t ch_index,
                                                      gptmr_counter_type_t capture)
@@ -139,11 +215,26 @@ static inline uint32_t gptmr_channel_get_counter(GPTMR_Type *ptr,
     return value;
 }
 
+/**
+ * @brief gptmr trigger channel software sync
+ *
+ * @param [in] ptr GPTMR base address
+ * @param [in] ch_index_mask channel index mask
+ */
 static inline void gptmr_trigger_channel_software_sync(GPTMR_Type *ptr, uint32_t ch_index_mask)
 {
     ptr->GCR = ch_index_mask;
 }
 
+/**
+ * @brief gptmr enable irq
+ *
+ * @param [in] ptr GPTMR base address
+ * @param [in] irq_mask irq mask
+ * @param [in] enable
+ *  @arg true: enable
+ *  @arg false: disable
+ */
 static inline void gptmr_enable_irq(GPTMR_Type *ptr, uint32_t irq_mask, bool enable)
 {
     if (enable) {
@@ -153,42 +244,102 @@ static inline void gptmr_enable_irq(GPTMR_Type *ptr, uint32_t irq_mask, bool ena
     }
 }
 
+/**
+ * @brief gptmr check status
+ *
+ * @param [in] ptr GPTMR base address
+ * @param [in] mask channel flag mask
+ */
 static inline bool gptmr_check_status(GPTMR_Type *ptr, uint32_t mask)
 {
     return (ptr->SR & mask) == mask;
 }
 
+/**
+ * @brief gptmr clear status
+ *
+ * @param [in] ptr GPTMR base address
+ * @param [in] mask channel flag mask
+ */
 static inline void gptmr_clear_status(GPTMR_Type *ptr, uint32_t mask)
 {
     ptr->SR |= mask;
 }
 
+/**
+ * @brief gptmr get status
+ *
+ * @param [in] ptr GPTMR base address
+ * @retval SR register value
+ */
 static inline uint32_t gptmr_get_status(GPTMR_Type *ptr)
 {
     return ptr->SR;
 }
 
+/**
+ * @brief gptmr channel start counter
+ *
+ * @param [in] ptr GPTMR base address
+ * @param [in] ch_index channel index
+ */
 static inline void gptmr_start_counter(GPTMR_Type *ptr, uint8_t ch_index)
 {
     ptr->CHANNEL[ch_index].CR |= GPTMR_CHANNEL_CR_CEN_MASK;
 }
 
+/**
+ * @brief gptmr channel stop counter
+ *
+ * @param [in] ptr GPTMR base address
+ * @param [in] ch_index channel index
+ */
 static inline void gptmr_stop_counter(GPTMR_Type *ptr, uint8_t ch_index)
 {
     ptr->CHANNEL[ch_index].CR &= ~GPTMR_CHANNEL_CR_CEN_MASK;
 }
 
+/**
+ * @brief gptmr channel update comparator
+ *
+ * @param [in] ptr GPTMR base address
+ * @param [in] ch_index channel index
+ * @param [in] cmp_index comparator index
+ * @param [in] cmp comparator value
+ */
 static inline void gptmr_update_cmp(GPTMR_Type *ptr, uint8_t ch_index, uint8_t cmp_index, uint32_t cmp)
 {
     ptr->CHANNEL[ch_index].CMP[cmp_index] = GPTMR_CMP_CMP_SET(cmp);
 }
 
+/**
+ * @brief gptmr channel config
+ *
+ * @param [in] ptr GPTMR base address
+ * @param [in] ch_index channel index
+ * @param [in] config gptmr_channel_config_t
+ * @param [in] enable
+ *  @arg true: enable
+ *  @arg false: disable
+ *
+ * @retval hpm_stat_t status_invalid_argument or status_success
+ */
 hpm_stat_t gptmr_channel_config(GPTMR_Type *ptr,
                          uint8_t ch_index,
                          gptmr_channel_config_t *config,
                          bool enable);
 
+/**
+ * @brief gptmr channel get default config
+ *
+ * @param [in] ptr GPTMR base address
+ * @param [out] config gptmr_channel_config_t
+ */
 void gptmr_channel_get_default_config(GPTMR_Type *ptr, gptmr_channel_config_t *config);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

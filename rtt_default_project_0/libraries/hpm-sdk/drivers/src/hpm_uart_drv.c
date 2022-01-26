@@ -23,10 +23,7 @@ void uart_default_config(UART_Type *ptr, uart_config_t *config)
     config->dma_enable = false;
     config->modem_config.auto_flow_ctrl_en = false;
     config->modem_config.loop_back_en = false;
-    config->modem_config.set_out1_high = false;
-    config->modem_config.set_out2_high = false;
     config->modem_config.set_rts_high = false;
-    config->modem_config.set_dtr_high = false;
 }
 
 hpm_stat_t uart_init(UART_Type *ptr, uart_config_t *config)

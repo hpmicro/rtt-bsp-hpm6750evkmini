@@ -1,7 +1,3 @@
-/**
- * @file
- * @brief DRAM driver public API header file
- */
 /*
  * Copyright (c) 2021 hpmicro
  *
@@ -13,31 +9,39 @@
 #define _HPM_DRAM_DRV_H
 #include "hpm_dram_regs.h"
 
+/**
+ * @brief DRAM driver APIs
+ * @defgroup dram_interface DRAM driver APIs
+ * @ingroup io_interfaces
+ * @{
+ *
+ */
+
 #define DRAM_SDRAM_MAX_BURST_LENGTH_IN_BYTE (8UL)
-/* dram sdram column address bit width */
+/* @brief dram sdram column address bit width */
 #define DRAM_SDRAM_COLUMN_ADDR_12_BITS (0U)
 #define DRAM_SDRAM_COLUMN_ADDR_11_BITS (1U)
 #define DRAM_SDRAM_COLUMN_ADDR_10_BITS (2U)
 #define DRAM_SDRAM_COLUMN_ADDR_9_BITS (3U)
 #define DRAM_SDRAM_COLUMN_ADDR_8_BITS (4U)
-/* cas latency */
+/* @brief cas latency */
 #define DRAM_SDRAM_CAS_LATENCY_1 (1U)
 #define DRAM_SDRAM_CAS_LATENCY_2 (2U)
 #define DRAM_SDRAM_CAS_LATENCY_3 (3U)
-/* iomux options */
+/* @brief iomux options */
 #define DRAM_IO_MUX_NOT_USED (0U)
 #define DRAM_IO_MUX_CSX0 (1U)
 #define DRAM_IO_MUX_CSX1 (2U)
 #define DRAM_IO_MUX_CSX2 (3U)
 #define DRAM_IO_MUX_CSX3 (4U)
 #define DRAM_IO_MUX_RDY (5U)
-/* sdram bank number */
+/* @brief sdram bank number */
 #define DRAM_SDRAM_BANK_NUM_4 (0U)
 #define DRAM_SDRAM_BANK_NUM_2 (1U)
-/* chip select */
+/* @brief chip select */
 #define DRAM_SDRAM_CS0 (0U)
 #define DRAM_SDRAM_CS1 (1U)
-/* sdram port size */
+/* @brief sdram port size */
 #define DRAM_SDRAM_PORT_SIZE_8_BITS (0U)
 #define DRAM_SDRAM_PORT_SIZE_16_BITS (1U)
 #define DRAM_SDRAM_PORT_SIZE_32_BITS (2U)
@@ -45,7 +49,7 @@
 #define DRAM_AXI_Q_COUNT (2U)
 #define DRAM_AXI_Q_A (0U)
 #define DRAM_AXI_Q_B (1U)
-/* DQS option */
+/* @brief DQS option */
 #define DRAM_DQS_INTERNAL (0U)
 #define DRAM_DQS_FROM_PAD (1U)
 
@@ -63,18 +67,10 @@
 #define DRAM_CMD_SDRAM_PRECHARGE_ALL   (0xFU)
 
 /**
- *
- * @brief DRAM driver APIs
- * @defgroup dram_interface DRAM driver APIs
- * @ingroup io_interfaces
- * @{
- */
-
-/**
  * @brief Structure for specifying the configuration of AXI queue weight
  */
 typedef struct {
-    bool enable;
+    bool enable;                /**< Enable AXI weight setting flag */
     uint8_t qos;
     uint8_t age;
     uint8_t slave_hit_wo_rw;
@@ -111,7 +107,7 @@ typedef struct {
     uint8_t idle_timeout_in_ns;
     uint8_t data_width_in_byte;
     uint8_t auto_refresh_count_in_one_burst;
-    uint8_t delay_cell_value;
+    uint8_t delay_cell_value;           /**< Delay cell value */
 } dram_sdram_config_t;
 
 /**
@@ -132,6 +128,9 @@ typedef struct {
     uint32_t data;
 } dram_cmd_t;
 
+/*
+ * @brief DRAM specific status
+ */
 enum {
     status_dram_cmd_err = MAKE_STATUS(status_group_dram, 1),
 };
@@ -145,7 +144,7 @@ extern "C" {
  *
  * Enable DRAM
  *
- * @param ptr DRAM base address
+ * @param[in] ptr DRAM base address
  */
 static inline void dram_enable(DRAM_Type *ptr)
 {
@@ -157,7 +156,7 @@ static inline void dram_enable(DRAM_Type *ptr)
  *
  * Disable DRAM
  *
- * @param ptr DRAM base address
+ * @param[in] ptr DRAM base address
  */
 static inline void dram_disable(DRAM_Type *ptr)
 {
@@ -170,7 +169,7 @@ static inline void dram_disable(DRAM_Type *ptr)
  *
  * Perform software reset
  *
- * @param ptr DRAM base address
+ * @param[in] ptr DRAM base address
  */
 static inline void dram_sw_reset(DRAM_Type *ptr)
 {
@@ -183,8 +182,8 @@ static inline void dram_sw_reset(DRAM_Type *ptr)
  *
  * Get DRAM default parameters
  *
- * @param ptr DRAM base address
- * @param config dram_config_t address
+ * @param[in] ptr DRAM base address
+ * @param[out] config dram_config_t address
  */
 void dram_default_config(DRAM_Type *ptr, dram_config_t *config);
 
@@ -193,8 +192,8 @@ void dram_default_config(DRAM_Type *ptr, dram_config_t *config);
  *
  * Initialize DRAM with give dram_config_t
  *
- * @param ptr DRAM base address
- * @param config dram_config_t to initialize dram
+ * @param[in] ptr DRAM base address
+ * @param[in] config dram_config_t to initialize dram
  */
 void dram_init(DRAM_Type *ptr, dram_config_t *config);
 
@@ -204,8 +203,8 @@ void dram_init(DRAM_Type *ptr, dram_config_t *config);
  * Fill out the structure of dram_sdram_config_t with typical SDRAM parameters which should work
  * with most SDRAMs.
  *
- * @param ptr DRAM base address
- * @param config dram_sdram_config_t sdram configuration struction to config dram
+ * @param[in] ptr DRAM base address
+ * @param[out] config dram_sdram_config_t sdram configuration struction to config dram
  */
 void dram_get_typical_sdram_config(DRAM_Type *ptr, dram_sdram_config_t *config);
 
@@ -214,9 +213,9 @@ void dram_get_typical_sdram_config(DRAM_Type *ptr, dram_sdram_config_t *config);
  * 
  * Configure DRAM controlling external SDRAM using parameters specified in dram_sdram_config
  *
- * @param ptr DRAM base address
- * @param clk_in_hz dram source clock frequency in Hz
- * @param config dram_sdram_config_t sdram configuration struction to config dram
+ * @param[in] ptr DRAM base address
+ * @param[in] clk_in_hz dram source clock frequency in Hz
+ * @param[in] config dram_sdram_config_t sdram configuration struction to config dram
  */
 hpm_stat_t dram_config_sdram(DRAM_Type *ptr, uint32_t clk_in_hz, dram_sdram_config_t *config);
 

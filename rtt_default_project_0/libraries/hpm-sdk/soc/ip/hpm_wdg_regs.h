@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -12,9 +12,9 @@
 typedef struct {
     __R  uint8_t  RESERVED0[16];               /* 0x0 - 0xF: Reserved */
     __RW uint32_t CTRL;                        /* 0x10: Control Register */
-    __RW uint32_t RESTART;                     /* 0x14: Interrupt Enable Register */
-    __RW uint32_t WREN;                        /* 0x18: Status Register */
-    __RW uint32_t ST;                          /* 0x1C: Address Register */
+    __RW uint32_t RESTART;                     /* 0x14: Restart Register */
+    __RW uint32_t WREN;                        /* 0x18: Write Protection Register */
+    __RW uint32_t ST;                          /* 0x1C: Status Register */
 } WDG_Type;
 
 

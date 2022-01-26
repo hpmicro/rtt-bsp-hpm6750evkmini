@@ -8,8 +8,14 @@
 #ifndef HPM_INTERRUPT_H
 #define HPM_INTERRUPT_H
 #include "riscv/riscv_core.h"
-
+#include "hpm_common.h"
 #include "hpm_plic_drv.h"
+
+/**
+ * @brief INTERRUPT driver APIs
+ * @defgroup irq_interface INTERRUPT driver APIs
+ * @{
+ */
 
 #define M_MODE 0    /*!< Machine mode */
 #define S_MODE 1    /*!< Supervisor mode */
@@ -18,39 +24,59 @@
 extern "C" {
 #endif
 
-__attribute__((always_inline))
-    static inline void enable_global_irq(uint32_t mask)
+/**
+ * @brief   Enable global IRQ with mask
+ *
+ * @param[in] mask interrupt mask to be enabaled
+ */
+ATTR_ALWAYS_INLINE static inline void enable_global_irq(uint32_t mask)
 {
     set_csr(CSR_MSTATUS, mask);
 }
 
-__attribute__((always_inline))
-    static inline void disable_global_irq(uint32_t mask)
+/**
+ * @brief   Disable global IRQ with mask
+ *
+ * @param[in] mask interrupt mask to be disabled
+ */
+ATTR_ALWAYS_INLINE static inline void disable_global_irq(uint32_t mask)
 {
     clear_csr(CSR_MSTATUS, mask);
 }
 
-__attribute__((always_inline)) static inline void enable_irq_from_intc(void)
-{
-    set_csr(CSR_MIE, CSR_MIP_MEIP_MASK);
-}
-
-__attribute__((always_inline)) static inline void disable_irq_from_intc(void)
-{
-    clear_csr(CSR_MIE, CSR_MIP_MEIP_MASK);
-}
-
-/*
- * CPU Machine timer control
+/**
+ * @brief   Enable IRQ from interrupt controller
+ *
  */
-__attribute__((always_inline)) static inline void enable_mchtmr_irq(void)
+ATTR_ALWAYS_INLINE static inline void enable_irq_from_intc(void)
 {
-    set_csr(CSR_MIE, CSR_MIP_MTIP_MASK);
+    set_csr(CSR_MIE, CSR_MIE_MEIE_MASK);
 }
 
-__attribute__((always_inline)) static inline void disable_mchtmr_irq(void)
+/**
+ * @brief   Disable IRQ from interrupt controller
+ *
+ */
+ATTR_ALWAYS_INLINE static inline void disable_irq_from_intc(void)
 {
-    clear_csr(CSR_MIE, CSR_MIP_MTIP_MASK);
+    clear_csr(CSR_MIE, CSR_MIE_MEIE_MASK);
+}
+
+/**
+ * @brief Enable machine timer IRQ
+ */
+ATTR_ALWAYS_INLINE static inline void enable_mchtmr_irq(void)
+{
+    set_csr(CSR_MIE, CSR_MIE_MTIE_MASK);
+}
+
+/**
+ * @brief  Disable machine timer IRQ
+ *
+ */
+ATTR_ALWAYS_INLINE static inline void disable_mchtmr_irq(void)
+{
+    clear_csr(CSR_MIE, CSR_MIE_MTIE_MASK);
 }
 
 /*
@@ -59,48 +85,96 @@ __attribute__((always_inline)) static inline void disable_mchtmr_irq(void)
  * Machine SWI (MSIP) is connected to PLICSW irq 1.
  */
 #define PLICSWI 1
-__attribute__((always_inline)) static inline void intc_m_init_swi(void)
+
+/**
+ * @brief   Initialize software interrupt
+ *
+ */
+ATTR_ALWAYS_INLINE static inline void intc_m_init_swi(void)
 {
     __plic_set_irq_priority(HPM_PLICSW_BASE, PLICSWI, 1);
     __plic_enable_irq(HPM_PLICSW_BASE, HPM_PLIC_TARGET_M_MODE, PLICSWI);
 }
 
-__attribute__((always_inline)) static inline void intc_m_enable_swi(void)
+
+/**
+ * @brief   Enable software interrupt
+ *
+ */
+ATTR_ALWAYS_INLINE static inline void intc_m_enable_swi(void)
 {
-    set_csr(CSR_MIE, CSR_MIP_MSIP_MASK);
+    set_csr(CSR_MIE, CSR_MIE_MSIE_MASK);
 }
 
-__attribute__((always_inline)) static inline void intc_m_disable_swi(void)
+
+/**
+ * @brief   Disable software interrupt
+ *
+ */
+ATTR_ALWAYS_INLINE static inline void intc_m_disable_swi(void)
 {
-    clear_csr(CSR_MIE, CSR_MIP_MSIP_MASK);
+    clear_csr(CSR_MIE, CSR_MIE_MSIE_MASK);
 }
 
-__attribute__((always_inline))
-    static inline void intc_m_trigger_swi(void)
+
+/**
+ * @brief   Trigger software interrupt
+ *
+ */
+ATTR_ALWAYS_INLINE static inline void intc_m_trigger_swi(void)
 {
     __plic_set_irq_pending(HPM_PLICSW_BASE, PLICSWI);
 }
 
-__attribute__((always_inline))
-    static inline void intc_m_complete_swi(void)
+
+/**
+ * @brief   Complete software interrupt
+ *
+ */
+ATTR_ALWAYS_INLINE static inline void intc_m_complete_swi(void)
 {
     __plic_complete_irq(HPM_PLICSW_BASE, HPM_PLIC_TARGET_M_MODE, PLICSWI);
 }
 
+/*
+ * @brief Enable IRQ for machine mode
+ *
+ * @param[in] irq Interrupt number
+ */
 #define intc_m_enable_irq(irq) \
     intc_enable_irq(HPM_PLIC_TARGET_M_MODE, irq)
 
+/*
+ * @brief Disable IRQ for machine mode
+ *
+ * @param[in] irq Interrupt number
+ */
 #define intc_m_disable_irq(irq) \
     intc_disable_irq(HPM_PLIC_TARGET_M_MODE, irq)
 
 #define intc_m_set_threshold(threshold) \
     intc_set_threshold(HPM_PLIC_TARGET_M_MODE, threshold)
 
+/*
+ * @brief Complete IRQ for machine mode
+ *
+ * @param[in] irq Interrupt number
+ */
 #define intc_m_complete_irq(irq) \
     intc_complete_irq(HPM_PLIC_TARGET_M_MODE, irq)
 
+/*
+ * @brief Claim IRQ for machine mode
+ *
+ */
 #define intc_m_claim_irq() intc_claim_irq(HPM_PLIC_TARGET_M_MODE)
 
+/*
+ * @brief Enable IRQ for machine mode with priority
+ *
+ * @param[in] irq Interrupt number
+ * @param[in] priority Priority of interrupt
+ */
 #define intc_m_enable_irq_with_priority(irq, priority) \
     do { \
         intc_set_irq_priority(irq, priority); \
@@ -108,42 +182,68 @@ __attribute__((always_inline))
     } while(0);
 
 /*
- * Platform defined irq controller access
+ * @brief Enable specific interrupt
  *
- * This uses the vectored PLIC scheme.
+ * @param[in] target Target to handle specific interrupt
+ * @param[in] irq Interrupt number
  */
-__attribute__((always_inline))
-    static inline void intc_enable_irq(uint32_t target, uint32_t irq)
+ATTR_ALWAYS_INLINE static inline void intc_enable_irq(uint32_t target, uint32_t irq)
 {
     __plic_enable_irq(HPM_PLIC_BASE, target, irq);
 }
 
-__attribute__((always_inline))
-    static inline void intc_set_irq_priority(uint32_t irq, uint32_t priority)
+/**
+ * @brief   Set interrupt priority
+ *
+ * @param[in] irq Interrupt number
+ * @param[in] priority Priority of interrupt
+ */
+ATTR_ALWAYS_INLINE static inline void intc_set_irq_priority(uint32_t irq, uint32_t priority)
 {
     __plic_set_irq_priority(HPM_PLIC_BASE, irq, priority);
 }
 
-__attribute__((always_inline))
-    static inline void intc_disable_irq(uint32_t target, uint32_t irq)
+/**
+ * @brief   Disable specific interrupt
+ *
+ * @param[in] target Target to handle specific interrupt
+ * @param[in] irq Interrupt number
+ */
+ATTR_ALWAYS_INLINE static inline void intc_disable_irq(uint32_t target, uint32_t irq)
 {
     __plic_disable_irq(HPM_PLIC_BASE, target, irq);
 }
 
-__attribute__((always_inline))
-    static inline void intc_set_threshold(uint32_t target, uint32_t threshold)
+/**
+ * @brief   Set interrupt threshold
+ *
+ * @param[in] target Target to handle specific interrupt
+ * @param[in] threshold Threshold of IRQ can be serviced
+ */
+ATTR_ALWAYS_INLINE static inline void intc_set_threshold(uint32_t target, uint32_t threshold)
 {
     __plic_set_threshold(HPM_PLIC_BASE, target, threshold);
 }
 
-__attribute__((always_inline))
-    static inline uint32_t intc_claim_irq(uint32_t target)
+/**
+ * @brief   Claim IRQ
+ *
+ * @param[in] target Target to handle specific interrupt
+ *
+ */
+ATTR_ALWAYS_INLINE static inline uint32_t intc_claim_irq(uint32_t target)
 {
     return __plic_claim_irq(HPM_PLIC_BASE, target);
 }
 
-__attribute__((always_inline))
-    static inline void intc_complete_irq(uint32_t target, uint32_t irq)
+/**
+ * @brief   Complete IRQ
+ *
+ * @param[in] target Target to handle specific interrupt
+ * @param[in] irq Specific IRQ to be completed
+ *
+ */
+ATTR_ALWAYS_INLINE static inline void intc_complete_irq(uint32_t target, uint32_t irq)
 {
     __plic_complete_irq(HPM_PLIC_BASE, target, irq);
 }
@@ -154,12 +254,25 @@ __attribute__((always_inline))
 extern int __vector_table[];
 extern void default_irq_entry(void);
 
-__attribute__((always_inline)) static inline void install_isr(uint32_t irq, uint32_t isr)
+/**
+ * @brief   Install ISR for certain IRQ for ram based vector table
+ *
+ * @param[in] irq Target interrupt number
+ * @param[in] isr Interrupt service routine
+ *
+ */
+ATTR_ALWAYS_INLINE static inline void install_isr(uint32_t irq, uint32_t isr)
 {
     __vector_table[irq] = isr;
 }
 
-__attribute__((always_inline)) static inline void uninstall_isr(uint32_t irq)
+/**
+ * @brief   Uninstall ISR for certain IRQ for ram based vector table
+ *
+ * @param[in] irq Target interrupt number
+ *
+ */
+ATTR_ALWAYS_INLINE static inline void uninstall_isr(uint32_t irq)
 {
     __vector_table[irq] = (int)default_irq_entry;
 }
@@ -167,8 +280,17 @@ __attribute__((always_inline)) static inline void uninstall_isr(uint32_t irq)
 /*
  * Inline nested irq entry/exit macros
  */
-/* Save/Restore macro */
+/*
+ * @brief Save CSR
+ * @param[in] r Target CSR to be saved
+ */
 #define SAVE_CSR(r)                                     register long __##r = read_csr(r);
+
+/*
+ * @brief Restore macro
+ *
+ * @param[in] r Target CSR to be restored
+ */
 #define RESTORE_CSR(r)                                  write_csr(r, __##r);
 
 #if SUPPORT_PFT_ARCH
@@ -324,8 +446,8 @@ __attribute__((always_inline)) static inline void uninstall_isr(uint32_t irq)
             sw t6, 20*4(sp)\n");  \
 }
 /*
- * Restore DSP context
- * NOTE: To simplify the logic, DSP context registers are always stored at word offset 20 in the stack
+ * @brief Restore DSP context
+ * @note To simplify the logic, DSP context registers are always stored at word offset 20 in the stack
  */
 #define RESTORE_DSP_CONTEXT() {\
     __asm volatile("lw t6, 20*4(sp)\n\
@@ -337,8 +459,8 @@ __attribute__((always_inline)) static inline void uninstall_isr(uint32_t irq)
 #endif
 
 /*
- * Enter Nested IRQ Handling
- * NOTE: To simplify the logic, Nested IRQ related registers are stored in the stack as below:
+ * @brief Enter Nested IRQ Handling
+ * @note To simplify the logic, Nested IRQ related registers are stored in the stack as below:
  *       MCAUSE - word offset 16 (not used in the vectored mode)
  *       EPC - word offset 17
  *       MSTATUS = word offset 18
@@ -372,8 +494,8 @@ __attribute__((always_inline)) static inline void uninstall_isr(uint32_t irq)
 }
 
 /*
- * Exit Nested IRQ Handling
- * NOTE: To simplify the logic, Nested IRQ related registers are stored in the stack as below:
+ * @brief Exit Nested IRQ Handling
+ * @note To simplify the logic, Nested IRQ related registers are stored in the stack as below:
  *       MCAUSE - word offset 16 (not used in the vectored mode)
  *       EPC - word offset 17
  *       MSTATUS = word offset 18
@@ -391,7 +513,7 @@ __attribute__((always_inline)) static inline void uninstall_isr(uint32_t irq)
 }
 
 
-/* Nested IRQ entry macro : Save CSRs and enable global irq. */
+/* @brief Nested IRQ entry macro : Save CSRs and enable global irq. */
 #define NESTED_IRQ_ENTER()                              \
         SAVE_CSR(CSR_MEPC)                              \
         SAVE_CSR(CSR_MSTATUS)                           \
@@ -400,7 +522,7 @@ __attribute__((always_inline)) static inline void uninstall_isr(uint32_t irq)
         SAVE_UCODE()                                    \
         set_csr(CSR_MSTATUS, CSR_MSTATUS_MIE_MASK);
 
-/* Nested IRQ exit macro : Restore CSRs */
+/* @brief Nested IRQ exit macro : Restore CSRs */
 #define NESTED_IRQ_EXIT()                               \
         clear_csr(CSR_MSTATUS, CSR_MSTATUS_MIE_MASK);            \
         RESTORE_CSR(CSR_MSTATUS)                        \
@@ -409,6 +531,10 @@ __attribute__((always_inline)) static inline void uninstall_isr(uint32_t irq)
         RESTORE_FCSR()                                  \
         RESTORE_UCODE()
 
+/*
+ * @brief Nested IRQ exit macro : Restore CSRs
+ * @param[in] irq Target interrupt number
+ */
 #define NESTED_VPLIC_COMPLETE_INTERRUPT(irq)            \
 do {                                                    \
     clear_csr(CSR_MIE, CSR_MIP_MEIP_MASK);                       \
@@ -417,9 +543,8 @@ do {                                                    \
     set_csr(CSR_MIE, CSR_MIP_MEIP_MASK);                         \
 } while(0)
 
-
 #ifdef __cplusplus
-#define EXTERN_C extern "C" 
+#define EXTERN_C extern "C"
 #else
 #define EXTERN_C
 #endif
@@ -428,8 +553,8 @@ do {                                                    \
 /**
  * @brief Declare an external interrupt handler for machine mode
  *
- * @param irq_num - IRQ number index
- * @param isr - Application IRQ handler function pointer
+ * @param[in] irq_num - IRQ number index
+ * @param[in] isr - Application IRQ handler function pointer
  */
 #ifndef USE_NONVECTOR_MODE
 #define SDK_DECLARE_EXT_ISR_M(irq_num, isr) \
@@ -447,6 +572,7 @@ void ISR_NAME_M(irq_num)(void) {\
 }
 #else
 #define SDK_DECLARE_EXT_ISR_M(irq_num, isr) \
+EXTERN_C void ISR_NAME_M(irq_num)(void);\
 void ISR_NAME_M(irq_num)(void)  {           \
     isr();                                            \
 }
@@ -456,10 +582,11 @@ void ISR_NAME_M(irq_num)(void)  {           \
 /**
  * @brief Declare machine timer interrupt handler
  *
- * @param isr - MCHTMR IRQ handler function pointer
+ * @param[in] isr - MCHTMR IRQ handler function pointer
  */
 #define SDK_DECLARE_MCHTMR_ISR(isr) \
 void isr(void) __attribute__((section(".isr_vector")));\
+EXTERN_C void mchtmr_isr(void); \
 void mchtmr_isr(void) {\
     isr();\
 }
@@ -467,10 +594,11 @@ void mchtmr_isr(void) {\
 /**
  * @brief Declare machine software interrupt handler
  *
- * @param isr - SWI IRQ handler function pointer
+ * @param[in] isr - SWI IRQ handler function pointer
  */
 #define SDK_DECLARE_MSWI_ISR(isr)\
 void isr(void) __attribute__((section(".isr_vector")));\
+EXTERN_C void mswi_isr(void); \
 void mswi_isr(void) {\
     isr();\
 }
@@ -480,4 +608,7 @@ void mswi_isr(void) {\
 }
 #endif
 
+/**
+ * @}
+ */
 #endif /* HPM_INTERRUPT_H */

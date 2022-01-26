@@ -10,52 +10,55 @@
 #include "hpm_common.h"
 #include "hpm_sysctl_drv.h"
 
+/**
+ * @brief CLOCK driver APIs
+ * @defgroup clock_interface CLOCK driver APIs
+ * @{
+ *
+ */
 
 /**
  * @brief Error codes for clock driver
  */
 enum {
-    status_clk_div_invalid = MAKE_STATUS(status_group_clk, 0),
-    status_clk_src_invalid = MAKE_STATUS(status_group_clk,1),
-    status_clk_invalid = MAKE_STATUS(status_group_clk,2),
-    status_clk_operation_unsupported = MAKE_STATUS(status_group_clk, 3),
-    status_clk_shared_ahb = MAKE_STATUS(status_group_clk, 4),
-    status_clk_shared_axi0 = MAKE_STATUS(status_group_clk, 5),
-    status_clk_shared_axi1 = MAKE_STATUS(status_group_clk, 6),
-    status_clk_shared_axi2 = MAKE_STATUS(status_group_clk, 7),
-    status_clk_shared_cpu0 = MAKE_STATUS(status_group_clk, 8),
-    status_clk_shared_cpu1 = MAKE_STATUS(status_group_clk, 9),
-    status_clk_fixed = MAKE_STATUS(status_group_clk, 10),
-
+    status_clk_div_invalid = MAKE_STATUS(status_group_clk, 0),              /**< Clock divider is invalid */
+    status_clk_src_invalid = MAKE_STATUS(status_group_clk, 1),              /**< Clock source is invalid */
+    status_clk_invalid = MAKE_STATUS(status_group_clk, 2),                  /**< Clock name is invalid */
+    status_clk_operation_unsupported = MAKE_STATUS(status_group_clk, 3),    /**< Clock operation is unsupported */
+    status_clk_shared_ahb = MAKE_STATUS(status_group_clk, 4),               /**< The clock source is shared with AHB */
+    status_clk_shared_axi0 = MAKE_STATUS(status_group_clk, 5),              /**< The clock source is shared with AXI0 */
+    status_clk_shared_axi1 = MAKE_STATUS(status_group_clk, 6),              /**< THe clock source is shared with AXI1 */
+    status_clk_shared_axi2 = MAKE_STATUS(status_group_clk, 7),              /**< The clock source is shared with AXI2 */
+    status_clk_shared_cpu0 = MAKE_STATUS(status_group_clk, 8),              /**< The clock source is shared with CPU0 */
+    status_clk_shared_cpu1 = MAKE_STATUS(status_group_clk, 9),              /**< The clock source is shared with CPU1 */
+    status_clk_fixed = MAKE_STATUS(status_group_clk, 10),                   /**< The clock source is a fixed clock source */
 
 };
-
-
 
 /**
  * @brief Clock source group definitions
  */
 #define CLK_SRC_GROUP_COMMON (0U)
-#define CLK_SRC_GROUP_ADC    (1U)
-#define CLK_SRC_GROUP_I2S    (2U)
-#define CLK_SRC_GROUP_WDG   (3U)
-#define CLK_SRC_GROUP_PMIC   (4U)
-#define CLK_SRC_GROUP_AHB    (5U)
-#define CLK_SRC_GROUP_AXI0   (6U)
-#define CLK_SRC_GROUP_AXI1   (7U)
-#define CLK_SRC_GROUP_AXI2   (8U)
-#define CLK_SRC_GROUP_CPU0   (9U)
-#define CLK_SRC_GROUP_CPU1   (10U)
-#define CLK_SRC_GROUP_SRC    (11U)
+#define CLK_SRC_GROUP_ADC (1U)
+#define CLK_SRC_GROUP_I2S (2U)
+#define CLK_SRC_GROUP_WDG (3U)
+#define CLK_SRC_GROUP_PMIC (4U)
+#define CLK_SRC_GROUP_AHB (5U)
+#define CLK_SRC_GROUP_AXI0 (6U)
+#define CLK_SRC_GROUP_AXI1 (7U)
+#define CLK_SRC_GROUP_AXI2 (8U)
+#define CLK_SRC_GROUP_CPU0 (9U)
+#define CLK_SRC_GROUP_CPU1 (10U)
+#define CLK_SRC_GROUP_SRC (11U)
 #define CLK_SRC_GROUP_INVALID (15U)
 
-#define MAKE_CLK_SRC(src_grp, index) (((uint8_t)(src_grp)<<4) | (index))
-#define GET_CLK_SRC_GROUP(src) (((uint8_t)(src)>>4) & 0x0FU)
-#define GET_CLK_SRC_INDEX(src) ((uint8_t)(src) & 0x0FU)
+#define MAKE_CLK_SRC(src_grp, index) (((uint8_t)(src_grp) << 4) | (index))
+#define GET_CLK_SRC_GROUP(src) (((uint8_t)(src) >> 4) & 0x0FU)
+#define GET_CLK_SRC_INDEX(src) ((uint8_t)(src)&0x0FU)
 /**
  * @brief Clock source definitions
  */
-typedef enum _clock_sources{
+typedef enum _clock_sources {
     clk_src_osc24m = MAKE_CLK_SRC(CLK_SRC_GROUP_COMMON, 0),
     clk_src_pll0_clk0 = MAKE_CLK_SRC(CLK_SRC_GROUP_COMMON, 1),
     clk_src_pll1_clk0 = MAKE_CLK_SRC(CLK_SRC_GROUP_COMMON, 2),
@@ -69,7 +72,7 @@ typedef enum _clock_sources{
     clk_adc_src_ahb0 = MAKE_CLK_SRC(CLK_SRC_GROUP_ADC, 0),
     clk_adc_src_ana0 = MAKE_CLK_SRC(CLK_SRC_GROUP_ADC, 1),
     clk_adc_src_ana1 = MAKE_CLK_SRC(CLK_SRC_GROUP_ADC, 2),
-    clk_adc_src_ana2 = MAKE_CLK_SRC(CLK_SRC_GROUP_ADC,3),
+    clk_adc_src_ana2 = MAKE_CLK_SRC(CLK_SRC_GROUP_ADC, 3),
 
     clk_i2s_src_ahb0 = MAKE_CLK_SRC(CLK_SRC_GROUP_I2S, 0),
     clk_i2s_src_aud0 = MAKE_CLK_SRC(CLK_SRC_GROUP_I2S, 1),
@@ -80,16 +83,15 @@ typedef enum _clock_sources{
     clk_wdg_src_osc32k = MAKE_CLK_SRC(CLK_SRC_GROUP_WDG, 1),
 
     clk_src_invalid = MAKE_CLK_SRC(CLK_SRC_GROUP_INVALID, 15),
-}clk_src_t;
-
+} clk_src_t;
 
 #define RESOURCE_INVALID (0xFFFFU)
 #define RESOURCE_SHARED_PTPC (0xFFFEU)
 
 /* Clock NAME related Macros */
-#define MAKE_CLOCK_NAME(resource,src_type,node) (((uint32_t)(resource) << 16) | ((uint32_t)(src_type) << 8) | ((uint32_t)node))
-#define GET_CLK_SRC_GROUP_FROM_NAME(name)  (((uint32_t)(name) >> 8) & 0xFFUL)
-#define GET_CLK_NODE_FROM_NAME(name) ((uint32_t)(name) & 0xFFUL)
+#define MAKE_CLOCK_NAME(resource, src_type, node) (((uint32_t)(resource) << 16) | ((uint32_t)(src_type) << 8) | ((uint32_t)node))
+#define GET_CLK_SRC_GROUP_FROM_NAME(name) (((uint32_t)(name) >> 8) & 0xFFUL)
+#define GET_CLK_NODE_FROM_NAME(name) ((uint32_t)(name)&0xFFUL)
 #define GET_CLK_RESOURCE_FROM_NAME(name) ((uint32_t)(name) >> 16)
 
 /**
@@ -154,8 +156,8 @@ typedef enum _clock_name {
     clock_ptpc = MAKE_CLOCK_NAME(sysctl_resource_ptpc, CLK_SRC_GROUP_COMMON, clock_node_ptpc),
     clock_ptp0 = MAKE_CLOCK_NAME(RESOURCE_SHARED_PTPC, CLK_SRC_GROUP_COMMON, clock_node_ptp0),
     clock_ptp1 = MAKE_CLOCK_NAME(RESOURCE_SHARED_PTPC, CLK_SRC_GROUP_COMMON, clock_node_ptp1),
-    clock_ref0 = MAKE_CLOCK_NAME(sysctl_resource_ref0, CLK_SRC_GROUP_COMMON,clock_node_ref0),
-    clock_ref1 = MAKE_CLOCK_NAME(sysctl_resource_ref1, CLK_SRC_GROUP_COMMON,clock_node_ref0),
+    clock_ref0 = MAKE_CLOCK_NAME(sysctl_resource_ref0, CLK_SRC_GROUP_COMMON, clock_node_ref0),
+    clock_ref1 = MAKE_CLOCK_NAME(sysctl_resource_ref1, CLK_SRC_GROUP_COMMON, clock_node_ref1),
     clock_watchdog0 = MAKE_CLOCK_NAME(sysctl_resource_wdg0, CLK_SRC_GROUP_WDG, 0),
     clock_watchdog1 = MAKE_CLOCK_NAME(sysctl_resource_wdg1, CLK_SRC_GROUP_WDG, 1),
     clock_watchdog2 = MAKE_CLOCK_NAME(sysctl_resource_wdg2, CLK_SRC_GROUP_WDG, 2),
@@ -165,7 +167,7 @@ typedef enum _clock_name {
     clock_eth0 = MAKE_CLOCK_NAME(sysctl_resource_eth0, CLK_SRC_GROUP_COMMON, clock_node_eth0),
     clock_eth1 = MAKE_CLOCK_NAME(sysctl_resource_eth1, CLK_SRC_GROUP_COMMON, clock_node_eth1),
     clock_sdp = MAKE_CLOCK_NAME(sysctl_resource_sdp0, CLK_SRC_GROUP_AXI0, 0),
-    clock_xdma  = MAKE_CLOCK_NAME(sysctl_resource_dma1, CLK_SRC_GROUP_AXI0, 1),
+    clock_xdma = MAKE_CLOCK_NAME(sysctl_resource_dma1, CLK_SRC_GROUP_AXI0, 1),
     clock_rom = MAKE_CLOCK_NAME(sysctl_resource_rom0, CLK_SRC_GROUP_AXI0, 2),
     clock_ram0 = MAKE_CLOCK_NAME(sysctl_resource_ram0, CLK_SRC_GROUP_AXI0, 3),
     clock_ram1 = MAKE_CLOCK_NAME(sysctl_resource_ram1, CLK_SRC_GROUP_AXI0, 4),
@@ -220,107 +222,112 @@ typedef enum _clock_name {
 } clock_name_t;
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/**
- * @brief Get specified IP frequency
- * @param[in] clock_name IP clock name
- *
- * @return IP clock frequency in Hz
- */
-uint32_t clock_get_frequency(clock_name_t clock_name);
+    /**
+     * @brief Get specified IP frequency
+     * @param[in] clock_name IP clock name
+     *
+     * @return IP clock frequency in Hz
+     */
+    uint32_t clock_get_frequency(clock_name_t clock_name);
 
-/**
- * @brief Get the IP clock source
- *        Note: This API return the direct clock source
- * @return IP clock source
- */
-clk_src_t clock_get_source(clock_name_t clock_name);
+    /**
+     * @brief Get the IP clock source
+     *        Note: This API return the direct clock source
+     * @return IP clock source
+     */
+    clk_src_t clock_get_source(clock_name_t clock_name);
 
-/**
- * @brief Set ADC clock source
- * @param[in] clock_name ADC clock name
- * @param[in] src ADC clock source
- *
- * @return #status_success Setting ADC clock source is successful
- *         #status_clk_invalid Invalid ADC clock
- *         #status_clk_src_invalid Invalid ADC clock source
- */
-hpm_stat_t clock_set_adc_source(clock_name_t clock_name, clk_src_t src);
+    /**
+     * @brief Set ADC clock source
+     * @param[in] clock_name ADC clock name
+     * @param[in] src ADC clock source
+     *
+     * @retval status_success Setting ADC clock source is successful
+     * @retval status_clk_invalid Invalid ADC clock
+     * @retval status_clk_src_invalid Invalid ADC clock source
+     */
+    hpm_stat_t clock_set_adc_source(clock_name_t clock_name, clk_src_t src);
 
-/**
- * @brief Set I2S clock source
- * @param[in] clock_name I2S clock name
- * @param[in] src I2S clock source
- *
- * @return #status_success Setting I2S clock source is successful
- *         #status_clk_invlid Invalid I2S clock
- *         #status_clk_src_invalid Invalid I2S clock source
- */
-hpm_stat_t clock_set_i2s_source(clock_name_t clock_name, clk_src_t src);
+    /**
+     * @brief Set I2S clock source
+     * @param[in] clock_name I2S clock name
+     * @param[in] src I2S clock source
+     *
+     * @retval status_success Setting I2S clock source is successful
+     * @retval status_clk_invalid Invalid I2S clock
+     * @retval status_clk_src_invalid Invalid I2S clock source
+     */
+    hpm_stat_t clock_set_i2s_source(clock_name_t clock_name, clk_src_t src);
 
-/**
- * @brief Set the IP clock source and divider
- * @param[in] clock_name clock name
- * @param[in] src clock source
- * @param[in] div clock divider, valid range (1 - 256)
- *
- * @return #status_success Setting Clock source and divider is successful.
- *         #status_clk_set_by_other_api The clock should be set by other API
- *         #status_clk_src_invalid clock source is invalid.
- *         #status_clk_fixed clock source and divider is a fixed value
- *         #status_clk_shared_ahb Clock is shared with the AHB clock
- *         #status_clk_shared_axi0 Clock is shared with the AXI0 clock
- *         #status_clk_shared_axi1 CLock is shared with the AXI1 clock
- *         #status_clk_shared_axi2 Clock is shared with the AXI2 clock
- *         #status_clk_shared_cpu0 Clock is shared with the CPU0 clock
- *         #status_clk_shared_cpu1 Clock is shared with the CPU1 clock
- */
-hpm_stat_t clock_set_source_divider(clock_name_t clock_name, clk_src_t src, uint32_t div);
+    /**
+     * @brief Set the IP clock source and divider
+     * @param[in] clock_name clock name
+     * @param[in] src clock source
+     * @param[in] div clock divider, valid range (1 - 256)
+     *
+     * @retval status_success Setting Clock source and divider is successful.
+     * @retval status_clk_set_by_other_api The clock should be set by other API
+     * @retval status_clk_src_invalid clock source is invalid.
+     * @retval status_clk_fixed clock source and divider is a fixed value
+     * @retval status_clk_shared_ahb Clock is shared with the AHB clock
+     * @retval status_clk_shared_axi0 Clock is shared with the AXI0 clock
+     * @retval status_clk_shared_axi1 CLock is shared with the AXI1 clock
+     * @retval status_clk_shared_axi2 Clock is shared with the AXI2 clock
+     * @retval status_clk_shared_cpu0 Clock is shared with the CPU0 clock
+     * @retval status_clk_shared_cpu1 Clock is shared with the CPU1 clock
+     */
+    hpm_stat_t clock_set_source_divider(clock_name_t clock_name, clk_src_t src, uint32_t div);
 
-/**
- * @brief Enable IP clock
- * @param[in] clock_name IP clock name
- */
-void clock_enable(clock_name_t clock_name);
+    /**
+     * @brief Enable IP clock
+     * @param[in] clock_name IP clock name
+     */
+    void clock_enable(clock_name_t clock_name);
 
-/**
- * @brief Disable IP clock
- * @param[in] clock_name IP clock name
- */
-void clock_disable(clock_name_t clock_name);
+    /**
+     * @brief Disable IP clock
+     * @param[in] clock_name IP clock name
+     */
+    void clock_disable(clock_name_t clock_name);
 
-/**
- * @brief Add IP to specified group
- * @param[in] clock_name IP clock name
- * @param[in] group resource group index, valid value: 0/1/2/3
- */
-void clock_add_to_group(clock_name_t clock_name, uint32_t group);
+    /**
+     * @brief Add IP to specified group
+     * @param[in] clock_name IP clock name
+     * @param[in] group resource group index, valid value: 0/1/2/3
+     */
+    void clock_add_to_group(clock_name_t clock_name, uint32_t group);
 
-/**
- * @brief Remove IP from specified group
- * @param[in] clock_name IP clock name
- * @param[in] group resource group index, valid value: 0/1/2/3
- */
-void clock_remove_from_group(clock_name_t clock_name, uint32_t group);
+    /**
+     * @brief Remove IP from specified group
+     * @param[in] clock_name IP clock name
+     * @param[in] group resource group index, valid value: 0/1/2/3
+     */
+    void clock_remove_from_group(clock_name_t clock_name, uint32_t group);
 
-/**
- * @brief Disconnect the clock group from specified CPU
- * @param[in] group clock group index, value value is 0/1/2/3
- * @param[in] cpu CPU index, valid value is 0/1
- */
-void clock_connect_group_to_cpu(uint32_t group, uint32_t cpu);
+    /**
+     * @brief Disconnect the clock group from specified CPU
+     * @param[in] group clock group index, value value is 0/1/2/3
+     * @param[in] cpu CPU index, valid value is 0/1
+     */
+    void clock_connect_group_to_cpu(uint32_t group, uint32_t cpu);
 
-/**
- * @brief Disconnect the clock group from specified CPU
- * @param[in] group clock group index, value value is 0/1/2/3
- * @param[in] cpu CPU index, valid value is 0/1
- */
-void clock_disconnect_group_from_cpu(uint32_t group, uint32_t cpu);
+    /**
+     * @brief Disconnect the clock group from specified CPU
+     * @param[in] group clock group index, value value is 0/1/2/3
+     * @param[in] cpu CPU index, valid value is 0/1
+     */
+    void clock_disconnect_group_from_cpu(uint32_t group, uint32_t cpu);
 
 #ifdef __cplusplus
 }
 #endif
+
+/**
+ * @}
+ */
 
 #endif /* HPM_CLOCK_DRV_H */

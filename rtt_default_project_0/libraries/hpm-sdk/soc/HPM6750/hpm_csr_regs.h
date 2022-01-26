@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -397,7 +397,7 @@
  * XS holds the status of the architectural states (ACE registers) of ACE instructions. The value of this field is zero if ACE extension is not configured.
  * This field is primarily managed by software. The processor hardware assists the state managements in two regards:
  * Illegal instruction exceptions are triggeredwhen XS is Off.
- * XS is updated to the Dirty state with the execution of ACE instructions when XS is not Off. 
+ * XS is updated to the Dirty state with the execution of ACE instructions when XS is not Off.
  * Changing the setting of this field has no effect on the contents of ACE states. In particular, setting XS to Off does not destroy the states, nor does setting XS to Initial clear the contents.
  * The same copy of XS bits are shared by both mstatus and sstatus. Normally the supervisor mode privileged software would use the XS bits to manage deferred context switches of ACE states. Machine mode software should be more conservative in managing context switches using XS bits
  * 0:Off
@@ -3506,7 +3506,7 @@
  *
  * Register Content     :     Match Size(Byte)
  * aaaa. . . aaaaaaaaaaa       Reserved
- * . . . . . . 
+ * . . . . . .
  * aaaa. . . aa011111111      Reserved
  * aaaa. . . a0111111111      2^{12}
  * aaaa. . . 01111111111      2^{13}
@@ -4116,7 +4116,6 @@
  * 0:Level 0 (the highest performance)
  * 1-14:Level 1-14
  * 15:Level 15 (the lowest performance)
- * 
  */
 #define CSR_MPFT_CTL_T_LEVEL_MASK (0xF0U)
 #define CSR_MPFT_CTL_T_LEVEL_SHIFT (4U)
@@ -4567,7 +4566,7 @@
 /*
  * NBLD_EN (RW)
  *
- * This field controls the blocking behavior of load instructions. When this bit is clear, load instructions accessing non-device regions are blocking. When this bit is set, load instructions will not be blocking on such occasions and bus errors will no longer be reported synchronously. 
+ * This field controls the blocking behavior of load instructions. When this bit is clear, load instructions accessing non-device regions are blocking. When this bit is set, load instructions will not be blocking on such occasions and bus errors will no longer be reported synchronously.
  * 0:Load to memory regions are blocking.
  * 1:Load to memory regions are non-blocking.
  */
@@ -5279,7 +5278,6 @@
  * 35–39:Reserved
  * 40–47:ACE exception
  * ≥48:Reserved
- * 
  */
 #define CSR_DDCAUSE_MAINTYPE_MASK (0xFFU)
 #define CSR_DDCAUSE_MAINTYPE_SHIFT (0U)
@@ -5311,7 +5309,7 @@
 /*
  * OV (RW)
  *
- * Overflow flag. It will be set by DSP instructions with a saturated result. 
+ * Overflow flag. It will be set by DSP instructions with a saturated result.
  * 0:A saturated result is not generated
  * 1:A saturated result is generated
  */
@@ -6199,7 +6197,6 @@
  * DLCK (RO)
  *
  * D-Cache locking support
- * 
  * 0:No locking support
  * 1:With locking support
  * When data cache is not configured, this field should be ignored.

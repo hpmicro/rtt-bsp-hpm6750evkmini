@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -10,26 +10,28 @@
 #define HPM_PLIC_H
 
 typedef struct {
-    __RW uint32_t FEATURE;                     /* 0x0: This register enables preemptive priority interrupt feature and the vector mode. */
-    __RW uint32_t PRIORITY[127];               /* 0x4 - 0x1FC: This register determines the priority for interrupt source. */
+    __RW uint32_t FEATURE;                     /* 0x0: Feature enable register */
+    __RW uint32_t PRIORITY[127];               /* 0x4 - 0x1FC: Source priority */
     __R  uint8_t  RESERVED0[3584];             /* 0x200 - 0xFFF: Reserved */
-    __RW uint32_t PENDING[4];                  /* 0x1000 - 0x100C: The interrupt pending status of interrupt sources. Every interrupt source occupies 1 bit. */
+    __RW uint32_t PENDING[4];                  /* 0x1000 - 0x100C: Pending status */
     __R  uint8_t  RESERVED1[112];              /* 0x1010 - 0x107F: Reserved */
-    __R  uint32_t TRIGGER[4];                  /* 0x1080 - 0x108C: The configured interrupt trigger type of interrupt sources. Every interrupt source occupies 1 bit. */
+    __R  uint32_t TRIGGER[4];                  /* 0x1080 - 0x108C: Trigger type */
     __R  uint8_t  RESERVED2[112];              /* 0x1090 - 0x10FF: Reserved */
-    __R  uint32_t NUMBER;                      /* 0x1100: This register indicates the number of supported interrupt sources and supported targets. */
-    __R  uint32_t INFO;                        /* 0x1104: This register indicates the version and the maximum priority of PLIC implementation. */
+    __R  uint32_t NUMBER;                      /* 0x1100: Number of supported interrupt sources and targets */
+    __R  uint32_t INFO;                        /* 0x1104: Version and the maximum priority */
     __R  uint8_t  RESERVED3[3832];             /* 0x1108 - 0x1FFF: Reserved */
     struct {
-        __RW uint32_t INTEN[4];                /* 0x2000 - 0x200C: These registers control the routing of interrupt source n to target m (1 <= n <= 1023 and m >= 0). Each bit controls one interrupt source. */
-    } TARGETINT[9];
-    __R  uint8_t  RESERVED4[2088816];          /* 0x2090 - 0x1FFFFF: Reserved */
+        __RW uint32_t INTEN[4];                /* 0x2000 - 0x200C: machine interrupt enable */
+        __R  uint8_t  RESERVED0[112];          /* 0x2010 - 0x207F: Reserved */
+    } TARGETINT[2];
+    __R  uint8_t  RESERVED4[2088704];          /* 0x2100 - 0x1FFFFF: Reserved */
     struct {
-        __RW uint32_t THRESHOLD;               /* 0x200000: Target priority threshold */
+        __RW uint32_t THRESHOLD;               /* 0x200000: Target0 priority threshold */
         __RW uint32_t CLAIM;                   /* 0x200004: Target claim and complete */
         __R  uint8_t  RESERVED0[1016];         /* 0x200008 - 0x2003FF: Reserved */
-        __RW uint32_t PPS[1];                  /* 0x200400: Preempted priority stack */
-    } TARGETCONFIG[342];
+        __RW uint32_t PPS;                     /* 0x200400: Preempted priority stack */
+        __R  uint8_t  RESERVED1[3068];         /* 0x200404 - 0x200FFF: Reserved */
+    } TARGETCONFIG[2];
 } PLIC_Type;
 
 
@@ -62,8 +64,9 @@ typedef struct {
 /*
  * PRIORITY (RW)
  *
- * Interrupt source priority. The valid range of this field is determined by the MAX_PRIORITY field of the Version & Maximum Priority Configuration Register.
- * 0: Never interrupt1-255: Interrupt source priority. The larger the value, the higher the priority.
+ * Interrupt source priority. The valid range of this field is 0-7.
+ * 0: Never interrupt
+ * 1-7: Interrupt source priority. The larger the value, the higher the priority.
  */
 #define PLIC_PRIORITY_PRIORITY_MASK (0xFFFFFFFFUL)
 #define PLIC_PRIORITY_PRIORITY_SHIFT (0U)
@@ -135,7 +138,7 @@ typedef struct {
 /*
  * INTERRUPT (RW)
  *
- * The interrupt enable bit for interrupt source n to target
+ * The interrupt enable bit for interrupt. Every interrupt source occupies 1 bit.
  */
 #define PLIC_INTEN_INTERRUPT_MASK (0xFFFFFFFFUL)
 #define PLIC_INTEN_INTERRUPT_SHIFT (0U)
@@ -164,16 +167,16 @@ typedef struct {
 #define PLIC_TARGETCONFIG_CLAIM_INTERRUPT_ID_SET(x) (((uint32_t)(x) << PLIC_TARGETCONFIG_CLAIM_INTERRUPT_ID_SHIFT) & PLIC_TARGETCONFIG_CLAIM_INTERRUPT_ID_MASK)
 #define PLIC_TARGETCONFIG_CLAIM_INTERRUPT_ID_GET(x) (((uint32_t)(x) & PLIC_TARGETCONFIG_CLAIM_INTERRUPT_ID_MASK) >> PLIC_TARGETCONFIG_CLAIM_INTERRUPT_ID_SHIFT)
 
-/* Bitfield definition for register of struct array TARGETCONFIG: PPS0 */
+/* Bitfield definition for register of struct array TARGETCONFIG: PPS */
 /*
  * PRIORITY_PREEMPTED (RW)
  *
  * Each bit indicates if the corresponding priority level has been preempted by a higher-priority interrupt.
  */
-#define PLIC_PPS_PRIORITY_PREEMPTED_MASK (0xFFFFFFFFUL)
-#define PLIC_PPS_PRIORITY_PREEMPTED_SHIFT (0U)
-#define PLIC_PPS_PRIORITY_PREEMPTED_SET(x) (((uint32_t)(x) << PLIC_PPS_PRIORITY_PREEMPTED_SHIFT) & PLIC_PPS_PRIORITY_PREEMPTED_MASK)
-#define PLIC_PPS_PRIORITY_PREEMPTED_GET(x) (((uint32_t)(x) & PLIC_PPS_PRIORITY_PREEMPTED_MASK) >> PLIC_PPS_PRIORITY_PREEMPTED_SHIFT)
+#define PLIC_TARGETCONFIG_PPS_PRIORITY_PREEMPTED_MASK (0xFFFFFFFFUL)
+#define PLIC_TARGETCONFIG_PPS_PRIORITY_PREEMPTED_SHIFT (0U)
+#define PLIC_TARGETCONFIG_PPS_PRIORITY_PREEMPTED_SET(x) (((uint32_t)(x) << PLIC_TARGETCONFIG_PPS_PRIORITY_PREEMPTED_SHIFT) & PLIC_TARGETCONFIG_PPS_PRIORITY_PREEMPTED_MASK)
+#define PLIC_TARGETCONFIG_PPS_PRIORITY_PREEMPTED_GET(x) (((uint32_t)(x) & PLIC_TARGETCONFIG_PPS_PRIORITY_PREEMPTED_MASK) >> PLIC_TARGETCONFIG_PPS_PRIORITY_PREEMPTED_SHIFT)
 
 
 
@@ -326,14 +329,11 @@ typedef struct {
 
 /* TARGETINT register group index macro definition */
 #define PLIC_TARGETINT_TARGET0 (0UL)
-#define PLIC_TARGETINT_TARGET1 (8UL)
-
-/* PPS register group index macro definition */
-#define PLIC_TARGETCONFIG_PPS_PPS0 (0UL)
+#define PLIC_TARGETINT_TARGET1 (1UL)
 
 /* TARGETCONFIG register group index macro definition */
 #define PLIC_TARGETCONFIG_TARGET0 (0UL)
-#define PLIC_TARGETCONFIG_TARGET1 (341UL)
+#define PLIC_TARGETCONFIG_TARGET1 (1UL)
 
 
 #endif /* HPM_PLIC_H */

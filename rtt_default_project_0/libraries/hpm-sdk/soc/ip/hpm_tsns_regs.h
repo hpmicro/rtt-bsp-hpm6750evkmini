@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -319,7 +319,6 @@ typedef struct {
 /*
  * POLARITY (RW)
  *
- * 
  */
 #define TSNS_ASYNC_POLARITY_MASK (0x10000UL)
 #define TSNS_ASYNC_POLARITY_SHIFT (16U)

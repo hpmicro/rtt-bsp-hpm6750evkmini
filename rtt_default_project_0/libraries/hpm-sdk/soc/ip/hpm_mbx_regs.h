@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -24,7 +24,7 @@ typedef struct {
 /*
  * TXRESET (RW)
  *
- * Reset TX Fifo and word. 
+ * Reset TX Fifo and word.
  */
 #define MBX_CR_TXRESET_MASK (0x80000000UL)
 #define MBX_CR_TXRESET_SHIFT (31U)
@@ -149,7 +149,7 @@ typedef struct {
 #define MBX_SR_TFEC_GET(x) (((uint32_t)(x) & MBX_SR_TFEC_MASK) >> MBX_SR_TFEC_SHIFT)
 
 /*
- * ERRRE (RW)
+ * ERRRE (W1C)
  *
  * bus Error for read when rx word message are still invalid, this bit is W1C bit.
  * 1, read from word message when the word message are still invalid will cause this error bit set.
@@ -161,7 +161,7 @@ typedef struct {
 #define MBX_SR_ERRRE_GET(x) (((uint32_t)(x) & MBX_SR_ERRRE_MASK) >> MBX_SR_ERRRE_SHIFT)
 
 /*
- * EWTRF (RW)
+ * EWTRF (W1C)
  *
  * bus Error for write when tx word message are still valid, this bit is W1C bit.
  * 1, write to word message when the word message are still valid will cause this error bit set.
@@ -173,7 +173,7 @@ typedef struct {
 #define MBX_SR_EWTRF_GET(x) (((uint32_t)(x) & MBX_SR_EWTRF_MASK) >> MBX_SR_EWTRF_SHIFT)
 
 /*
- * ERRFE (RW)
+ * ERRFE (W1C)
  *
  * bus Error for read when rx fifo empty, this bit is W1C bit.
  * 1, read from a empty rx fifo will cause this error bit set.
@@ -185,7 +185,7 @@ typedef struct {
 #define MBX_SR_ERRFE_GET(x) (((uint32_t)(x) & MBX_SR_ERRFE_MASK) >> MBX_SR_ERRFE_SHIFT)
 
 /*
- * EWTFF (RW)
+ * EWTFF (W1C)
  *
  * bus Error for write when tx fifo full, this bit is W1C bit.
  * 1, write to a fulled tx fifo will cause this error bit set.
@@ -197,7 +197,7 @@ typedef struct {
 #define MBX_SR_EWTFF_GET(x) (((uint32_t)(x) & MBX_SR_EWTFF_MASK) >> MBX_SR_EWTFF_SHIFT)
 
 /*
- * EAIVA (RW)
+ * EAIVA (W1C)
  *
  * bus Error for Accessing Invalid Address; this bit is W1C bit.
  * 1, read and write to invalid address in the bus of this block, will set this bit.
@@ -209,7 +209,7 @@ typedef struct {
 #define MBX_SR_EAIVA_GET(x) (((uint32_t)(x) & MBX_SR_EAIVA_MASK) >> MBX_SR_EAIVA_SHIFT)
 
 /*
- * EW2RO (RW)
+ * EW2RO (W1C)
  *
  * bus Error for Write to Read Only address; this bit is W1C bit.
  * 1, write to read only address happened in the bus of this block.

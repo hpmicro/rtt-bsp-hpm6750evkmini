@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -80,7 +80,7 @@ typedef struct {
 /*
  * CIC_OVLD_ERR_IE (RW)
  *
- * CIC overload error interrupt enable 
+ * CIC overload error interrupt enable
  */
 #define PDM_CTRL_CIC_OVLD_ERR_IE_MASK (0x20000UL)
 #define PDM_CTRL_CIC_OVLD_ERR_IE_SHIFT (17U)
@@ -123,10 +123,10 @@ typedef struct {
 /*
  * PDM_CLK_HFDIV (RW)
  *
- * AT least 2. So the clock divider will work at least 4.
+ * The clock divider will work at least 4.
  * 0: div-by-2,
  * 1: div-by-4
- * . . . 
+ * . . .
  * n: div-by-2*(n+1)
  */
 #define PDM_CTRL_PDM_CLK_HFDIV_MASK (0x78U)
@@ -232,7 +232,6 @@ typedef struct {
 /*
  * CH9_TYPE (RW)
  *
- * 
  */
 #define PDM_CH_CFG_CH9_TYPE_MASK (0xC0000UL)
 #define PDM_CH_CFG_CH9_TYPE_SHIFT (18U)
@@ -242,7 +241,6 @@ typedef struct {
 /*
  * CH8_TYPE (RW)
  *
- * 
  */
 #define PDM_CH_CFG_CH8_TYPE_MASK (0x30000UL)
 #define PDM_CH_CFG_CH8_TYPE_SHIFT (16U)
@@ -252,7 +250,6 @@ typedef struct {
 /*
  * CH7_TYPE (RW)
  *
- * 
  */
 #define PDM_CH_CFG_CH7_TYPE_MASK (0xC000U)
 #define PDM_CH_CFG_CH7_TYPE_SHIFT (14U)
@@ -262,7 +259,6 @@ typedef struct {
 /*
  * CH6_TYPE (RW)
  *
- * 
  */
 #define PDM_CH_CFG_CH6_TYPE_MASK (0x3000U)
 #define PDM_CH_CFG_CH6_TYPE_SHIFT (12U)
@@ -272,7 +268,6 @@ typedef struct {
 /*
  * CH5_TYPE (RW)
  *
- * 
  */
 #define PDM_CH_CFG_CH5_TYPE_MASK (0xC00U)
 #define PDM_CH_CFG_CH5_TYPE_SHIFT (10U)
@@ -282,7 +277,6 @@ typedef struct {
 /*
  * CH4_TYPE (RW)
  *
- * 
  */
 #define PDM_CH_CFG_CH4_TYPE_MASK (0x300U)
 #define PDM_CH_CFG_CH4_TYPE_SHIFT (8U)
@@ -292,7 +286,6 @@ typedef struct {
 /*
  * CH3_TYPE (RW)
  *
- * 
  */
 #define PDM_CH_CFG_CH3_TYPE_MASK (0xC0U)
 #define PDM_CH_CFG_CH3_TYPE_SHIFT (6U)
@@ -302,7 +295,6 @@ typedef struct {
 /*
  * CH2_TYPE (RW)
  *
- * 
  */
 #define PDM_CH_CFG_CH2_TYPE_MASK (0x30U)
 #define PDM_CH_CFG_CH2_TYPE_SHIFT (4U)
@@ -312,7 +304,6 @@ typedef struct {
 /*
  * CH1_TYPE (RW)
  *
- * 
  */
 #define PDM_CH_CFG_CH1_TYPE_MASK (0xCU)
 #define PDM_CH_CFG_CH1_TYPE_SHIFT (2U)
@@ -422,7 +413,7 @@ typedef struct {
 /*
  * COEF_LEN_M1 (RW)
  *
- * Coef length of filter type 2'b00 in coef memory
+ * Coef length of filter type 2'b01 in coef memory
  */
 #define PDM_CTRL_FILT1_COEF_LEN_M1_MASK (0xFF00U)
 #define PDM_CTRL_FILT1_COEF_LEN_M1_SHIFT (8U)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -63,9 +63,8 @@ typedef struct {
  * FLAG (RW)
  *
  * interrupt flag, each bit represents for one monitor, write 1 to clear interrupt flag
- * 0: no monitor interrupt 
+ * 0: no monitor interrupt
  * 1: monitor interrupt happened
- * Note: This register only available in PMIC domain
  */
 #define PMON_IRQ_FLAG_FLAG_MASK (0xFU)
 #define PMON_IRQ_FLAG_FLAG_SHIFT (0U)
@@ -79,7 +78,6 @@ typedef struct {
  * interrupt enable, each bit represents for one monitor
  * 0: monitor interrupt disabled
  * 1: monitor interrupt enabled
- * Note: This register only available in PMIC domain
  */
 #define PMON_IRQ_ENABLE_ENABLE_MASK (0xFU)
 #define PMON_IRQ_ENABLE_ENABLE_SHIFT (0U)

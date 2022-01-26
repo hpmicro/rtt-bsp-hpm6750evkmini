@@ -53,13 +53,6 @@ void pdma_enable_irq(PDMA_Type *ptr, uint32_t mask, bool enable)
     }
 }
 
-/*!
- * @brief Get PDMA_CTRL configuration setting.
- *
- * @param ptr PDMA peripheral base address.
- * @param config Pointer to configuration structure to be restored with the setting values.
- * @param pixel_format PDMA output pixel format.
- */
 void pdma_get_default_config(PDMA_Type *ptr, pdma_config_t *config, display_pixel_format_t pixel_format)
 {
     config->block_size = pdma_blocksize_16x16;
@@ -72,13 +65,6 @@ void pdma_get_default_config(PDMA_Type *ptr, pdma_config_t *config, display_pixe
     }
 }
 
-/*!
- * @brief Get PDMA plane configuration setting.
- *
- * @param ptr PDMA peripheral base address.
- * @param config Pointer to configuration structure to be restored with the setting values.
- * @param pixel_format PDMA output pixel format.
- */
 void pdma_get_default_plane_config(PDMA_Type *ptr, pdma_plane_config_t *config, display_pixel_format_t pixel_format)
 {
     config->swap_byte3_byte1 = false;
@@ -118,16 +104,6 @@ void pdma_get_default_plane_config(PDMA_Type *ptr, pdma_plane_config_t *config, 
     }
 }
 
-/*!
- * @brief Get YUV2RGB_COEF configuration according to plane_src and plane_dst pixel format.
- *
- * Note: The plane_src and plane_dst share one YUV2RGB_COEF, so not support convert one plane YUV422 format
- * and another plane YCbCr422 format at same time.
- *
- * @param ptr PDMA peripheral base address.
- * @param yuv2rgb_config Pointer to configuration structure to be restored with the setting values.
- * @param source_format The YUV2RGB input source format.
- */
 void pdma_get_default_yuv2rgb_coef_config(PDMA_Type *ptr, display_yuv2rgb_coef_t *yuv2rgb_coef, display_pixel_format_t source_format)
 {
     /* Two plane share one YUV2RGB_COEF, not support one plane format is yuv422 and another is ycbcr422 */
@@ -163,13 +139,6 @@ void pdma_get_default_yuv2rgb_coef_config(PDMA_Type *ptr, display_yuv2rgb_coef_t
     }
 }
 
-/*!
- * @brief Get PDMA output configuration setting.
- *
- * @param ptr PDMA peripheral base address.
- * @param config Pointer to configuration structure to be restored with the setting values.
- * @param pixel_format PDMA output pixel format.
- */
 void pdma_get_default_output_config(PDMA_Type *ptr, pdma_output_config_t *config, display_pixel_format_t pixel_format)
 {
     uint8_t i;
@@ -288,17 +257,6 @@ static uint32_t pdma_pixel_format(display_pixel_format_t display_format)
     }
 }
 
-/*!
- * @brief Configure PDMA planes.
- *
- * Note: The plane_src and plane_dst share one YUV2RGB_COEF, so not support convert one plane YUV422 format
- * and another plane YCbCr422 format at same time.
- * 
- * @param ptr PDMA peripheral base address.
- * @param plane_src_config Pointer to plane_src configuration structure.
- * @param plane_dst_config Pointer to plan_dst configuration structure.
- * @param yuv2rgb_coef     Pointer to yuv2rgb_coef configuration structure.
- */
 void pdma_config_planes(PDMA_Type *ptr, void *plane_src_config, void *plane_dst_config, void *yuv2rgb_coef)
 {
     uint32_t pitch;

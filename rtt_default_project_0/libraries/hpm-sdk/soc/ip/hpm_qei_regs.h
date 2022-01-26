@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -86,7 +86,7 @@ typedef struct {
 /*
  * PAUSEPH (rw)
  *
- * 1- pause spdcnt when PAUSE assert
+ * 1- pause phcnt when PAUSE assert
  */
 #define QEI_CR_PAUSEPH_MASK (0x2000U)
 #define QEI_CR_PAUSEPH_SHIFT (13U)
@@ -96,7 +96,7 @@ typedef struct {
 /*
  * PAUSEZ (rw)
  *
- * 1- pause spdcnt when PAUSE assert
+ * 1- pause zcnt when PAUSE assert
  */
 #define QEI_CR_PAUSEZ_MASK (0x1000U)
 #define QEI_CR_PAUSEZ_SHIFT (12U)
@@ -551,7 +551,7 @@ typedef struct {
 /*
  * PHCNT (RO)
  *
- * phcnt value 
+ * phcnt value
  */
 #define QEI_COUNT_PH_PHCNT_MASK (0x1FFFFFUL)
 #define QEI_COUNT_PH_PHCNT_SHIFT (0U)

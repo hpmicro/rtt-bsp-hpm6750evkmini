@@ -9,7 +9,7 @@
 
 #include <rtthread.h>
 #include <rtdevice.h>
-#include "board.h"
+#include "rtt_board.h"
 
 void thread_entry(void *arg);
 
@@ -18,11 +18,11 @@ void thread_entry(void *arg);
 int main(void)
 {
 
-    board_init_led_pins();
+    app_init_led_pins();
 
-    static uint32_t thread0_arg = 0;
-    rt_thread_t thread0 = rt_thread_create("thread0", thread_entry, &thread0_arg, 512, 1, 10);
-    rt_thread_startup(thread0);
+    static uint32_t led_thread_arg = 0;
+    rt_thread_t led_thread = rt_thread_create("led_th", thread_entry, &led_thread_arg, 1024, 1, 10);
+    rt_thread_startup(led_thread);
 
     return 0;
 }
@@ -31,17 +31,17 @@ int main(void)
 void thread_entry(void *arg)
 {
     while(1){
-        board_led_write(0, BOARD_LED_ON);
+        app_led_write(0, APP_LED_ON);
         rt_thread_mdelay(500);
-        board_led_write(0, BOARD_LED_OFF);
+        app_led_write(0, APP_LED_OFF);
         rt_thread_mdelay(500);
-        board_led_write(1, BOARD_LED_ON);
+        app_led_write(1, APP_LED_ON);
         rt_thread_mdelay(500);
-        board_led_write(1, BOARD_LED_OFF);
+        app_led_write(1, APP_LED_OFF);
         rt_thread_mdelay(500);
-        board_led_write(2, BOARD_LED_ON);
+        app_led_write(2, APP_LED_ON);
         rt_thread_mdelay(500);
-        board_led_write(2, BOARD_LED_OFF);
+        app_led_write(2, APP_LED_OFF);
         rt_thread_mdelay(500);
     }
 }
