@@ -1,0 +1,62 @@
+<!DOCTYPE CrossStudio_Project_File>
+<solution Name="{{ target["name"] }}" target="20" version="2">
+  <project Name="{{ target["name"] }}">
+    <configuration
+      Name="Common"
+      LIBRARY_IO_TYPE="STD"
+      RISCV_TOOLCHAIN_VARIANT="Standard"
+      arm_linker_heap_size="{{ target["heap_size"]}}"
+      arm_linker_stack_size="{{ target["stack_size"]}}"
+      arm_linker_variant="SEGGER"
+      arm_rtl_variant="SEGGER"
+      build_generic_options_file_name=""
+      c_user_include_directories="{% for inc in target["includes"] %}{{ inc }};{% endfor %}"
+      link_linker_script_file="{{ target["linker"]}}"
+      linker_output_format="hex"
+      macros="HPM_SDK_BASE={{ target["sdk_base"] }}"
+      project_directory=""
+      project_type="Executable"
+      rv_arch_ext=""
+      rv_debug_extensions="None"
+      rv_toolchain_prefix=""
+      linker_printf_fp_enabled="Float"
+      linker_printf_width_precision_supported="Yes"
+      {% if target["openocd"] -%}
+      debug_target_connection="GDB Server"
+      gdb_server_type="Custom"
+      gdb_server_reset_command="{{ target["gdb_server_reset_command"] }}"
+      gdb_server_autostart_server="{{ target["auto_start_gdb_server"] }}"
+      gdb_server_port="{{ target["gdb_server_port"] }}"
+      gdb_server_command_line="{{ target["openocd"] }} -f $(HPM_SDK_BASE)/boards/openocd/probes/{{ target["debug_probe"] }}.cfg {% if target["openocd_soc"]|length %} -f $(HPM_SDK_BASE)/boards/openocd/soc/{{ target["openocd_soc"]}}.cfg {% endif %} -f $(HPM_SDK_BASE)/boards/openocd/boards/{{ target["board"] }}.cfg"
+      {%- endif %}
+      target_device_name="rv32"
+      linker_output_format="bin"
+      post_build_command="{{ target["post_build_command"] }}"
+      />
+    {% for group in target["groups"] %}<folder Name="{{ group.name }}">{% for file in group.files %}
+    <file file_name="{{ file.path }}"/>{% endfor %}</folder>{% endfor %}
+    <configuration
+      Name="Debug"
+      debug_register_definition_file="{{ target["register_definition"] }}"
+      gdb_server_allow_memory_access_during_execution="Yes"
+      gdb_server_ignore_checksum_errors="No"
+      gdb_server_register_access="General and Individual"
+
+      />
+  </project>
+  <configuration
+    Name="Debug"
+    c_preprocessor_definitions="DEBUG"
+    gcc_debugging_level="Level 3"
+    gcc_optimization_level="None" />
+  <configuration
+    Name="Release"
+    c_preprocessor_definitions="NDEBUG"
+    gcc_debugging_level="None"
+    gcc_omit_frame_pointer="Yes"
+    gcc_optimization_level="Level 1" />
+  <configuration Name="Common"
+      c_preprocessor_definitions="{% for define in target["defines"] %}{{ define }};{% endfor %}"
+      gdb_server_write_timeout="300"
+      link_symbol_definitions="{% for symbol in target["link_symbols"] %}{{ symbol }};{% endfor %}" />
+</solution>
