@@ -32,8 +32,9 @@ SECTIONS
         . = ALIGN(8);
     } > AXI_SRAM
 
-    .rel : {
-        KEEP(*(.rel*))
+    .start : {
+        . = ALIGN(8);
+        KEEP(*(.start))
     } > AXI_SRAM
 
     .text : {
@@ -91,6 +92,11 @@ SECTIONS
         PROVIDE (_etext = .);
         PROVIDE (etext = .);
     } > AXI_SRAM
+
+    .rel : {
+        KEEP(*(.rel*))
+    } > AXI_SRAM
+
 
     .data : AT(etext) {
         . = ALIGN(8);
