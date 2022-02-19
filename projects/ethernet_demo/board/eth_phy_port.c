@@ -34,17 +34,14 @@ static rt_phy_status phy_init(void *object, rt_uint32_t phy_addr, rt_uint32_t sr
 
 static rt_size_t phy_read(void *bus, rt_uint32_t addr, rt_uint32_t reg, void *data, rt_uint32_t size)
 {
-    ENET_Type *ptr = ((struct rt_mdio_bus *)bus)->hw_obj;
-
-    *(uint16_t *)data = enet_read_phy(ptr, addr, reg);
+    *(uint16_t *)data = enet_read_phy(((struct rt_mdio_bus *)bus)->hw_obj, addr, reg);
 
     return size;
 }
 
 static rt_size_t phy_write(void *bus, rt_uint32_t addr, rt_uint32_t reg, void *data, rt_uint32_t size)
 {
-    ENET_Type *ptr = ((struct rt_mdio_bus *)bus)->hw_obj;
-    enet_write_phy(ptr, addr, reg,  *(uint16_t *)data);
+    enet_write_phy(((struct rt_mdio_bus *)bus)->hw_obj, addr, reg,  *(uint16_t *)data);
 
     return size;
 }
@@ -119,10 +116,11 @@ static void phy_status_polling(void *parameter)
     }
 }
 
-static void phy_detection(phy_device_t *phy_dev)
+static void phy_detection(void *parameter)
 {
     uint8_t detected_count = 0;
     struct rt_phy_msg msg = {PHY_ID1_REG, 0};
+    phy_device_t *phy_dev = (phy_device_t *)parameter;
     rt_uint32_t i;
 
     phy_dev->phy.ops->init(phy_dev->phy.bus->hw_obj, phy_dev->phy.addr, PHY_MDIO_CSR_CLK_FREQ);
@@ -157,10 +155,11 @@ static void phy_detection(phy_device_t *phy_dev)
 static void phy_monitor_thread_entry(void *args)
 {
     rt_timer_t phy_status_timer;
-    phy_detection(&phy_dev);
-    phy_status_polling((void *)&phy_dev);
-    phy_status_timer = rt_timer_create("PHY_Link", (void (*)(void*))phy_status_polling,
-                                        &phy_dev, RT_TICK_PER_SECOND, RT_TIMER_FLAG_PERIODIC);
+    phy_device_t *phy_dev = (phy_device_t *)args;
+
+    phy_detection(phy_dev);
+    phy_status_timer = rt_timer_create("PHY_Monitor", phy_status_polling,
+                                        phy_dev, RT_TICK_PER_SECOND, RT_TIMER_FLAG_PERIODIC);
 
     if (!phy_status_timer || rt_timer_start(phy_status_timer) != RT_EOK)
     {
