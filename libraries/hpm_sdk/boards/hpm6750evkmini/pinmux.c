@@ -197,12 +197,11 @@ void init_pins(void)
 
 void init_gptmr_pins(GPTMR_Type *ptr)
 {
-    if (ptr == HPM_GPTMR4) {
-        /* TMR4 capture 1 */
-        HPM_IOC->PAD[IOC_PAD_PE25].FUNC_CTL = IOC_PE25_FUNC_CTL_GPTMR4_CAPT_1;
-    } else if (ptr == HPM_GPTMR5) {
-        /* TMR5 compare 0 */
-        HPM_IOC->PAD[IOC_PAD_PF04].FUNC_CTL = IOC_PF04_FUNC_CTL_GPTMR5_COMP_0;
+    if (ptr == HPM_GPTMR2) {
+        /* TMR2 capture 0 */
+        HPM_IOC->PAD[IOC_PAD_PE23].FUNC_CTL = IOC_PE23_FUNC_CTL_GPTMR2_CAPT_0;
+        /* TMR2 compare 0 */
+        HPM_IOC->PAD[IOC_PAD_PE18].FUNC_CTL = IOC_PE18_FUNC_CTL_GPTMR2_COMP_0;
     }
 }
 
@@ -233,8 +232,8 @@ void init_pdm_pins(void)
 
 void init_vad_pins(void)
 {
-    HPM_PIOC->PAD[IOC_PAD_PY11].FUNC_CTL = IOC_PY10_FUNC_CTL_VAD_CLK;
-    HPM_PIOC->PAD[IOC_PAD_PY10].FUNC_CTL = IOC_PY11_FUNC_CTL_VAD_DAT;
+    HPM_PIOC->PAD[IOC_PAD_PY10].FUNC_CTL = IOC_PY10_FUNC_CTL_VAD_CLK;
+    HPM_PIOC->PAD[IOC_PAD_PY11].FUNC_CTL = IOC_PY11_FUNC_CTL_VAD_DAT;
 }
 
 void init_cam_pins(CAM_Type *ptr)

@@ -43,6 +43,22 @@
 #define DMA_STATUS_ABORT_SHIFT                  (8U)
 #define DMA_STATUS_TC_SHIFT                     (16U)
 
+#define DMA_CHANNEL_STATUS_ONGOING (1U)
+#define DMA_CHANNEL_STATUS_ERROR (2U)
+#define DMA_CHANNEL_STATUS_ABORT (4U)
+#define DMA_CHANNEL_STATUS_TC (8U)
+
+#define DMA_CHANNEL_IRQ_STATUS_ERROR(x) (uint32_t)(1 << (DMA_STATUS_ERROR_SHIFT + x))
+#define DMA_CHANNEL_IRQ_STATUS_ABORT(x) (uint32_t)(1 << (DMA_STATUS_ABORT_SHIFT + x))
+#define DMA_CHANNEL_IRQ_STATUS_TC(x) (uint32_t)(1 << (DMA_STATUS_TC_SHIFT + x))
+#define DMA_CHANNEL_IRQ_STATUS(x) (uint32_t)(DMA_CHANNEL_IRQ_STATUS_TC(x) | \
+                                         DMA_CHANNEL_IRQ_STATUS_ABORT(x) | \
+                                         DMA_CHANNEL_IRQ_STATUS_ERROR(x))
+
+#define DMA_CHANNEL_IRQ_STATUS_GET_ALL_TC(x) ((x) & ((DMA_SOC_CHANNEL_NUM - 1) << DMA_STATUS_TC_SHIFT))
+#define DMA_CHANNEL_IRQ_STATUS_GET_ALL_ABORT(x) ((x) & ((DMA_SOC_CHANNEL_NUM - 1) << DMA_STATUS_ABORT_SHIFT))
+#define DMA_CHANNEL_IRQ_STATUS_GET_ALL_ERROR(x) ((x) & ((DMA_SOC_CHANNEL_NUM - 1) << DMA_STATUS_ERROR_SHIFT))
+
 #define DMA_HANDSHAKE_MODE_HANDSHAKE (1U)
 #define DMA_HANDSHAKE_MODE_NORMAL (0U)
 
@@ -83,7 +99,8 @@ typedef struct dma_linked_descriptor {
 typedef struct dma_channel_config {
     uint8_t priority;               /**< Channel priority */
     uint8_t src_burst_size;         /**< Source burst size */
-    uint8_t dma_mode;               /**< Source work mode */
+    uint8_t src_mode;               /**< Source work mode */
+    uint8_t dst_mode;               /**< Destination work mode */
     uint8_t src_width;              /**< Source width */
     uint8_t dst_width;              /**< Destination width */
     uint8_t src_addr_ctrl;          /**< Source address control */
@@ -99,6 +116,18 @@ typedef struct dma_channel_config {
     uint32_t linked_ptr_high;       /**< Linked descriptor high 32bits */
 #endif
 } dma_channel_config_t;
+
+
+/* @brief Channel config */
+typedef struct dma_handshake_config {
+    uint32_t dst;
+    uint32_t src;
+    uint32_t size_in_byte;
+    uint8_t ch_index;
+    bool dst_fixed;
+    bool src_fixed;
+} dma_handshake_config_t;
+
 
 /* @brief DMA specific status */
 enum {
@@ -193,17 +222,39 @@ static inline bool dma_has_linked_pointer_configured(DMA_Type *ptr, uint32_t ch_
 static inline hpm_stat_t dma_check_transfer_status(DMA_Type *ptr, uint8_t ch_index)
 {
     volatile uint32_t tmp = ptr->INTSTATUS;
-    ptr->INTSTATUS = tmp;
-    if (tmp & (1 << (DMA_STATUS_TC_SHIFT + ch_index))) {
-        return status_dma_transfer_done;
+    volatile uint32_t tmp_channel;
+    hpm_stat_t dma_status;
+
+    dma_status = 0;
+    tmp_channel = tmp & (1 << (DMA_STATUS_TC_SHIFT + ch_index));
+    if (tmp_channel) {
+        dma_status |= DMA_CHANNEL_STATUS_TC;
+        ptr->INTSTATUS = tmp_channel;
     }
-    if (tmp & (1 << (DMA_STATUS_ERROR_SHIFT + ch_index))) {
-        return status_dma_transfer_error;
+    tmp_channel = tmp & (1 << (DMA_STATUS_ERROR_SHIFT + ch_index));
+    if (tmp_channel) {
+        dma_status |= DMA_CHANNEL_STATUS_ERROR;
+        ptr->INTSTATUS = tmp_channel;
     }
-    if (tmp & (1 << (DMA_STATUS_ABORT_SHIFT + ch_index))) {
-        return status_dma_transfer_abort;
+    tmp_channel = tmp & (1 << (DMA_STATUS_ABORT_SHIFT + ch_index));
+    if (tmp_channel) {
+        dma_status |= DMA_CHANNEL_STATUS_ABORT;
+        ptr->INTSTATUS = tmp_channel;
     }
-    return status_dma_transfer_ongoing;
+    if (dma_status == 0) {
+        dma_status = DMA_CHANNEL_STATUS_ONGOING;
+    }
+    return dma_status;
+}
+
+static inline void dma_clear_irq_status(DMA_Type *ptr, uint32_t mask)
+{
+    ptr->INTSTATUS |= mask;
+}
+
+static inline uint32_t dma_get_irq_status(DMA_Type *ptr)
+{
+    return ptr->INTSTATUS;
 }
 
 /**
@@ -241,6 +292,16 @@ hpm_stat_t dma_setup_channel(DMA_Type *ptr, uint32_t ch_index,
 hpm_stat_t dma_start_memcpy(DMA_Type *ptr, uint8_t ch_index,
                                uint32_t dst, uint32_t src,
                                uint32_t size_in_byte, uint32_t burst_len_in_byte);
+
+/**
+ * @brief   config dma handshake function
+ *
+ * @param[in] ptr DMA base address
+ * @param[in] pconfig dma handshake config pointer
+ *
+ * @return status_success if everthing is okay
+ */
+hpm_stat_t dma_setup_handshake(DMA_Type *ptr,  dma_handshake_config_t *pconfig);
 
 #ifdef __cplusplus
 }

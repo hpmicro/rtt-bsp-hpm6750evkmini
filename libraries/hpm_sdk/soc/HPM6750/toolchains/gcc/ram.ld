@@ -17,7 +17,7 @@ MEMORY
     /* It's alias address of core1 ILM+DLM, but accessing via system bus */
     CORE1_LM_SLV (wx) : ORIGIN = 0x1180000, LENGTH = 512K
     SDRAM (wx) : ORIGIN = 0x40000000, LENGTH = 32M
-    
+
     AXI_SRAM (wx) : ORIGIN = 0x1080000, LENGTH = 768K
     AXI_SRAM_NONCACHEABLE (wx) : ORIGIN = 0x01140000, LENGTH = 256K
 }
@@ -27,18 +27,18 @@ SECTIONS
     .start : {
         . = ALIGN(8);
         KEEP(*(.start))
-    } > ILM
+    } > CORE0_LM_SLV
 
     .vectors : {
         . = ALIGN(8);
         KEEP(*(.isr_vector))
         KEEP(*(.vector_table))
         . = ALIGN(8);
-    } > ILM
+    } > CORE0_LM_SLV
 
     .rel : {
         KEEP(*(.rel*))
-    } > ILM
+    } > CORE0_LM_SLV
 
     .text : {
         . = ALIGN(8);
@@ -64,7 +64,7 @@ SECTIONS
         PROVIDE (__etext = .);
         PROVIDE (_etext = .);
         PROVIDE (etext = .);
-    } > ILM
+    } > CORE0_LM_SLV
 
     .data : AT(etext) {
         . = ALIGN(8);
@@ -118,8 +118,15 @@ SECTIONS
         PROVIDE (__edata = .);
         PROVIDE (_edata = .);
         PROVIDE (edata = .);
-    } > DLM
+    } > AXI_SRAM
 
+    .fast : AT(etext + __data_end__ - __data_start__) {
+        . = ALIGN(8);
+        PROVIDE(__ramfunc_start__ = .);
+        *(.fast)
+        . = ALIGN(8);
+        PROVIDE(__ramfunc_end__ = .);
+    } > AXI_SRAM
 
     .bss : {
         . = ALIGN(8);
@@ -136,7 +143,7 @@ SECTIONS
         . = ALIGN(8);
         _end = .;
         __bss_end__ = .;
-    } > DLM
+    } > AXI_SRAM
 
     .framebuffer (NOLOAD) : {
         KEEP(*(.framebuffer))
@@ -152,26 +159,27 @@ SECTIONS
         . += HEAP_SIZE;
         __heap_end__ = .;
 
-    } > DLM
+    } > AXI_SRAM
 
-    .noncacheable (NOLOAD) : {
+    .noncacheable : AT(etext + __data_end__ - __data_start__ + __ramfunc_end__ - __ramfunc_start__) {
         . = ALIGN(8);
-        __noncacheable_bss_start__ = .;
-        KEEP(*(.noncacheable))
-        __noncacheable_bss_end__ = .;
         __noncacheable_init_start__ = .;
         KEEP(*(.noncacheable.init))
         __noncacheable_init_end__ = .;
+        KEEP(*(.noncacheable))
+        __noncacheable_bss_start__ = .;
+        KEEP(*(.noncacheable.bss))
+        __noncacheable_bss_end__ = .;
         . = ALIGN(8);
     } > AXI_SRAM_NONCACHEABLE
-    
+
     .stack : {
         . = ALIGN(8);
         __stack_base__ = .;
         . += STACK_SIZE;
         PROVIDE (_stack = .);
         PROVIDE (_stack_in_dlm = .);
-    } > DLM
+    } > AXI_SRAM
 
     __noncacheable_start__ = ORIGIN(AXI_SRAM_NONCACHEABLE);
     __noncacheable_end__ = ORIGIN(AXI_SRAM_NONCACHEABLE) + LENGTH(AXI_SRAM_NONCACHEABLE);

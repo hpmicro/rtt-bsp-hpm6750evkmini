@@ -1,14 +1,17 @@
+# SHA256 algorithm
 ## Overview
-***
-sha256_example the example project shows the implementation of sha256 algorithm. In this project, NIST sha256 method is used to complete the module encryption and decryption test.
+
+**sha256_example** the example project shows the implementation of sha256 algorithm.
+- The decryption algorithm of this project adopts NIST sha256 method to complete the module encryption and decryption test.
 
 ## Board Setting
-***
-No special settings
+
+- No special settings
 
 ## Running the example
-***
+
 When the project runs correctly, and the serial port terminal will output the following information:
+```
 > tc_start() - Performing SHA256 tests (NIST tests vectors):
 > SHA256 test #1:
 > ===================================================================
@@ -47,3 +50,4 @@ When the project runs correctly, and the serial port terminal will output the fo
 > ===================================================================
 > PASS - test_12.
 > SHA256 test #13:
+```

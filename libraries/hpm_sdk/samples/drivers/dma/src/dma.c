@@ -15,17 +15,17 @@
 #include "hpm_sysctl_drv.h"
 #include "hpm_l1c_drv.h"
 
-#define SIZE_PER_TEST   (0x00100000UL)
+#define SIZE_PER_TEST   (0x00020000UL)
 #define DST_ADDRESS     (0x40000000UL)
-#define SRC_ADDRESS     (0x01080000UL)
+#define SRC_ADDRESS     (0x010c0000UL)
 #define TEST_DATA_LENGTH_IN_BYTE (0x2000000UL)
 
-#ifndef TEST_DMA_CONTROLLER 
+#ifndef TEST_DMA_CONTROLLER
 #define TEST_DMA_CONTROLLER HPM_XDMA
 #endif
 
 #ifndef TEST_DMA_IRQ
-#define TEST_DMA_IRQ BOARD_APP_XDMA_IRQ 
+#define TEST_DMA_IRQ BOARD_APP_XDMA_IRQ
 #endif
 
 #ifndef TEST_DMA_CHANNEL
@@ -62,7 +62,10 @@ static void prepare_test_data(uint8_t *buffer, uint32_t size_in_byte)
         buffer[i] = i;
     }
     if (l1c_dc_is_enabled()) {
-        l1c_dc_flush((uint32_t) buffer, size_in_byte);
+        uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)buffer);
+        uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)buffer + size_in_byte);
+        uint32_t aligned_size = aligned_end - aligned_start;
+        l1c_dc_flush(aligned_start, aligned_size);
     }
 }
 
@@ -75,7 +78,10 @@ static uint32_t compare_buffers(uint8_t *expected, uint8_t *actual, uint32_t siz
         printf("\n");
     }
     if (l1c_dc_is_enabled()) {
-        l1c_dc_invalidate((uint32_t)actual, size);
+        uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)actual);
+        uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)actual + size);
+        uint32_t aligned_size = aligned_end - aligned_start;
+        l1c_dc_invalidate(aligned_start, aligned_size);
     }
     for(i = 0, errors = 0; i < size; i++) {
         if (*(expected + i) != *(actual + i)) {
@@ -94,52 +100,6 @@ static uint32_t compare_buffers(uint8_t *expected, uint8_t *actual, uint32_t siz
     return errors;
 }
 
-static void init_sdram()
-{
-    uint32_t dram_clk_in_hz;
-    board_init_sdram_pins();
-    dram_clk_in_hz = board_init_dram_clock();
-
-    dram_config_t config = {0};
-    dram_sdram_config_t sdram_config = {0};
-
-    dram_default_config(HPM_DRAM, &config);
-    config.dqs = DRAM_DQS_INTERNAL;
-    dram_init(HPM_DRAM, &config);
-
-    sdram_config.bank_num = DRAM_SDRAM_BANK_NUM_4;
-    sdram_config.prescaler = 0x3;
-    sdram_config.burst_len_in_byte = 8;
-    sdram_config.auto_refresh_count_in_one_burst = 1;
-    sdram_config.col_addr_bits = DRAM_SDRAM_COLUMN_ADDR_9_BITS;
-    sdram_config.cas_latency = DRAM_SDRAM_CAS_LATENCY_3;
-
-    sdram_config.precharge_to_act_in_ns = 18;   /* Trp */
-    sdram_config.act_to_rw_in_ns = 18;          /* Trcd */
-    sdram_config.refresh_recover_in_ns = 70;     /* Trfc/Trc */
-    sdram_config.write_recover_in_ns = 12;      /* Twr/Tdpl */
-    sdram_config.cke_off_in_ns = 42;             /* Trcd */
-    sdram_config.act_to_precharge_in_ns = 42;   /* Tras */
-
-    sdram_config.self_refresh_recover_in_ns = 66;   /* Txsr */
-    sdram_config.refresh_to_refresh_in_ns = 66;     /* Trfc/Trc */
-    sdram_config.act_to_act_in_ns = 12;             /* Trrd */
-    sdram_config.idle_timeout_in_ns = 6;
-    sdram_config.cs_mux_pin = DRAM_IO_MUX_NOT_USED;
-
-    sdram_config.cs = BOARD_SDRAM_CS;
-    sdram_config.base_address = BOARD_SDRAM_ADDRESS;
-    sdram_config.size_in_byte = BOARD_SDRAM_SIZE;
-    sdram_config.port_size = BOARD_SDRAM_PORT_SIZE;
-    sdram_config.refresh_count = BOARD_SDRAM_REFRESH_COUNT;
-    sdram_config.refresh_in_ms = BOARD_SDRAM_REFRESH_IN_MS;
-    sdram_config.data_width_in_byte = BOARD_SDRAM_DATA_WIDTH_IN_BYTE;
-    sdram_config.delay_cell_value = 29;
-
-    dram_config_sdram(HPM_DRAM, dram_clk_in_hz, &sdram_config);
-    printf("dram has been configured @ %dHz\n", dram_clk_in_hz);
-}
-
 /* descriptor should be 8-byte aligned */
 dma_linked_descriptor_t descriptors[4] __attribute__ ((aligned(8)));
 
@@ -148,7 +108,7 @@ void isr_dma(void)
     volatile hpm_stat_t stat;
     dma_transfer_done = true;
     stat = dma_check_transfer_status(TEST_DMA_CONTROLLER, TEST_DMA_CHANNEL);
-    if (stat != status_dma_transfer_done) {
+    if (0 == (stat & DMA_CHANNEL_STATUS_TC)) {
         dma_transfer_error = true;
     }
 }
@@ -195,7 +155,7 @@ void test_chained_transfer(bool verbose)
     while (!dma_transfer_done) {
         __asm("nop");
     }
-    
+
     if (dma_transfer_error) {
         printf(" chained transfer failed\n");
         return;
@@ -245,8 +205,8 @@ void test_unchained_transfer(uint32_t src, uint32_t dst, bool verbose)
         hpm_stat_t stat;
         do {
             stat = dma_check_transfer_status(TEST_DMA_CONTROLLER, TEST_DMA_CHANNEL);
-        } while ((stat == status_dma_transfer_ongoing));
-        if (stat != status_dma_transfer_done) {
+        } while ((stat & DMA_CHANNEL_STATUS_ONGOING));
+        if (0 == (stat & DMA_CHANNEL_STATUS_TC)) {
             dma_transfer_error = true;
         }
 #endif
@@ -273,7 +233,6 @@ int main(void)
     board_init_console();
 
     timer_freq_in_hz = clock_get_frequency(TIMER_CLOCK_NAME);
-    init_sdram();
 
     printf("dma example start\n");
 

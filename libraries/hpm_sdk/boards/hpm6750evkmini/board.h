@@ -100,8 +100,18 @@
 #define BOARD_CAP_I2C_CLK_GPIO_PIN (11)
 
 /* dma section */
+#define BOARD_APP_XDMA HPM_XDMA
+#define BOARD_APP_HDMA HPM_HDMA
 #define BOARD_APP_XDMA_IRQ IRQn_XDMA
 #define BOARD_APP_HDMA_IRQ IRQn_HDMA
+#define BOARD_APP_DMAMUX HPM_DMAMUX
+
+/* gptmr section */
+#define BOARD_GPTMR HPM_GPTMR2
+#define BOARD_GPTMR_IRQ IRQn_GPTMR2
+#define BOARD_GPTMR_CHANNEL 0
+#define BOARD_GPTMR_PWM HPM_GPTMR2
+#define BOARD_GPTMR_PWM_CHANNEL 0
 
 /* gpio section */
 #define BOARD_R_GPIO_CTRL HPM_GPIO0
@@ -197,6 +207,13 @@
 #define BOARD_CALLBACK_TIMER_CH 1
 #define BOARD_CALLBACK_TIMER_IRQ IRQn_GPTMR7
 #define BOARD_CALLBACK_TIMER_CLK_NAME (clock_gptmr7)
+
+/* timer for 1ms*/
+#define BOARD_TMR_1MS                       HPM_GPTMR2
+#define BOARD_TMR_1MS_CH                        0
+#define BOARD_TMR_1MS_CMP                       0
+#define BOARD_TMR_1MS_IRQ                       IRQn_GPTMR2
+#define BOARD_TMR_1MS_RELOAD                    (100000U)
 
 /* SDXC section */
 #define BOARD_APP_SDCARD_SDXC_BASE            (HPM_SDXC1)
@@ -297,6 +314,9 @@ void board_init_cam_pins(void);
 /* Initialize SoC overall clocks */
 void board_init_clock(void);
 
+/* Initialize the UART clock */
+uint32_t board_init_uart_clock(UART_Type *ptr);
+
 /* Initialize the CAM(camera) dot clock */
 uint32_t board_init_cam_clock(CAM_Type *ptr);
 
@@ -336,7 +356,7 @@ void board_delay_ms(uint32_t ms);
 void board_init_beep_pwm_pins(void);
 void board_init_rgb_pwm_pins(void);
 
-void board_timer_create(uint32_t ms, void *cb);
+void board_timer_create(uint32_t ms, board_timer_cb cb);
 void board_enable_output_rgb_led(uint8_t color);
 void board_disable_output_rgb_led(uint8_t color);
 

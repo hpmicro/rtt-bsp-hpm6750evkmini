@@ -281,6 +281,17 @@ static inline void uart_enable_irq(UART_Type *ptr, uart_intr_enable_t irq_mask)
 }
 
 /**
+ * @brief Get Enabled
+ *
+ * @param ptr UART base address
+ * @return enabled irq
+ */
+static inline uint32_t uart_get_enabled_irq(UART_Type *ptr)
+{
+    return ptr->IER;
+}
+
+/**
  * @brief Get interrupt identification
  *
  * @param ptr UART base address

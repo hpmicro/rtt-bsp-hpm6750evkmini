@@ -20,8 +20,7 @@
 #define OV5640_CHIP_ID_LOW_BYTE_VALUE             (0x40)
 
 /* Camera clock configuration elements. */
-typedef struct
-{
+typedef struct {
     uint32_t resolution;
     uint8_t fps;
     uint8_t pllctrl1;
@@ -31,8 +30,7 @@ typedef struct
     uint8_t pclkperiod;
 } ov5640_clock_config_t;
 
-typedef struct
-{
+typedef struct {
     uint8_t lightmode;
     uint8_t awbctrl;
     uint8_t awbr_h;
@@ -43,22 +41,19 @@ typedef struct
     uint8_t awbb_l;
 } ov5640_light_mode_config_t;
 
-typedef struct
-{
+typedef struct {
     uint8_t effect;
     uint8_t sdectrl0;
     uint8_t sdectrl3;
     uint8_t sdectrl4;
 } ov5640_special_effect_config_t;
 
-typedef struct
-{
+typedef struct {
     uint16_t regaddr;
     uint8_t regval;
 } ov5640_reg_val_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t resolution; /*!< Resolution. */
     ov5640_reg_val_t param[]; /*!< register value from 0x3800 to 0x3813. */
 } ov5640_resolution_param_t;
@@ -117,6 +112,14 @@ hpm_stat_t ov5640_set_clock_config(camera_context_t *context, camera_config_t *o
  * ov5640 set interface
  */
 hpm_stat_t ov5640_set_interface(camera_context_t *context, camera_config_t *ov_config);
+
+/**
+ * @brief set ov5640 flip
+ *
+ * @param context @ref camera_context_t
+ * @return hpm_stat_t
+ */
+hpm_stat_t ov5640_flip(camera_context_t *context);
 
 /*
  * ov5640 start

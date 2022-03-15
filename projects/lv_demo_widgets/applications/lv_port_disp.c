@@ -33,8 +33,8 @@ static void init_lcd(void);
 static void flush_display(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p);
 static lcdc_layer_config_t layer;
 static lv_disp_drv_t g_disp_drv;
-static lv_color_t __attribute__((section (".framebuffer"))) framebuffer0[LV_LCD_WIDTH * LV_LCD_HEIGHT] __attribute__ ((aligned(4)));
-static lv_color_t __attribute__((section (".framebuffer"))) framebuffer1[LV_LCD_WIDTH * LV_LCD_HEIGHT] __attribute__ ((aligned(4)));
+static lv_color_t __attribute__((section (".framebuffer"))) framebuffer0[LV_LCD_WIDTH * LV_LCD_HEIGHT] __attribute__ ((aligned(64)));
+static lv_color_t __attribute__((section (".framebuffer"))) framebuffer1[LV_LCD_WIDTH * LV_LCD_HEIGHT] __attribute__ ((aligned(64)));
 static uint32_t ms_per_frame = 0;
 
 void isr_lcd(void)
@@ -117,7 +117,7 @@ static void init_lcd(void)
 #endif
 
     lcdc_init(LCD_CONTROLLER, &config);
-    lcdc_get_default_layer_config(LCD_CONTROLLER, &layer, pixel_format);
+    lcdc_get_default_layer_config(LCD_CONTROLLER, &layer, pixel_format, 0);
 
     memset(framebuffer0, 0, sizeof(framebuffer0));
     memset(framebuffer1, 0, sizeof(framebuffer1));
@@ -144,7 +144,10 @@ static void flush_display(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_c
 {
     uint32_t buffer = core_local_mem_to_sys_address(RUNNING_CORE_INDEX, (uint32_t) color_p);
     if (l1c_dc_is_enabled()) {
-        l1c_dc_writeback(buffer, LV_LCD_HEIGHT * LV_LCD_WIDTH * LV_COLOR_DEPTH / 8);
+        uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN(buffer);
+        uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)buffer + LV_LCD_HEIGHT * LV_LCD_WIDTH * LV_COLOR_DEPTH / 8);
+        uint32_t aligned_size = aligned_end - aligned_start;
+        l1c_dc_writeback(aligned_start, aligned_size);
     }
     lcdc_layer_set_next_buffer(LCD_CONTROLLER, LCD_LAYER_INDEX, buffer);
     disp_wait();

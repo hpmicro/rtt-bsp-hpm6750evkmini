@@ -19,21 +19,6 @@
 
 volatile bool led_on;
 
-void vPortSetupTimerInterrupt(void)
-{
-    HPM_MCHTMR->MTIMECMP = HPM_MCHTMR->MTIME + configCPU_CLOCK_HZ/configTICK_RATE_HZ;
-}
-
-void isr_mchtmr(void)
-{
-    HPM_MCHTMR->MTIMECMP = HPM_MCHTMR->MTIME + configCPU_CLOCK_HZ/configTICK_RATE_HZ;
-
-    if (xTaskIncrementTick() != 0) {
-        vTaskSwitchContext();
-    }
-}
-SDK_DECLARE_MCHTMR_ISR(isr_mchtmr)
-
 static void task1(void *pvParameters)
 {
     for (;;) {

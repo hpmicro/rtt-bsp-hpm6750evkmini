@@ -26,6 +26,9 @@ set(CONFIG_FATFS 1)
 set(CONFIG_LIBJPEG 1)
 set(CUSTOM_LINKER_FILE $ENV{HPM_SDK_BASE}/samples/jpeg/linkers/gcc/jpeg.ld)
                                           
+set(HEAP_SIZE 0x40000)
+set(STACK_SIZE 0x40000)
+
 find_package(hpm-sdk REQUIRED HINTS $ENV{HPM_SDK_BASE})
 
 project(libjpeg_cjpeg_example)

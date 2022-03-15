@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021 - 2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -91,6 +91,16 @@ enum {
     can_payload_size_64,                    /**< Payload size is 64 */
     can_payload_size_max = can_payload_size_64,
 };
+
+/**
+ * @brief CAN Bit timing parameters
+ */
+typedef struct {
+    uint32_t prescaler;     /**< Prescaler value */
+    uint32_t num_seg1;      /**< Seg1 value */
+    uint32_t num_seg2;      /**< Seg2 value */
+    uint32_t num_sjw;       /**< SJW value */
+} can_bit_timing_param_t;
 
 /**
  * @brief CAN receive buffer data structure
@@ -603,6 +613,29 @@ hpm_stat_t can_get_default_config(can_config_t *config);
  * @retval API execution status, status_success or status_invalid_argument
  */
 hpm_stat_t can_init(CAN_Type *base, can_config_t *config, uint32_t src_clk_freq);
+
+
+/**
+ * @brief Configure the Slow Speed Bit timing using low-level interface
+ * @param [in] base CAN base address
+ * @param [in] param CAN bit timing parameter
+ */
+static inline void can_set_slow_speed_timing(CAN_Type *base, const can_bit_timing_param_t *param)
+{
+    base->S_PRESC = CAN_S_PRESC_S_PRESC_SET(param->prescaler - 1U) | CAN_S_PRESC_S_SEG_1_SET(param->num_seg1 - 2U) |
+                                CAN_S_PRESC_S_SEG_2_SET(param->num_seg2 - 1U) | CAN_S_PRESC_S_SJW_SET(param->num_sjw - 1U);
+}
+
+/**
+ * @brief Configure the Fast Speed Bit timing using low-level interface
+ * @param [in] base CAN base address
+ * @param [in] param CAN bit timing parameter
+ */
+static inline void can_set_fast_speed_timing(CAN_Type *base, const can_bit_timing_param_t *param)
+{
+    base->F_PRESC = CAN_F_PRESC_F_PRESC_SET(param->prescaler - 1U) | CAN_F_PRESC_F_SEG_1_SET(param->num_seg1 - 2U) |
+                                CAN_F_PRESC_F_SEG_2_SET(param->num_seg2 - 1U) | CAN_F_PRESC_F_SJW_SET(param->num_sjw - 1U);
+}
 
 /**
  * @brief Configure the CAN bit timing for CAN BUS

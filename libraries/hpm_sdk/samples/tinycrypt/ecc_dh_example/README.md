@@ -1,14 +1,17 @@
+# Algorithm of error detection and correction ECC-DH
 ## Overview
-***
-ecc_dh_example the example project shows the implementation of error detection and correction algorithm ECC. In this project, ECC DH algorithm is used to complete the module encryption and decryption test.
+
+**ecc_dh_example** the example project shows the implementation of error detection and correction algorithm ECC.
+- The error detection and correction algorithm of this project adopts ECC DH to complete the module encryption and decryption test.
 
 ## Board Setting
-***
-No special settings
+
+- No special settings
 
 ## Running the example
-***
+
 When the project runs correctly, and the serial port terminal will output the following information:
+```
 > tc_start() - Performing ECC-DH tests:
 > Performing cavp_ecdh test:
 > Test #1: ECDHNIST-p256
@@ -99,3 +102,4 @@ When the project runs correctly, and the serial port terminal will output the fo
 > PASS - main.
 > ===================================================================
 > PROJECT EXECUTION SUCCESSFUL
+```

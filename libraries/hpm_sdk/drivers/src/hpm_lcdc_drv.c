@@ -44,10 +44,15 @@ static uint8_t lcdc_byteorder(display_byteorder_t byteorder)
     }
 }
 
-void lcdc_get_default_layer_config(LCDC_Type *ptr, lcdc_layer_config_t *layer, display_pixel_format_t pixel_format)
+void lcdc_get_default_layer_config(LCDC_Type *ptr, lcdc_layer_config_t *layer, display_pixel_format_t pixel_format, uint8_t layer_index)
 {
     layer->max_bytes = lcdc_layer_max_bytes_64;
-    layer->max_ot = 0;
+    /* different layer has different max_ot configuration */
+    if (layer_index < LCDC_SOC_MAX_CSC_LAYER_COUNT) {
+        layer->max_ot = 0;
+    } else {
+        layer->max_ot = 2;
+    }
     layer->byteorder = display_byteorder_a3a2a1a0;
     if (display_pixel_format_is_yuv_format(pixel_format)) {
         layer->yuv = display_yuv_mode_422_y1u1y2v1; /* If YUV format, change byte sequence to YUYV */

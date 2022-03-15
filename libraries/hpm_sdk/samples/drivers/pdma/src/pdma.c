@@ -70,7 +70,7 @@ uint32_t get_rgb_color(color *c)
             return  ((((c->u & 0xFF0000) >> 16) * 0x1F / 0xFF) << 11)
                           | (((((c->u & 0xFF00)) >> 8) * 0x3F / 0xFF) << 6)
                           | (((c->u & 0xFF) * 0x1F / 0xFF) << 0);
-        case display_pixel_format_argb8888: 
+        case display_pixel_format_argb8888:
             return c->u;
         default:
             return 0;
@@ -86,10 +86,15 @@ void flip_rotate(color_t *dst, uint32_t dst_width,
     uint32_t status;
 
     if (l1c_dc_is_enabled()) {
-        l1c_dc_flush((uint32_t)dst,
-                dst_width * (y + height) * display_get_pixel_size_in_byte(c->format));
-        l1c_dc_flush((uint32_t)src,
-                width * height * display_get_pixel_size_in_byte(c->format));
+        uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)dst);
+        uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)dst + dst_width * (y + height) * display_get_pixel_size_in_byte(c->format));
+        uint32_t aligned_size = aligned_end - aligned_start;
+        l1c_dc_flush(aligned_start, aligned_size);
+
+        aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)src);
+        aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)src + src_width * (y + height) * display_get_pixel_size_in_byte(c->format));
+        aligned_size = aligned_end - aligned_start;
+        l1c_dc_flush(aligned_start, aligned_size);
     }
     stat = pdma_flip_rotate(PDMA,
             (uint32_t)core_local_mem_to_sys_address(RUNNING_CORE, (uint32_t)dst),
@@ -112,10 +117,15 @@ void blit(color_t *dst, uint32_t dst_width,
     uint32_t status;
 
     if (l1c_dc_is_enabled()) {
-        l1c_dc_flush((uint32_t)dst,
-                dst_width * (y + height) * display_get_pixel_size_in_byte(c->format));
-        l1c_dc_flush((uint32_t)src,
-                width * height * display_get_pixel_size_in_byte(c->format));
+        uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)dst);
+        uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)dst + dst_width * (y + height) * display_get_pixel_size_in_byte(c->format));
+        uint32_t aligned_size = aligned_end - aligned_start;
+        l1c_dc_flush(aligned_start, aligned_size);
+
+        aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)src);
+        aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)src + src_width * (y + height) * display_get_pixel_size_in_byte(c->format));
+        aligned_size = aligned_end - aligned_start;
+        l1c_dc_flush(aligned_start, aligned_size);
     }
     stat = pdma_blit(PDMA,
             (uint32_t)core_local_mem_to_sys_address(RUNNING_CORE, (uint32_t)dst),
@@ -151,7 +161,10 @@ void fill_area(color_t *buf, uint32_t width, uint32_t height, color *c, uint32_t
     hpm_stat_t stat;
     uint32_t status;
     if (l1c_dc_is_enabled()) {
-        l1c_dc_flush((uint32_t)buf, width * height * display_get_pixel_size_in_byte(c->format));
+        uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)buf);
+        uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)buf + width * height * display_get_pixel_size_in_byte(c->format));
+        uint32_t aligned_size = aligned_end - aligned_start;
+        l1c_dc_flush(aligned_start, aligned_size);
     }
     stat = pdma_fill_color(PDMA,
             (uint32_t)core_local_mem_to_sys_address(RUNNING_CORE, (uint32_t)buf), width,
@@ -175,10 +188,15 @@ void scale(color_t *dst, uint32_t dst_width,
     uint32_t status;
 
     if (l1c_dc_is_enabled()) {
-        l1c_dc_flush((uint32_t)src,
-                width * height * display_get_pixel_size_in_byte(c->format));
-        l1c_dc_flush((uint32_t)dst,
-                dst_width * (y + height) * display_get_pixel_size_in_byte(c->format));
+        uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)src);
+        uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)src + src_width * (y + height) * display_get_pixel_size_in_byte(c->format));
+        uint32_t aligned_size = aligned_end - aligned_start;
+        l1c_dc_flush(aligned_start, aligned_size);
+
+        aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)dst);
+        aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)dst + dst_width * (y + height) * display_get_pixel_size_in_byte(c->format));
+        aligned_size = aligned_end - aligned_start;
+        l1c_dc_flush(aligned_start, aligned_size);
     }
     stat = pdma_scale(PDMA,
             (uint32_t)core_local_mem_to_sys_address(RUNNING_CORE, (uint32_t)dst),
@@ -205,7 +223,10 @@ void generate_color_table(void)
                   | ((rand() % 0xFF + i));
     }
     if (l1c_dc_is_enabled()) {
-        l1c_dc_flush((uint32_t)&c, sizeof(c));
+        uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)&c);
+        uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)&c + sizeof(c));
+        uint32_t aligned_size = aligned_end - aligned_start;
+        l1c_dc_flush(aligned_start, aligned_size);
     }
 }
 
@@ -227,12 +248,12 @@ void move_layer(uint8_t index)
     if ((layer->position_x >= (LCD_WIDTH - layer->width)) || (layer->position_x == 0)) {
         layer_info[index].left_to_right ^= true;
         layer->position_x = layer->position_x ? LCD_WIDTH - layer->width : 0;
-    } 
+    }
     if ((layer->position_y == 0) || ((layer->position_y >= LCD_HEIGHT - layer->height))) {
         layer_info[index].up_to_down ^= true;
         layer->position_y = layer->position_y ? LCD_HEIGHT- layer->height : 0;
     }
-    
+
     lcdc_config_layer(LCD, index, layer, true);
 }
 
@@ -245,13 +266,13 @@ bool initialize_lcd(void)
 
     config.resolution_x = LCD_WIDTH;
     config.resolution_y = LCD_HEIGHT;
-    
+
     lcdc_init(LCD, &config);
     lcdc_enable_interrupt(LCD, LCDC_INT_EN_VSYNC_MASK);
 
     for (i = 0; i < TEST_LAYER_COUNT; i++) {
         layer = &layer_info[i].layer;
-        lcdc_get_default_layer_config(LCD, layer, PIXEL_FORMAT);
+        lcdc_get_default_layer_config(LCD, layer, PIXEL_FORMAT, i);
         fill_area(buffer[i], LAYER_WIDTH, LAYER_HEIGHT, &c[i], 0xFF);
 
         layer->position_x = i * (config.resolution_x - LAYER_WIDTH) / TEST_LAYER_COUNT;
@@ -321,8 +342,8 @@ void run(void)
             i = rand() % (TEST_LAYER_COUNT - 1);
             /* copy image from buffer[i] to buffer[TEST_LAYER_COUNT -1] */
             blit(buffer[TEST_LAYER_COUNT - 1], LAYER_WIDTH,     /* dest buffer, dest buffer width */
-                 buffer[i], LAYER_WIDTH,                        /* source buffer, source buffer width */ 
-                 0, LAYER_HEIGHT / 2,                           /* x, y: coordinates in the dest area */ 
+                 buffer[i], LAYER_WIDTH,                        /* source buffer, source buffer width */
+                 0, LAYER_HEIGHT / 2,                           /* x, y: coordinates in the dest area */
                  LAYER_WIDTH / 2, LAYER_HEIGHT / 2, 0xFF);      /* width, height, alpha */
             /* rotate image from buffer[TEST_LAYER_COUNT - 1] to buffer[1] */
             flip_rotate(buffer[i], LAYER_WIDTH,                 /* dest buffer, dest buffer width  */

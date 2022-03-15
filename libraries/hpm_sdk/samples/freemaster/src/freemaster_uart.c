@@ -40,15 +40,9 @@ static void init_freemaster_uart(void)
 
 #if FMSTR_SHORT_INTR || FMSTR_LONG_INTR
 /*
-*   Application interrupt handler of communication peripheral used in interrupt modes
-*   of FreeMASTER communication.
-*
-*   NXP MCUXpresso SDK framework defines interrupt vector table as a part of "startup_XXXXXX.x"
-*   assembler/C file. The table points to weakly defined symbols, which may be overwritten by the
-*   application specific implementation. FreeMASTER overrides the original weak definition and
-*   redirects the call to its own handler.
-*
-*/
+ *  Application interrupt handler of communication peripheral used in interrupt modes
+ * of FreeMASTER communication.
+ */
 
 void uart_isr(void)
 {
@@ -69,8 +63,7 @@ int main(void)
 
     while(1)
     {
-        /* FreeMASTER example increments several variables periodically,
-           use the FreeMASTER PC Host tool to visualize the variables */
+        /* FreeMASTER example increments several variables periodically, use the FreeMASTER PC Host tool to visualize the variables */
         FMSTR_Example_Poll();
     }
 }

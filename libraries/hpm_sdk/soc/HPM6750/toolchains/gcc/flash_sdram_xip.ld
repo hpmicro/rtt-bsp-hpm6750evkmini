@@ -12,7 +12,7 @@ MEMORY
 {
     XPI0 (rx) : ORIGIN = 0x80000000, LENGTH = _flash_size
     SDRAM (wx) : ORIGIN = 0x40000000, LENGTH = (_extram_size - 4M)
-    SDRAM_NONCACHABLE (wx) : ORIGIN = 0x40000000 + (_extram_size - 4M), LENGTH = 4M
+    SDRAM_NONCACHEABLE (wx) : ORIGIN = 0x40000000 + (_extram_size - 4M), LENGTH = 4M
     AXI_SRAM (wx) : ORIGIN = 0x1000000, LENGTH = 2M
 }
 
@@ -135,7 +135,15 @@ SECTIONS
         PROVIDE (edata = .);
     } > SDRAM
 
-    __fw_size__ = __data_end__ - __data_start__ + etext - __app_load_addr__;
+    .fast : AT(etext + __data_end__ - __data_start__) {
+        . = ALIGN(8);
+        __ramfunc_start__ = .;
+        *(.fast)
+        . = ALIGN(8);
+        __ramfunc_end__ = .;
+    } > AXI_SRAM
+
+    __fw_size__ = __ramfunc_end__ - __ramfunc_start__ + __data_end__ - __data_start__ + etext - __app_load_addr__;
     .bss : {
         . = ALIGN(8);
         __bss_start__ = .;
@@ -166,16 +174,17 @@ SECTIONS
         . = ALIGN(8);
     } > SDRAM
 
-    .noncacheable (NOLOAD) : {
+    .noncacheable : AT(etext + __data_end__ - __data_start__ + __ramfunc_end__ - __ramfunc_start__) {
         . = ALIGN(8);
-        __noncacheable_bss_start__ = .;
-        KEEP(*(.noncacheable))
-        __noncacheable_bss_end__ = .;
         __noncacheable_init_start__ = .;
         KEEP(*(.noncacheable.init))
         __noncacheable_init_end__ = .;
+        KEEP(*(.noncacheable))
+        __noncacheable_bss_start__ = .;
+        KEEP(*(.noncacheable.bss))
+        __noncacheable_bss_end__ = .;
         . = ALIGN(8);
-    } > SDRAM_NONCACHABLE
+    } > SDRAM_NONCACHEABLE
 
     .stack : {
         . = ALIGN(8);
@@ -186,6 +195,6 @@ SECTIONS
         PROVIDE (_stack_in_dlm = .);
     } > AXI_SRAM
 
-    __noncacheable_start__ = ORIGIN(SDRAM_NONCACHABLE);
-    __noncacheable_end__ = ORIGIN(SDRAM_NONCACHABLE) + LENGTH(SDRAM_NONCACHABLE);
+    __noncacheable_start__ = ORIGIN(SDRAM_NONCACHEABLE);
+    __noncacheable_end__ = ORIGIN(SDRAM_NONCACHEABLE) + LENGTH(SDRAM_NONCACHEABLE);
 }

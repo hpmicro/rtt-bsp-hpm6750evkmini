@@ -394,13 +394,15 @@ void xdma_write_read_write_test(void)
     for (uint32_t burst_len = 4; burst_len <= 8192; burst_len <<= 1) {
         uint64_t psram_read_start = HPM_MCHTMR->MTIME;
         dma_start_memcpy(HPM_XDMA, 0, 0x01080000, XPI_RAM_TEST_ALIGNED_START, 0x100000, burst_len);
-        while (dma_check_transfer_status(HPM_XDMA, 0) != status_dma_transfer_done) {}
+        while (0 == (dma_check_transfer_status(HPM_XDMA, 0) & DMA_CHANNEL_STATUS_TC)) {
+		}
         uint64_t psram_read_end = HPM_MCHTMR->MTIME;
 
         uint64_t psram_write_start = HPM_MCHTMR->MTIME;
 
         dma_start_memcpy(HPM_XDMA, 0, XPI_RAM_TEST_ALIGNED_START, 0x01080000, 0x100000, burst_len);
-        while (dma_check_transfer_status(HPM_XDMA, 0) != status_dma_transfer_done) {}
+        while (0 == (dma_check_transfer_status(HPM_XDMA, 0) & DMA_CHANNEL_STATUS_TC)) {
+		}
 
         uint64_t psram_write_end = HPM_MCHTMR->MTIME;
 

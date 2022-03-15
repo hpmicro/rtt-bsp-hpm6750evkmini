@@ -331,6 +331,17 @@ hpm_stat_t i2c_master_write(I2C_Type *ptr,
                             const uint32_t size);
 
 /**
+ * @brief I2C master start write data by DMA
+ *
+ * @details Write data to I2C device by DMA
+ *
+ * @param [in] ptr I2C base address
+ * @param [in] device_address I2C slave address
+ * @param [in] size size of data to be sent in bytes
+ */
+void i2c_master_start_dma_write(I2C_Type *i2c_ptr, const uint16_t device_address, uint32_t size);
+
+/**
  * @brief I2C master read data from certain slave device 
  *
  * @details Read data from I2C device
@@ -390,6 +401,16 @@ hpm_stat_t i2c_slave_write(I2C_Type *ptr, uint8_t buf);
  * @param [in] ptr I2C base address
  */
 void i2c_reset(I2C_Type *ptr);
+
+/**
+ * @brief Enable i2c DMA
+ *
+ * @param [in] ptr I2C base address
+ */
+static inline void i2c_dma_enable(I2C_Type *ptr)
+{
+    ptr->SETUP |= I2C_SETUP_DMAEN_MASK;
+}
 
 /**
  * @}

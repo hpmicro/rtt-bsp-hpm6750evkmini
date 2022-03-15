@@ -1,14 +1,17 @@
+# 差错检测和修正的算法ECC-DH
 ## 概述
-***
-ecc_dh_example示例工程展示了差错检测和修正的算法ECC的实现。在这个工程中，采用ECC DH算法完成模块加解密测试。
+
+**ecc_dh_example**示例工程展示了差错检测和修正的算法ECC的实现。
+- 此工程的差错检测和修正的算法采用ECC DH完成模块加解密测试。
 
 ## 硬件设置
-***
-无特殊设置
+
+- 无特殊设置
 
 ## 运行现象
-***
+
 当工程正确运行后，串口终端会输出如下信息：
+```
 > tc_start() - Performing ECC-DH tests:
 > Performing cavp_ecdh test:
 > Test #1: ECDHNIST-p256
@@ -99,7 +102,4 @@ ecc_dh_example示例工程展示了差错检测和修正的算法ECC的实现。
 > PASS - main.
 > ===================================================================
 > PROJECT EXECUTION SUCCESSFUL
-
-
-
-
+```

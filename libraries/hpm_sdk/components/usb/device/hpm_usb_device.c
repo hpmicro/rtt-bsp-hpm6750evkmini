@@ -265,3 +265,12 @@ void usb_device_edpt_close(usb_device_handle_t *handle, uint8_t ep_addr)
 {
     usb_dcd_edpt_close(handle->regs, ep_addr);
 }
+
+void usb_device_edpt_close_all(usb_device_handle_t *handle)
+{
+    int i;
+
+    for (i = 1; i < USB_SOC_DCD_MAX_ENDPOINT_COUNT; i++) {
+        usb_device_edpt_close(handle, i);
+    }
+}

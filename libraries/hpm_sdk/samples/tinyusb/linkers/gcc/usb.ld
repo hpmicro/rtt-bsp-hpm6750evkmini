@@ -55,12 +55,13 @@ SECTIONS
         KEEP (*(.fini))
         . = ALIGN(8);
 
+        *(.fast)
+        __ramfunc_start__ = .;
+        __ramfunc_end__ = .;
         PROVIDE (__etext = .);
         PROVIDE (_etext = .);
         PROVIDE (etext = .);
     } > TEXT
-
-
 
     .data : AT(etext) {
         . = ALIGN(8);
@@ -133,15 +134,16 @@ SECTIONS
         __bss_end__ = .;
     } > DLM
 
-    .noncacheable : AT(etext + __data_end__ - __data_start__) {
-        . = ALIGN(2048);
-        __noncacheable_bss_start__ = .;
-        KEEP(*(.noncacheable))
-        __noncacheable_bss_end__ = .;
+    .noncacheable : AT(etext + __data_end__ - __data_start__ + __ramfunc_end__ - __ramfunc_start__){
+        . = ALIGN(8);
         __noncacheable_init_start__ = .;
         KEEP(*(.noncacheable.init))
         __noncacheable_init_end__ = .;
-        . = ALIGN(2048);
+        KEEP(*(.noncacheable))
+        __noncacheable_bss_start__ = .;
+        KEEP(*(.noncacheable.bss))
+        __noncacheable_bss_end__ = .;
+        . = ALIGN(8);
     } > AXI_SRAM_NONCACHEABLE
 
     .heap : {

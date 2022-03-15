@@ -631,6 +631,13 @@ hpm_stat_t ov5640_stop(camera_context_t *context)
     return ov5640_write_register(context, 0x3008, 0x42);
 }
 
+hpm_stat_t ov5640_flip(camera_context_t *context)
+{
+    hpm_stat_t stat = status_success;
+    HPM_CHECK_RET(ov5640_write_register(context, 0x3821, 1));
+    return stat;
+}
+
 
 hpm_stat_t ov5640_set_brightness(camera_context_t *context, int32_t brightness)
 {
@@ -780,6 +787,8 @@ hpm_stat_t ov5640_init(camera_context_t *context, camera_config_t *ov_config)
 
     /* configure image windowing */
     HPM_CHECK_RET(ov5640_set_image_size(context, ov_config));
+
+    HPM_CHECK_RET(ov5640_flip(context));
 
     /* configure Pixel format */
     HPM_CHECK_RET(ov5640_set_pixel_format(context, ov_config->pixel_format));

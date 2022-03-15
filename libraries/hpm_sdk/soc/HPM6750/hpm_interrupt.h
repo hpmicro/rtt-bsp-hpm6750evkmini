@@ -572,8 +572,9 @@ void ISR_NAME_M(irq_num)(void) {\
 }
 #else
 #define SDK_DECLARE_EXT_ISR_M(irq_num, isr) \
-EXTERN_C void ISR_NAME_M(irq_num)(void);\
-void ISR_NAME_M(irq_num)(void)  {           \
+void isr(void) __attribute__((section(".isr_vector")));\
+EXTERN_C void ISR_NAME_M(irq_num)(void) __attribute__((section(".isr_vector")));\
+void ISR_NAME_M(irq_num)(void) {           \
     isr();                                            \
 }
 #endif
@@ -586,7 +587,7 @@ void ISR_NAME_M(irq_num)(void)  {           \
  */
 #define SDK_DECLARE_MCHTMR_ISR(isr) \
 void isr(void) __attribute__((section(".isr_vector")));\
-EXTERN_C void mchtmr_isr(void); \
+EXTERN_C void mchtmr_isr(void) __attribute__((section(".isr_vector"))); \
 void mchtmr_isr(void) {\
     isr();\
 }
@@ -598,7 +599,7 @@ void mchtmr_isr(void) {\
  */
 #define SDK_DECLARE_MSWI_ISR(isr)\
 void isr(void) __attribute__((section(".isr_vector")));\
-EXTERN_C void mswi_isr(void); \
+EXTERN_C void mswi_isr(void) __attribute__((section(".isr_vector"))); \
 void mswi_isr(void) {\
     isr();\
 }

@@ -608,7 +608,6 @@ int montecarlo_signverify(int num_tests, bool verbose)
 	for (i = 0; i < num_tests; ++i) {
 		if (verbose) {
 			TC_PRINT(".");
-			fflush(stdout);
 		}
 
 		uECC_generate_random_int(hash_words, curve->n, BITS_TO_WORDS(curve->num_n_bits));
@@ -629,7 +628,6 @@ int montecarlo_signverify(int num_tests, bool verbose)
 			return TC_FAIL;
 		}
 		if (verbose) {
-			fflush(stdout);
 			printf(".");
 		}
 	}
@@ -661,13 +659,14 @@ int main()
 		TC_ERROR("cavp_verify test failed.\n");
 		goto exitTest;
 	}
+#if defined(ENABLE_MONTERCARLO_SIGN)
 	TC_PRINT("Performing montecarlo_signverify test:\n");
 	result = montecarlo_signverify(10, verbose);
 	if (result == TC_FAIL) {
 		TC_ERROR("montecarlo_signverify test failed.\n");
 	goto exitTest;
 	}
-
+#endif
 	TC_PRINT("\nAll ECC-DSA tests succeeded.\n");
 
  exitTest:

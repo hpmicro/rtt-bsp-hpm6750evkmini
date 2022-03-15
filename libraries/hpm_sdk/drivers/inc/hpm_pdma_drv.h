@@ -86,46 +86,46 @@ typedef enum pdma_blocksize {
  * @brief PDMA plane config
  */
 typedef struct pdma_plane_config {
-    bool swap_byte3_byte1;
-    bool use_background_as_clear;
-    bool ycbcr_mode;
-    bool bypass_colorspace_conversion;
-    bool byte_swap;
-    display_byteorder_t byteorder;
-    pdma_flip_t flip;
-    pdma_rotate_t rotate;
-    pdma_decimation_t x_dec;
-    pdma_decimation_t y_dec;
-    display_pixel_format_t pixel_format;
-    uint32_t buffer;
-    uint32_t background;
-    uint32_t colorkey_high;
-    uint32_t colorkey_low;
-    uint16_t x_scale;
-    uint16_t y_scale;
-    uint16_t pitch;
-    uint16_t x_offset;
-    uint16_t y_offset;
-    uint16_t width;
-    uint16_t height;
+    bool swap_byte3_byte1;                /**< set true to swap byte [31:24] and byte [15:8] */
+    bool use_background_as_clear;         /**< set true to use background color at blending clear mode */
+    bool ycbcr_mode;                      /**< set true if it is YCbCr mode */
+    bool bypass_colorspace_conversion;    /**< set true to bypass color space conversion */
+    bool byte_swap;                       /**< set true to swap [31:16] and [15:0] */
+    display_byteorder_t byteorder;        /**< packing byte order type */
+    pdma_flip_t flip;                     /**< flip type */
+    pdma_rotate_t rotate;                 /**< rotate type */
+    pdma_decimation_t x_dec;              /**< horizontal decimation */
+    pdma_decimation_t y_dec;              /**< vertical decimation */
+    display_pixel_format_t pixel_format;  /**< pixel format */
+    uint32_t buffer;                      /**< buffer address */
+    uint32_t background;                  /**< background color */
+    uint32_t colorkey_high;               /**< colorkey high limit */
+    uint32_t colorkey_low;                /**< colorkey low limit */
+    uint16_t x_scale;                     /**< 14-bit horizontal scale */
+    uint16_t y_scale;                     /**< 14-bit vertical scale */
+    uint16_t pitch;                       /**< pitch value */
+    uint16_t x_offset;                    /**< horizontal offset */
+    uint16_t y_offset;                    /**< vertical offset */
+    uint16_t width;                       /**< width */
+    uint16_t height;                      /**< height */
 } pdma_plane_config_t;
 
 /**
  * @brief PDMA output config
  */
 typedef struct pdma_output_config {
-    display_alphablend_option_t alphablend;
-    display_pixel_format_t pixel_format;
-    display_rgb2yuv_config_t rgb2yuv_config;
-    uint32_t buffer;
+    display_alphablend_option_t alphablend;         /**< alpha blending mode */
+    display_pixel_format_t pixel_format;            /**< pixel format */
+    display_rgb2yuv_config_t rgb2yuv_config;        /**< RGB to YUV config */
+    uint32_t buffer;                                /**< buffer */
     struct {
-        uint16_t x;
-        uint16_t y;
-        uint16_t width;
-        uint16_t height;
-    } plane[PDMA_SOC_PS_MAX_COUNT];
-    uint16_t width;
-    uint16_t height;
+        uint16_t x;                                 /**< plane origin X coord */
+        uint16_t y;                                 /**< plane origin Y coord */
+        uint16_t width;                             /**< plane width */
+        uint16_t height;                            /**< plane height */
+    } plane[PDMA_SOC_PS_MAX_COUNT];                 /**< plane config */
+    uint16_t width;                                 /**< output plane width */
+    uint16_t height;                                /**< output plane height */
     uint16_t pitch;
 } pdma_output_config_t;
 
@@ -133,31 +133,22 @@ typedef struct pdma_output_config {
  * @brief PDMA config
  */
 typedef struct pdma_config {
-    display_byteorder_t byteorder;
-    pdma_blocksize_t block_size;
-    pdma_plane_t enable_plane;
+    display_byteorder_t byteorder;                  /**< byte order */
+    pdma_blocksize_t block_size;                    /**< block size */
+    pdma_plane_t enable_plane;                      /**< plane to be enabled */
 } pdma_config_t;
 
 /**
  * @brief PDMA plane info
  */
 typedef struct pdma_plane_info {
-    uint32_t buffer;
-    uint32_t x;
-    uint32_t y;
-    uint32_t width;
-    uint32_t height;
-    display_pixel_format_t format;
+    uint32_t buffer;                                /**< buffer */
+    uint32_t x;                                     /**< plane origin X coord */
+    uint32_t y;                                     /**< plane origin Y coord */
+    uint32_t width;                                 /**< plane width */
+    uint32_t height;                                /**< plane height */
+    display_pixel_format_t format;                  /**< pixel format */
 } pdma_plane_info_t;
-
-/**
- * @brief PDMA transform
- */
-typedef struct pdma_transform {
-    uint8_t x_i; /* 0 ~ 2 */
-    uint16_t x_f;
-    double scale_y;
-} pdma_scale_t;
 
 #ifdef __cplusplus
 extern "C" {

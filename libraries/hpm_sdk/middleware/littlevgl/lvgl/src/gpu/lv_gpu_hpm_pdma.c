@@ -75,7 +75,10 @@ static void _lv_gpu_hpm_pdma_blit(lv_color_t *dst, lv_coord_t dst_width,
     uint32_t status;
     hpm_stat_t stat;
     if (l1c_dc_is_enabled()) {
-        l1c_dc_writeback((uint32_t)src, src_width * height * display_get_pixel_size_in_byte(format));
+        uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)src);
+        uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)src + src_width * height * display_get_pixel_size_in_byte(format));
+        uint32_t aligned_size = aligned_end - aligned_start;
+        l1c_dc_writeback(aligned_start, aligned_size);
     }
 
     pdma_config_t config;
@@ -89,7 +92,7 @@ static void _lv_gpu_hpm_pdma_blit(lv_color_t *dst, lv_coord_t dst_width,
     pdma_get_default_plane_config(LV_GPU_HPM_PDMA_ID, &plane_dst, format);
     pdma_get_default_yuv2rgb_coef_config(ptr, &yuv2rgb_coef, format);
     pdma_get_default_output_config(LV_GPU_HPM_PDMA_ID, &output, format);
-    
+
     config.enable_plane = pdma_plane_both;
     if (width <= 16) {
         config.block_size = pdma_blocksize_8x8;
@@ -143,7 +146,10 @@ static void _lv_gpu_hpm_pdma_blit(lv_color_t *dst, lv_coord_t dst_width,
     } while((stat != status_pdma_done) && (stat != status_pdma_error));
     pdma_stop(LV_GPU_HPM_PDMA_ID);
     if (l1c_dc_is_enabled()) {
-        l1c_dc_invalidate((uint32_t)dst, dst_width * height * display_get_pixel_size_in_byte(format));
+        uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)dst);
+        uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)dst + dst_width * height * display_get_pixel_size_in_byte(format));
+        uint32_t aligned_size = aligned_end - aligned_start;
+        l1c_dc_invalidate(aligned_start, aligned_size);
     }
 }
 
@@ -162,7 +168,10 @@ void lv_gpu_hpm_pdma_fill(lv_color_t *dst, lv_coord_t dst_width,
     uint32_t status;
     hpm_stat_t stat;
     if (l1c_dc_is_enabled()) {
-        l1c_dc_writeback((uint32_t)dst, dst_width * height * display_get_pixel_size_in_byte(format));
+        uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)dst);
+        uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)dst + dst_width * height * display_get_pixel_size_in_byte(format));
+        uint32_t aligned_size = aligned_end - aligned_start;
+        l1c_dc_writeback(aligned_start, aligned_size);
     }
 
     stat = pdma_fill_color(LV_GPU_HPM_PDMA_ID,
@@ -209,8 +218,15 @@ static void _lv_gpu_hpm_pdma_blit_recolor(lv_color_t *dst, lv_coord_t dst_width,
 
     if (opa > LV_OPA_MAX) {
         if (l1c_dc_is_enabled()) {
-            l1c_dc_writeback((uint32_t)src, src_width * height * display_get_pixel_size_in_byte(format));
-            l1c_dc_writeback((uint32_t)dst, dst_width * height * display_get_pixel_size_in_byte(format));
+            uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)src);
+            uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)src + src_width * height * display_get_pixel_size_in_byte(format));
+            uint32_t aligned_size = aligned_end - aligned_start;
+            l1c_dc_writeback(aligned_start, aligned_size);
+
+            aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)dst);
+            aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)dst + dst_width * height * display_get_pixel_size_in_byte(format));
+            aligned_size = aligned_end - aligned_start;
+            l1c_dc_writeback(aligned_start, aligned_size);
         }
         pdma_config_t config;
         pdma_plane_config_t plane_src;
@@ -223,7 +239,7 @@ static void _lv_gpu_hpm_pdma_blit_recolor(lv_color_t *dst, lv_coord_t dst_width,
         pdma_get_default_plane_config(LV_GPU_HPM_PDMA_ID, &plane_dst, format);
         pdma_get_default_yuv2rgb_coef_config(ptr, &yuv2rgb_coef, format);
         pdma_get_default_output_config(LV_GPU_HPM_PDMA_ID, &output, format);
-        
+
         config.enable_plane = pdma_plane_both;
         if (width <= 16) {
             config.block_size = pdma_blocksize_8x8;

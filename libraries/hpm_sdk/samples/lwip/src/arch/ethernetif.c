@@ -57,12 +57,6 @@
 #include "netconf.h"
 #include <string.h>
 
-#define netifMTU                          (1500)
-#define netifINTERFACE_TASK_STACK_SIZE    (350)
-#define netifINTERFACE_TASK_PRIORITY  	  (configMAX_PRIORITIES - 1)
-#define netifGUARD_BLOCK_TIME		          (250)
-
-
 /* Define those to better describe your network interface. */
 #define IFNAME0 'e'
 #define IFNAME1 'n'

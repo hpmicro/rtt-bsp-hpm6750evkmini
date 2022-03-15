@@ -14,45 +14,19 @@
 extern "C" {
 #endif
 
-__attribute__((always_inline)) static inline void write_fcsr(uint32_t v)
-{
-    __asm volatile("fscsr %0" : : "r"(v));
-}
+#define write_fcsr(v) __asm volatile("fscsr %0" : : "r"(v))
 
-__attribute__((always_inline)) static inline void clear_csr(const uint32_t csr_num, uint32_t bit)
-{
-    __asm volatile("csrc %0, %1" : : "i"(csr_num), "r"(bit));
-}
+#define clear_csr(csr_num, bit) __asm volatile("csrc %0, %1" : : "i"(csr_num), "r"(bit))
 
-__attribute__((always_inline)) static inline void set_csr(const uint32_t csr_num, uint32_t bit)
-{
-    __asm volatile("csrs %0, %1" : : "i"(csr_num), "r"(bit));
-}
+#define set_csr(csr_num, bit) __asm volatile("csrs %0, %1" : : "i"(csr_num), "r"(bit))
 
-__attribute__((always_inline)) static inline void write_csr(const uint32_t csr_num, uint32_t v)
-{
-    __asm volatile("csrw %0, %1" : : "i"(csr_num), "r"(v));
-}
+#define write_csr(csr_num, v) __asm volatile("csrw %0, %1" : : "i"(csr_num), "r"(v))
 
-__attribute__((always_inline)) static inline uint32_t read_csr(const uint32_t csr_num)
-{
-    uint32_t v;
-    __asm volatile("csrr %0, %1" : "=r"(v) : "i"(csr_num));
-    return v;
-}
+#define read_csr(csr_num) ({ uint32_t v; __asm volatile("csrr %0, %1" : "=r"(v) : "i"(csr_num)); v; })
 
-__attribute__((always_inline)) static inline uint32_t read_fcsr(void)
-{
-    uint32_t v;
-    __asm volatile("frcsr %0" : "=r"(v));
-    return v;
-}
+#define read_fcsr() ({ uint32_t v; __asm volatile("frcsr %0" : "=r"(v)); v; })
 
-__attribute__((always_inline)) static inline void fencei(void)
-{
-    __asm volatile("fence.i");
-}
-
+#define fencei() __asm volatile("fence.i")
 
 #ifdef __cplusplus
 }

@@ -1,13 +1,14 @@
+# SDP API Demo
 ## Overview
-***
+
 The sdp_api shows the results of running the basic ROM SDP APIs.
 
 ## Board Setting
-***
+
 No special settings are required
 
 ## Running the example
-***
+
 When the example runs successfully, the API test result is displayed in the terminal:
 
 ```shell
@@ -41,7 +42,3 @@ sdp_api_memset_demo, desc_addr=1140184, dst_addr=1043fdc
 sdp_memset succeeded
 SDP MEMSET demo execution passed
 ```
-
-## Known issues
-***
-1. The *flash_xip* build and *flash_sdram_xip* cannot work properly in Embedded Studio for RISC-V

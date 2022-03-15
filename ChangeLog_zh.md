@@ -1,4 +1,15 @@
 # 更新日志
+## v0.3.0
+- 整合了SDK v0.8.0
+  - 注：
+    - SDK根目录下的doc目录被删除
+    - UART和DMA驱动有细微的改动
+- 增加了如下示例：
+    - flashdb_demo
+    - sdcard_demo
+    - pwmbeep_demo
+    - usb_device_generic_hid
+    - uart_dma_demo
 
 ## v0.2.1
 ***

@@ -24,7 +24,6 @@ static hpm_stat_t sdp_api_crc32_demo(void);
 static hpm_stat_t sdp_api_memcpy_demo(void);
 static hpm_stat_t sdp_api_memset_demo(void);
 
-static void app_cache_invalidate(uint32_t addr, uint32_t size);
 static void app_cache_flush(uint32_t addr, uint32_t size);
 
 int main(void)
@@ -83,8 +82,8 @@ static hpm_stat_t sdp_api_aes_ecb_demo(void)
     printf("rom_sdp_aes_crypt_ecb, 128-bit key test.\n");
     (void) rom_sdp_aes_set_key(p_sys_sdp_ctx, aes_key, sdp_aes_keybits_128, 0);
 
-    uint8_t input[16];
-    uint8_t output[16];
+    ATTR_PLACE_AT_NONCACHEABLE static uint8_t input[16];
+    ATTR_PLACE_AT_NONCACHEABLE static uint8_t output[16];
     // Test data = 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff
     for (uint32_t i = 0; i < 16; i++) {
         input[i] = i | (i << 4);
@@ -92,9 +91,7 @@ static hpm_stat_t sdp_api_aes_ecb_demo(void)
 
     uint8_t *p_sys_input = (uint8_t *) core_local_mem_to_sys_address(HPM_CORE0, (uint32_t) &input);
     uint8_t *p_sys_output = (uint8_t *) core_local_mem_to_sys_address(HPM_CORE0, (uint32_t) &output);
-    app_cache_flush((uint32_t)&input, sizeof(input));
     hpm_stat_t status = rom_sdp_aes_crypt_ecb(p_sys_sdp_ctx, sdp_aes_op_encrypt, 16, p_sys_input, p_sys_output);
-    app_cache_invalidate((uint32_t)&output, sizeof(output));
     if (status != status_success) {
         ++error_cnt;
         printf("rom_sdp_aes_crypt_ecb() encryption failed, status=%d\n", status);
@@ -110,7 +107,6 @@ static hpm_stat_t sdp_api_aes_ecb_demo(void)
     }
 
     status = rom_sdp_aes_crypt_ecb(p_sys_sdp_ctx, sdp_aes_op_decrypt, 16, p_sys_output, p_sys_output);
-    app_cache_invalidate((uint32_t)&output, sizeof(output));
     if (status != status_success) {
         ++error_cnt;
         printf("rom_sdp_aes_crypt_ecb() decryption failed, status=%d\n", status);
@@ -139,9 +135,7 @@ static hpm_stat_t sdp_api_aes_ecb_demo(void)
     }
 
     (void) rom_sdp_aes_set_key(&s_aes_ctx, aes_key, sdp_aes_keybits_256, 1);
-    app_cache_flush((uint32_t)&input, sizeof(input));
     status = rom_sdp_aes_crypt_ecb(p_sys_sdp_ctx, sdp_aes_op_encrypt, 16, p_sys_input, p_sys_output);
-    app_cache_invalidate((uint32_t)&output, sizeof(output));
     if (status != status_success) {
         ++error_cnt;
         printf("rom_sdp_aes_crypt_ecb() encryption failed, status=%d\n", status);
@@ -158,7 +152,6 @@ static hpm_stat_t sdp_api_aes_ecb_demo(void)
     }
 
     status = sdp_aes_crypt_ecb(HPM_SDP, p_sys_sdp_ctx, sdp_aes_op_decrypt, 16, p_sys_output, p_sys_output);
-    app_cache_invalidate((uint32_t)&output, sizeof(output));
     if (status != status_success) {
         ++error_cnt;
         printf("rom_sdp_aes_crypt_ecb(), decryption failed, status=%d\n", status);
@@ -181,9 +174,9 @@ hpm_stat_t sdp_api_aes_cbc_demo(void)
     hpm_stat_t status;
     uint32_t error_cnt = 0;
     sdp_aes_ctx_t *p_sys_sdp_ctx = (sdp_aes_ctx_t *) core_local_mem_to_sys_address(HPM_CORE0, (uint32_t)&s_aes_ctx);
-    uint8_t input[16] = { 0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17,
-                          0x2a };
-    uint8_t output[16];
+    ATTR_PLACE_AT_NONCACHEABLE static uint8_t input[16] = {
+        0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a };
+    ATTR_PLACE_AT_NONCACHEABLE static uint8_t output[16];
     const uint8_t gold_ct128[16] = { 0x76, 0x49, 0xab, 0xac, 0x81, 0x19, 0xb2, 0x46, 0xce, 0xe9, 0x8e, 0x9b, 0x12, 0xe9,
                                      0x19, 0x7d };
     const uint8_t gold_ct256[16] = { 0xf5, 0x8c, 0x4c, 0x04, 0xd6, 0xe5, 0xf1, 0xba, 0x77, 0x9e, 0xab, 0xfb, 0x5f, 0x7b,
@@ -201,10 +194,8 @@ hpm_stat_t sdp_api_aes_cbc_demo(void)
     // AES-128 CBC test
     printf("AES-128 CBC test...\n");
     (void) rom_sdp_aes_set_key(&s_aes_ctx, def_key128, sdp_aes_keybits_128, 0);
-    app_cache_flush((uint32_t)&input, sizeof(input));
     status = rom_sdp_aes_crypt_cbc(p_sys_sdp_ctx, sdp_aes_op_encrypt, sizeof(input), iv, p_sys_input,
                                p_sys_output);
-    app_cache_invalidate((uint32_t)&output, sizeof(output));
     if (status != status_success) {
         ++error_cnt;
         printf("sdp_aes_crypt_cbc() encryption failed, status=%d\n", status);
@@ -221,7 +212,6 @@ hpm_stat_t sdp_api_aes_cbc_demo(void)
 
     status = rom_sdp_aes_crypt_cbc(p_sys_sdp_ctx, sdp_aes_op_decrypt, sizeof(input), iv, p_sys_output,
                                p_sys_output);
-    app_cache_invalidate((uint32_t)&output, sizeof(output));
     if (status != status_success) {
         ++error_cnt;
         printf("Decryption failed, status=%d\n", status);
@@ -240,10 +230,8 @@ hpm_stat_t sdp_api_aes_cbc_demo(void)
     // AES-256 CBC test
     printf("AES-256 CBC test...\n");
     (void) rom_sdp_aes_set_key(&s_aes_ctx, def_key256, sdp_aes_keybits_256, 0);
-    app_cache_flush((uint32_t)&input, sizeof(input));
     status = rom_sdp_aes_crypt_cbc(p_sys_sdp_ctx, sdp_aes_op_encrypt, sizeof(input), iv, p_sys_input,
                                p_sys_output);
-    app_cache_invalidate((uint32_t)&output, sizeof(output));
     if (status != status_success) {
         ++error_cnt;
         printf("Encryption failed, status=%d\n", status);
@@ -260,7 +248,6 @@ hpm_stat_t sdp_api_aes_cbc_demo(void)
 
     status = rom_sdp_aes_crypt_cbc(p_sys_sdp_ctx, sdp_aes_op_decrypt, sizeof(input), iv, p_sys_output,
                                p_sys_output);
-    app_cache_invalidate((uint32_t)&output, sizeof(output));
     if (status != status_success) {
         ++error_cnt;
         printf("Decryption failed, status=%d\n", status);
@@ -541,7 +528,7 @@ hpm_stat_t sdp_api_crc32_demo(void)
 hpm_stat_t sdp_api_memcpy_demo(void)
 {
     const char hello_src[] = "hello world\n";
-    char hello_dst[sizeof(hello_src)];
+    ATTR_PLACE_AT_NONCACHEABLE static char hello_dst[sizeof(hello_src)];
 
     sdp_dma_ctx_t *p_sdp_ctx = (sdp_dma_ctx_t *) core_local_mem_to_sys_address(HPM_CORE0, (uint32_t) &s_dma_ctx);
     const void *p_sys_src = (const void *) core_local_mem_to_sys_address(HPM_CORE0, (uint32_t) hello_src);
@@ -551,7 +538,6 @@ hpm_stat_t sdp_api_memcpy_demo(void)
 
     app_cache_flush((uint32_t)&hello_src, sizeof(hello_src));
     hpm_stat_t status = rom_sdp_memcpy(p_sdp_ctx, p_sys_dst, p_sys_src, sizeof(hello_dst));
-    app_cache_invalidate((uint32_t)&hello_dst, sizeof(hello_dst));
     if (status != status_success) {
         printf("sdp_memcpy failed, error code=%d\n", status);
         return status_fail;
@@ -571,7 +557,7 @@ hpm_stat_t sdp_api_memcpy_demo(void)
 
 hpm_stat_t sdp_api_memset_demo(void)
 {
-     uint8_t dst[20];
+    ATTR_PLACE_AT_NONCACHEABLE static uint8_t dst[20];
 
     (void) memset(dst, 0xFF, sizeof(dst));
     uint8_t pattern = 0xaa;
@@ -580,7 +566,7 @@ hpm_stat_t sdp_api_memset_demo(void)
     void *p_sys_dst = (void *) core_local_mem_to_sys_address(HPM_CORE0, (uint32_t) dst);
     printf("%s, desc_addr=%x, dst_addr=%x\n", __func__, (uint32_t) &p_sdp_ctx->sdp_pkt, (uint32_t) p_sys_dst);
     hpm_stat_t status = rom_sdp_memset(p_sdp_ctx, p_sys_dst, pattern, sizeof(dst));
-    app_cache_invalidate((uint32_t)&dst, sizeof(dst));
+    app_cache_flush((uint32_t)&dst, sizeof(dst));
     if (status != status_success) {
         printf("sdp_memset failed, error code=%d\n", status);
         return status_fail;
@@ -601,16 +587,6 @@ hpm_stat_t sdp_api_memset_demo(void)
         }
     }
     return status_success;
-}
-
-static void app_cache_invalidate(uint32_t addr, uint32_t size)
-{
-    if (l1c_dc_is_enabled()) {
-        uint32_t aligned_start = addr & ~(HPM_L1C_CACHELINE_SIZE - 1U);
-        uint32_t aligned_size = ((addr + size + HPM_L1C_CACHELINE_SIZE - 1U) & ~(HPM_L1C_CACHELINE_SIZE - 1U)) - aligned_start;
-
-        l1c_dc_invalidate(aligned_start, aligned_size);
-    }
 }
 
 static void app_cache_flush(uint32_t addr, uint32_t size)

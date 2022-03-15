@@ -1,5 +1,41 @@
 # Change Log
 
+## [0.8.0] - 2022-03-04:
+All changes since 0.7.3
+
+### Changed:
+  - rename middleware/sdmmc to middleware/hpm_sdmmc
+  - place isr into .isr_vector section for irq non-vector mode
+  - change csr functions to support llvm
+
+### Fixed:
+  - ses: fix issue in register xml
+  - freertor: fix trap handler at non-vector mode
+  - sdxc: fix software reset issue
+
+### Added:
+  - add sdk doc
+  - add more sample doc
+  - add multicore demo
+  - i2c/uart: add dma support
+  - add tensorflow lite for microcontroller
+
+## [0.7.3] - 2022-02-23:
+All changes since 0.7.2
+
+### Changed:
+  - freertos: change exception handling
+
+## [0.7.2] - 2022-02-21:
+All changes since 0.7.1
+
+### Changed:
+  - freertos: change freertos irq stack definition, passed in CMakeLists.txt, defined in linker
+  - soc: hpm6750: add DISABLE_IRQ_PREEMPTIVE to check if it needs to enable irq preemption
+
+### Fixed:
+  - freertos: disable irq preemption
+
 ## [0.7.1] - 2022-02-13:
 
 All changes since 0.7.0

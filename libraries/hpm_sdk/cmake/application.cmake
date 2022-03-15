@@ -50,6 +50,16 @@ endif()
 get_soc_name_of_board(${BOARD} soc_name)
 set(SOC ${soc_name})
 
+get_flash_size_of_board(${BOARD} flash_size)
+get_extram_size_of_board(${BOARD} extram_size)
+if(NOT HEAP_SIZE)
+    SET(HEAP_SIZE 0x4000)
+endif()
+
+if(NOT STACK_SIZE)
+    SET(STACK_SIZE 0x4000)
+endif()
+
 # skip compiler check
 set(CMAKE_C_COMPILER_FORCED 1)
 set(CMAKE_CXX_COMPILER_FORCED 1)

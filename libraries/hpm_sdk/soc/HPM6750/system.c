@@ -12,14 +12,16 @@
 
 void enable_plic_feature(void)
 {
+    uint32_t plic_feature = 0;
 #ifndef USE_NONVECTOR_MODE
     /* enabled vector mode and preemptive priority interrupt */
-    __plic_set_feature(HPM_PLIC_BASE,
-        HPM_PLIC_FEATURE_VECTORED_MODE | HPM_PLIC_FEATURE_PREEMPTIVE_PRIORITY_IRQ);
-#else
-    /* enabled preemptive priority interrupt */
-    __plic_set_feature(HPM_PLIC_BASE, HPM_PLIC_FEATURE_PREEMPTIVE_PRIORITY_IRQ);
+    plic_feature |= HPM_PLIC_FEATURE_VECTORED_MODE;
 #endif
+#ifndef DISABLE_IRQ_PREEMPTIVE
+    /* enabled preemptive priority interrupt */
+    plic_feature |= HPM_PLIC_FEATURE_PREEMPTIVE_PRIORITY_IRQ;
+#endif
+    __plic_set_feature(HPM_PLIC_BASE, plic_feature);
 }
 
 __attribute__((weak)) void system_init(void)

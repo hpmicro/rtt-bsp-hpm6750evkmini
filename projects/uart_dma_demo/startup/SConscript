@@ -1,0 +1,19 @@
+import rtconfig
+from building import *
+
+cwd = GetCurrentDir()
+
+# add the startup files
+
+src = Split('''
+   start.S
+   startup.c
+   trap.c
+''')
+
+CPPPATH = [cwd]
+CPPDEFINES=['D45', 'HPM6750']
+
+group = DefineGroup('Startup', src, depend = [''], CPPPATH = CPPPATH, CPPDEFINES = CPPDEFINES)
+
+Return('group')

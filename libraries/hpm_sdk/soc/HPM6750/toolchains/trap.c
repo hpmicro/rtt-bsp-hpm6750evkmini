@@ -8,7 +8,6 @@
 #include "hpm_common.h"
 #include "hpm_soc.h"
 
-
 /********************** MCAUSE exception types **************************************/
 #define MCAUSE_INSTR_ADDR_MISALIGNED (0U)       //!< Instruction Address misaligned
 #define MCAUSE_INSTR_ACCESS_FAULT (1U)          //!< Instruction access fault
@@ -90,7 +89,9 @@ __attribute__((weak)) long exception_handler(long cause, long epc)
 }
 
 #ifndef CONFIG_FREERTOS
-void irq_handler_trap(void) __attribute__ ((interrupt ("machine"), aligned(4)));
+void irq_handler_trap(void) __attribute__ ((section(".isr_vector"), interrupt("machine"), aligned(4)));
+#else
+void irq_handler_trap(void) __attribute__ ((section(".isr_vector")));
 #endif
 void irq_handler_trap(void)
 {
@@ -126,7 +127,9 @@ void irq_handler_trap(void)
 
         /* Machine-level interrupt from PLIC */
         uint32_t irq_index = __plic_claim_irq(HPM_PLIC_BASE, HPM_PLIC_TARGET_M_MODE);
+#ifndef DISABLE_IRQ_PREEMPTIVE
         enable_global_irq(CSR_MSTATUS_MIE_MASK);
+#endif
         ((isr_func_t)__vector_table[irq_index])();
         __plic_complete_irq(HPM_PLIC_BASE, HPM_PLIC_TARGET_M_MODE, irq_index);
 

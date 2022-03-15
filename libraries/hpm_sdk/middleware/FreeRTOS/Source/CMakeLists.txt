@@ -3,6 +3,7 @@
 
 sdk_inc(include)
 sdk_inc(portable/GCC/RISC-V)
+sdk_inc(portable/GCC/RISC-V/chip_specific_extensions/HPMicro)
 sdk_src(
     croutine.c
     list.c

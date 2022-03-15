@@ -1,14 +1,17 @@
+# 等对称加解密算法AES-CMAC
 ## 概述
-***
-aes_cmac_mode_example示例工程展示了等对称加解密算法AES-CMAC模式的实现。在这个工程中，通过5项测试完成CMAK模块加解密信息完整性验证。
+
+**aes_cmac_mode_example**示例工程展示了等对称加解密算法AES-CMAC模式的实现。
+- 此工程的等对称加解密算法采用AES-CMAC模式，通过5项测试完成CMAK模块加解密信息完整性验证。
 
 ## 硬件设置
-***
-无特殊设置
+
+- 无特殊设置
 
 ## 运行现象
-***
+
 当工程正确运行后，串口终端会输出如下信息：
+```
 > tc_start() - Performing CMAC tests:
 > Performing CMAC test #1 (GF(2^128) double):
 > ===================================================================
@@ -30,6 +33,4 @@ aes_cmac_mode_example示例工程展示了等对称加解密算法AES-CMAC模式
 > PASS - main.
 > ===================================================================
 > PROJECT EXECUTION SUCCESSFUL
-
-
-
+```

@@ -1,14 +1,17 @@
+# Algorithm of error detection and correction ECC-DSA
 ## Overview
-***
-ecc_dsa_example the example project shows the implementation of error detection and correction algorithm ECC. In this project, ECC DSA algorithm is used to complete the module encryption and decryption test.
+
+**ecc_dsa_example** the example project shows the implementation of error detection and correction algorithm ECC.
+- The error detection and correction algorithm of this project adopts ECC DSA to complete the module encryption and decryption test.
 
 ## Board Setting
-***
-No special settings
+
+- No special settings
 
 ## Running the example
-***
+
 When the project runs correctly, and the serial port terminal will output the following information:
+```
 > tc_start() - Performing ECC-DSA tests:
 > Performing cavp_sign test:
 > Test #1: ECDSAsign NIST-p256, SHA2-256
@@ -72,3 +75,4 @@ When the project runs correctly, and the serial port terminal will output the fo
 > PASS - main.
 > ===================================================================
 > PROJECT EXECUTION SUCCESSFUL
+```

@@ -43,8 +43,7 @@ else()
   message(FATAL_ERROR "${TOOLCHAIN_VARIANT} is not supported")
 endif()
 
-# include toolchain specific settings
-include(${HPM_SDK_BASE}/cmake/toolchain/${TOOLCHAIN_CMAKE})
+
 
 set(CROSS_COMPILE ${TOOLCHAIN_HOME}/bin/${CROSS_COMPILE_TARGET}-)
 set(SYSROOT_DIR   ${TOOLCHAIN_HOME}/${SYSROOT_TARGET})
@@ -87,3 +86,5 @@ set(COMPILER_VERSION ${ver})
 
 set(CXX ${C++})
 find_program(CMAKE_CXX_COMPILER ${CROSS_COMPILE}${CXX}   PATHS ${TOOLCHAIN_HOME} NO_DEFAULT_PATH)
+# include toolchain specific settings
+include(${HPM_SDK_BASE}/cmake/toolchain/${TOOLCHAIN_CMAKE})

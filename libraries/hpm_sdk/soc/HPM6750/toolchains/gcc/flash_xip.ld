@@ -135,7 +135,15 @@ SECTIONS
         PROVIDE (edata = .);
     } > AXI_SRAM
 
-    __fw_size__ = __data_end__ - __data_start__ + etext - __app_load_addr__;
+    .fast : AT(etext + __data_end__ - __data_start__) {
+        . = ALIGN(8);
+        __ramfunc_start__ = .;
+        *(.fast)
+        . = ALIGN(8);
+        __ramfunc_end__ = .;
+    } > AXI_SRAM
+
+    __fw_size__ = __ramfunc_end__ - __ramfunc_start__ + __data_end__ - __data_start__ + etext - __app_load_addr__;
     .bss : {
         . = ALIGN(8);
         __bss_start__ = .;
@@ -166,14 +174,15 @@ SECTIONS
         . = ALIGN(8);
     } > AXI_SRAM
 
-    .noncacheable (NOLOAD) : {
+    .noncacheable : AT(etext + __data_end__ - __data_start__ + __ramfunc_end__ - __ramfunc_start__){
         . = ALIGN(8);
-        __noncacheable_bss_start__ = .;
-        KEEP(*(.noncacheable))
-        __noncacheable_bss_end__ = .;
         __noncacheable_init_start__ = .;
         KEEP(*(.noncacheable.init))
         __noncacheable_init_end__ = .;
+        KEEP(*(.noncacheable))
+        __noncacheable_bss_start__ = .;
+        KEEP(*(.noncacheable.bss))
+        __noncacheable_bss_end__ = .;
         . = ALIGN(8);
     } > AXI_SRAM_NONCACHEABLE
 

@@ -116,7 +116,7 @@ at the top of this file. */
 .extern portasmHANDLE_INTERRUPT
 
 /*-----------------------------------------------------------*/
-
+.section .isr_vector
 .align 8
 .func
 freertos_risc_v_trap_handler:
@@ -211,9 +211,9 @@ handle_asynchronous:
 		#endif /* __riscv_xlen == 64 */
 
 		load_x sp, xISRStackTop			/* Switch to ISR stack before function call. */
-		jal xTaskIncrementTick
+		call xTaskIncrementTick
 		beqz a0, processed_source		/* Don't switch context if incrementing tick didn't unblock a task. */
-		jal vTaskSwitchContext
+		call vTaskSwitchContext
 		j processed_source
 
 	test_if_external_interrupt:			/* If there is a CLINT and the mtimer interrupt is not pending then check to see if an external interrupt is pending. */
@@ -223,7 +223,7 @@ handle_asynchronous:
 #endif /* portasmHAS_MTIME */
 
 	load_x sp, xISRStackTop				/* Switch to ISR stack before function call. */
-	jal portasmHANDLE_INTERRUPT			/* Jump to the interrupt handler if there is no CLINT or if there is a CLINT and it has been determined that an external interrupt is pending. */
+	call portasmHANDLE_INTERRUPT			/* Jump to the interrupt handler if there is no CLINT or if there is a CLINT and it has been determined that an external interrupt is pending. */
 	j processed_source
 
 handle_synchronous:
@@ -234,7 +234,7 @@ test_if_environment_call:
 	li t0, 11 							/* 11 == environment call. */
 	bne a0, t0, is_exception			/* Not an M environment call, so some other exception. */
 	load_x sp, xISRStackTop				/* Switch to ISR stack before function call. */
-	jal vTaskSwitchContext
+	call vTaskSwitchContext
 	j processed_source
 
 is_exception:
@@ -294,7 +294,7 @@ processed_source:
 	mret
 	.endfunc
 /*-----------------------------------------------------------*/
-
+.section .isr_vector
 .align 8
 .func
 xPortStartFirstTask:
@@ -413,6 +413,7 @@ xPortStartFirstTask:
  * [chip specific registers go here]
  * pxCode
  */
+.section .isr_vector
 .align 8
 .func
 pxPortInitialiseStack:

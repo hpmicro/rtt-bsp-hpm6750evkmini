@@ -132,7 +132,6 @@ static const can_bit_timing_table_t s_can_bit_timing_tbl[3] =
 static uint32_t find_closest_prescaler(uint32_t num_tq_mul_prescaler, uint32_t start_prescaler,
                                        uint32_t max_tq, uint32_t min_tq);
 
-
 static uint8_t can_get_data_words_from_dlc(uint32_t dlc);
 
 static void can_fill_tx_buffer(CAN_Type *base, const can_transmit_buf_t *message);

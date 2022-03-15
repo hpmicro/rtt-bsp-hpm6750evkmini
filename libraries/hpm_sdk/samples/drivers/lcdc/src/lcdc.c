@@ -29,11 +29,11 @@
 #define _CONCAT3(x, y, z) x ## y ## z
 #define CONCAT3(x, y, z) _CONCAT3(x, y, z)
 
-#define PIXEL_FORMAT display_pixel_format_argb8888 
+#define PIXEL_FORMAT display_pixel_format_argb8888
 #define COLOR_SIZE 32
 
 #define LAYER_WIDTH 64
-#define LAYER_HEIGHT 32 
+#define LAYER_HEIGHT 32
 
 typedef CONCAT3(uint, COLOR_SIZE, _t) color_t;
 
@@ -77,7 +77,7 @@ uint32_t get_rgb_color(color *c)
             return  ((((c->u & 0xFF0000) >> 16) * 0x1F / 0xFF) << 11)
                           | (((((c->u & 0xFF00)) >> 8) * 0x3F / 0xFF) << 6)
                           | (((c->u & 0xFF) * 0x1F / 0xFF) << 0);
-        case display_pixel_format_argb8888: 
+        case display_pixel_format_argb8888:
             return c->u;
         default:
             return 0;
@@ -87,7 +87,7 @@ uint32_t get_rgb_color(color *c)
 void prepare_rgb_data(uint8_t *buf, uint32_t size, color *c)
 {
     uint32_t i = 0, j = 0;
-    uint8_t pixel_width = display_get_pixel_size_in_bit(c->format);
+    uint8_t pixel_width = display_get_pixel_size_in_byte(c->format);
     uint32_t color = get_rgb_color(c);
 
     for (i = 0; i < size; i+=pixel_width) {
@@ -97,12 +97,16 @@ void prepare_rgb_data(uint8_t *buf, uint32_t size, color *c)
     }
 
     if (l1c_dc_is_enabled()) {
-        l1c_dc_flush((uint32_t) buf, size);
+        uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)buf);
+        uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)buf + size);
+        uint32_t aligned_size = aligned_end - aligned_start;
+        l1c_dc_flush(aligned_start, aligned_size);
     }
 }
 
 void run_test_mode()
 {
+    uint8_t layer_index = 0;
     lcdc_layer_config_t dummy_layer = {0};
     lcdc_config_t config = {0};
 
@@ -118,11 +122,11 @@ void run_test_mode()
 
     lcdc_init(LCD, &config);
 
-    lcdc_get_default_layer_config(LCD, &dummy_layer, PIXEL_FORMAT);
+    lcdc_get_default_layer_config(LCD, &dummy_layer, PIXEL_FORMAT, layer_index);
     dummy_layer.width = 2;
     dummy_layer.height = 2;
     dummy_layer.buffer = core_local_mem_to_sys_address(HPM_CORE0, (uint32_t)buffer[0]);
-    if (status_success != lcdc_config_layer(LCD, 0, &dummy_layer, true)) {
+    if (status_success != lcdc_config_layer(LCD, layer_index, &dummy_layer, true)) {
         printf("failed to configure dummy layer for test mode\n");
         return;
     }
@@ -153,7 +157,10 @@ void generate_color_table(void)
                   | ((rand() % 0xFF + i));
     }
     if (l1c_dc_is_enabled()) {
-        l1c_dc_flush((uint32_t)&c, sizeof(c));
+        uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)&c);
+        uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)&c + sizeof(c));
+        uint32_t aligned_size = aligned_end - aligned_start;
+        l1c_dc_flush(aligned_start, aligned_size);
     }
 }
 
@@ -175,12 +182,12 @@ void move_layer(uint8_t index, uint32_t width, uint32_t height)
     if ((layer->position_x >= (width - layer->width)) || (layer->position_x == 0)) {
         layer_info[index].left_to_right ^= true;
         layer->position_x = layer->position_x ? width - layer->width : 0;
-    } 
+    }
     if ((layer->position_y == 0) || ((layer->position_y >= height - layer->height))) {
         layer_info[index].up_to_down ^= true;
         layer->position_y = layer->position_y ? height - layer->height : 0;
     }
-    
+
     lcdc_layer_update_position(LCD, index, layer->position_x, layer->position_y);
 }
 
@@ -197,22 +204,25 @@ void run_layer_change(void)
 
     config.resolution_x = BOARD_LCD_WIDTH;
     config.resolution_y = BOARD_LCD_HEIGHT;
-    
+
     lcdc_init(LCD, &config);
     lcdc_enable_interrupt(LCD, LCDC_INT_EN_DMA_DONE_SET(TEST_LAYER_DONE_MASK));
 
     memcpy(logobuffer, &logo[0], sizeof(logo));
     if (l1c_dc_is_enabled()) {
-        l1c_dc_writeback((uint32_t)logobuffer, sizeof(logo));
+        uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)logobuffer);
+        uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)logobuffer + sizeof(logo));
+        uint32_t aligned_size = aligned_end - aligned_start;
+        l1c_dc_writeback(aligned_start, aligned_size);
     }
     layer_info[TEST_LAYER_COUNT - 1].layer.buffer = core_local_mem_to_sys_address(HPM_CORE0, (uint32_t)logobuffer);
     layer_info[TEST_LAYER_COUNT - 1].layer.width = LOGO_WIDTH;
     layer_info[TEST_LAYER_COUNT - 1].layer.height = LOGO_HEIGHT;
     for (i = 0; i < TEST_LAYER_COUNT; i++) {
         layer = &layer_info[i].layer;
-        lcdc_get_default_layer_config(LCD, layer, PIXEL_FORMAT);
+        lcdc_get_default_layer_config(LCD, layer, PIXEL_FORMAT, i);
         prepare_rgb_data((uint8_t *)&buffer[i], sizeof(buffer[i]), &c[i]);
- 
+
         layer->position_x = (rand() + LAYER_WIDTH) % config.resolution_x;
         layer->position_y = (rand() + LAYER_HEIGHT) % config.resolution_y;
         if (i < (TEST_LAYER_COUNT - 1)) {

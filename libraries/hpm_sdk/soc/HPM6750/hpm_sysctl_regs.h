@@ -286,6 +286,22 @@ typedef struct {
  * LINK (RW)
  *
  * retention setting while system sleep, each bit represents a resource
+ * bit0: soc_pow
+ * bit1: soc_rst
+ * bit2: cpu0_pow
+ * bit3: cpu0_rst
+ * bit4: cpu1_pow
+ * bit5: cpu1_rst
+ * bit6: con_pow
+ * bit7: con_rst
+ * bit8: vis_pow
+ * bit9: vis_rst
+ * bit10: xtal
+ * bit11: pll0
+ * bit12: pll1
+ * bit13: pll2
+ * bit14: pll3
+ * bit15: pll4
  */
 #define SYSCTL_RETENTION_VALUE_LINK_MASK (0x3FFFFUL)
 #define SYSCTL_RETENTION_VALUE_LINK_SHIFT (0U)

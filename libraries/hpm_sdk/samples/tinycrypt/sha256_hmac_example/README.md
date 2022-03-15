@@ -1,14 +1,17 @@
+# SHA-HMAC algorithm
 ## Overview
-***
-sha256_hmac_example the example project shows the implementation of Sha algorithm HMAC key message integrity verification method. In this project, HMAC sha256 method is used to complete the module encryption and decryption test.
+
+**sha256_hmac_example** the example project shows the implementation of Sha algorithm HMAC key message integrity verification method.
+- The algorithm of this project adopts HMAC sha256 method to complete the module encryption and decryption test.
 
 ## Board Setting
-***
-No special settings
+
+- No special settings
 
 ## Running the example
-***
+
 When the project runs correctly, and the serial port terminal will output the following information:
+```
 > tc_start() - Performing HMAC tests (RFC4231 test vectors):
 > HMAC test_1:
 > ===================================================================
@@ -36,3 +39,4 @@ When the project runs correctly, and the serial port terminal will output the fo
 > PASS - main.
 > ===================================================================
 > PROJECT EXECUTION SUCCESSFUL
+```

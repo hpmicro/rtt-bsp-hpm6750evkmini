@@ -101,7 +101,8 @@ hpm_stat_t uart_init(UART_Type *ptr, uart_config_t *config)
         ptr->FCR = UART_FCR_TFIFORST_MASK
             | UART_FCR_RFIFORST_MASK | UART_FCR_FIFOE_MASK
             | UART_FCR_TFIFOT_SET(config->tx_fifo_level)
-            | UART_FCR_RFIFOT_SET(config->rx_fifo_level);
+            | UART_FCR_RFIFOT_SET(config->rx_fifo_level)
+            | UART_FCR_DMAE_SET(config->dma_enable);
     }
 
     uart_modem_config(ptr, &config->modem_config);

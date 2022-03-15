@@ -141,7 +141,7 @@ void write_pmp_addr(uint32_t value, uint32_t idx)
     case 13:
         write_csr(CSR_PMPADDR13, value);
         break;
-    case 16:
+    case 14:
         write_csr(CSR_PMPADDR14, value);
         break;
     case 15:
@@ -198,7 +198,7 @@ void write_pma_addr(uint32_t value, uint32_t idx)
     case 13:
         write_csr(CSR_PMAADDR13, value);
         break;
-    case 16:
+    case 14:
         write_csr(CSR_PMAADDR14, value);
         break;
     case 15:
@@ -256,7 +256,7 @@ uint32_t read_pmp_addr(uint32_t idx)
     case 13:
         ret_val = read_csr(CSR_PMPADDR13);
         break;
-    case 16:
+    case 14:
         ret_val = read_csr(CSR_PMPADDR14);
         break;
     case 15:
@@ -315,7 +315,7 @@ uint32_t read_pma_addr(uint32_t idx)
     case 13:
         ret_val = read_csr(CSR_PMAADDR13);
         break;
-    case 16:
+    case 14:
         ret_val = read_csr(CSR_PMAADDR14);
         break;
     case 15:
@@ -366,6 +366,7 @@ void pmp_disable(void)
 {
     /* Disable caches */
     fencei();
+    uint32_t mcache_ctl = read_csr(CSR_MCACHE_CTL);
     write_csr(CSR_MCACHE_CTL, 0x0);
     fencei();
     write_csr(CSR_PMACFG0, 0);
@@ -393,4 +394,7 @@ void pmp_disable(void)
     write_csr(CSR_PMAADDR13, 0);
     write_csr(CSR_PMAADDR14, 0);
     write_csr(CSR_PMAADDR15, 0);
+    fencei();
+    write_csr(CSR_MCACHE_CTL, mcache_ctl);
+    fencei();
 }

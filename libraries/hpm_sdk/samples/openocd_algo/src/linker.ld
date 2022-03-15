@@ -16,10 +16,17 @@ SECTIONS
         __noncacheable_end__ = .;
         __heap_start__ = .;
         __heap_end__ = .;
+        __ramfunc_start__ = .;
+        __ramfunc_end__ = .;
+        __noncacheable_bss_start__ = .;
+        __noncacheable_bss_end__ = .;
+        __noncacheable_init_start__ = .;
+        __noncacheable_init_end__ = .;
     }
     .text : {
         *(.text)
         *(.text*)
+        *(.rodata)
         KEEP(*(.flash_algo.text*))
         KEEP(*(.flash_algo.data*))
         __etext = .;

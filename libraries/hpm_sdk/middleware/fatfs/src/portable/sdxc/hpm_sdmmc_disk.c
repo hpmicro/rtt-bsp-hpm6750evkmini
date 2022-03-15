@@ -8,7 +8,7 @@
 #include "ffconf.h"
 #include "hpm_sdmmc_disk.h"
 
-ATTR_PLACE_AT_NONCACHEABLE sd_card_t g_sd;
+ATTR_PLACE_AT_NONCACHEABLE_BSS sd_card_t g_sd;
 
 DSTATUS sd_disk_initialize(BYTE pdrv)
 {

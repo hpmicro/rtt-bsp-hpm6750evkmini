@@ -11,9 +11,16 @@
 #include "hpm_mchtmr_drv.h"
 #include "hpm_ptpc_drv.h"
 
-void test_mchtmr_interrupt(void);
 void test_plicsw_interrupt(void);
-uint32_t mchtmr_freq = 0;
+
+void isr_plicsw(void)
+{
+    printf("plicsw start\n");
+    printf("plicsw end\n");
+    intc_m_complete_swi();
+    intc_m_disable_swi();
+}
+SDK_DECLARE_MSWI_ISR(isr_plicsw)
 
 void isr_gpio(void)
 {
@@ -21,10 +28,26 @@ void isr_gpio(void)
     gpio_clear_pin_interrupt_flag(BOARD_APP_GPIO_CTRL, BOARD_APP_GPIO_INDEX, BOARD_APP_GPIO_PIN);
     gpio_toggle_pin(BOARD_LED_GPIO_CTRL, BOARD_LED_GPIO_INDEX, BOARD_LED_GPIO_PIN);
     test_plicsw_interrupt();
-    /* test_mchtmr_interrupt */
     printf("gpio interrupt end\n");
 }
 SDK_DECLARE_EXT_ISR_M(BOARD_APP_GPIO_IRQ, isr_gpio)
+
+void isr_ptpc(void)
+{
+    printf("ptpc interrupt start\n");
+    printf("Press the button immediately, enter the gpio interrupt\n");
+    board_delay_ms(50000);
+    ptpc_clear_irq_status(HPM_PTPC, PTPC_EVENT_COMPARE0_MASK);
+    printf("ptpc interrupt end\n");
+}
+SDK_DECLARE_EXT_ISR_M(IRQn_PTPC, isr_ptpc)
+
+void test_plicsw_interrupt(void)
+{
+    intc_m_enable_swi();
+    intc_m_init_swi();
+    intc_m_trigger_swi();
+}
 
 void test_gpio_input_interrupt(void)
 {
@@ -39,16 +62,7 @@ void test_gpio_input_interrupt(void)
     intc_m_enable_irq_with_priority(BOARD_APP_GPIO_IRQ, 5);
 }
 
-void isr_ptpc(void)
-{
-    printf("ptpc interrupt start\n");
-    board_delay_ms(50000); /* could press button here */
-    ptpc_clear_irq_status(HPM_PTPC, PTPC_EVENT_COMPARE0_MASK);
-    printf("ptpc interrupt end\n");
-}
-SDK_DECLARE_EXT_ISR_M(IRQn_PTPC, isr_ptpc)
-
-void test_ptpc_interrupt(void)
+void test_interrupt_nesting(void)
 {
     uint32_t freq = clock_get_frequency(clock_ptpc);
     ptpc_config_t config = {0};
@@ -60,59 +74,23 @@ void test_ptpc_interrupt(void)
     config.ns_rollover_mode = ptpc_ns_counter_rollover_digital;
     ptpc_init(HPM_PTPC, PTPC_PTPC_0, &config);
 
-    ptpc_config_compare(HPM_PTPC, PTPC_PTPC_0, 3, 0); /* 3 seconds */
+    ptpc_config_compare(HPM_PTPC, PTPC_PTPC_0, 2, 0);
     ptpc_init_timer(HPM_PTPC, PTPC_PTPC_0);
 
-    printf("%s done\n", __func__);
-    /* enable interrupt */
+    /* configure gpio interrupt */
+    test_gpio_input_interrupt();
+
     ptpc_irq_enable(HPM_PTPC, PTPC_EVENT_COMPARE0_MASK);
     intc_m_enable_irq_with_priority(IRQn_PTPC, 2);
-}
-
-void delay_ms(uint32_t ms)
-{
-    mchtmr_delay(HPM_MCHTMR, (uint64_t) ms * mchtmr_freq / 1000);
-}
-
-void isr_mchtmr(void)
-{
-    printf("mchtmr start\n");
-    disable_mchtmr_irq();
-    printf("mchtmr end\n");
-}
-SDK_DECLARE_MCHTMR_ISR(isr_mchtmr)
-
-void test_mchtmr_interrupt(void)
-{
-    enable_mchtmr_irq();
-    delay_ms(1000);
-}
-
-void isr_plicsw(void)
-{
-    printf("plicsw start\n");
-    printf("plicsw end\n");
-    intc_m_complete_swi();
-    intc_m_disable_swi();
-}
-SDK_DECLARE_MSWI_ISR(isr_plicsw)
-
-void test_plicsw_interrupt(void)
-{
-    intc_m_enable_swi();
-    intc_m_init_swi();
-    intc_m_trigger_swi();
 }
 
 int main(void)
 {
     board_init();
     board_init_gpio_pins();
-    mchtmr_freq = clock_get_frequency(clock_mchtmr0);
-    printf("interrupt test\n");
 
-    test_gpio_input_interrupt();
-    test_ptpc_interrupt();
+    printf("interrupt test\n");
+    test_interrupt_nesting();
 
     while(1);
     return 0;

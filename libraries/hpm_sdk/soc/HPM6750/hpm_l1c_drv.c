@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021 - 2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -8,16 +8,21 @@
 #include "hpm_common.h"
 #include "hpm_soc.h"
 #include "hpm_l1c_drv.h"
+#include <assert.h>
+
+
+#define ASSERT_ADDR_SIZE(addr, size) do { \
+                                             assert(address % HPM_L1C_CACHELINE_SIZE == 0); \
+                                             assert(size % HPM_L1C_CACHELINE_SIZE == 0); \
+                                        } while (0)
 
 static void l1c_op(uint8_t opcode, uint32_t address, uint32_t size)
 {
-    uint32_t i;
-    uint32_t next_address = 0;
-    uint32_t tmp;
+    register uint32_t i;
+    register uint32_t next_address = 0;
+    register uint32_t tmp;
 
 #define CCTL_VERSION (3U << 18)
-    address &= ~(HPM_L1C_CACHELINE_SIZE - 1);
-    size += HPM_L1C_CACHELINE_SIZE;
 
     if ((read_csr(CSR_MMSC_CFG) & CCTL_VERSION)) {
         l1c_cctl_address(address);
@@ -85,30 +90,36 @@ void l1c_dc_writeback_all(void)
 
 void l1c_dc_fill_lock(uint32_t address, uint32_t size)
 {
+    ASSERT_ADDR_SIZE(address, size);
     l1c_op(HPM_L1C_CCTL_CMD_L1D_VA_LOCK, address, size);
 }
 
 void l1c_dc_invalidate(uint32_t address, uint32_t size)
 {
+    ASSERT_ADDR_SIZE(address, size);
     l1c_op(HPM_L1C_CCTL_CMD_L1D_VA_INVAL, address, size);
 }
 
 void l1c_dc_writeback(uint32_t address, uint32_t size)
 {
+    ASSERT_ADDR_SIZE(address, size);
     l1c_op(HPM_L1C_CCTL_CMD_L1D_VA_WB, address, size);
 }
 
 void l1c_dc_flush(uint32_t address, uint32_t size)
 {
+    ASSERT_ADDR_SIZE(address, size);
     l1c_op(HPM_L1C_CCTL_CMD_L1D_VA_WBINVAL, address, size);
 }
 
 void l1c_ic_invalidate(uint32_t address, uint32_t size)
 {
+    ASSERT_ADDR_SIZE(address, size);
     l1c_op(HPM_L1C_CCTL_CMD_L1I_VA_INVAL, address, size);
 }
 
 void l1c_ic_fill_lock(uint32_t address, uint32_t size)
 {
+    ASSERT_ADDR_SIZE(address, size);
     l1c_op(HPM_L1C_CCTL_CMD_L1I_VA_LOCK, address, size);
 }

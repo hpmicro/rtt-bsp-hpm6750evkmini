@@ -6,6 +6,7 @@
  * Change Logs:
  * Date           Author       Notes
  * 2021-06-01     KyleChan     first version
+ * 2021-03-15     HPMicro      Added buffer managment according to cacheline size
  */
 
 #include <rthw.h>
@@ -27,6 +28,10 @@
 
 #ifdef putc
 #undef putc
+#endif
+
+#ifndef SOC_CACHELINE_ALIGN_SIZE
+#define SOC_CACHELINE_ALIGN_SIZE 64
 #endif
 
 static rt_err_t serial_fops_rx_ind(rt_device_t dev, rt_size_t size)
@@ -634,9 +639,13 @@ static rt_err_t rt_serial_tx_enable(struct rt_device        *dev,
         {
             /* If use RT_SERIAL_TX_BLOCKING_BUFFER, the ringbuffer is initialized */
             tx_fifo = (struct rt_serial_tx_fifo *) rt_malloc
-                    (sizeof(struct rt_serial_tx_fifo) + serial->config.tx_bufsz);
+                    (sizeof(struct rt_serial_tx_fifo));
             RT_ASSERT(tx_fifo != RT_NULL);
-
+#ifdef SOC_CACHELINE_ALIGN_SIZE
+            /* FIXME: it will request more buffer to get correct aligned address */
+            tx_fifo->buffer = rt_malloc(serial->config.tx_bufsz + SOC_CACHELINE_ALIGN_SIZE);
+            tx_fifo->buffer += (SOC_CACHELINE_ALIGN_SIZE - ((rt_ubase_t) tx_fifo->buffer % SOC_CACHELINE_ALIGN_SIZE));
+#endif
             rt_ringbuffer_init(&(tx_fifo->rb),
                                 tx_fifo->buffer,
                                 serial->config.tx_bufsz);
@@ -677,8 +686,13 @@ static rt_err_t rt_serial_tx_enable(struct rt_device        *dev,
      * and initialize the tx_fifo->activated value is RT_FALSE.
      */
     tx_fifo = (struct rt_serial_tx_fifo *) rt_malloc
-            (sizeof(struct rt_serial_tx_fifo) + serial->config.tx_bufsz);
+            (sizeof(struct rt_serial_tx_fifo));
     RT_ASSERT(tx_fifo != RT_NULL);
+#ifdef SOC_CACHELINE_ALIGN_SIZE
+    /* FIXME: it will request more buffer to get correct aligned address */
+    tx_fifo->buffer = rt_malloc(serial->config.tx_bufsz + SOC_CACHELINE_ALIGN_SIZE);
+    tx_fifo->buffer += (SOC_CACHELINE_ALIGN_SIZE - ((rt_ubase_t) tx_fifo->buffer % SOC_CACHELINE_ALIGN_SIZE));
+#endif
 
     tx_fifo->activated = RT_FALSE;
     tx_fifo->put_size = 0;
@@ -738,7 +752,12 @@ static rt_err_t rt_serial_rx_enable(struct rt_device        *dev,
         serial->config.rx_bufsz = RT_SERIAL_RX_MINBUFSZ;
 
     rx_fifo = (struct rt_serial_rx_fifo *) rt_malloc
-            (sizeof(struct rt_serial_rx_fifo) + serial->config.rx_bufsz);
+            (sizeof(struct rt_serial_rx_fifo));
+#ifdef SOC_CACHELINE_ALIGN_SIZE
+    /* FIXME: it will request more buffer to get correct aligned address */
+    rx_fifo->buffer = rt_malloc(serial->config.rx_bufsz + SOC_CACHELINE_ALIGN_SIZE);
+    rx_fifo->buffer += (SOC_CACHELINE_ALIGN_SIZE - ((rt_ubase_t) rx_fifo->buffer % SOC_CACHELINE_ALIGN_SIZE));
+#endif
 
     RT_ASSERT(rx_fifo != RT_NULL);
     rt_ringbuffer_init(&(rx_fifo->rb), rx_fifo->buffer, serial->config.rx_bufsz);
@@ -811,6 +830,7 @@ static rt_err_t rt_serial_rx_disable(struct rt_device        *dev,
 
     rx_fifo = (struct rt_serial_rx_fifo *)serial->serial_rx;
     RT_ASSERT(rx_fifo != RT_NULL);
+    rt_free(rx_fifo->buffer);
     rt_free(rx_fifo);
     serial->serial_rx = RT_NULL;
 
@@ -860,6 +880,7 @@ static rt_err_t rt_serial_tx_disable(struct rt_device        *dev,
                             (void *)RT_SERIAL_TX_BLOCKING);
     } while (0);
 
+    rt_free(tx_fifo->buffer);
     rt_free(tx_fifo);
     serial->serial_tx = RT_NULL;
 

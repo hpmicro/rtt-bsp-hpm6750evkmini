@@ -140,10 +140,19 @@ enum
 #define ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(alignment) \
     ATTR_PLACE_AT_NONCACHEABLE ATTR_ALIGN(alignment)
 
+#define ATTR_PLACE_AT_NONCACHEABLE_BSS ATTR_PLACE_AT(".noncacheable.bss")
+#define ATTR_PLACE_AT_NONCACHEABLE_BSS_WITH_ALIGNMENT(alignment) \
+    ATTR_PLACE_AT_NONCACHEABLE_BSS ATTR_ALIGN(alignment)
+
 /* initialize variable x with y using PLACE_AT_NONCACHEABLE_INIT(x) = {y}; */
 #define ATTR_PLACE_AT_NONCACHEABLE_INIT ATTR_PLACE_AT(".noncacheable.init")
 #define ATTR_PLACE_AT_NONCACHEABLE_INIT_WITH_ALIGNMENT(alignment) \
     ATTR_PLACE_AT_NONCACHEABLE_INIT ATTR_ALIGN(alignment)
+
+#define ATTR_RAMFUNC ATTR_PLACE_AT(".fast")
+#define ATTR_RAMFUNC_WITH_ALIGNMENT(alignment) \
+    ATTR_RAMFUNC ATTR_ALIGN(alignment)
+
 #else
 #error Unknown toolchain
 #endif

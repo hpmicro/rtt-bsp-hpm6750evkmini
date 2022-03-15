@@ -17,7 +17,7 @@ MEMORY
     /* It's alias address of core1 ILM+DLM, but accessing via system bus */
     CORE1_LM_SLV (wx) : ORIGIN = 0x1180000, LENGTH = 512K
     SDRAM (wx) : ORIGIN = 0x40000000, LENGTH = 24M
-    SDRAM_NONCACHABLE (wx) : ORIGIN = 0x41800000, LENGTH = 8M
+    SDRAM_NONCACHEABLE (wx) : ORIGIN = 0x41800000, LENGTH = 8M
     AXI_SRAM (wx) : ORIGIN = 0x1080000, LENGTH = 1536K
 }
 
@@ -59,6 +59,10 @@ SECTIONS
         KEEP (*(.init))
         KEEP (*(.fini))
         . = ALIGN(8);
+
+        *(.fast)
+        __ramfunc_start__ = .;
+        __ramfunc_end__ = .;
 
         PROVIDE (__etext = .);
         PROVIDE (_etext = .);
@@ -136,15 +140,17 @@ SECTIONS
         __bss_end__ = .;
     } > AXI_SRAM
 
-    .noncacheable (NOLOAD) : {
+    .noncacheable : AT(etext + __data_end__ - __data_start__ + __ramfunc_end__ - __ramfunc_start__){
         . = ALIGN(8);
-        __noncacheable_bss_start__ = .;
-        KEEP(*(.noncacheable))
-        __noncacheable_bss_end__ = .;
         __noncacheable_init_start__ = .;
         KEEP(*(.noncacheable.init))
         __noncacheable_init_end__ = .;
-    } > SDRAM_NONCACHABLE
+        KEEP(*(.noncacheable))
+        __noncacheable_bss_start__ = .;
+        KEEP(*(.noncacheable.bss))
+        __noncacheable_bss_end__ = .;
+        . = ALIGN(8);
+    } > SDRAM_NONCACHEABLE
 
     .framebuffer (NOLOAD) : {
         . = ALIGN(8);
@@ -168,6 +174,6 @@ SECTIONS
         PROVIDE (_stack_in_dlm = .);
     } > DLM
 
-    __noncacheable_start__ = ORIGIN(SDRAM_NONCACHABLE);
-    __noncacheable_end__ = ORIGIN(SDRAM_NONCACHABLE) + LENGTH(SDRAM_NONCACHABLE);
+    __noncacheable_start__ = ORIGIN(SDRAM_NONCACHEABLE);
+    __noncacheable_end__ = ORIGIN(SDRAM_NONCACHEABLE) + LENGTH(SDRAM_NONCACHEABLE);
 }

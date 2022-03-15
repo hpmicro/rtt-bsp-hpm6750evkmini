@@ -1,14 +1,17 @@
+# Equal symmetric encryption and decryption algorithm AES-CMAC
 ## Overview
-***
-aes_cmac_mode_example the example project shows the implementation of aes-cmac mode of equal symmetric encryption and decryption algorithm. In this project, the integrity verification of encryption and decryption information of cmak module is completed through five tests.
+
+**aes_cmac_mode_example** the example project shows the implementation of aes-cmac mode of equal symmetric encryption and decryption algorithm.
+- The equal symmetry encryption and decryption algorithm of this project adopts aes-cmac mode, and the integrity verification of encryption and decryption information of cmak module is completed through 5 tests.
 
 ## Board Setting
-***
-No special settings
+
+- No special settings
 
 ## Running the example
-***
+
 When the project runs correctly, and the serial port terminal will output the following information:
+```
 > tc_start() - Performing CMAC tests:
 > Performing CMAC test #1 (GF(2^128) double):
 > ===================================================================
@@ -30,3 +33,4 @@ When the project runs correctly, and the serial port terminal will output the fo
 > PASS - main.
 > ===================================================================
 > PROJECT EXECUTION SUCCESSFUL
+```

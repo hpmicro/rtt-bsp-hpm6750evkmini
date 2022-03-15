@@ -51,6 +51,7 @@ int32_t jpg_size;
  */
 void lcdc_display_picture(int32_t rgb_width, int32_t rgb_heihgt, int32_t rgb_size)
 {
+    uint8_t layer_index;
     lcdc_config_t config = {0};
     lcdc_layer_config_t layer;
 
@@ -62,12 +63,15 @@ void lcdc_display_picture(int32_t rgb_width, int32_t rgb_heihgt, int32_t rgb_siz
 
     /*Rgb565 data parameter configuration*/
     if (l1c_dc_is_enabled()) {
-        l1c_dc_writeback((uint32_t)rgb565buff, rgb_size);
+        uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)rgb565buff);
+        uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)rgb565buff + rgb_size);
+        uint32_t aligned_size = aligned_end - aligned_start;
+        l1c_dc_writeback(aligned_start, aligned_size);
     }
     layer.buffer = core_local_mem_to_sys_address(BOARD_RUNNING_CORE, (uint32_t)rgb565buff);
     layer.width = rgb_width;
     layer.height = rgb_heihgt;
-    lcdc_get_default_layer_config(LCD, &layer, PIXEL_FORMAT);
+    lcdc_get_default_layer_config(LCD, &layer, PIXEL_FORMAT, layer_index);
 
     /*LCD layer parameter configuration*/
     layer.position_x = 0;
@@ -81,7 +85,7 @@ void lcdc_display_picture(int32_t rgb_width, int32_t rgb_heihgt, int32_t rgb_siz
     layer.alphablend.mode = display_alphablend_mode_src_over;
     layer.yuv = 0;
     layer.csc_config.enable = false;
-    lcdc_config_layer(LCD, 0, &layer, true);
+    lcdc_config_layer(LCD, layer_index, &layer, true);
 
     /*LCD display function enable*/
     lcdc_turn_on_display(LCD);

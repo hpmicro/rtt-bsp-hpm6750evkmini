@@ -6,7 +6,7 @@ import sys
 
 def get_gcc_version(version_text):
     version_text = re.sub(r'\n', r' ', version_text)
-    m = re.match(r'.*\s+([0-9]+.[0-9]+.[0-9]+)\s*', version_text)
+    m = re.match(r'.*\s+([0-9]+\.[0-9]+\.[0-9]+)\s*', version_text)
     if m is not None:
         print(m.group(1))
         sys.exit(0)

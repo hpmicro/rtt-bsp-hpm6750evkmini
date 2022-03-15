@@ -42,10 +42,12 @@ hpm_stat_t dma_setup_channel(DMA_Type *ptr, uint32_t ch_num, dma_channel_config_
         | DMA_CHCTRL_CTRL_SRCBURSTSIZE_SET(ch->src_burst_size)
         | DMA_CHCTRL_CTRL_SRCWIDTH_SET(ch->src_width)
         | DMA_CHCTRL_CTRL_DSTWIDTH_SET(ch->dst_width)
-        | DMA_CHCTRL_CTRL_SRCMODE_SET(ch->dma_mode)
+        | DMA_CHCTRL_CTRL_SRCMODE_SET(ch->src_mode)
+        | DMA_CHCTRL_CTRL_DSTMODE_SET(ch->dst_mode)
         | DMA_CHCTRL_CTRL_SRCADDRCTRL_SET(ch->src_addr_ctrl)
         | DMA_CHCTRL_CTRL_DSTADDRCTRL_SET(ch->dst_addr_ctrl)
         | DMA_CHCTRL_CTRL_SRCREQSEL_SET(ch_num)
+        | DMA_CHCTRL_CTRL_DSTREQSEL_SET(ch_num)
         | ch->interrupt_mask
         | DMA_CHCTRL_CTRL_ENABLE_MASK;
     ptr->CHCTRL[ch_num].CTRL = tmp;
@@ -60,7 +62,8 @@ hpm_stat_t dma_setup_channel(DMA_Type *ptr, uint32_t ch_num, dma_channel_config_
 void dma_default_channel_config(DMA_Type *ptr, dma_channel_config_t *ch)
 {
     ch->priority = 0;
-    ch->dma_mode = DMA_HANDSHAKE_MODE_NORMAL;
+    ch->src_mode = DMA_HANDSHAKE_MODE_NORMAL;
+    ch->dst_mode = DMA_HANDSHAKE_MODE_NORMAL;
     ch->src_burst_size = DMA_NUM_TRANSFER_PER_BURST_1T;
     ch->src_addr_ctrl = DMA_ADDRESS_CONTROL_INCREMENT;
     ch->dst_addr_ctrl = DMA_ADDRESS_CONTROL_INCREMENT;
@@ -135,4 +138,36 @@ hpm_stat_t dma_start_memcpy(DMA_Type *ptr, uint8_t ch_num,
     return stat;
 }
 
+hpm_stat_t dma_setup_handshake(DMA_Type *ptr,  dma_handshake_config_t *pconfig)
+{
+    hpm_stat_t stat = status_success;
+    dma_channel_config_t config = {0};
+    dma_default_channel_config(ptr, &config);
 
+    if (true == pconfig->dst_fixed) {
+        config.dst_addr_ctrl = DMA_ADDRESS_CONTROL_FIXED;
+        config.dst_mode = DMA_HANDSHAKE_MODE_HANDSHAKE;
+    }
+    if (true == pconfig->src_fixed) {
+        config.src_addr_ctrl = DMA_ADDRESS_CONTROL_FIXED;
+        config.src_mode = DMA_HANDSHAKE_MODE_HANDSHAKE;
+    }
+
+    if (pconfig->ch_index > DMA_SOC_CHANNEL_NUM) {
+        return status_invalid_argument;
+    }
+
+    /*  In DMA handshake case, source width and destination width must be BYTE. */
+    config.src_width = DMA_TRANSFER_WIDTH_BYTE;
+    config.dst_width = DMA_TRANSFER_WIDTH_BYTE;
+    config.src_addr = pconfig->src;
+    config.dst_addr = pconfig->dst;
+    config.size_in_byte = pconfig->size_in_byte;
+     /*  In DMA handshake case, source burst size must be 1 transfer, that is 0. */
+    config.src_burst_size = 0;
+    stat = dma_setup_channel(ptr, pconfig->ch_index, &config);
+    if (stat != status_success) {
+        return stat;
+    }
+    return stat;
+}

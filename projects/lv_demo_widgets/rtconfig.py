@@ -46,7 +46,7 @@ if PLATFORM == 'gcc':
     ARCH_ABI = ' -march=rv32imac -mabi=ilp32 -mcmodel=medlow '
     CFLAGS = DEVICE + ARCH_ABI + ' -ffunction-sections -fdata-sections -fno-common'
     AFLAGS = CFLAGS
-    LFLAGS  = ARCH_ABI + ' --specs=nano.specs --specs=nosys.specs -nostartfiles -Wl,--gc-sections '
+    LFLAGS  = ARCH_ABI + '  --specs=nosys.specs -nostartfiles -Wl,--gc-sections '
 
     CPATH = ''
     LPATH = ''

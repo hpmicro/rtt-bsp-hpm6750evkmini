@@ -1,14 +1,17 @@
+# Equal symmetric encryption and decryption algorithm AES-CTR
 ## Overview
-***
-aes_ctr_mode_example the example project shows the implementation of aes-ctr mode of equal symmetric encryption and decryption algorithm. In this project, aes128 encryption algorithm CTR counting mode is used to complete the module encryption and decryption test.
+
+**aes_ctr_mode_example** the example project shows the implementation of aes-ctr mode of equal symmetric encryption and decryption algorithm.
+- The equal symmetry encryption and decryption algorithm of this project adopts aes128 encryption algorithm CTR counting mode to complete the module encryption and decryption test.
 
 ## Board Setting
-***
-No special settings
+
+- No special settings
 
 ## Running the example
-***
+
 When the project runs correctly, and the serial port terminal will output the following information:
+```
 > tc_start() - Performing AES128-CTR mode tests:
 > Performing CTR tests:
 > CTR test #1 (encryption SP 800-38a tests):
@@ -22,3 +25,4 @@ When the project runs correctly, and the serial port terminal will output the fo
 > PASS - main.
 > ===================================================================
 > PROJECT EXECUTION SUCCESSFUL
+```

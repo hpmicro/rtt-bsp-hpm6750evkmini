@@ -80,6 +80,7 @@ uint8_t out_img[LAYER_HEIGHT*LAYER_WIDTH*2];
 
 void init_lcd(void)
 {
+    uint8_t layer_index = 0;
     lcdc_config_t config = {0};
     lcdc_layer_config_t layer = {0};
 
@@ -90,7 +91,7 @@ void init_lcd(void)
     
     lcdc_init(LCD, &config);
 
-    lcdc_get_default_layer_config(LCD, &layer, PIXEL_FORMAT);
+    lcdc_get_default_layer_config(LCD, &layer, PIXEL_FORMAT, layer_index);
 
     layer.position_x = LCD_WIDTH / 2 - LAYER_WIDTH / 2;
     layer.position_y = LCD_HEIGHT / 2 - LAYER_HEIGHT / 2;
@@ -105,7 +106,7 @@ void init_lcd(void)
     layer.background.u= 0xFFFF0000;
     layer.alphablend.mode = display_alphablend_mode_xor;
 
-    if (status_success != lcdc_config_layer(LCD, 0, &layer, true)) {
+    if (status_success != lcdc_config_layer(LCD, layer_index, &layer, true)) {
         printf("failed to configure layer\n");
         while(1);
     }

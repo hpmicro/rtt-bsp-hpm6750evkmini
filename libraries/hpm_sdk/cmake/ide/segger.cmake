@@ -15,13 +15,21 @@ function (generate_ses_project)
             if (NOT DEFINED SEC_CORE_IMG_C_ARRAY_OUTPUT)
                 set (SEC_CORE_IMG_C_ARRAY_OUTPUT "sec_core_img.c")
             endif()
-            set(post_build_command "python $(HPM_SDK_BASE)/scripts/bin2c.py $(OutDir)/$(ProjectName).bin sec_core_img > ${SEC_CORE_IMG_C_ARRAY_OUTPUT}")
+            set(post_build_command "${PYTHON_EXECUTABLE} $(HPM_SDK_BASE)/scripts/bin2c.py $(OutDir)/$(ProjectName).bin sec_core_img > ${SEC_CORE_IMG_C_ARRAY_OUTPUT}")
             string(REPLACE "\\" "/" post_build_command ${post_build_command})
         endif()
     endif()
 
     set(target_link_symbols "")
     foreach(sym IN ITEMS ${target_link_sym})
+        string(FIND ${sym} "_heap_size" exist)
+        if(NOT ${exist} EQUAL -1)
+            continue()
+        endif()
+        string(FIND ${sym} "_stack_size" exist)
+        if(NOT ${exist} EQUAL -1)
+            continue()
+        endif()
         if("${target_link_symbols}" STREQUAL "")
             set(target_link_symbols ${sym})
         else()
@@ -195,7 +203,12 @@ function (generate_ses_project)
                 \"auto_start_gdb_server\":\"${AUTO_START_GDB_SRV}\",
                 \"gdb_server_port\":\"${GDB_SERVER_PORT}\",
                 \"gdb_server_reset_command\":\"${GDB_SERVER_RST_CMD}\",
-                \"register_definition\":\"${target_register_definition}\"
+                \"register_definition\":\"${target_register_definition}\",
+                \"post_build_command\":\"${post_build_command}\",
+                \"heap_size\":\"${HEAP_SIZE}\",
+                \"stack_size\":\"${STACK_SIZE}\",
+                \"cplusplus\":\"${CMAKE_CXX_STANDARD}\",
+                \"segger_level_o3\":\"${SEGGER_LEVEL_O3}\"
                 }
             }")
     else()
@@ -213,7 +226,11 @@ function (generate_ses_project)
                 \"board\":\"${BOARD}\",
                 \"soc\":\"${SOC}\",
                 \"register_definition\":\"${target_register_definition}\",
-                \"post_build_command\":\"${post_build_command}\"
+                \"post_build_command\":\"${post_build_command}\",
+                \"heap_size\":\"${HEAP_SIZE}\",
+                \"stack_size\":\"${STACK_SIZE}\",
+                \"cplusplus\":\"${CMAKE_CXX_STANDARD}\",
+                \"segger_level_o3\":\"${SEGGER_LEVEL_O3}\"
                 }
             }")
     endif()

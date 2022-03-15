@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 sdk_inc(${TOOLCHAIN_HOME}/lib/gcc/${CROSS_COMPILE_TARGET}/${COMPILER_VERSION}/include)
+sdk_sys_inc(${TOOLCHAIN_HOME}/${CROSS_COMPILE_TARGET}/include/c++/${COMPILER_VERSION})
 sdk_compile_options("-Wall")
 sdk_compile_options("-Wno-format")
 sdk_compile_options("-fomit-frame-pointer")

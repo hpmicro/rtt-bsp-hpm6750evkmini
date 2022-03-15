@@ -1,5 +1,7 @@
+# CAN Demo
+
 ## Overview
-***
+
 The can_demo provides the following features:
 - loopback test for all SoC supported CAN controllers, focusing on the CAN and CAN-FD test
 - loopback test for the board supported CAN controllers using interrupt mode
@@ -7,11 +9,11 @@ The can_demo provides the following features:
 - Send out multiple messages for the CAN bus connection check
 
 ## Board Setting
-***
+
 No special settings are required
 
 ## Running the example
-***
+
 When the example runs successfully, the board shows the following menu:
 
 ```shell

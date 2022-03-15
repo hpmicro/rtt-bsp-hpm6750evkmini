@@ -1,14 +1,17 @@
+# Equal symmetric encryption and decryption algorithm AES-CCM
 ## Overview
 ***
-aes_ccm_mode_example the example project shows the implementation of aes-ccm mode of equal symmetric encryption and decryption algorithm. In this project, aes128 encryption algorithm CCM mode is used to encrypt and decrypt RFC 3610, and the module encryption and decryption is completed through 8 tests.
+**aes_ccm_mode_example** the example project shows the implementation of aes-ccm mode of equal symmetric encryption and decryption algorithm.
+- The equal symmetry encryption and decryption algorithm of this project adopts aes128 encryption algorithm CCM mode to encrypt and decrypt RFC 3610, and the module encryption and decryption is completed through 8 tests.
 
 ## Board Setting
 ***
-No special settings
+- No special settings
 
 ## Running the example
 ***
 When the project runs correctly, and the serial port terminal will output the following information:
+```
 > tc_start() - Performing CCM tests:
 > test_vector_1: Performing CCM test #1 (RFC 3610 test vector #1):
 > ===================================================================
@@ -39,3 +42,4 @@ When the project runs correctly, and the serial port terminal will output the fo
 > PASS - main.
 > ===================================================================
 > PROJECT EXECUTION SUCCESSFUL
+```

@@ -83,8 +83,7 @@ static const hcd_controller_t _hcd_controller[] =
  *---------------------------------------------------------------------*/
 static usb_host_handle_t usb_host_handle;
 static bool hcd_int_sta;
-
-__attribute__ ((aligned(USB_SOC_DCD_DATA_RAM_ADDRESS_ALIGNMENT))) static hcd_data_t _hcd_data;
+ATTR_ALIGN(USB_SOC_DCD_DATA_RAM_ADDRESS_ALIGNMENT) static hcd_data_t _hcd_data;
 
 bool hcd_init(uint8_t rhport)
 {

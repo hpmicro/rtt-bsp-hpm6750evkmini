@@ -484,3 +484,16 @@ hpm_stat_t i2c_slave_read(I2C_Type *ptr,
 
     return status_success;
 }
+
+void i2c_master_start_dma_write(I2C_Type *i2c_ptr, const uint16_t device_address, uint32_t size)
+{
+    i2c_ptr->ADDR = I2C_ADDR_ADDR_SET(device_address);
+    i2c_ptr->CTRL = I2C_CTRL_PHASE_START_MASK
+        | I2C_CTRL_PHASE_STOP_MASK
+        | I2C_CTRL_PHASE_ADDR_MASK
+        | I2C_CTRL_PHASE_DATA_MASK
+        | I2C_CTRL_DIR_SET(I2C_DIR_MASTER_WRITE)
+        | I2C_CTRL_DATACNT_SET(size);
+
+    i2c_ptr->CMD = I2C_CMD_ISSUE_DATA_TRANSMISSION;
+}

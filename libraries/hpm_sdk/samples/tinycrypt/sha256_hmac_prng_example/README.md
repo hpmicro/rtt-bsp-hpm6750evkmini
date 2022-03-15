@@ -1,14 +1,17 @@
+# SHA-HMAC algorithm
 ## Overview
-***
-sha256_hmac_prng_example the example project shows the implementation of Sha algorithm HMAC key message integrity verification method. In this project, HMAC sha256 method is used to complete the module encryption and decryption test.
+
+**sha256_hmac_prng_example** the example project shows the implementation of Sha algorithm HMAC key message integrity verification method.
+- The encryption and decryption algorithm of this project adopts HMAC sha256 method to complete the module encryption and decryption test.
 
 ## Board Setting
-***
-No special settings
+
+- No special settings
 
 ## Running the example
-***
+
 When the project runs correctly, and the serial port terminal will output the following information:
+```
 > tc_start() - Performing HMAC-PRNG tests:
 > HMAC-PRNG test_1:
 > ===================================================================
@@ -375,3 +378,4 @@ When the project runs correctly, and the serial port terminal will output the fo
 > PASS - main.
 > ===================================================================
 > PROJECT EXECUTION SUCCESSFUL
+```

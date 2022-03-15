@@ -100,8 +100,18 @@
 #define BOARD_CAP_I2C_CLK_GPIO_PIN (11)
 
 /* dma section */
+#define BOARD_APP_XDMA HPM_XDMA
+#define BOARD_APP_HDMA HPM_HDMA
 #define BOARD_APP_XDMA_IRQ IRQn_XDMA
 #define BOARD_APP_HDMA_IRQ IRQn_HDMA
+#define BOARD_APP_DMAMUX HPM_DMAMUX
+
+/* gptmr section */
+#define BOARD_GPTMR HPM_GPTMR4
+#define BOARD_GPTMR_IRQ IRQn_GPTMR4
+#define BOARD_GPTMR_CHANNEL 1
+#define BOARD_GPTMR_PWM HPM_GPTMR3
+#define BOARD_GPTMR_PWM_CHANNEL 1
 
 /* gpio section */
 #define BOARD_R_GPIO_CTRL HPM_GPIO0
@@ -275,11 +285,17 @@
 
 /*Timer define*/
 
-#define BOARD_BLDC_TMR_1MS                       HPM_GPTMR2
-#define BOARD_BLDC_TMR_CH                        0
-#define BOARD_BLDC_TMR_CMP                       0
-#define BOARD_BLDC_TMR_IRQ                       IRQn_GPTMR2
-#define BOARD_BLDC_TMR_RELOAD                    (100000U)
+#define BOARD_TMR_1MS                       HPM_GPTMR2
+#define BOARD_TMR_1MS_CH                        0
+#define BOARD_TMR_1MS_CMP                       0
+#define BOARD_TMR_1MS_IRQ                       IRQn_GPTMR2
+#define BOARD_TMR_1MS_RELOAD                    (100000U)
+
+#define BOARD_BLDC_TMR_1MS                       BOARD_TMR_1MS
+#define BOARD_BLDC_TMR_CH                        BOARD_TMR_1MS_CH
+#define BOARD_BLDC_TMR_CMP                       BOARD_TMR_1MS_CMP
+#define BOARD_BLDC_TMR_IRQ                       BOARD_TMR_1MS_IRQ
+#define BOARD_BLDC_TMR_RELOAD                    BOARD_TMR_1MS_RELOAD
 
 /*adc*/
 #define BOARD_BLDC_ADC_BASE                    HPM_ADC0
@@ -379,6 +395,9 @@ void board_reset_camera(bool active);
 /* Initialize SoC overall clocks */
 void board_init_clock(void);
 
+/* Initialize the UART clock */
+uint32_t board_init_uart_clock(UART_Type *ptr);
+
 /* Initialize the CAM(camera) dot clock */
 uint32_t board_init_cam_clock(CAM_Type *ptr);
 
@@ -415,7 +434,7 @@ void board_init_pmp(void);
 
 void board_delay_ms(uint32_t ms);
 
-void board_timer_create(uint32_t ms, void *cb);
+void board_timer_create(uint32_t ms, board_timer_cb cb);
 
 void board_init_rgb_pwm_pins(void);
 void board_enable_output_rgb_led(uint8_t color);

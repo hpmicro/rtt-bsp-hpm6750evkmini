@@ -362,6 +362,16 @@ ATTR_ALWAYS_INLINE static inline
 #define HPM_L1C_CFG_SETH_MASK      (uint32_t)(0x1 << HPM_L1C_CFG_SETH_SHIFT)
 
 /**
+ * @brief  Align down based on cache line size
+ */
+#define HPM_L1C_CACHELINE_ALIGN_DOWN(n) ((uint32_t)(n) & ~(HPM_L1C_CACHELINE_SIZE - 1U))
+
+/**
+ * @brief Align up based on cache line size
+ */
+#define HPM_L1C_CACHELINE_ALIGN_UP(n)   HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)(n) + HPM_L1C_CACHELINE_SIZE - 1U)
+
+/**
  * @brief   Get I-cache configuration
  *
  * @return I-cache config register

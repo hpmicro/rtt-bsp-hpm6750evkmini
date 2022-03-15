@@ -390,9 +390,10 @@ static inline void lcdc_set_background(LCDC_Type *ptr,
  * @param[in] ptr LCD base address
  * @param[out] layer Pointer of layer configuration struct buffer
  * @param[in] pixel_format Pixel format to be used for this layer
+ * @param[in] layer_index target layer to be configured
  */
 void lcdc_get_default_layer_config(LCDC_Type *ptr,
-                                   lcdc_layer_config_t *layer, display_pixel_format_t pixel_format);
+                                   lcdc_layer_config_t *layer, display_pixel_format_t pixel_format, uint8_t layer_index);
 
 /**
  *

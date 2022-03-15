@@ -6,6 +6,7 @@
  * Change Logs:
  * Date           Author           Notes
  * 2021-06-01     KyleChan     first version
+ * 2022-03-15     HPMicro      change the tx/rx fifo buffer to be re-allocable
  */
 
 #ifndef __SERIAL_V2_H__
@@ -123,7 +124,7 @@ struct rt_serial_rx_fifo
     rt_uint16_t rx_cpt_index;
 
     /* software fifo */
-    rt_uint8_t buffer[];
+    rt_uint8_t *buffer;
 };
 
 /*
@@ -140,7 +141,7 @@ struct rt_serial_tx_fifo
     struct rt_completion tx_cpt;
 
     /* software fifo */
-    rt_uint8_t buffer[];
+    rt_uint8_t *buffer;
 };
 
 struct rt_serial_device

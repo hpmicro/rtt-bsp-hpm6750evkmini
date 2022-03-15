@@ -381,9 +381,12 @@
 /* PTPC base pointer */
 #define HPM_PTPC ((PTPC_Type *) HPM_PTPC_BASE)
 
+#include "hpm_dmamux_regs.h"
 /* Address of DMAMUX instances */
 /* DMAMUX base address */
 #define HPM_DMAMUX_BASE (0xF00C0000UL)
+/* DMAMUX base pointer */
+#define HPM_DMAMUX ((DMAMUX_Type *) HPM_DMAMUX_BASE)
 
 #include "hpm_dma_regs.h"
 /* Address of DMA instances */

@@ -5,20 +5,27 @@
 
 define memory with size = 4G;
 
+#ifdef _extram_size
+define symbol extram_size = _extram_size;
+#else
+define symbol extram_size = 16M;
+#endif
+
 /* Define memory regions */
 define region ILM = [from 0x00000000 size 256k]; /* ILM */
 define region DLM   = [from 0x80000 size 256k];
 define region CORE0_LM_SLV   = [from 0x1000000 size 512K];
 define region CORE1_LM_SLV   = [from 0x1180000 size 512K];
-define region SDRAM  = [from 0x40000000 size 24M];
-define region SDRAM_NONCACHABLE  = [from 0x41800000 size 8M];
+define region SDRAM  = [from 0x40000000 size extram_size - 8M];
+define region SDRAM_NONCACHABLE  = [from 0x40000000 + extram_size - 8M size 8M];
 define region AXI_SRAM  = [from 0x1080000 size 768K];
 define region NONCACHEABLE_RAM = [from 0x01140000 size 256K];
 
 /* Symbol */
 define exported symbol __noncacheable_start__  = start of region NONCACHEABLE_RAM;
 define exported symbol __noncacheable_end__  = end of region NONCACHEABLE_RAM + 1;
-define exported symbol _stack_in_dlm = end of block safe_stack;
+define exported symbol _stack_in_dlm = end of block safe_stack + 1;
+define exported symbol _stack = end of block stack + 1;
 
 /* Blocks */
 define block vectors                        { section .isr_vector, section .vector_table };
@@ -29,8 +36,8 @@ define block tbss                           { section .tbss,      section .tbss.
 define block tdata                          { section .tdata,     section .tdata.* };
 define block tls                            { block tbss, block tdata };
 define block tdata_load                     { copy of block tdata };
-define block heap  with size = 0x10000,  alignment = 8, /* fill =0x00, */ readwrite access { };
-define block stack with size = 0x4000, alignment = 8, /* fill =0xCD, */ readwrite access { };
+define block heap  with size = __HEAPSIZE__,  alignment = 8, /* fill =0x00, */ readwrite access { };
+define block stack with size = __STACKSIZE__, alignment = 8, /* fill =0xCD, */ readwrite access { };
 
 /* stack to be used while initializing external memory for data use */
 define block safe_stack with size = 512, readwrite access {};
@@ -39,10 +46,10 @@ define block framebuffer with alignment = 8 { section .framebuffer };
 do not initialize                           { section .non_init, section .non_init.*, section .*.non_init, section .*.non_init.* };
 do not initialize                           { section .no_init, section .no_init.*, section .*.no_init, section .*.no_init.* };   // Legacy sections, kept for backwards compatibility
 do not initialize                           { section .noinit, section .noinit.*, section .*.noinit, section .*.noinit.* };       // Legacy sections, used by some SDKs/HALs
-do not initialize                           {block framebuffer};
+do not initialize                           { block framebuffer, section .noncacheable };
 
-initialize by copy with packing=auto        { section .noncacheable, section .noncacheable.init };
-initialize by copy with packing=auto        { section .data, section .data.*, section .*.data, section .*.data.* };               // Static data sections
+initialize by copy with packing=auto        { section .noncacheable.init };
+initialize by copy with packing=none        { section .data, section .data.*, section .*.data, section .*.data.* };               // Static data sections
 initialize by copy with packing=auto        { section .sdata, section .sdata.* };
 initialize by copy with packing=auto        { section .fast, section .fast.*, section .*.fast, section .*.fast.* };               // "RAM Code" sections
 
@@ -74,6 +81,6 @@ place in AXI_SRAM with auto order             { section .fast, section .fast.*, 
                                               readwrite,                                            // Catch-all for initialized/uninitialized data sections (e.g. .data, .noinit)
                                               zeroinit                                              // Catch-all for zero-initialized data sections (e.g. .bss)
                                             };
-place in NONCACHEABLE_RAM                   { section .noncacheable, section .noncacheable.init };                                 // Noncacheable block
+place in NONCACHEABLE_RAM                   { section .noncacheable, section .noncacheable.init, section .noncacheable.bss };                                 // Noncacheable block
 place in AXI_SRAM                                { block heap };                                         // Heap reserved block
 place at end of AXI_SRAM                         { block safe_stack, block stack };                      // Stack reserved block at the end

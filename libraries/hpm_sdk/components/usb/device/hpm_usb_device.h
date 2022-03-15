@@ -139,6 +139,8 @@ void usb_device_edpt_clear_stall(usb_device_handle_t *handle, uint8_t ep_addr);
 /* close a specified endpoint */
 void usb_device_edpt_close(usb_device_handle_t *handle, uint8_t ep_addr);
 
+void usb_device_edpt_close_all(usb_device_handle_t *handle);
+
 uint32_t usb_device_status_flags(usb_device_handle_t *handle);
 
 void usb_device_clear_status_flags(usb_device_handle_t *handle, uint32_t mask);

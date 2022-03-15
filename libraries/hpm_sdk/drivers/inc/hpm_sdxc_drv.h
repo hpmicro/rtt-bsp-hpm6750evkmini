@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021 - 2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -185,37 +185,36 @@ typedef enum _sdxc_response_type {
  * @brief SDXC error codes
  */
 enum {
-    status_sdxc_busy = MAKE_STATUS(status_group_sdxc, 0),           /**< SDXC is busy */
-    status_sdxc_error,                                              /**< SDXC error */
-    status_sdxc_send_cmd_failed,                                    /**< SDXC command failed */
-
-    status_sdxc_cmd_timeout_error,                                  /**< SDXC command timed out */
-    status_sdxc_cmd_crc_error,                                      /**< SDXC command CRC error */
-    status_sdxc_cmd_end_bit_error,                                  /**< SDXC command end bit error */
-    status_sdxc_cmd_index_error,                                    /**< SDXC command index error */
-    status_sdxc_data_timeout_error,                                 /**< SDXC data timeout error */
-    status_sdxc_data_crc_error,                                     /**< SDXC data CRC error */
-    status_sdxc_data_end_bit_error,                                 /**< SDXC data end bit error */
-    status_sdxc_auto_cmd_error,                                     /**< SDXC auto command error */
-    status_sdxc_adma_error,                                         /**< SDXC ADMA error */
-    status_sdxc_tuning_error,                                       /**< SDXC tuning error */
-    status_sdxc_response_error,                                     /**< SDXC response error */
-    status_sdxc_boot_ack_error,                                     /**< SDXC boot ack error */
-    status_sdxc_retuning_request,                                   /**< SDXC retuning request */
-    status_sdxc_autocmd_cmd12_not_exec,                             /**< SDXC Auto CMD12 command not executed */
-    status_sdxc_autocmd_cmd_timeout_error,                          /**< SDXC Auto CMD timed out */
-    status_sdxc_autocmd_cmd_crc_error,                              /**< SDXC Auto CMD crc error */
-    status_sdxc_autocmd_end_bit_error,                              /**< SDXC Auto CMD end bit error */
-    status_sdxc_autocmd_cmd_index_error,                            /**< SDXC Auto CMD index error */
-    status_sdxc_autocmd_cmd_response_error,                         /**< SDXC Auto CMD response error */
-    status_sdxc_autocmd_cmd_not_issued_auto_cmd12,                  /**< SDXC Auto CMD not issued auto CMD12 */
-    status_sdxc_unsupported,                                        /**< SDXC unsupported operation */
-    status_sdxc_transfer_data_completed,                            /**< SDXC transfer data completed */
-    status_sdxc_send_cmd_successful,                                /**< SDXC send command succedded */
-    status_sdxc_transfer_dma_completed,                             /**< SDXC transfer DMA completed */
-    status_sdxc_transfer_data_failed,                               /**< SDXC transfer data failed */
-    status_sdxc_dma_addr_unaligned,                                 /**< SDXC DMA address unaligned */
-    status_sdxc_tuning_failed,                                      /**< SDXC tuning failed */
+    status_sdxc_busy = MAKE_STATUS(status_group_sdxc, 0),                               /**< SDXC is busy */
+    status_sdxc_error = MAKE_STATUS(status_group_sdxc, 1),                              /**< SDXC error */
+    status_sdxc_send_cmd_failed = MAKE_STATUS(status_group_sdxc, 2),                    /**< SDXC command failed */
+    status_sdxc_cmd_timeout_error = MAKE_STATUS(status_group_sdxc, 3),                  /**< SDXC command timed out */
+    status_sdxc_cmd_crc_error = MAKE_STATUS(status_group_sdxc, 4),                      /**< SDXC command CRC error */
+    status_sdxc_cmd_end_bit_error = MAKE_STATUS(status_group_sdxc, 5),                  /**< SDXC command end bit error */
+    status_sdxc_cmd_index_error = MAKE_STATUS(status_group_sdxc, 6),                    /**< SDXC command index error */
+    status_sdxc_data_timeout_error = MAKE_STATUS(status_group_sdxc, 7),                 /**< SDXC data timeout error */
+    status_sdxc_data_crc_error = MAKE_STATUS(status_group_sdxc, 8),                     /**< SDXC data CRC error */
+    status_sdxc_data_end_bit_error = MAKE_STATUS(status_group_sdxc, 9),                 /**< SDXC data end bit error */
+    status_sdxc_auto_cmd_error = MAKE_STATUS(status_group_sdxc, 10),                    /**< SDXC auto command error */
+    status_sdxc_adma_error = MAKE_STATUS(status_group_sdxc, 11),                        /**< SDXC ADMA error */
+    status_sdxc_tuning_error = MAKE_STATUS(status_group_sdxc, 12),                      /**< SDXC tuning error */
+    status_sdxc_response_error = MAKE_STATUS(status_group_sdxc, 13),                    /**< SDXC response error */
+    status_sdxc_boot_ack_error = MAKE_STATUS(status_group_sdxc, 14),                    /**< SDXC boot ack error */
+    status_sdxc_retuning_request = MAKE_STATUS(status_group_sdxc, 15),                  /**< SDXC retuning request */
+    status_sdxc_autocmd_cmd12_not_exec = MAKE_STATUS(status_group_sdxc, 16),            /**< SDXC Auto CMD12 command not executed */
+    status_sdxc_autocmd_cmd_timeout_error = MAKE_STATUS(status_group_sdxc, 17),         /**< SDXC Auto CMD timed out */
+    status_sdxc_autocmd_cmd_crc_error = MAKE_STATUS(status_group_sdxc, 18),             /**< SDXC Auto CMD crc error */
+    status_sdxc_autocmd_end_bit_error = MAKE_STATUS(status_group_sdxc, 19),             /**< SDXC Auto CMD end bit error */
+    status_sdxc_autocmd_cmd_index_error = MAKE_STATUS(status_group_sdxc, 20),           /**< SDXC Auto CMD index error */
+    status_sdxc_autocmd_cmd_response_error = MAKE_STATUS(status_group_sdxc, 21),        /**< SDXC Auto CMD response error */
+    status_sdxc_autocmd_cmd_not_issued_auto_cmd12 = MAKE_STATUS(status_group_sdxc, 22), /**< SDXC Auto CMD not issued auto CMD12 */
+    status_sdxc_unsupported = MAKE_STATUS(status_group_sdxc, 23),                       /**< SDXC unsupported operation */
+    status_sdxc_transfer_data_completed = MAKE_STATUS(status_group_sdxc, 24),           /**< SDXC transfer data completed */
+    status_sdxc_send_cmd_successful = MAKE_STATUS(status_group_sdxc, 25),               /**< SDXC send command succedded */
+    status_sdxc_transfer_dma_completed = MAKE_STATUS(status_group_sdxc, 26),            /**< SDXC transfer DMA completed */
+    status_sdxc_transfer_data_failed = MAKE_STATUS(status_group_sdxc, 27),              /**< SDXC transfer data failed */
+    status_sdxc_dma_addr_unaligned = MAKE_STATUS(status_group_sdxc, 28),                /**< SDXC DMA address unaligned */
+    status_sdxc_tuning_failed = MAKE_STATUS(status_group_sdxc, 29),                     /**< SDXC tuning failed */
 };
 
 /**
@@ -853,8 +852,10 @@ void sdxc_set_mmc_boot_config(SDXC_Type *base, const sdxc_boot_config_t *config)
  * @brief Send Command via SDXC
  * @param [in] base SDXC base address
  * @param [in] cmd Command
+ * @retval status_timeout Sending command timed out
+ * @retval status_success Command was sent out successfully
  */
-void sdxc_send_command(SDXC_Type *base, sdxc_command_t *cmd);
+hpm_stat_t sdxc_send_command(SDXC_Type *base, sdxc_command_t *cmd);
 
 /**
  * @brief Wait until SDXC command completes

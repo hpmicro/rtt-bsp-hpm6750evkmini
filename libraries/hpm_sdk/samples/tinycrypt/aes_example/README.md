@@ -1,14 +1,17 @@
+# Equal symmetric encryption and decryption algorithm AES
 ## Overview
-***
-aes_example the example project shows the implementation of AES mode of equal symmetric encryption and decryption algorithm. In this project, aes128 NIST mode is used to complete the module encryption and decryption test.
+
+**aes_example** the example project shows the implementation of AES mode of equal symmetric encryption and decryption algorithm.
+- The equal symmetry encryption and decryption algorithm of this project adopts aes128 NIST mode to complete the module encryption and decryption test.
 
 ## Board Setting
-***
-No special settings
+
+- No special settings
 
 ## Running the example
-***
+
 When the project runs correctly, and the serial port terminal will output the following information:
+```
 > tc_start() - Performing AES128 tests:
 > AES128 test_1 (NIST key schedule test):
 > ===================================================================
@@ -27,3 +30,4 @@ When the project runs correctly, and the serial port terminal will output the fo
 > PASS - main.
 > ===================================================================
 > PROJECT EXECUTION SUCCESSFUL
+```

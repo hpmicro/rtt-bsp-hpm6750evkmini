@@ -28,7 +28,7 @@ char g_buff[4096] __attribute__((section (".dual_core_share")));
 char g_temp[1024];
 char* g_buff_current;
 void ee_printf(char *format, ...)
-{ 
+{
     uint32_t len;
     va_list args;
     va_start(args, format);
@@ -36,8 +36,11 @@ void ee_printf(char *format, ...)
     va_end(args);
     memcpy(g_buff_current, g_temp, len);
     if (l1c_dc_is_enabled()) {
-        l1c_dc_flush((uint32_t) g_buff_current, len);
-    } 
+        uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)g_buff_current);
+        uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)g_buff_current + len);
+        uint32_t aligned_size = aligned_end - aligned_start;
+        l1c_dc_flush(aligned_start, aligned_size);
+    }
     g_buff_current += len;
 }
 #endif

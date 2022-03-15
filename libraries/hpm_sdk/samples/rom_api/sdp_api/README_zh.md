@@ -1,13 +1,15 @@
+# SDP API demo
+
 ## 概述
-***
+
 sdp_api示例工程展示了运行ROM SDP API测试程序的情况。
 
 ## 硬件设置
-***
+
 无特殊设置
 
 ## 运行现象
-***
+
 当工程正确运行后，串口终端会输出SDP API的测试结果：
 ```shell
 SDP API demo
@@ -40,7 +42,3 @@ sdp_api_memset_demo, desc_addr=1140184, dst_addr=1043fdc
 sdp_memset succeeded
 SDP MEMSET demo execution passed
 ```
-
-## 已知问题
-***
- *flash_xip* 和 *flash_sdram_xip* 目标工程无法在Embedded Studio for RISC-V工具链中正常工作。

@@ -22,34 +22,30 @@
 extern "C" {
 #endif
 
-/**
- * @brief   Config DMAMUX channel
- *
- * @param[in] ptr DMAMUX base address
- * @param[in] ch_index Target channel index to be configured
- * @param[in] src DMAMUX source, please refer to HPM_DMA_SRC_* macros
- * @param[in] enable Set true to enable the channel
- */
-static inline void dmamux_config_channel(DMAMUX_Type *ptr, uint8_t ch_index,
-                                 uint8_t src, bool enable)
+static inline void dmamux_enable_channel(DMAMUX_Type *ptr, uint8_t ch_index)
 {
-    ptr->CHCFG[ch_index] = DMAMUX_CHCFG_SOURCE_SET(src)
-                       | DMAMUX_CHCFG_ENABLE_SET(enable);
+    ptr->MUXCFG[ch_index] |= DMAMUX_MUXCFG_ENABLE_MASK;
+}
+
+static inline void dmamux_disable_channel(DMAMUX_Type *ptr, uint8_t ch_index)
+{
+    ptr->MUXCFG[ch_index] &= ~DMAMUX_MUXCFG_ENABLE_MASK;
 }
 
 /**
- * @brief   Enable specific channel
+ * @brief   Config DMAMUX
  *
  * @param[in] ptr DMAMUX base address
- * @param[in] ch_index Target channel index
+ * @param[in] src DMAMUX source
  * @param[in] enable Set true to enable the channel
  */
-static inline void dmamux_enable_channel(DMAMUX_Type *ptr, uint8_t ch_index,
-                                 bool enable)
+static inline void dmamux_config(DMAMUX_Type *ptr, uint8_t ch_index, uint8_t src,  bool enable)
 {
-    ptr->CHCFG[ch_index] = (ptr->CHCFG[ch_index] & ~DMAMUX_CHCFG_ENABLE_MASK)
-                        | DMAMUX_CHCFG_ENABLE_SET(enable); 
+    ptr->MUXCFG[ch_index] = DMAMUX_MUXCFG_SOURCE_SET(src)
+                       | DMAMUX_MUXCFG_ENABLE_SET(enable);
 }
+
+
 #ifdef __cplusplus
 }
 #endif

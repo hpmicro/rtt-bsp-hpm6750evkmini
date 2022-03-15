@@ -247,12 +247,12 @@ void board_timer_isr(void)
 }
 SDK_DECLARE_EXT_ISR_M(BOARD_CALLBACK_TIMER_IRQ, board_timer_isr);
 
-void board_timer_create(uint32_t ms, void *cb)
+void board_timer_create(uint32_t ms, board_timer_cb cb)
 {
     uint32_t gptmr_freq;
     gptmr_channel_config_t config;
 
-    timer_cb = (board_timer_cb)cb;
+    timer_cb = cb;
     gptmr_channel_get_default_config(BOARD_CALLBACK_TIMER, &config);
 
     clock_add_to_group(BOARD_CALLBACK_TIMER_CLK_NAME, 0);
@@ -321,6 +321,27 @@ void board_init_i2c(I2C_Type *ptr)
         printf("failed to initialize i2c 0x%x\n", BOARD_CAP_I2C_BASE);
         while (1) {}
     }
+}
+
+uint32_t board_init_uart_clock(UART_Type *ptr)
+{
+    uint32_t freq = 0U;
+    if (ptr == HPM_UART0) {
+        clock_set_source_divider(clock_uart0, clk_src_osc24m, 1);
+        freq = clock_get_frequency(clock_uart0);
+    } else if (ptr == HPM_UART6) {
+        clock_set_source_divider(clock_uart6, clk_src_osc24m, 1);
+        freq = clock_get_frequency(clock_uart6);
+    } else if (ptr == HPM_UART13) {
+        clock_set_source_divider(clock_uart13, clk_src_osc24m, 1);
+        freq = clock_get_frequency(clock_uart13);
+    } else if (ptr == HPM_UART14) {
+        clock_set_source_divider(clock_uart14, clk_src_osc24m, 1);
+        freq = clock_get_frequency(clock_uart14);
+    } else {
+        /* Not supported */
+    }
+    return freq;
 }
 
 uint32_t board_init_spi_clock(SPI_Type *ptr)

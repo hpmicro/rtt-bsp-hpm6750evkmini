@@ -7,7 +7,7 @@ set(CONFIG_TINYCRYPT 1)
 
 find_package(hpm-sdk REQUIRED HINTS $ENV{HPM_SDK_BASE})
 
-project(aes_ccm_node_example)
+project(aes_cbc_node_example)
 
-sdk_app_src(src/aes_ccm_mode_example.c)
+sdk_app_src(src/aes_cbc_mode_example.c)
 generate_ses_project()
