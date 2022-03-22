@@ -12,5 +12,6 @@
 
 int rt_hw_pin_init(void);
 
-
+#define __HPM_PORT(port) IOC_PAD_P##port##00
+#define GET_PIN(PORTx,PIN)  (__HPM_PORT(PORTx) + PIN)
 #endif /* DRV_GPIO_H */
