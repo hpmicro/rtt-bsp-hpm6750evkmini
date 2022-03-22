@@ -6,6 +6,7 @@
  * Change Logs:
  * Date         Author      Notes
  * 2022-01-11   HPMICRO     First version
+ * 2022-03-22   zhangjun    add GET_PIN
  */
 #ifndef DRV_GPIO_H
 #define DRV_GPIO_H
