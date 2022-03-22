@@ -10,8 +10,10 @@
 #ifndef DRV_GPIO_H
 #define DRV_GPIO_H
 
-int rt_hw_pin_init(void);
-
 #define __HPM_PORT(port) IOC_PAD_P##port##00
 #define GET_PIN(PORTx,PIN)  (__HPM_PORT(PORTx) + PIN)
+
+int rt_hw_pin_init(void);
+
+
 #endif /* DRV_GPIO_H */
