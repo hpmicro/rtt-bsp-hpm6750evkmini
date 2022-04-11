@@ -44,9 +44,15 @@ GROUP_TEMPLATES = [
     Group(name="middleware", files=[], match_string="/middleware/")]
 
 def unix_relative_path_get(path1, path2):
+    rel_path = None
     # relpath only works with directory names
-    path1 = os.path.join(os.path.relpath(os.path.dirname(path1), path2), os.path.basename(path1))
-    return path1.replace("\\", "/")
+    if os.path.exists(path1) and os.path.exists(path2):
+        try:
+            rel_path = os.path.join(os.path.relpath(os.path.dirname(path1), path2), os.path.basename(path1))
+        except ValueError:
+            return path1.replace("\\", "/")
+        return rel_path.replace("\\", "/")
+    return rel_path
 
 def load_config(input_file):
     with open(input_file, "r") as f:
@@ -59,7 +65,7 @@ def load_platform(platform_config):
     return [platform for platform in config["platforms"] if platform["name"] == platform_config["name"]][0]
 
 def file_to_be_excluded(f):
-    excluded_files = ["gcc", "sbrk"]
+    excluded_files = ["sbrk"]
     for e in excluded_files:
         if e in f:
             return True
@@ -121,6 +127,9 @@ def generate_ses_project(config, out_dir="."):
     config["target"]["defines"] = get_defines(config)
     config["target"]["groups"] = create_file_groups(files, out_dir)
     config["target"]["link_symbols"] = get_link_symbols(config)
+    config["target"]["linker"] = unix_relative_path_get(config["target"]["linker"], out_dir)
+    config["target"]["register_definition"] = unix_relative_path_get(config["target"]["register_definition"], out_dir)
+    config["target"]["ses_link_input"] = unix_relative_path_get(config["target"]["ses_link_input"], out_dir)
     s = ""
 
     with open(PROJECT_TEMPLATE, "r") as f:

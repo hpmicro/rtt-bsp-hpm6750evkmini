@@ -31,5 +31,9 @@
    pdma/README_zh
    plic/README_zh
    vad/README_zh
+   wdg/README_zh
+   spi/README_zh
+   dma/README_zh
+   dram/README_zh
 
 :::

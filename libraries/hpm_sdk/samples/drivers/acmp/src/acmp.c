@@ -15,13 +15,6 @@
 
 volatile bool acmp_output_toogle = false;
 
-void sleep(uint32_t count)
-{
-    while(count--) {
-        __asm("nop");
-    }
-}
-
 void isr_acmp(void)
 {
     acmp_output_toogle = true;
@@ -57,7 +50,7 @@ int main(void)
     for(dac_value = 0; dac_value < 0xff; dac_value++)
     {
         acmp_channel_config_dac(HPM_ACMP, TEST_ACMP_CHANNEL, dac_value);
-        sleep(10000000);
+        board_delay_ms(1);
         if(acmp_output_toogle)
         {
             printf("acmp out toggled, the dac set value is 0x%x\n", dac_value);

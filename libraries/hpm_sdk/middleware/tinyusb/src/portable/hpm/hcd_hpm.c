@@ -81,9 +81,9 @@ static const hcd_controller_t _hcd_controller[] =
 /*---------------------------------------------------------------------*
  * Variable Definitions
  *---------------------------------------------------------------------*/
-static usb_host_handle_t usb_host_handle;
-static bool hcd_int_sta;
-ATTR_ALIGN(USB_SOC_DCD_DATA_RAM_ADDRESS_ALIGNMENT) static hcd_data_t _hcd_data;
+ATTR_PLACE_AT_NONCACHEABLE static usb_host_handle_t usb_host_handle;
+ATTR_PLACE_AT_NONCACHEABLE static bool hcd_int_sta;
+ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(USB_SOC_DCD_DATA_RAM_ADDRESS_ALIGNMENT) static hcd_data_t _hcd_data;
 
 bool hcd_init(uint8_t rhport)
 {

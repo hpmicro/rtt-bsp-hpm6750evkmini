@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021 - 2022 hpmicro
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
@@ -19,8 +19,9 @@
 #include "drv_uart.h"
 #include "drv_spi.h"
 #include "drv_gpio.h"
-#include "drv_enet.h"
 #include "drv_pwm.h"
+#include "drv_wdt.h"
+#include "drv_hwtimer.h"
 
 void os_tick_config(void);
 
@@ -99,14 +100,19 @@ void rt_hw_board_init(void)
     rt_hw_pin_init();
 #endif
 
-#ifdef BSP_USING_ETH
-    /* Initialize Ethernet device */
-    rt_hw_eth_init();
-#endif
-
 #ifdef BSP_USING_PWM
     /* Initialize SPI device */
     rt_hw_pwm_init();
+#endif
+
+#ifdef BSP_USING_WDG
+    /* Initialize WDG device */
+    rt_hw_wdt_init();
+#endif
+
+#ifdef BSP_USING_GPTMR
+    /* Initialize GPTMR device */
+    rt_hw_hwtimer_init();
 #endif
 
     rt_console_set_device(RT_CONSOLE_DEVICE_NAME);

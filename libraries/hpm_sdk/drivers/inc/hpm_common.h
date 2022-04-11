@@ -136,6 +136,9 @@ enum
 /* place var_declare at section_name, e.x. PLACE_AT(".target_section", var); */
 #define ATTR_PLACE_AT(section_name) __attribute__((section(section_name)))
 
+#define ATTR_PLACE_AT_WITH_ALIGNMENT(section_name, alignment) \
+ATTR_PLACE_AT(section_name) ATTR_ALIGN(alignment)
+
 #define ATTR_PLACE_AT_NONCACHEABLE ATTR_PLACE_AT(".noncacheable")
 #define ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(alignment) \
     ATTR_PLACE_AT_NONCACHEABLE ATTR_ALIGN(alignment)

@@ -76,6 +76,10 @@ _start:
     /* Infinite loop, if returned accidently */
 1:    j 1b
 
+    .weak exit
+exit:
+1:    j 1b
+
     .section .isr_vector, "ax"
     .weak nmi_handler
 nmi_handler:

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -22,11 +22,24 @@
 extern "C" {
 #endif
 
+
+/**
+ * @brief   Enable dmamux channel
+ *
+ * @param ptr DMAMUX base address
+ * @param ch_index channel to be enabled
+ */
 static inline void dmamux_enable_channel(DMAMUX_Type *ptr, uint8_t ch_index)
 {
     ptr->MUXCFG[ch_index] |= DMAMUX_MUXCFG_ENABLE_MASK;
 }
 
+/**
+ * @brief   Disable dmamux channel
+ *
+ * @param ptr DMAMUX base address
+ * @param ch_index channel to be disabled
+ */
 static inline void dmamux_disable_channel(DMAMUX_Type *ptr, uint8_t ch_index)
 {
     ptr->MUXCFG[ch_index] &= ~DMAMUX_MUXCFG_ENABLE_MASK;

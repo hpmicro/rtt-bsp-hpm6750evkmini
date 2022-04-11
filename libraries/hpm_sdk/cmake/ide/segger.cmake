@@ -1,6 +1,40 @@
 # Copyright 2021 hpmicro
 # SPDX-License-Identifier: BSD-3-Clause
 
+# add ses library interface to store ses specific configurations
+add_library(hpm_sdk_ses_lib_itf INTERFACE)
+
+function(sdk_ses_compile_options)
+    foreach(opt ${ARGN})
+        target_compile_options(hpm_sdk_ses_lib_itf INTERFACE ${opt})
+    endforeach()
+endfunction()
+
+function(sdk_ses_compile_definitions)
+    foreach(def ${ARGN})
+        target_compile_definitions(hpm_sdk_ses_lib_itf INTERFACE ${def})
+    endforeach()
+endfunction()
+
+function(sdk_ses_link_libraries)
+    foreach(lib ${ARGN})
+        target_link_libraries(hpm_sdk_ses_lib_itf INTERFACE ${lib})
+    endforeach()
+endfunction()
+
+function(sdk_ses_ld_options)
+    foreach(opt ${ARGN})
+        target_link_libraries(hpm_sdk_ses_lib_itf INTERFACE ${opt})
+    endforeach()
+endfunction()
+
+function(sdk_ses_ld_lib)
+    foreach(opt ${ARGN})
+        set_property(TARGET hpm_sdk_ses_lib_itf APPEND PROPERTY INTERFACE_SES_LD_INPUTS ${opt})
+    endforeach()
+endfunction()
+
+
 function (generate_ses_project)
     get_property(target_source_files TARGET app PROPERTY SOURCES)
     get_property(target_app_include_dirs TARGET app PROPERTY INCLUDE_DIRECTORIES)
@@ -8,6 +42,80 @@ function (generate_ses_project)
     get_property(target_include_dirs TARGET hpm_sdk_lib_itf PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
     get_property(target_defines TARGET hpm_sdk_lib_itf PROPERTY INTERFACE_COMPILE_DEFINITIONS)
     get_property(target_link_sym TARGET hpm_sdk_lib_itf PROPERTY INTERFACE_LINK_SYMBOLS)
+    get_property(target_gcc_cflags TARGET hpm_sdk_lib_itf PROPERTY INTERFACE_COMPILE_OPTIONS)
+    get_property(target_ses_cflags TARGET hpm_sdk_ses_lib_itf PROPERTY INTERFACE_COMPILE_OPTIONS)
+    get_property(target_ses_ld_lib TARGET hpm_sdk_ses_lib_itf PROPERTY INTERFACE_SES_LD_INPUTS)
+
+    if(NOT SES_TOOLCHAIN_VARIANT)
+        set(SES_TOOLCHAIN_VARIANT "Standard")
+    endif()
+
+    string(FIND ${SES_TOOLCHAIN_VARIANT} "Andes" exist)
+    if (NOT ${exist} EQUAL -1)
+        set(SES_USE_TOOLCHAIN_ANDES 1)
+        get_property(target_nds_cflags TARGET hpm_sdk_nds_lib_itf PROPERTY INTERFACE_COMPILE_OPTIONS)
+    endif()
+
+    if(target_ses_ld_lib)
+        foreach(f IN ITEMS ${target_ses_ld_lib})
+            if("${target_ses_ld_input}" STREQUAL "")
+                set(target_ses_ld_input ${f})
+            else()
+                set(target_ses_ld_input "${target_ses_ld_input};${f}")
+            endif()
+        endforeach()
+    else()
+        set(target_ses_ld_input "")
+    endif()
+
+    set(target_cflags "")
+    if (SES_USE_TOOLCHAIN_ANDES)
+        # if Andes toolchain has not been specified, cflags needs to be preserved
+        foreach(f IN ITEMS ${target_gcc_cflags})
+            string(FIND ${f} "-mabi=" exist)
+            if(NOT ${exist} EQUAL -1)
+                string(SUBSTRING ${f} 6 -1 SES_COMPILER_ABI)
+                continue()
+            endif()
+            string(FIND ${f} "-march=" exist)
+            if(NOT ${exist} EQUAL -1)
+                string(SUBSTRING ${f} 7 -1 SES_COMPILER_ARCH)
+                continue()
+            endif()
+            if("${target_cflags}" STREQUAL "")
+                set(target_cflags ${f})
+            else()
+                set(target_cflags "${target_cflags};${f}")
+            endif()
+        endforeach()
+        if(target_nds_cflags)
+            foreach(f IN ITEMS ${target_nds_cflags})
+                if("${target_cflags}" STREQUAL "")
+                    set(target_cflags ${f})
+                else()
+                    set(target_cflags "${target_cflags};${f}")
+                endif()
+            endforeach()
+        endif()
+    endif()
+
+    foreach(f IN ITEMS ${target_ses_cflags})
+        string(FIND ${f} "-mabi=" exist)
+        if(NOT ${exist} EQUAL -1)
+            string(SUBSTRING ${f} 6 -1 SES_COMPILER_ABI)
+            continue()
+        endif()
+        string(FIND ${f} "-march=" exist)
+        if(NOT ${exist} EQUAL -1)
+            string(SUBSTRING ${f} 7 -1 SES_COMPILER_ARCH)
+            continue()
+        endif()
+        if(NOT target_cflags)
+            set(target_cflags ${f})
+        else()
+            set(target_cflags "${target_cflags};${f}")
+        endif()
+    endforeach()
 
     set(post_build_command "")
     if (DEFINED IS_SEC_CORE_IMG)
@@ -46,15 +154,20 @@ function (generate_ses_project)
         endif()
     endforeach()
 
-    if(SEGGER_LINKER_FILE)
-        # SEGGER_LINKER_FILE is specified
-        set(target_linker ${SEGGER_LINKER_FILE})
+    get_property(target_linker_script TARGET ${APP_ELF_NAME} PROPERTY LINK_DEPENDS)
+    if(SES_USE_TOOLCHAIN_ANDES)
+        # if Andes toolchain has not been specified, gcc linker script should be used
+        set(target_linker ${target_linker_script})
     else()
-        # if SEGGER_LINKER_FILE is not specified, try to locate segger linker
-        # located in segger folder naming with ".icf" rather than ".ld"
-        get_property(target_linker_script TARGET ${APP_ELF_NAME} PROPERTY LINK_DEPENDS)
-        string(REPLACE ".ld" ".icf" target_linker ${target_linker_script})
-        string(REPLACE "/gcc/" "/segger/" target_linker ${target_linker})
+        if(SEGGER_LINKER_FILE)
+            # SEGGER_LINKER_FILE is specified
+            set(target_linker ${SEGGER_LINKER_FILE})
+        else()
+            # if SEGGER_LINKER_FILE is not specified, try to locate segger linker
+            # located in segger folder naming with ".icf" rather than ".ld"
+            string(REPLACE ".ld" ".icf" target_linker ${target_linker_script})
+            string(REPLACE "/gcc/" "/segger/" target_linker ${target_linker})
+        endif()
     endif()
 
     set(OPENOCD_READY 1)
@@ -100,9 +213,20 @@ function (generate_ses_project)
     endif()
 
     foreach (lib_src IN ITEMS ${target_lib_sources})
+        if(NOT SES_USE_TOOLCHAIN_ANDES)
+            # if Andes toolchain has not been specified, files for gcc should be skipped
+            string(FIND ${lib_src} "gcc" exist)
+            if(NOT ${exist} EQUAL -1)
+                continue()
+            endif()
+        endif()
         set(target_sources "${target_sources},${lib_src}")
     endforeach ()
-    set(target_sources "${target_sources},${HPM_SDK_BASE}/soc/${SOC}/toolchains/segger/startup.s")
+
+    if(NOT SES_USE_TOOLCHAIN_ANDES)
+        # if Andes toolchain has not been specified, it needs to use SES specific startup file
+        set(target_sources "${target_sources},${HPM_SDK_BASE}/soc/${SOC}/toolchains/segger/startup.s")
+    endif()
 
     if (NOT IS_ABSOLUTE ${target_linker})
         set(target_linker ${CMAKE_CURRENT_SOURCE_DIR}/${target_linker})
@@ -184,6 +308,21 @@ function (generate_ses_project)
     string(REPLACE "\\"  "/" target_linker ${target_linker})
     string(REPLACE "\\"  "/" target_register_definition ${target_register_definition})
     string(REPLACE "\\"  "/" hpm_sdk_base_path ${HPM_SDK_BASE})
+
+    if(SES_COMPILER_ABI)
+        set(target_compiler_abi ${SES_COMPILER_ABI})
+    else()
+        set(target_compiler_abi "")
+    endif()
+
+    if(SES_COMPILER_ARCH)
+        set(target_compiler_arch ${SES_COMPILER_ARCH})
+    else()
+        set(target_compiler_arch "")
+    endif()
+
+    # Specify SES target device name to be defined in SES project file
+    set(SES_DEVICE_NAME "${SOC}XXXX")
     if(${OPENOCD_READY})
         file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.json
             "{
@@ -208,7 +347,13 @@ function (generate_ses_project)
                 \"heap_size\":\"${HEAP_SIZE}\",
                 \"stack_size\":\"${STACK_SIZE}\",
                 \"cplusplus\":\"${CMAKE_CXX_STANDARD}\",
-                \"segger_level_o3\":\"${SEGGER_LEVEL_O3}\"
+                \"segger_level_o3\":\"${SEGGER_LEVEL_O3}\",
+                \"target_device_name\":\"${SES_DEVICE_NAME}\",
+                \"toolchain_variant\":\"${SES_TOOLCHAIN_VARIANT}\",
+                \"cflags\":\"${target_cflags}\",
+                \"compiler_abi\":\"${target_compiler_abi}\",
+                \"compiler_arch\":\"${target_compiler_arch}\",
+                \"ses_link_input\":\"${target_ses_ld_input}\"
                 }
             }")
     else()
@@ -230,7 +375,13 @@ function (generate_ses_project)
                 \"heap_size\":\"${HEAP_SIZE}\",
                 \"stack_size\":\"${STACK_SIZE}\",
                 \"cplusplus\":\"${CMAKE_CXX_STANDARD}\",
-                \"segger_level_o3\":\"${SEGGER_LEVEL_O3}\"
+                \"segger_level_o3\":\"${SEGGER_LEVEL_O3}\",
+                \"target_device_name\":\"${SES_DEVICE_NAME}\",
+                \"toolchain_variant\":\"${SES_TOOLCHAIN_VARIANT}\",
+                \"cflags\":\"${target_cflags}\",
+                \"compiler_abi\":\"${target_compiler_abi}\",
+                \"compiler_arch\":\"${target_compiler_arch}\",
+                \"ses_link_input\":\"${target_ses_ld_input}\"
                 }
             }")
     endif()

@@ -7,7 +7,8 @@
 define memory with size = 4G;
 
 /* Regions */
-define region CORE0_LM_SLV = [from 0x1000000 size 512k]; /* ILM slave */
+define region CORE0_LM_SLV = [from 0x1000000 size 512k]; /* CORE0 LM slave */
+define region CORE1_LM_SLV = [from 0x1180000 size 512k]; /* CORE1 LM slave */
 define region AXI_SRAM  = [from 0x1080000 size 768k];  /* reserve 256K for noncacheable region */
 define region NONCACHEABLE_RAM = [from 0x1140000 size 256K];
 

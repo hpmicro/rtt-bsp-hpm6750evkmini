@@ -174,7 +174,7 @@ hpm_stat_t sdp_api_aes_cbc_demo(void)
     hpm_stat_t status;
     uint32_t error_cnt = 0;
     sdp_aes_ctx_t *p_sys_sdp_ctx = (sdp_aes_ctx_t *) core_local_mem_to_sys_address(HPM_CORE0, (uint32_t)&s_aes_ctx);
-    ATTR_PLACE_AT_NONCACHEABLE static uint8_t input[16] = {
+    ATTR_PLACE_AT_NONCACHEABLE_INIT static uint8_t input[16] = {
         0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a };
     ATTR_PLACE_AT_NONCACHEABLE static uint8_t output[16];
     const uint8_t gold_ct128[16] = { 0x76, 0x49, 0xab, 0xac, 0x81, 0x19, 0xb2, 0x46, 0xce, 0xe9, 0x8e, 0x9b, 0x12, 0xe9,

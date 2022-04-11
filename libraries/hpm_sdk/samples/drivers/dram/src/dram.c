@@ -14,7 +14,7 @@
 #include "hpm_sysctl_drv.h"
 
 #define DRAM_EXAMPLE_PATTERN (0xA55A5AA5UL)
-#define XRAM_TEST_ADDR 0x1088000
+#define XRAM_TEST_ADDR 0x1100000
 #define SDRAM_TEST_OFFSET 0x8000
 
 #ifndef TIMER_CLOCK_NAME
@@ -27,15 +27,10 @@
 
 uint32_t timer_freq_in_hz;
 
-hpm_stat_t rw_comparison(uint32_t start, uint32_t size_in_byte, bool enable_dcache)
+hpm_stat_t rw_comparison(uint32_t start, uint32_t size_in_byte)
 {
     hpm_stat_t status = status_success;
     uint32_t i, delay = 0;
-    if (enable_dcache) {
-        l1c_dc_enable();
-    } else {
-        l1c_dc_disable();
-    }
 
     printf("comparison test: from 0x%x to 0x%x\n", start, start+size_in_byte);
     for (i = 0; i < size_in_byte; i+=4)
@@ -65,7 +60,7 @@ hpm_stat_t rw_comparison(uint32_t start, uint32_t size_in_byte, bool enable_dcac
     return status;
 }
 
-void rw_throughput(uint32_t start, uint32_t size_in_byte, bool enable_dcache)
+void rw_throughput(uint32_t start, uint32_t size_in_byte)
 {
     uint64_t elapsed = 0, now;
     register uint32_t i, j;
@@ -79,12 +74,6 @@ void rw_throughput(uint32_t start, uint32_t size_in_byte, bool enable_dcache)
     } else {
         single_loop_byte = HPM_L1C_CACHE_SIZE << 2;
         loop = size_in_byte / single_loop_byte;
-    }
-    
-    if (enable_dcache) {
-        l1c_dc_enable();
-    } else {
-        l1c_dc_disable();
     }
 
     if (l1c_dc_is_enabled()) {
@@ -183,18 +172,28 @@ int main(void)
     dram_clk_in_hz = initialize_sdram();
     printf("dram example start @ %d\n", dram_clk_in_hz);
 
-    rw_comparison(BOARD_SDRAM_ADDRESS, BOARD_SDRAM_SIZE, true);
-    rw_comparison(BOARD_SDRAM_ADDRESS, BOARD_SDRAM_SIZE, false);
+    if (!l1c_dc_is_enabled()) {
+        l1c_dc_enable();
+    }
+    printf("Dcache Enabled\n");
+    printf("Comparison test\n");
+    rw_comparison(BOARD_SDRAM_ADDRESS, BOARD_SDRAM_SIZE);
+    printf("Testing XRAM\n");
+    rw_throughput(XRAM_TEST_ADDR, BOARD_SDRAM_SIZE);
+    printf("Testing SDRAM\n");
+    rw_throughput(BOARD_SDRAM_ADDRESS, BOARD_SDRAM_SIZE);
 
-    printf("Testing XRAM, cached enabled\n");
-    rw_throughput(XRAM_TEST_ADDR, BOARD_SDRAM_SIZE, true);
-    printf("Testing SDRAM, cached enabled\n");
-    rw_throughput(BOARD_SDRAM_ADDRESS, BOARD_SDRAM_SIZE, true);
+    l1c_dc_writeback_all();
+    l1c_dc_disable();
+    printf("Dcache Disabled\n");
+    printf("Comparison test\n");
+    rw_comparison(BOARD_SDRAM_ADDRESS, BOARD_SDRAM_SIZE);
+    printf("Testing XRAM\n");
+    rw_throughput(XRAM_TEST_ADDR, BOARD_SDRAM_SIZE);
+    printf("Testing SDRAM\n");
+    rw_throughput(BOARD_SDRAM_ADDRESS, BOARD_SDRAM_SIZE);
 
-    printf("Testing XRAM, cached disabled\n");
-    rw_throughput(XRAM_TEST_ADDR, BOARD_SDRAM_SIZE, false);
-    printf("Testing SDRAM, cached disabled\n");
-    rw_throughput(BOARD_SDRAM_ADDRESS, BOARD_SDRAM_SIZE, false);
+
     printf("dram example end\n");
     while(1);
     return 0;

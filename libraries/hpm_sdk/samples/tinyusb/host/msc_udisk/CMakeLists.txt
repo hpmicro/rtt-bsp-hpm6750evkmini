@@ -17,7 +17,6 @@ find_package(hpm-sdk REQUIRED HINTS $ENV{HPM_SDK_BASE})
 
 sdk_compile_definitions(-DCFG_TUSB_MCU=OPT_MCU_HPM)
 sdk_compile_definitions(-DUSB_HOST_MCU_CORE=HPM_CORE0)
-sdk_compile_definitions(-DBOARD_HOST_RHPORT_NUM=0)
 sdk_compile_definitions(-DUSB_FATFS_ENABLE)
 sdk_compile_options("-Os")
 

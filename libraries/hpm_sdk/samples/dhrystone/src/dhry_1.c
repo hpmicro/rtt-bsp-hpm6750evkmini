@@ -221,6 +221,7 @@ main ()
     printf ("%0.2f \n", DMIPS_Per_Mhz);
     printf ("\n");
   }
+  return 0;
 }
 
 

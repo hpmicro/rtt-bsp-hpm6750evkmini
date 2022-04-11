@@ -98,6 +98,7 @@
 #define RT_USING_SERIAL
 #define RT_USING_SERIAL_V1
 #define RT_SERIAL_RB_BUFSZ 64
+#define RT_USING_HWTIMER
 #define RT_USING_PHY
 #define RT_USING_PIN
 #define RT_USING_RTC
@@ -251,6 +252,13 @@
 
 /* language packages */
 
+/* JSON: JavaScript Object Notation, a lightweight data-interchange format */
+
+/* end of JSON: JavaScript Object Notation, a lightweight data-interchange format */
+
+/* XML: Extensible Markup Language */
+
+/* end of XML: Extensible Markup Language */
 /* end of language packages */
 
 /* multimedia packages */
@@ -305,6 +313,10 @@
 
 /* miscellaneous packages */
 
+/* project laboratory */
+
+/* end of project laboratory */
+
 /* samples: kernel and components samples */
 
 /* end of samples: kernel and components samples */
@@ -328,6 +340,8 @@
 #define BSP_USING_SPI1
 #define BSP_USING_RTC
 #define BSP_USING_ETH
+#define BSP_USING_ETH1
+#define BSP_USING_GPTMR
 #define BSP_USING_DRAM
 #define INIT_EXT_RAM_FOR_DATA
 /* end of On-chip Peripheral Drivers */

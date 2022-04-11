@@ -833,5 +833,7 @@ CONFIG_BSP_USING_SPI=y
 # CONFIG_BSP_USING_SPI0 is not set
 CONFIG_BSP_USING_SPI1=y
 CONFIG_BSP_USING_RTC=y
+CONFIG_BSP_USING_DRAM=y
+CONFIG_INIT_EXT_RAM_FOR_DATA=y
 # end of On-chip Peripheral Drivers
 # end of Hardware Drivers Config

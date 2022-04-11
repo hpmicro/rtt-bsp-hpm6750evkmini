@@ -14,7 +14,6 @@ project(usb_device_example)
 
 sdk_compile_definitions(-DCFG_TUSB_MCU=OPT_MCU_HPM)
 sdk_compile_definitions(-DUSB_HOST_MCU_CORE=HPM_CORE0)
-sdk_compile_definitions(-DBOARD_DEVICE_RHPORT_NUM=0)
 sdk_inc(inc)
 
 sdk_app_src(src/main.c)

@@ -1,3 +1,10 @@
+
+/*
+ * Copyright (c) 2022 hpmicro
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ */
 #include <rtthread.h>
 
 #ifdef RT_USING_WIFI

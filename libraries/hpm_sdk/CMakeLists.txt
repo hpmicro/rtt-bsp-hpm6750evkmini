@@ -136,9 +136,15 @@ add_executable(${APP_ELF_NAME} ${PROJECT_BINARY_DIR}/misc/empty.c)
 
 set_target_properties(${APP_ELF_NAME} PROPERTIES LINK_DEPENDS ${LINKER_SCRIPT})
 
-target_link_libraries(${APP_ELF_NAME}
+if("${TOOLCHAIN_VARIANT}" STREQUAL "nds-gcc")
+    target_link_libraries(${APP_ELF_NAME}
+        "-Wl,-Map=${PROJECT_BINARY_DIR}/${APP_MAP_NAME}"
+        hpm_sdk_lib hpm_sdk_lib_itf hpm_sdk_nds_lib_itf app)
+else()
+    target_link_libraries(${APP_ELF_NAME}
     "-Wl,-Map=${PROJECT_BINARY_DIR}/${APP_MAP_NAME}"
     hpm_sdk_lib hpm_sdk_lib_itf app)
+endif()
 
 add_custom_command(
     TARGET ${APP_ELF_NAME}

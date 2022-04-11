@@ -13,4 +13,4 @@ Attach LCD panel to the board
 ### Running the Demo
 ***
 littglevgl widgets will be shown on the LCD panel
-![lv_demo_widgets](../../../doc/images/samples/lv_demo_stress.gif)
+![lv_demo_widgets](../../../doc/images/samples/lv_demo_widgets.gif)

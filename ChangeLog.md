@@ -1,5 +1,14 @@
 # Change Log
 
+## v0.4.0
+- Integrated the SDK v0.9.0 release
+  - Note:
+      - The docs folder in SDK root directory were removed
+- Added examples:
+    - timer_demo
+- Updated
+    - Optimized ethernet phy interface 
+
 ## v0.3.0
 - Integrated the SDK v0.8.0 release
   - Note:

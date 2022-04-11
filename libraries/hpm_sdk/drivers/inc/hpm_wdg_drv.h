@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021 - 2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -229,25 +229,42 @@ static inline void wdg_clear_status(WDG_Type *base, uint32_t status_mask)
 hpm_stat_t wdg_init(WDG_Type *base, wdg_control_t *wdg_ctrl);
 
 /**
- * @brief Get the Reset interval value based on the WDG source clock frequency and the expected reset interval
+ * @brief Convert the Reset interval value based on the WDG source clock frequency and the expected reset interval
  *        in terms of microseconds
  *
  * @param [in] src_freq WDG source clock frequency
  * @param [in] reset_us Expected Reset interval in terms of microseconds
  * @retval Converted WDG reset interval
  */
-reset_interval_t wdg_get_reset_interval(const uint32_t src_freq, const uint32_t reset_us);
+reset_interval_t wdg_convert_reset_interval_from_us(const uint32_t src_freq, const uint32_t reset_us);
 
 /**
- * @brief Get the interrupt interval value based on the WDG source clock frequency and the expected interrupt interval
+ * @brief Convert the interrupt interval value based on the WDG source clock frequency and the expected interrupt interval
  *        in terms of microseconds
  *
  * @param [in] src_freq WDG source clock frequency
  * @param [in] interval_us Expected Interrupt interval in terms of microseconds
  * @retval Converted WDG interrupt interval
  */
-interrupt_interval_t wdg_get_interrupt_interval(const uint32_t src_freq, uint32_t interval_us);
+interrupt_interval_t wdg_convert_interrupt_interval_from_us(const uint32_t src_freq, uint32_t interval_us);
 
+/**
+ * @brief Get Actual WDG Interrupt Interval in terms of microseconds
+ *
+ * @param [in] base WDG base address
+ * @param [in] src_freq WDG source clock frequency
+ * @return Converted WDG interrupt interval in terms of microseconds
+ */
+uint32_t wdg_get_interrupt_interval_in_us(WDG_Type *base, const uint32_t src_freq);
+
+/**
+ * @brief Get Actual WDG Reset Interval in terms of microseconds
+ *
+ * @param [in] base WDG base address
+ * @param [in] src_freq WDG source clock frequency
+ * @return Converted WDG total reset interval in terms of microseconds
+ */
+uint32_t wdg_get_total_reset_interval_in_us(WDG_Type *base, const uint32_t src_freq);
 
 #ifdef __cplusplus
 }

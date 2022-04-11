@@ -1,17 +1,9 @@
 # Copyright 2021 hpmicro
 # SPDX-License-Identifier: BSD-3-Clause
 
+sdk_inc(.)
 sdk_inc(include)
-
-#sdk_src(api/api_lib.c)
-#sdk_src(api/api_msg.c)
-#sdk_src(api/err.c)
-#sdk_src(api/if_api.c)
-#sdk_src(api/netbuf.c)
-#sdk_src(api/netdb.c)
-#sdk_src(api/netifapi.c)
-#sdk_src(api/sockets.c)
-#sdk_src(api/tcpip.c)
+sdk_inc(include/lwip/apps)
 
 sdk_src(core/altcp.c)
 sdk_src(core/altcp_alloc.c)
@@ -44,3 +36,6 @@ sdk_src(core/ipv4/ip4_addr.c)
 sdk_src(core/ipv4/ip4_frag.c)
 
 sdk_src(netif/ethernet.c)
+
+sdk_src_ifdef(CONFIG_LWIP_HTTPSRV apps/http/httpd.c)
+sdk_src_ifdef(CONFIG_LWIP_HTTPSRV apps/http/fs.c)

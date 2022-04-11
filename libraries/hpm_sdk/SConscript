@@ -30,8 +30,8 @@ if GetDepend(['BSP_USING_SPI']):
 if GetDepend(['BSP_USING_RTC']):
     src += ['drivers/src/hpm_rtc_drv.c']
 
-if GetDepend(['BSP_USING_WDT']):
-    src += ['drivers/src/hpm_wdog_drv.c']
+if GetDepend(['BSP_USING_WDG']):
+    src += ['drivers/src/hpm_wdg_drv.c']
 
 if GetDepend(['BSP_USING_ADC']):
     src += ['drivers/src/hpm_adc12_drv.c']

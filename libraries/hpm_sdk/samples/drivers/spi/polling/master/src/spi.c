@@ -31,7 +31,7 @@ void spi_transfer_mode_print(spi_control_config_t *config)
                                     "dummy-read"
                                 };
 
-   printf("SPI-Slave transfer mode:%s\n", trans_mode_table[trans_mode]);
+   printf("SPI-Master transfer mode:%s\n", trans_mode_table[trans_mode]);
 }
 
 void spi_master_command_dump(spi_control_config_t *config, uint8_t *cmd)

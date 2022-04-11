@@ -95,6 +95,7 @@
 #define RT_USING_SERIAL
 #define RT_USING_SERIAL_V1
 #define RT_SERIAL_RB_BUFSZ 64
+#define RT_USING_HWTIMER
 #define RT_USING_PIN
 #define RT_USING_RTC
 #define RT_USING_SPI
@@ -167,6 +168,13 @@
 
 /* language packages */
 
+/* JSON: JavaScript Object Notation, a lightweight data-interchange format */
+
+/* end of JSON: JavaScript Object Notation, a lightweight data-interchange format */
+
+/* XML: Extensible Markup Language */
+
+/* end of XML: Extensible Markup Language */
 /* end of language packages */
 
 /* multimedia packages */
@@ -174,7 +182,6 @@
 /* LVGL: powerful and easy-to-use embedded GUI library */
 
 #define PKG_USING_LVGL
-#define PKG_USING_LVGL_DEMOS
 #define PKG_USING_LVGL_V820
 #define PKG_LVGL_VER_NUM 0x08020
 #define PKG_USING_LV_MUSIC_DEMO
@@ -226,6 +233,10 @@
 
 /* miscellaneous packages */
 
+/* project laboratory */
+
+/* end of project laboratory */
+
 /* samples: kernel and components samples */
 
 /* end of samples: kernel and components samples */
@@ -248,16 +259,15 @@
 #define BSP_USING_SPI
 #define BSP_USING_SPI1
 #define BSP_USING_RTC
-#define BSP_USING_LCD
-#define BSP_USING_DRAM
-#define INIT_EXT_RAM_FOR_DATA
 #define BSP_USING_TOUCH
 #define BSP_USING_TOUCH_GT911
+#define BSP_USING_LCD
 #define BSP_USING_LVGL
 #define BSP_USING_GPTMR
-#define BSP_USING_GPTMR7
 #define BSP_USING_I2C
 #define BSP_USING_I2C0
+#define BSP_USING_DRAM
+#define INIT_EXT_RAM_FOR_DATA
 /* end of On-chip Peripheral Drivers */
 /* end of Hardware Drivers Config */
 

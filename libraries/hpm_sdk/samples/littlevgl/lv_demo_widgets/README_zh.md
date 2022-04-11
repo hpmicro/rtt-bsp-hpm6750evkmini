@@ -12,4 +12,4 @@
 ### 运行
 ***
 littglevgl widgets将会显示在LCD屏上
-![lv_demo_widgets](../../../doc/images/samples/lv_demo_stress.gif)
+![lv_demo_widgets](../../../doc/images/samples/lv_demo_widgets.gif)

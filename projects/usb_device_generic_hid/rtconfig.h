@@ -167,6 +167,13 @@
 
 /* language packages */
 
+/* JSON: JavaScript Object Notation, a lightweight data-interchange format */
+
+/* end of JSON: JavaScript Object Notation, a lightweight data-interchange format */
+
+/* XML: Extensible Markup Language */
+
+/* end of XML: Extensible Markup Language */
 /* end of language packages */
 
 /* multimedia packages */
@@ -272,10 +279,10 @@
 #define BSP_USING_SPI
 #define BSP_USING_SPI1
 #define BSP_USING_RTC
-#define BSP_USING_USB
-#define BSP_USING_USB_DEVICE
 #define BSP_USING_DRAM
 #define INIT_EXT_RAM_FOR_DATA
+#define BSP_USING_USB
+#define BSP_USING_USB_DEVICE
 /* end of On-chip Peripheral Drivers */
 /* end of Hardware Drivers Config */
 

@@ -13,50 +13,102 @@
 #ifdef BSP_USING_ETH
 #include <rtdbg.h>
 #include <netif/ethernetif.h>
-#include "drv_enet.h"
 #include "board.h"
+#include "drv_enet.h"
 #include "hpm_soc_feature.h"
 #include "hpm_enet_soc_drv.h"
 #include "hpm_enet_drv.h"
-#include "rtt_board.h"
-
-#define ENET_CONCTL         HPM_CONCTL
-#define ENET_INF_TYPE       enet_inf_rmii
-#define ENET                HPM_ENET1
-#define ENET_MCU_CORE       HPM_CORE0
-#define ENET_ID             (1UL)
-#define ENET_INT_REF_CLK    (0UL)
-#define ENET_TX_BUFF_COUNT  (10U)
-#define ENET_RX_BUFF_COUNT  (20U)
-#define ENET_RX_BUFF_SIZE   ENET_MAX_FRAME_SIZE
-#define ENET_TX_BUFF_SIZE   ENET_MAX_FRAME_SIZE
 
 #define ETH_DEBUG
 
-
-typedef struct {
-    ENET_Type * instance;
-    enet_desc_t desc;
-    enet_mac_config_t mac_config;
-    uint8_t media_interface;
-    uint32_t mask;
-    uint32_t irq_number;
-} enet_device;
+#ifdef BSP_USING_ETH0
 
 ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(ENET_SOC_DESC_ADDR_ALIGNMENT)
-__RW enet_rx_desc_t dma_rx_desc_tab[ENET_RX_BUFF_COUNT] ; /* Ethernet Rx DMA Descriptor */
+__RW enet_rx_desc_t enet0_dma_rx_desc_tab[ENET0_RX_BUFF_COUNT] ; /* Ethernet0 Rx DMA Descriptor */
 
 ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(ENET_SOC_DESC_ADDR_ALIGNMENT)
-__RW enet_tx_desc_t dma_tx_desc_tab[ENET_TX_BUFF_COUNT] ; /* Ethernet Tx DMA Descriptor */
+__RW enet_tx_desc_t enet0_dma_tx_desc_tab[ENET0_TX_BUFF_COUNT] ; /* Ethernet0 Tx DMA Descriptor */
 
 ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(ENET_SOC_BUFF_ADDR_ALIGNMENT)
-__RW uint8_t rx_buff[ENET_RX_BUFF_COUNT][ENET_RX_BUFF_SIZE]; /* Ethernet Receive Buffer */
+__RW uint8_t enet0_rx_buff[ENET0_RX_BUFF_COUNT][ENET0_RX_BUFF_SIZE]; /* Ethernet0 Receive Buffer */
 
 ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(ENET_SOC_BUFF_ADDR_ALIGNMENT)
-__RW uint8_t tx_buff[ENET_TX_BUFF_COUNT][ENET_TX_BUFF_SIZE]; /* Ethernet Transmit Buffer */
+__RW uint8_t enet0_tx_buff[ENET0_TX_BUFF_COUNT][ENET0_TX_BUFF_SIZE]; /* Ethernet0 Transmit Buffer */
 
-struct eth_device eth_dev;
-static enet_device enet_dev;
+struct eth_device eth0_dev;
+static enet_device enet0_dev;
+static enet_buff_config_t enet0_rx_buff_cfg = {.buffer = (uint32_t)enet0_rx_buff,
+                                               .count  = ENET0_RX_BUFF_COUNT,
+                                               .size   = ENET0_RX_BUFF_SIZE
+                                              };
+
+static enet_buff_config_t enet0_tx_buff_cfg = {.buffer = (uint32_t)enet0_tx_buff,
+                                               .count  = ENET0_TX_BUFF_COUNT,
+                                               .size   = ENET0_TX_BUFF_SIZE
+                                              };
+
+static hpm_enet_t enet0 = {.name            = "ETH0",
+                           .base            = HPM_ENET0,
+                           .irq_num         = IRQn_ENET0,
+                           .inf             = BOARD_ENET0_INF,
+                           .eth_dev         = &eth0_dev,
+                           .enet_dev        = &enet0_dev,
+                           .rx_buff_cfg     = &enet0_rx_buff_cfg,
+                           .tx_buff_cfg     = &enet0_tx_buff_cfg,
+                           .dma_rx_desc_tab = enet0_dma_rx_desc_tab,
+                           .dma_tx_desc_tab = enet0_dma_tx_desc_tab
+                          };
+#endif
+
+#ifdef BSP_USING_ETH1
+
+ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(ENET_SOC_DESC_ADDR_ALIGNMENT)
+__RW enet_rx_desc_t enet1_dma_rx_desc_tab[ENET1_RX_BUFF_COUNT]; /* Ethernet1 Rx DMA Descriptor */
+
+ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(ENET_SOC_DESC_ADDR_ALIGNMENT)
+__RW enet_tx_desc_t enet1_dma_tx_desc_tab[ENET1_TX_BUFF_COUNT]; /* Ethernet1 Tx DMA Descriptor */
+
+ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(ENET_SOC_BUFF_ADDR_ALIGNMENT)
+__RW uint8_t enet1_rx_buff[ENET1_RX_BUFF_COUNT][ENET1_RX_BUFF_SIZE]; /* Ethernet1 Receive Buffer */
+
+ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(ENET_SOC_BUFF_ADDR_ALIGNMENT)
+__RW uint8_t enet1_tx_buff[ENET1_TX_BUFF_COUNT][ENET1_TX_BUFF_SIZE]; /* Ethernet1 Transmit Buffer */
+
+struct eth_device eth1_dev;
+static enet_device enet1_dev;
+static enet_buff_config_t enet1_rx_buff_cfg = {.buffer = (uint32_t)enet1_rx_buff,
+                                               .count  = ENET1_RX_BUFF_COUNT,
+                                               .size   = ENET1_RX_BUFF_SIZE
+                                              };
+
+static enet_buff_config_t enet1_tx_buff_cfg = {.buffer = (uint32_t)enet1_tx_buff,
+                                               .count  = ENET1_TX_BUFF_COUNT,
+                                               .size   = ENET1_TX_BUFF_SIZE
+                                              };
+
+static hpm_enet_t enet1 = {.name            = "ETH1",
+                           .base            = HPM_ENET1,
+                           .irq_num         = IRQn_ENET1,
+                           .inf             = BOARD_ENET1_INF,
+                           .eth_dev         = &eth1_dev,
+                           .enet_dev        = &enet1_dev,
+                           .rx_buff_cfg     = &enet1_rx_buff_cfg,
+                           .tx_buff_cfg     = &enet1_tx_buff_cfg,
+                           .dma_rx_desc_tab = enet1_dma_rx_desc_tab,
+                           .dma_tx_desc_tab = enet1_dma_tx_desc_tab
+                          };
+
+#endif
+
+static hpm_enet_t *s_geths[] = {
+#ifdef BSP_USING_ETH0
+       &enet0,
+#endif
+
+#ifdef BSP_USING_ETH1
+       &enet1
+#endif
+};
 
 #if defined ETH_TX_DUMP || defined ETH_RX_DUMP
 #define __is_print(ch) ((unsigned int)((ch) - ' ') < 127u - ' ')
@@ -95,12 +147,8 @@ static hpm_stat_t hpm_enet_init(enet_device *init)
     enet_controller_init(init->instance, init->media_interface, &init->desc, &init->mac_config, init->mask);
 
     /* Initialize reference clock */
-    #if ENET_INT_REF_CLK
-        board_init_enet_rmii_reference_clock(ENET);
-        enet_rmii_enable_clock(ENET_CONCTL, ENET_ID, true);
-    #else
-        enet_rmii_enable_clock(ENET_CONCTL, ENET_ID, false);
-    #endif
+    board_init_enet_rmii_reference_clock(init->instance, init->int_refclk);
+    enet_rmii_enable_clock(init->instance, init->int_refclk);
 
     /* enable irq */
     intc_m_enable_irq(init->irq_number);
@@ -111,7 +159,10 @@ static rt_err_t rt_hpm_eth_init(rt_device_t dev)
     enet_device *enet_dev = (enet_device *)dev->user_data;
 
     /* Initialize GPIOs */
-    init_enet_pins(enet_dev->instance);
+    board_init_enet_pins(enet_dev->instance);
+
+    /* Reset an enet PHY */
+    board_reset_enet_phy(enet_dev->instance);
 
     /* Initialize MAC and DMA */
     if (hpm_enet_init(enet_dev) == 0) {
@@ -177,7 +228,7 @@ static rt_err_t rt_hpm_eth_tx(rt_device_t dev, struct pbuf * p)
     rt_err_t ret = RT_ERROR;
     uint32_t status;
     enet_device *enet_dev = (enet_device *)dev->user_data;
-
+    uint32_t tx_buff_size = enet_dev->desc.tx_buff_cfg.size;
     struct pbuf *q;
     uint8_t *buffer;
     __IO enet_tx_desc_t *dma_tx_desc;
@@ -199,12 +250,12 @@ static rt_err_t rt_hpm_eth_tx(rt_device_t dev, struct pbuf * p)
         payload_offset = 0;
 
         /* Check if the length of data to copy is bigger than Tx buffer size*/
-        while ((bytes_left_to_copy + buffer_offset) > ENET_TX_BUFF_SIZE)
+        while ((bytes_left_to_copy + buffer_offset) > tx_buff_size)
         {
             /* Copy data to Tx buffer*/
             SMEMCPY((uint8_t *)((uint8_t *)buffer + buffer_offset),
                     (uint8_t *)((uint8_t *)q->payload + payload_offset),
-                    ENET_TX_BUFF_SIZE - buffer_offset);
+                    tx_buff_size - buffer_offset);
 
             /* Point to next descriptor */
             dma_tx_desc = (enet_tx_desc_t *)(dma_tx_desc->tdes3_bm.next_desc);
@@ -218,9 +269,9 @@ static rt_err_t rt_hpm_eth_tx(rt_device_t dev, struct pbuf * p)
 
             buffer = (uint8_t *)(dma_tx_desc->tdes2_bm.buffer1);
 
-            bytes_left_to_copy = bytes_left_to_copy - (ENET_TX_BUFF_SIZE - buffer_offset);
-            payload_offset = payload_offset + (ENET_TX_BUFF_SIZE - buffer_offset);
-            frame_length = frame_length + (ENET_TX_BUFF_SIZE - buffer_offset);
+            bytes_left_to_copy = bytes_left_to_copy - (tx_buff_size - buffer_offset);
+            payload_offset = payload_offset + (tx_buff_size - buffer_offset);
+            frame_length = frame_length + (tx_buff_size - buffer_offset);
             buffer_offset = 0;
         }
 
@@ -241,7 +292,7 @@ static rt_err_t rt_hpm_eth_tx(rt_device_t dev, struct pbuf * p)
     LOG_D("The length of the transmitted frame: %d\n", frame_length);
 
     frame_length += 4;
-    status = enet_prepare_transmission_descriptors(ENET, &enet_dev->desc.tx_desc_list_cur, frame_length, enet_dev->desc.tx_buff_cfg.size);
+    status = enet_prepare_transmission_descriptors(enet_dev->instance, &enet_dev->desc.tx_desc_list_cur, frame_length, enet_dev->desc.tx_buff_cfg.size);
     if (status != ENET_SUCCESS)
     {
         LOG_E("Ethernet controller transmit unsuccessfully: %d\n", status);
@@ -254,6 +305,7 @@ static struct pbuf *rt_hpm_eth_rx(rt_device_t dev)
 {
     struct pbuf *p = NULL, *q = NULL;
     enet_device *enet_dev = (enet_device *)dev->user_data;
+    uint32_t rx_buff_size = enet_dev->desc.rx_buff_cfg.size;
     uint16_t len = 0;
     uint8_t *buffer;
     enet_frame_t frame = {0, 0, 0};
@@ -294,17 +346,17 @@ static struct pbuf *rt_hpm_eth_rx(rt_device_t dev)
             payload_offset = 0;
 
             /* Check if the length of bytes to copy in current pbuf is bigger than Rx buffer size*/
-            while ((bytes_left_to_copy + buffer_offset) > ENET_RX_BUFF_SIZE)
+            while ((bytes_left_to_copy + buffer_offset) > rx_buff_size)
             {
                 /* Copy data to pbuf */
-                SMEMCPY((uint8_t *)((uint8_t *)q->payload + payload_offset), (uint8_t *)((uint8_t *)buffer + buffer_offset), (ENET_RX_BUFF_SIZE - buffer_offset));
+                SMEMCPY((uint8_t *)((uint8_t *)q->payload + payload_offset), (uint8_t *)((uint8_t *)buffer + buffer_offset), (rx_buff_size - buffer_offset));
 
                 /* Point to next descriptor */
                 dma_rx_desc = (enet_rx_desc_t *)(dma_rx_desc->rdes3_bm.next_desc);
                 buffer = (uint8_t *)(dma_rx_desc->rdes2_bm.buffer1);
 
-                bytes_left_to_copy = bytes_left_to_copy - (ENET_RX_BUFF_SIZE - buffer_offset);
-                payload_offset = payload_offset + (ENET_RX_BUFF_SIZE - buffer_offset);
+                bytes_left_to_copy = bytes_left_to_copy - (rx_buff_size - buffer_offset);
+                payload_offset = payload_offset + (rx_buff_size - buffer_offset);
                 buffer_offset = 0;
             }
             /* Copy remaining data in pbuf */
@@ -344,85 +396,105 @@ static void eth_rx_callback(struct eth_device* dev)
     }
 }
 
-void isr_enet1(void)
+void isr_enet(hpm_enet_t *obj)
 {
     uint32_t status;
 
-    status = ENET->DMA_STATUS;
+    status = obj->base->DMA_STATUS;
 
     if (ENET_DMA_STATUS_GLPII_GET(status)) {
-        ENET->DMA_STATUS |= ENET_DMA_STATUS_GLPII_SET(ENET_DMA_STATUS_GLPII_GET(status));
+        obj->base->DMA_STATUS |= ENET_DMA_STATUS_GLPII_SET(ENET_DMA_STATUS_GLPII_GET(status));
     }
 
     if (ENET_DMA_STATUS_RI_GET(status)) {
-        ENET->DMA_STATUS |= ENET_DMA_STATUS_RI_SET(ENET_DMA_STATUS_RI_GET(status));
-        eth_rx_callback(&eth_dev);
+        obj->base->DMA_STATUS |= ENET_DMA_STATUS_RI_SET(ENET_DMA_STATUS_RI_GET(status));
+        eth_rx_callback(obj->eth_dev);
     }
 }
+
+#ifdef BSP_USING_ETH0
+void isr_enet0(void)
+{
+    isr_enet(&enet0);
+}
+SDK_DECLARE_EXT_ISR_M(IRQn_ENET0, isr_enet0)
+#endif
+
+#ifdef BSP_USING_ETH1
+void isr_enet1(void)
+{
+    isr_enet(&enet1);
+}
 SDK_DECLARE_EXT_ISR_M(IRQn_ENET1, isr_enet1)
+#endif
 
 int rt_hw_eth_init(void)
 {
     rt_err_t err = RT_ERROR;
 
-    /* Clear memory */
-    memset((uint8_t *)dma_tx_desc_tab, 0x00, sizeof(dma_tx_desc_tab));
-    memset((uint8_t *)dma_rx_desc_tab, 0x00, sizeof(dma_rx_desc_tab));
-    memset((uint8_t *)rx_buff, 0x00, sizeof(rx_buff));
-    memset((uint8_t *)tx_buff, 0x00, sizeof(tx_buff));
-
-    /* Set list heads */
-    enet_dev.desc.tx_desc_list_head = (enet_tx_desc_t *)core_local_mem_to_sys_address(ENET_MCU_CORE, (uint32_t)dma_tx_desc_tab);
-    enet_dev.desc.rx_desc_list_head = (enet_rx_desc_t *)core_local_mem_to_sys_address(ENET_MCU_CORE, (uint32_t)dma_rx_desc_tab);
-
-    enet_dev.desc.tx_buff_cfg.buffer = core_local_mem_to_sys_address(ENET_MCU_CORE, (uint32_t)tx_buff);
-    enet_dev.desc.tx_buff_cfg.count = ENET_TX_BUFF_COUNT;
-    enet_dev.desc.tx_buff_cfg.size = ENET_TX_BUFF_SIZE;
-
-    enet_dev.desc.rx_buff_cfg.buffer = core_local_mem_to_sys_address(ENET_MCU_CORE, (uint32_t)rx_buff);
-    enet_dev.desc.rx_buff_cfg.count = ENET_RX_BUFF_COUNT;
-    enet_dev.desc.rx_buff_cfg.size = ENET_RX_BUFF_SIZE;
-
-    /* Set the mac0 address */
-    enet_dev.mac_config.mac_addr_high[0] = MAC_ADDR5 << 8 | MAC_ADDR4;
-    enet_dev.mac_config.mac_addr_low[0] = MAC_ADDR3 << 24 | MAC_ADDR2 << 16 | MAC_ADDR1 << 8 | MAC_ADDR0;
-    enet_dev.mac_config.valid_max_count = 1;
-
-    /* Set the instance */
-    enet_dev.instance = ENET;
-
-    /* Set the media interface */
-    enet_dev.media_interface = ENET_INF_TYPE;
-
-    /* Set the interrupt mask */
-    enet_dev.mask = ENET_DMA_INTR_EN_NIE_SET(1)   /* Enable normal interrupt summary */
-                  | ENET_DMA_INTR_EN_RIE_SET(1);  /* Enable receive interrupt */;
-
-    /* Set the irq number */
-    enet_dev.irq_number = IRQn_ENET1;
-
-    /* Set the parent parameters */
-    eth_dev.parent.init      = rt_hpm_eth_init;
-    eth_dev.parent.open      = rt_hpm_eth_open;
-    eth_dev.parent.close     = rt_hpm_eth_close;
-    eth_dev.parent.read      = rt_hpm_eth_read;
-    eth_dev.parent.write     = rt_hpm_eth_write;
-    eth_dev.parent.control   = rt_hpm_eth_control;
-    eth_dev.parent.user_data = &enet_dev;
-
-    eth_dev.eth_rx = rt_hpm_eth_rx;
-    eth_dev.eth_tx = rt_hpm_eth_tx;
-
-    /* register eth device */
-    err = eth_device_init(&eth_dev, "eth1");
-
-    if (RT_EOK == err)
+    for (uint32_t i = 0; i < ARRAY_SIZE(s_geths); i++)
     {
-        LOG_D("Ethernet device initialize successfully!\n");
-    }
-    else
-    {
-        LOG_D("Ethernet device initialize unsuccessfully!\n");
+        /* Clear memory */
+        memset((uint8_t *)s_geths[i]->dma_rx_desc_tab, 0x00, sizeof(enet_rx_desc_t) * s_geths[i]->rx_buff_cfg->count);
+        memset((uint8_t *)s_geths[i]->dma_tx_desc_tab, 0x00, sizeof(enet_tx_desc_t) * s_geths[i]->tx_buff_cfg->count);
+
+        memset((uint8_t *)s_geths[i]->rx_buff_cfg->buffer, 0x00, sizeof(s_geths[i]->rx_buff_cfg->size));
+        memset((uint8_t *)s_geths[i]->tx_buff_cfg->buffer, 0x00, sizeof(s_geths[i]->tx_buff_cfg->size));
+
+        /* Set list heads */
+        s_geths[i]->enet_dev->desc.tx_desc_list_head = (enet_tx_desc_t *)core_local_mem_to_sys_address(BOARD_RUNNING_CORE, (uint32_t)s_geths[i]->dma_tx_desc_tab);
+        s_geths[i]->enet_dev->desc.rx_desc_list_head = (enet_rx_desc_t *)core_local_mem_to_sys_address(BOARD_RUNNING_CORE, (uint32_t)s_geths[i]->dma_rx_desc_tab);
+
+        s_geths[i]->enet_dev->desc.tx_buff_cfg.buffer = core_local_mem_to_sys_address(BOARD_RUNNING_CORE, s_geths[i]->tx_buff_cfg->buffer);
+        s_geths[i]->enet_dev->desc.tx_buff_cfg.count = s_geths[i]->tx_buff_cfg->count;
+        s_geths[i]->enet_dev->desc.tx_buff_cfg.size = s_geths[i]->tx_buff_cfg->size;
+
+        s_geths[i]->enet_dev->desc.rx_buff_cfg.buffer = core_local_mem_to_sys_address(BOARD_RUNNING_CORE, s_geths[i]->rx_buff_cfg->buffer);
+        s_geths[i]->enet_dev->desc.rx_buff_cfg.count = s_geths[i]->rx_buff_cfg->count;
+        s_geths[i]->enet_dev->desc.rx_buff_cfg.size = s_geths[i]->rx_buff_cfg->size;
+
+        /* Set the mac0 address */
+        s_geths[i]->enet_dev->mac_config.mac_addr_high[0] = MAC_ADDR5 << 8 | MAC_ADDR4;
+        s_geths[i]->enet_dev->mac_config.mac_addr_low[0] = MAC_ADDR3 << 24 | MAC_ADDR2 << 16 | MAC_ADDR1 << 8 | MAC_ADDR0;
+
+        /* Set the instance */
+        s_geths[i]->enet_dev->instance = s_geths[i]->base;
+
+        /* Set the media interface */
+        s_geths[i]->enet_dev->media_interface = s_geths[i]->inf;
+
+        /* Set the interrupt mask */
+        s_geths[i]->enet_dev->mask = ENET_DMA_INTR_EN_NIE_SET(1)   /* Enable normal interrupt summary */
+                                   | ENET_DMA_INTR_EN_RIE_SET(1);  /* Enable receive interrupt */
+
+        /* Set the irq number */
+        s_geths[i]->enet_dev->irq_number = s_geths[i]->irq_num;
+
+        /* Set the parent parameters */
+
+        s_geths[i]->eth_dev->parent.init      = rt_hpm_eth_init;
+        s_geths[i]->eth_dev->parent.open      = rt_hpm_eth_open;
+        s_geths[i]->eth_dev->parent.close     = rt_hpm_eth_close;
+        s_geths[i]->eth_dev->parent.read      = rt_hpm_eth_read;
+        s_geths[i]->eth_dev->parent.write     = rt_hpm_eth_write;
+        s_geths[i]->eth_dev->parent.control   = rt_hpm_eth_control;
+
+        s_geths[i]->eth_dev->parent.user_data = s_geths[i]->enet_dev;
+
+        s_geths[i]->eth_dev->eth_rx = rt_hpm_eth_rx;
+        s_geths[i]->eth_dev->eth_tx = rt_hpm_eth_tx;
+
+        err = eth_device_init(s_geths[i]->eth_dev, s_geths[i]->name);
+
+        if (RT_EOK == err)
+        {
+            LOG_D("Ethernet device initialize successfully!\n");
+        }
+        else
+        {
+            LOG_D("Ethernet device initialize unsuccessfully!\n");
+            return err;
+        }
     }
 
     return err;

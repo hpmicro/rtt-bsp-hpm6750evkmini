@@ -269,6 +269,13 @@
 
 /* language packages */
 
+/* JSON: JavaScript Object Notation, a lightweight data-interchange format */
+
+/* end of JSON: JavaScript Object Notation, a lightweight data-interchange format */
+
+/* XML: Extensible Markup Language */
+
+/* end of XML: Extensible Markup Language */
 /* end of language packages */
 
 /* multimedia packages */
@@ -322,6 +329,10 @@
 /* end of AI packages */
 
 /* miscellaneous packages */
+
+/* project laboratory */
+
+/* end of project laboratory */
 
 /* samples: kernel and components samples */
 

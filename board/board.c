@@ -770,6 +770,55 @@ uint32_t board_init_can_clock(CAN_Type *ptr)
     return freq;
 }
 
+uint32_t board_init_gptmr_clock(GPTMR_Type *ptr)
+{
+    uint32_t freq = 0;
+
+    if (ptr == HPM_GPTMR0) {
+        clock_add_to_group(clock_gptmr0, 0);
+        clock_set_source_divider(clock_gptmr0, clk_src_pll1_clk1, 4);
+        freq = clock_get_frequency(clock_gptmr0);
+    }
+    else if (ptr == HPM_GPTMR1) {
+        clock_add_to_group(clock_gptmr1, 0);
+        clock_set_source_divider(clock_gptmr1, clk_src_pll1_clk1, 4);
+        freq = clock_get_frequency(clock_gptmr1);
+    }
+    else if (ptr == HPM_GPTMR2) {
+        clock_add_to_group(clock_gptmr2, 0);
+        clock_set_source_divider(clock_gptmr2, clk_src_pll1_clk1, 4);
+        freq = clock_get_frequency(clock_gptmr2);
+    }
+    else if (ptr == HPM_GPTMR3) {
+        clock_add_to_group(clock_gptmr3, 0);
+        clock_set_source_divider(clock_gptmr3, clk_src_pll1_clk1, 4);
+        freq = clock_get_frequency(clock_gptmr3);
+    }
+    else if (ptr == HPM_GPTMR4) {
+        clock_add_to_group(clock_gptmr4, 0);
+        clock_set_source_divider(clock_gptmr4, clk_src_pll1_clk1, 4);
+        freq = clock_get_frequency(clock_gptmr4);
+    }
+    else if (ptr == HPM_GPTMR5) {
+        clock_add_to_group(clock_gptmr5, 0);
+        clock_set_source_divider(clock_gptmr5, clk_src_pll1_clk1, 4);
+        freq = clock_get_frequency(clock_gptmr5);
+    }
+    else if (ptr == HPM_GPTMR6) {
+        clock_add_to_group(clock_gptmr6, 0);
+        clock_set_source_divider(clock_gptmr6, clk_src_pll1_clk1, 4);
+        freq = clock_get_frequency(clock_gptmr6);
+    }
+    else if (ptr == HPM_GPTMR6) {
+        clock_add_to_group(clock_gptmr7, 0);
+        clock_set_source_divider(clock_gptmr7, clk_src_pll1_clk1, 4);
+        freq = clock_get_frequency(clock_gptmr7);
+    }
+    else {
+        /* Invalid instance */
+    }
+}
+
 /*
  * this function will be called during startup to initialize external memory for data use
  */
@@ -871,8 +920,12 @@ uint32_t board_sd_configure_clock(SDXC_Type *ptr, uint32_t freq)
     return actual_freq;
 }
 
-hpm_stat_t board_init_enet_rmii_reference_clock(ENET_Type *ptr)
+hpm_stat_t board_init_enet_rmii_reference_clock(ENET_Type *ptr, bool internal)
 {
+    if (internal == false) {
+        return status_success;
+    }
+
     /* Configure Enet clock to output reference clock */
     if (ptr == HPM_ENET0) {
         /* make sure pll2_clk1 output clock at 250MHz then set 50MHz for enet0 */
@@ -905,4 +958,24 @@ void board_init_rgb_pwm_pins(void)
 void board_init_beep_pwm_pins(void)
 {
     init_beep_pwm_pins();
+}
+
+hpm_stat_t board_init_enet_pins(ENET_Type *ptr)
+{
+    init_enet_pins(ptr);
+
+    if (ptr == HPM_ENET1) {
+        gpio_enable_pin_output_with_initial(BOARD_ENET1_RST_GPIO, BOARD_ENET1_RST_GPIO_INDEX, BOARD_ENET1_RST_GPIO_PIN, 0);
+    } else {
+        return status_invalid_argument;
+    }
+
+    return status_success;
+}
+
+void board_reset_enet_phy(ENET_Type *ptr)
+{
+    board_delay_ms(BOARD_ENET1_PHY_RST_TIME);
+    gpio_write_pin(BOARD_ENET1_RST_GPIO, BOARD_ENET1_RST_GPIO_INDEX, BOARD_ENET1_RST_GPIO_PIN, 1);
+
 }

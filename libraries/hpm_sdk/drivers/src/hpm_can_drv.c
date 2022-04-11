@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021 - 2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -69,6 +69,8 @@
 
 #define CAN_TIMEOUT_CNT (0xFFFFFFUL)
 
+#define CAN_SAMPLEPOINT_MIN (750U)
+#define CAN_SAMPLEPOINT_MAX (875U)
 
 /*
  * @brief CAN bit timing table
@@ -170,13 +172,14 @@ static uint32_t find_closest_prescaler(uint32_t num_tq_mul_prescaler, uint32_t s
 }
 
 
-hpm_stat_t can_set_bit_timing(CAN_Type *base, can_bit_timing_option_t option, uint32_t src_clk_freq, uint32_t baudrate)
+hpm_stat_t can_calculate_bit_timing(uint32_t src_clk_freq, can_bit_timing_option_t option, uint32_t baudrate,
+                              uint16_t samplepoint_min, uint16_t samplepoint_max,
+                              can_bit_timing_param_t *timing_param)
 {
     hpm_stat_t status = status_invalid_argument;
-
     do {
-        if ((base == NULL) || (option > can_bit_timing_canfd_data) || (baudrate == 0U) ||
-            (src_clk_freq / baudrate < MIN_TQ_MUL_PRESCALE)) {
+        if ((option > can_bit_timing_canfd_data) || (baudrate == 0U) ||
+            (src_clk_freq / baudrate < MIN_TQ_MUL_PRESCALE) || (timing_param == NULL)) {
             break;
         }
 
@@ -197,7 +200,6 @@ hpm_stat_t can_set_bit_timing(CAN_Type *base, can_bit_timing_option_t option, ui
         /* Find out the minimum prescaler */
         uint32_t current_prescaler;
         while (!has_found) {
-
             current_prescaler = find_closest_prescaler(num_tq_mul_prescaler, start_prescaler,
                                                        tbl->tq_max,
                                                        tbl->tq_min);
@@ -214,9 +216,13 @@ hpm_stat_t can_set_bit_timing(CAN_Type *base, can_bit_timing_option_t option, ui
             }
 
             /* Recommended sample point is 75% - 87.5% */
-            while ((num_seg1 * 100U) / num_tq < 75U) {
+            while ((num_seg1 * 1000U) / num_tq < samplepoint_min) {
                 ++num_seg1;
                 --num_seg2;
+            }
+
+            if ((num_seg1 * 1000U) / num_tq > samplepoint_max) {
+                break;
             }
 
             if ((num_seg2 >= tbl->seg2_min) && (num_seg1 <= tbl->seg1_max)) {
@@ -227,15 +233,40 @@ hpm_stat_t can_set_bit_timing(CAN_Type *base, can_bit_timing_option_t option, ui
         }
 
         if (has_found) {
-
             uint32_t num_sjw = MIN(tbl->sjw_max, (num_seg2 + 1U) / 2U);
+            timing_param->num_seg1 = num_seg1;
+            timing_param->num_seg2 = num_seg2;
+            timing_param->num_sjw = num_sjw;
+            timing_param->prescaler = current_prescaler;
+            status = status_success;
+        }
+    } while (false);
 
+    return status;
+}
+
+
+hpm_stat_t can_set_bit_timing(CAN_Type *base, can_bit_timing_option_t option,
+                              uint32_t src_clk_freq, uint32_t baudrate,
+                              uint16_t samplepoint_min, uint16_t samplepoint_max)
+{
+    hpm_stat_t status = status_invalid_argument;
+
+    do {
+        if (base == NULL) {
+            break;
+        }
+
+        can_bit_timing_param_t timing_param;
+        status = can_calculate_bit_timing(src_clk_freq, option, baudrate, samplepoint_min, samplepoint_max, &timing_param);
+
+        if (status == status_success) {
             if (option < can_bit_timing_canfd_data) {
-                base->S_PRESC = CAN_S_PRESC_S_PRESC_SET(current_prescaler - 1U) | CAN_S_PRESC_S_SEG_1_SET(num_seg1 - 2U) |
-                                CAN_S_PRESC_S_SEG_2_SET(num_seg2 - 1U) | CAN_S_PRESC_S_SJW_SET(num_sjw - 1U);
+                base->S_PRESC = CAN_S_PRESC_S_PRESC_SET(timing_param.prescaler - 1U) | CAN_S_PRESC_S_SEG_1_SET(timing_param.num_seg1 - 2U) |
+                                CAN_S_PRESC_S_SEG_2_SET(timing_param.num_seg2 - 1U) | CAN_S_PRESC_S_SJW_SET(timing_param.num_sjw - 1U);
             } else {
-                base->F_PRESC = CAN_F_PRESC_F_PRESC_SET(current_prescaler - 1U) | CAN_F_PRESC_F_SEG_1_SET(num_seg1 - 2U) |
-                                CAN_F_PRESC_F_SEG_2_SET(num_seg2 - 1U) | CAN_F_PRESC_F_SJW_SET(num_sjw - 1U);
+                base->F_PRESC = CAN_F_PRESC_F_PRESC_SET(timing_param.prescaler - 1U) | CAN_F_PRESC_F_SEG_1_SET(timing_param.num_seg1 - 2U) |
+                                CAN_F_PRESC_F_SEG_2_SET(timing_param.num_seg2 - 1U) | CAN_F_PRESC_F_SJW_SET(timing_param.num_sjw - 1U);
             }
             status = status_success;
         }
@@ -519,6 +550,11 @@ hpm_stat_t can_get_default_config(can_config_t *config)
         config->baudrate = 1000000UL; /* 1Mbit/s */
         config->baudrate_fd = 0U;
         config->loopback_mode = can_loopback_none;
+        config->use_lowlevel_timing_setting = false;
+        config->can20_samplepoint_min = CAN_SAMPLEPOINT_MIN;
+        config->can20_samplepoint_max = CAN_SAMPLEPOINT_MAX;
+        config->canfd_samplepoint_min = CAN_SAMPLEPOINT_MIN;
+        config->canfd_samplepoint_max = CAN_SAMPLEPOINT_MAX;
         config->enable_canfd = false;
         config->enable_self_ack = false;
         config->disable_re_transmission_for_stb = false;
@@ -545,12 +581,26 @@ hpm_stat_t can_init(CAN_Type *base, can_config_t *config, uint32_t src_clk_freq)
         base->TTCFG &= ~CAN_TTCFG_TTEN_MASK;
         base->CMD_STA_CMD_CTRL &= ~CAN_CMD_STA_CMD_CTRL_TTTBM_MASK;
 
-        if (config->enable_canfd) {
-            status = can_set_bit_timing(base, can_bit_timing_canfd_norminal, src_clk_freq, config->baudrate);
-            HPM_BREAK_IF(status != status_success);
-            status = can_set_bit_timing(base, can_bit_timing_canfd_data, src_clk_freq, config->baudrate_fd);
+        if (!config->use_lowlevel_timing_setting) {
+            if (config->enable_canfd) {
+                status = can_set_bit_timing(base, can_bit_timing_canfd_norminal,
+                                            src_clk_freq, config->baudrate,
+                                            config->can20_samplepoint_min, config->can20_samplepoint_max);
+                HPM_BREAK_IF(status != status_success);
+                status = can_set_bit_timing(base, can_bit_timing_canfd_data,
+                                            src_clk_freq, config->baudrate_fd,
+                                            config->canfd_samplepoint_min, config->canfd_samplepoint_max);
+            } else {
+                status = can_set_bit_timing(base, can_bit_timing_can2_0,
+                                            src_clk_freq, config->baudrate,
+                                            config->can20_samplepoint_min, config->can20_samplepoint_max);
+            }
         } else {
-            status = can_set_bit_timing(base, can_bit_timing_can2_0, src_clk_freq, config->baudrate);
+            can_set_slow_speed_timing(base, &config->can_timing);
+            if (config->enable_canfd) {
+                can_set_fast_speed_timing(base, &config->canfd_timing);
+            }
+            status = status_success;
         }
         HPM_BREAK_IF(status != status_success);
 

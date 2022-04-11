@@ -31,4 +31,7 @@
     pdma/README
     plic/README
     vad/README
-
+    wdg/README
+    spi/index
+    dma/README
+    dram/README

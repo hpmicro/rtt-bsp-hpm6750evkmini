@@ -47,7 +47,7 @@ typedef struct
   tuh_control_complete_cb_t complete_cb;
 } usbh_control_xfer_t;
 
-static usbh_control_xfer_t _ctrl_xfer;
+CFG_TUSB_MEM_SECTION static usbh_control_xfer_t _ctrl_xfer;
 
 //CFG_TUSB_MEM_SECTION CFG_TUSB_MEM_ALIGN
 //static uint8_t _tuh_ctrl_buf[CFG_TUSB_HOST_ENUM_BUFFER_SIZE];

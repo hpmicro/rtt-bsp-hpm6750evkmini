@@ -866,3 +866,13 @@ hpm_stat_t board_init_enet_rmii_reference_clock(ENET_Type *ptr)
     }
     return status_success;
 }
+
+void board_init_adc12_pins(void)
+{
+    init_adc12_pins();
+}
+
+void board_init_adc16_pins(void)
+{
+    init_adc16_pins();
+}

@@ -91,7 +91,7 @@ __attribute__((weak)) void reset_handler(void)
 {
     l1c_dc_disable();
     l1c_dc_invalidate_all();
-#ifndef __SEGGER_RTL_VERSION
+#if !defined(__SEGGER_RTL_VERSION) || defined(__GNU_LINKER)
     /*
      * Initialize LMA/VMA sections.
      * Relocation for any sections that need to be copied from LMA to VMA.

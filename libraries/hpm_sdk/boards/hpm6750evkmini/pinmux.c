@@ -264,6 +264,12 @@ void init_butn_pins(void)
 
 void init_acmp_pins(void)
 {
+    /* configure to ACMP_COMP_1(ALT16) function */
+    HPM_IOC->PAD[IOC_PAD_PE25].FUNC_CTL = IOC_PE25_FUNC_CTL_ACMP_COMP_1;
+    /* configure to CMP1_INP7 function */
+    HPM_IOC->PAD[IOC_PAD_PE23].FUNC_CTL = IOC_PAD_FUNC_CTL_ANALOG_MASK;
+    /* configure to CMP1_INN6 function */
+    HPM_IOC->PAD[IOC_PAD_PE21].FUNC_CTL = IOC_PAD_FUNC_CTL_ANALOG_MASK;
 }
 
 void init_enet_pins(ENET_Type *ptr)
@@ -299,7 +305,7 @@ void init_pwm_pins(PWM_Type *ptr)
     }
 }
 
-void init_adc_pins(void)
+void init_adc12_pins(void)
 {
     /* ADC0/1/2/.VINP7 */
     HPM_IOC->PAD[IOC_PAD_PE21].FUNC_CTL = IOC_PAD_FUNC_CTL_ANALOG_MASK;
@@ -309,6 +315,12 @@ void init_adc_pins(void)
     HPM_IOC->PAD[IOC_PAD_PE23].FUNC_CTL = IOC_PAD_FUNC_CTL_ANALOG_MASK;
     /* ADC0/1/2/.VINP10 */
     HPM_IOC->PAD[IOC_PAD_PE24].FUNC_CTL = IOC_PAD_FUNC_CTL_ANALOG_MASK;
+}
+
+void init_adc16_pins(void)
+{
+    /* ADC3.INA2 */
+    HPM_IOC->PAD[IOC_PAD_PE29].FUNC_CTL = IOC_PAD_FUNC_CTL_ANALOG_MASK;
 }
 
 void init_usb_pins(USB_Type *ptr)

@@ -316,7 +316,7 @@ static inline void usb_dcd_set_address(USB_Type *ptr, uint8_t dev_addr)
  */
 static inline void usb_dcd_set_edpt_list_addr(USB_Type *ptr, uint32_t addr)
 {
-    ptr->ENDPTLISTADDR = addr;
+    ptr->ENDPTLISTADDR = addr & USB_ENDPTLISTADDR_EPBASE_MASK;
 }
 
 /**
@@ -412,7 +412,7 @@ static inline bool usb_hcd_get_port_csc(USB_Type *ptr)
  */
 static inline void usb_hcd_set_async_list_addr(USB_Type *ptr, uint32_t addr)
 {
-    ptr->ASYNCLISTADDR = addr;
+    ptr->ASYNCLISTADDR = addr & USB_ASYNCLISTADDR_ASYBASE_MASK;
 }
 
 /**
@@ -423,7 +423,7 @@ static inline void usb_hcd_set_async_list_addr(USB_Type *ptr, uint32_t addr)
  */
 static inline void usb_hcd_set_periodic_list_addr(USB_Type *ptr, uint32_t addr)
 {
-    ptr->PERIODICLISTBASE = addr;
+    ptr->PERIODICLISTBASE = addr & USB_PERIODICLISTBASE_BASEADR_MASK;
 }
 
 #if defined __cplusplus

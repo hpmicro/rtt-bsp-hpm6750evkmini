@@ -11,11 +11,6 @@
 #include "hpm_dma_drv.h"
 #include "hpm_dmamux_drv.h"
 
-
-
-
-
-
 /* define I2C MASTER */
 #define TEST_I2C_MASTER BOARD_APP_I2C_BASE
 #define TEST_I2C_MASTER_IRQ BOARD_APP_I2C_IRQ
@@ -131,7 +126,7 @@ hpm_stat_t i2c_trigger_dma(DMA_Type *dma_ptr, uint8_t ch_num, I2C_Type *i2c_ptr,
 
 int main(void)
 {
-    uint8_t send_buf[TEST_BUFFER_SIZE];
+    ATTR_PLACE_AT_NONCACHEABLE static uint8_t send_buf[TEST_BUFFER_SIZE];
     hpm_stat_t stat;
     i2c_config_t config;
     uint32_t freq;

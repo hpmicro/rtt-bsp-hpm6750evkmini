@@ -196,7 +196,7 @@ void init_trigger_cfg(ADC16_Type *ptr, uint8_t trig_ch, bool inten)
 
     trig_cfg.trig_ch   = trig_ch;
     trig_cfg.trig_len  = BOARD_APP_ADC_PREEMPT_TRIG_LEN;
-    trig_cfg.adc_ch[0] = BOARD_APP_ADC_CH;
+    trig_cfg.adc_ch[0] = BOARD_APP_ADC16_CH;
     trig_cfg.inten[0]  = inten;
 
     adc16_set_preempt_config(ptr, &trig_cfg);
@@ -208,7 +208,7 @@ void init_common_config(adc16_conversion_mode_t conv_mode)
 
     /* Set adc initial parameters */
     adc16_init_default_config(&cfg);
-    cfg.ch             = BOARD_APP_ADC_CH;
+    cfg.ch             = BOARD_APP_ADC16_CH;
     cfg.sample_cycle   = 10;
     cfg.conv_mode      = conv_mode;
     cfg.adc_clk_div    = 3;
@@ -231,21 +231,21 @@ void oneshot_handler(void)
     uint16_t result;
 
     if (adc16_get_wait_dis_status(BOARD_APP_ADC16_BASE) == false) {
-        adc16_get_oneshot_result(BOARD_APP_ADC16_BASE, BOARD_APP_ADC_CH, &result);
+        adc16_get_oneshot_result(BOARD_APP_ADC16_BASE, BOARD_APP_ADC16_CH, &result);
     } else {
         do {
-            adc16_get_oneshot_result(BOARD_APP_ADC16_BASE, BOARD_APP_ADC_CH, &result);
-        } while (adc16_get_conv_valid_status(BOARD_APP_ADC16_BASE, BOARD_APP_ADC_CH) == false);
+            adc16_get_oneshot_result(BOARD_APP_ADC16_BASE, BOARD_APP_ADC16_CH, &result);
+        } while (adc16_get_conv_valid_status(BOARD_APP_ADC16_BASE, BOARD_APP_ADC16_CH) == false);
     }
 
-    printf("ADC3 [channel %d] result: %08x\n", BOARD_APP_ADC_CH, result);
+    printf("ADC3 [channel %d] result: %08x\n", BOARD_APP_ADC16_CH, result);
 }
 
 void init_period_config(void)
 {
     adc16_prd_config_t prd_cfg;
 
-    prd_cfg.ch            = BOARD_APP_ADC_CH;
+    prd_cfg.ch            = BOARD_APP_ADC16_CH;
     prd_cfg.prescale      = 0;         /* Set divider 0: 1 x clock */
     prd_cfg.period_ms     = 100;
     /* TODO: Call a clock API to get the ADC clock source frequency (unit in Hz) */
@@ -258,7 +258,7 @@ void period_handler(void)
 {
     uint16_t result;
 
-    adc16_get_prd_result(BOARD_APP_ADC16_BASE, BOARD_APP_ADC_CH, &result);
+    adc16_get_prd_result(BOARD_APP_ADC16_BASE, BOARD_APP_ADC16_CH, &result);
     printf("ADC3 [channel %d] result: %08x\n", result);
 }
 
@@ -350,13 +350,6 @@ void preempt_handler(void)
     trig_complete_flag = 0;
 }
 
-void delay(void)
-{
-    for (uint32_t i = 0; i < 100000; i++)
-        for (uint32_t i = 0; i < 50; i++)
-            ;
-}
-
 int main(void)
 {
     uint8_t conv_mode;
@@ -364,22 +357,19 @@ int main(void)
     /* Bsp initialization */
     board_init();
 
-    /* TODO: Set ADC clock source */
-    board_init_clock();
-
-    /* TODO: Set Pin Mux according to HW design */
-    init_adc_pins();
-
-    printf("This is an ADC16 demo:\n");
+    /* ADC pin initialization */
+    board_init_adc16_pins();
 
     /* TODO: Get sample mode from console */
     conv_mode = adc16_conv_mode_oneshot;
 
-    /* ADC16 common initialization */
+    /* ADC16 co4mmon initialization */
     init_common_config(conv_mode);
 
     /* enable irq */
     intc_m_enable_irq_with_priority(BOARD_APP_ADC16_IRQn, 1);
+
+    printf("This is an ADC16 demo:\n");
 
     /* ADC16 read patter and DMA initialization */
     switch (conv_mode) {
@@ -405,9 +395,6 @@ int main(void)
 
     /* Main loop */
     while (1) {
-
-        delay();
-
         if (conv_mode == adc16_conv_mode_oneshot) {
             oneshot_handler();
         } else if (conv_mode == adc16_conv_mode_period) {

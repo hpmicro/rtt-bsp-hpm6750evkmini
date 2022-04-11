@@ -247,11 +247,22 @@ static inline hpm_stat_t dma_check_transfer_status(DMA_Type *ptr, uint8_t ch_ind
     return dma_status;
 }
 
+/**
+ * @brief   Get clear IRQ status
+ *
+ * @param[in] ptr DMA base address
+ * @param[in] mask irq mask to be cleared
+ */
 static inline void dma_clear_irq_status(DMA_Type *ptr, uint32_t mask)
 {
     ptr->INTSTATUS |= mask;
 }
 
+/**
+ * @brief   Get IRQ status
+ *
+ * @param[in] ptr DMA base address
+ */
 static inline uint32_t dma_get_irq_status(DMA_Type *ptr)
 {
     return ptr->INTSTATUS;

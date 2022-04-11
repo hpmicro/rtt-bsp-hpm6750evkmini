@@ -194,7 +194,7 @@ void init_trigger_cfg(uint8_t trig_ch, bool inten)
     adc12_trig_config_t trig_cfg;
     trig_cfg.trig_ch   = trig_ch;
     trig_cfg.trig_len  = BOARD_APP_ADC_PREEMPT_TRIG_LEN;
-    trig_cfg.adc_ch[0] = BOARD_APP_ADC_CH;
+    trig_cfg.adc_ch[0] = BOARD_APP_ADC12_CH;
     trig_cfg.inten[0]  = inten;
 
     adc12_set_preempt_config(BOARD_APP_ADC12_BASE, &trig_cfg);
@@ -205,10 +205,10 @@ void init_common_config(adc12_conversion_mode_t conv_mode)
     adc12_config_t cfg;
 
     adc12_init_default_config(&cfg);
-    cfg.ch             = BOARD_APP_ADC_CH;
+    cfg.ch             = BOARD_APP_ADC12_CH;
     cfg.diff_sel       = adc12_sample_signal_single_ended;
     cfg.res            = adc12_res_12_bits;
-    cfg.sample_cycle   = 10;
+    cfg.sample_cycle   = 20;
     cfg.conv_mode      = conv_mode;
     cfg.adc_clk_div    = 1;
     cfg.sel_sync_ahb   = true;
@@ -229,22 +229,22 @@ void oneshot_handler(void)
     uint16_t result;
 
     if (adc12_get_wait_dis_status(BOARD_APP_ADC12_BASE) == false) {
-        adc12_get_oneshot_result(BOARD_APP_ADC12_BASE, BOARD_APP_ADC_CH, &result);
+        adc12_get_oneshot_result(BOARD_APP_ADC12_BASE, BOARD_APP_ADC12_CH, &result);
     }
     else {
         do {
-            adc12_get_oneshot_result(BOARD_APP_ADC12_BASE, BOARD_APP_ADC_CH, &result);
-        } while (adc12_get_conv_valid_status(BOARD_APP_ADC12_BASE, BOARD_APP_ADC_CH) == false);
+            adc12_get_oneshot_result(BOARD_APP_ADC12_BASE, BOARD_APP_ADC12_CH, &result);
+        } while (adc12_get_conv_valid_status(BOARD_APP_ADC12_BASE, BOARD_APP_ADC12_CH) == false);
     }
 
-    printf("ADC0 [channel %d] result: %08x\n", BOARD_APP_ADC_CH, result);
+    printf("ADC0 [channel %d] result: %08x\n", BOARD_APP_ADC12_CH, result);
 }
 
 void init_period_config(void)
 {
     adc12_prd_config_t prd_cfg;
 
-    prd_cfg.ch        = BOARD_APP_ADC_CH;
+    prd_cfg.ch        = BOARD_APP_ADC12_CH;
     prd_cfg.prescale  = 0;  /* Set divider 0: 1 x clock */
     prd_cfg.period = 100;   /* 500ns when AHB clock at 200MHz is ADC clock source */
     /* TODO: Call a clock API to get ADC clock source frequency (unit in Hz) */
@@ -257,7 +257,7 @@ void period_handler(void)
 {
     uint16_t result;
 
-    adc12_get_prd_result(BOARD_APP_ADC12_BASE, BOARD_APP_ADC_CH, &result);
+    adc12_get_prd_result(BOARD_APP_ADC12_BASE, BOARD_APP_ADC12_CH, &result);
     printf("ADC0 [channel %d] result: %08x\n", result);
 }
 
@@ -349,14 +349,6 @@ void preemption_handler(void)
     trig_complete_flag = 0;
 }
 
-void delay(void)
-{
-	for (int i = 0; i < 100000; i++)
-		for (int j = 0; j < 100; j++)
-			;
-
-}
-
 int main(void)
 {
     uint8_t conv_mode;
@@ -364,8 +356,8 @@ int main(void)
     /* Bsp initialization */
     board_init();
 
-    /* TODO: Set Pin Mux according to HW design */
-    printf("This is an ADC12 demo:\n");
+    /* ADC pin initialization */
+    board_init_adc12_pins();
 
     /* TODO: Get sample mode from console */
     conv_mode = adc12_conv_mode_oneshot;
@@ -375,6 +367,8 @@ int main(void)
 
     /* enable irq */
     intc_m_enable_irq_with_priority(BOARD_APP_ADC12_IRQn, 1);
+
+    printf("This is an ADC12 demo:\n");
 
     /* ADC12 read patter and DMA initialization */
     switch (conv_mode) {
@@ -400,9 +394,6 @@ int main(void)
 
     /* Main loop */
     while (1) {
-
-    	delay();
-
         if (conv_mode == adc12_conv_mode_oneshot) {
             oneshot_handler();
         } else if (conv_mode == adc12_conv_mode_period) {
@@ -412,7 +403,7 @@ int main(void)
         } else if (conv_mode == adc12_conv_mode_preempt) {
             preemption_handler();
         } else {
-            printf("Conversion mode is not supproted ！\n");
+            printf("Conversion mode is not supproted！\n");
         }
     }
 }

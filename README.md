@@ -12,3 +12,4 @@ RT-Thread Studio BSP for HPM6750EVKMINI Board
 - pwmbeep_demo
 - usb_device_generic_hid
 - uart_dma_demo
+- timer_demo

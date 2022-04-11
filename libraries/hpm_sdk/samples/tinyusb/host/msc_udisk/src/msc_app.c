@@ -15,9 +15,9 @@ ATTR_PLACE_AT_NONCACHEABLE_INIT char wbuff[50] = {"USB Host MSC FatFs Demo!"};
 ATTR_PLACE_AT_NONCACHEABLE_INIT char rbuff[50] = {0};
 
 #if CFG_TUH_MSC
-static scsi_inquiry_resp_t inquiry_resp;
-FATFS fatfs[CFG_TUSB_HOST_DEVICE_MAX];
-FIL file;
+ATTR_PLACE_AT_NONCACHEABLE static scsi_inquiry_resp_t inquiry_resp;
+ATTR_PLACE_AT_NONCACHEABLE FATFS fatfs[CFG_TUSB_HOST_DEVICE_MAX];
+ATTR_PLACE_AT_NONCACHEABLE FIL file;
 
 FRESULT set_timestamp (
     char *obj,   /* Pointer to the file name */

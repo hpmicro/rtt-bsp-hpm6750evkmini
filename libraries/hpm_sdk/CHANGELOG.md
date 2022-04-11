@@ -1,5 +1,33 @@
 # Change Log
 
+## [0.9.0] - 2022-04-01:
+Main changes since 0.8.0
+
+### Changed:
+  - drivers: update WDG, UART, DMA, DMAMUX driver
+  - drivers: enet remove enet_intf_selection
+  - drivers: can: support configure bit timing via low-level bit timing parameters
+  - drivers: optimize gpio driver
+  - samples: exclude flash targets for mbx core1
+  - samples: adjust SES project setting for coremark
+  - samples: jpeg: update and integration jpeg decode samples
+  - ses: use relpath for linker script in project file
+  - ses: add HPM device name in generated project file
+  - soc: HPM6750: add an interface selection api
+
+### Added:
+  - soc: HPM6750: add ram linker for core1
+  - ses: support to use Andes toolchain
+  - middleware: add hpm_math (replacing hpm_dsp)
+  - samples: add lwip httpd
+  - drivers: add section and alignment general instructions in hpm_common.h
+
+### Fixed:
+  - boards: hpm6750evk: fix bldc adc pinmux error
+  - boards : hpm6750evk : pinmux : fix spi init pins error
+  - samples: sdp: fix non-cacheable data initialization issue
+  - samples: littlevgl: fix wrong picture patch in README
+
 ## [0.8.0] - 2022-03-04:
 All changes since 0.7.3
 
@@ -91,3 +119,4 @@ All changes since 0.6.2
   - samples: drivers: gpiom: Add example to demonstrate gpiom's function
   - drivers: common: add macro to put data into noncacheable sections
   - middleware: integrate lwip
+

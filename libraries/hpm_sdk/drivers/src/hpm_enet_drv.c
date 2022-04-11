@@ -10,7 +10,7 @@
  *---------------------------------------------------------------------*/
 #include "board.h"
 #include "hpm_enet_drv.h"
-#include "hpm_conctl_regs.h"
+#include "hpm_enet_soc_drv.h"
 
 /*---------------------------------------------------------------------*
  * Internal API
@@ -132,16 +132,6 @@ static int enet_mac_init(ENET_Type *ptr, enet_mac_config_t *config, enet_inf_typ
     return true;
 }
 
-static void enet_intf_selection(ENET_Type *ptr, enet_inf_type_t inf_type)
-{
-    if (ptr == HPM_ENET0) {
-        HPM_CONCTL->CTRL2 &= ~CONCTL_CTRL2_ENET0_PHY_INTF_SEL_MASK;
-        HPM_CONCTL->CTRL2 |= CONCTL_CTRL2_ENET0_PHY_INTF_SEL_SET(inf_type);
-    } else {
-        HPM_CONCTL->CTRL3 &= ~CONCTL_CTRL3_ENET1_PHY_INTF_SEL_MASK;
-        HPM_CONCTL->CTRL3 |= CONCTL_CTRL3_ENET1_PHY_INTF_SEL_SET(inf_type);
-    }
-}
 /*---------------------------------------------------------------------*
  * Driver API
  *---------------------------------------------------------------------*/

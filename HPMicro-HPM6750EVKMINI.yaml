@@ -33,8 +33,8 @@ docs:
   file: documents/manuals/HPM6750EVKMINI_UG.pdf
   title: HPM6750EVKMINI Quick Start Guide
 - category: sheet
-  file: documents/sheet/HPM6750_Fact_Sheet_V1_1.pdf
-  title: HPM6750 Factsheet
+  file: documents/sheet/HPM6750_DS.pdf
+  title: HPM6750 Datasheet
 features:
 - 'MCU: HPM6750, main frequency 816MHz, 2MBytes SRAM'
 - 'RGB LEDs'
@@ -53,7 +53,7 @@ features_zh:
 - '板载蜂鸣器'
 pkg_type: Board_Support_Packages
 pkg_vendor: HPMicro
-pkg_version: 0.3.0
+pkg_version: 0.4.0
 
 template_projects:
 - project_name: blink_led
@@ -562,6 +562,47 @@ example_projects:
   project_type: rt-thread|@full|@4.0.5
   builtin_files:
   - source_path_offset: projects/uart_dma_demo
+    target_path_offset: ''
+    files_and_folders:
+    - applications
+    - Kconfig
+    - rtconfig.h
+    - rtconfig.py
+    - SConscript
+    - SConstruct
+    - .cproject
+    - .project
+    - makefile.targets
+    - .settings
+    - .config
+  - source_path_offset: ''
+    target_path_offset: ''
+    files_and_folders:
+    - libraries
+    - rt-thread
+    - startup
+    - board
+  external_files:
+  - package_name: RISC-V-GCC
+    package_type: ToolChain_Support_Packages
+    package_vendor: 'RISC-V'
+    package_version: 10.1.0
+    source_path_offset: ''
+    target_path_offset: ''
+    files_and_folders: []
+  - package_name: OpenOCD-HPMicro
+    package_type: Debugger_Support_Packages
+    package_vendor: 'HPMicro'
+    package_version: 0.3.0
+    source_path_offset: ''
+    target_path_offset: ''
+    files_and_folders: []
+
+- project_name: timer_demo
+  project_description: create this project if user choose rt-thread project
+  project_type: rt-thread|@full|@4.0.5
+  builtin_files:
+  - source_path_offset: projects/timer_demo
     target_path_offset: ''
     files_and_folders:
     - applications

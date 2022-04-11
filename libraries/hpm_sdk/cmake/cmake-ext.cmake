@@ -6,7 +6,7 @@ function(sdk_src)
         if(IS_DIRECTORY ${file})
             message(FATAL_ERROR "directory ${file} can't be added to sdk_lib_src")
         endif()
-        if(IS_ABSOLUTE ${file}) 
+        if(IS_ABSOLUTE ${file})
             set(path ${file})
         else()
             set(path ${CMAKE_CURRENT_SOURCE_DIR}/${file})
@@ -17,7 +17,7 @@ endfunction()
 
 function(sdk_inc)
     foreach(inc ${ARGN})
-        if(IS_ABSOLUTE ${inc}) 
+        if(IS_ABSOLUTE ${inc})
             set(path ${inc})
         else()
             set(path ${CMAKE_CURRENT_SOURCE_DIR}/${inc})
@@ -28,7 +28,7 @@ endfunction()
 
 function(sdk_sys_inc)
     foreach(inc ${ARGN})
-        if(IS_ABSOLUTE ${inc}) 
+        if(IS_ABSOLUTE ${inc})
             set(path ${inc})
         else()
             set(path ${CMAKE_CURRENT_SOURCE_DIR}/${inc})
@@ -66,13 +66,13 @@ endfunction()
 
 function(sdk_link_libraries)
     foreach(lib ${ARGN})
-        target_link_libraries(hpm_sdk_lib_itf INTERFACE ${lib}) 
+        target_link_libraries(hpm_sdk_lib_itf INTERFACE ${lib})
     endforeach()
 endfunction()
 
 function(sdk_ld_options)
     foreach(opt ${ARGN})
-        target_link_libraries(hpm_sdk_lib_itf INTERFACE ${opt}) 
+        target_link_libraries(hpm_sdk_lib_itf INTERFACE ${opt})
     endforeach()
 endfunction()
 
@@ -87,7 +87,7 @@ function(get_openocd_probe_name_of_board board openocd-probe)
         OUTPUT_VARIABLE openocd_probe
         OUTPUT_STRIP_TRAILING_WHITESPACE
         )
-    set(${openocd-probe} ${openocd_probe} PARENT_SCOPE) 
+    set(${openocd-probe} ${openocd_probe} PARENT_SCOPE)
 endfunction()
 
 function(get_openocd_soc_name_of_board board openocd-soc)
@@ -101,7 +101,7 @@ function(get_openocd_soc_name_of_board board openocd-soc)
         OUTPUT_VARIABLE openocd_soc
         OUTPUT_STRIP_TRAILING_WHITESPACE
         )
-    set(${openocd-soc} ${openocd_soc} PARENT_SCOPE) 
+    set(${openocd-soc} ${openocd_soc} PARENT_SCOPE)
 endfunction()
 
 function(get_soc_name_of_board board soc)
@@ -112,10 +112,10 @@ function(get_soc_name_of_board board soc)
         ${HPM_SDK_BASE}/boards/${board}/${board}.yaml
         soc
         RESULT_VARIABLE result
-        OUTPUT_VARIABLE soc_name 
+        OUTPUT_VARIABLE soc_name
         OUTPUT_STRIP_TRAILING_WHITESPACE
         )
-    set(${soc} ${soc_name} PARENT_SCOPE) 
+    set(${soc} ${soc_name} PARENT_SCOPE)
 endfunction()
 
 function(get_compiler_version compiler version_text compiler_version)
@@ -129,7 +129,7 @@ function(get_compiler_version compiler version_text compiler_version)
             OUTPUT_VARIABLE v
             OUTPUT_STRIP_TRAILING_WHITESPACE
             )
-        set(${compiler_version} ${v} PARENT_SCOPE) 
+        set(${compiler_version} ${v} PARENT_SCOPE)
     elseif("${compiler}" STREQUAL "clang")
         execute_process(
             COMMAND
@@ -140,7 +140,7 @@ function(get_compiler_version compiler version_text compiler_version)
             OUTPUT_VARIABLE v
             OUTPUT_STRIP_TRAILING_WHITESPACE
             )
-        set(${compiler_version} ${v} PARENT_SCOPE) 
+        set(${compiler_version} ${v} PARENT_SCOPE)
 
     else()
         message(FATAL_ERROR "Unsupported compiler ${compiler}")
@@ -171,7 +171,7 @@ endfunction()
 
 function(sdk_app_inc)
     foreach(inc ${ARGN})
-        if(IS_ABSOLUTE ${inc}) 
+        if(IS_ABSOLUTE ${inc})
             set(path ${inc})
         else()
             set(path ${CMAKE_CURRENT_SOURCE_DIR}/${inc})
@@ -185,7 +185,7 @@ function(sdk_app_src)
         if(IS_DIRECTORY ${file})
             message(FATAL_ERROR "directory ${file} can't be added to sdk_app_src")
         endif()
-        if(IS_ABSOLUTE ${file}) 
+        if(IS_ABSOLUTE ${file})
             set(path ${file})
         else()
             set(path ${CMAKE_CURRENT_SOURCE_DIR}/${file})
@@ -204,7 +204,7 @@ function(check_board_capability board app_yaml result)
         RESULT_VARIABLE r
         OUTPUT_STRIP_TRAILING_WHITESPACE
         )
-    set(${result} ${r} PARENT_SCOPE) 
+    set(${result} ${r} PARENT_SCOPE)
 endfunction()
 
 function(get_flash_size_of_board board size)
@@ -215,10 +215,10 @@ function(get_flash_size_of_board board size)
         ${HPM_SDK_BASE}/boards/${board}/${board}.yaml
         flash_size
         RESULT_VARIABLE result
-        OUTPUT_VARIABLE sz 
+        OUTPUT_VARIABLE sz
         OUTPUT_STRIP_TRAILING_WHITESPACE
         )
-    set(${size} ${sz} PARENT_SCOPE) 
+    set(${size} ${sz} PARENT_SCOPE)
 endfunction()
 
 function(get_extram_size_of_board board size)
@@ -229,10 +229,10 @@ function(get_extram_size_of_board board size)
         ${HPM_SDK_BASE}/boards/${board}/${board}.yaml
         extram_size
         RESULT_VARIABLE result
-        OUTPUT_VARIABLE sz 
+        OUTPUT_VARIABLE sz
         OUTPUT_STRIP_TRAILING_WHITESPACE
         )
-    set(${size} ${sz} PARENT_SCOPE) 
+    set(${size} ${sz} PARENT_SCOPE)
 endfunction()
 
 function(get_ses_debug_auto_start_gdb_server app_yaml start)
@@ -280,3 +280,14 @@ function(get_ses_debug_gdb_server_reset_command app_yaml rst_cmd)
     set(${rst_cmd} ${p} PARENT_SCOPE)
 endfunction()
 
+function(check_excluded_targets app_yaml result)
+    execute_process(
+        COMMAND
+        ${PYTHON_EXECUTABLE}
+        ${HPM_SDK_BASE}/scripts/check_excluded_targets.py
+        ${app_yaml}
+        OUTPUT_VARIABLE r
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    set(${result} ${r} PARENT_SCOPE)
+endfunction()

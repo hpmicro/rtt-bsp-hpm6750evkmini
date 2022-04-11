@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <nds_transform_math.h>
+#include "hpm_math.h"
 #include "hpm_common.h"
 #include "board.h"
 
@@ -336,7 +336,7 @@ int main(void)
     }
     dump_q15("randomly generated input array", buf, 2 * TRANSFORM_SAMPLES);
 
-    nds_cfft_rd2_q15(buf, TRANSFORM_SAMPLES_LOG);
+    hpm_dsp_cfft_rd2_q15(buf, TRANSFORM_SAMPLES_LOG);
     dump_q15("after cFFT", buf, 2 * TRANSFORM_SAMPLES);
 
     /* check dct with golden */
@@ -358,7 +358,7 @@ int main(void)
     }
     dump_q15("randomly generated input array", buf, TRANSFORM_SAMPLES);
 
-    nds_cifft_rd2_q15(buf, TRANSFORM_SAMPLES_LOG);
+    hpm_dsp_cifft_rd2_q15(buf, TRANSFORM_SAMPLES_LOG);
     dump_q15("after CIFFT", buf, 2 * TRANSFORM_SAMPLES);
 
     /* check idct with golden */

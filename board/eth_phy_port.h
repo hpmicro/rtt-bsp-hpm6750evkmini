@@ -11,8 +11,6 @@
 #include "hpm_ioc_regs.h"
 #include <rtdevice.h>
 
-#define PHY_RST_PIN                       (IOC_PAD_PD15)
-
 #ifndef PHY_AUTO_NEGO
 #define PHY_AUTO_NEGO  (1U)
 #endif
@@ -81,5 +79,33 @@ typedef struct {
 #define PHY_STATUS_SPEED_10M(SR)    ((SR) & PHY_10M_MASK)
 #define PHY_STATUS_SPEED_100M(SR)   ((SR) & PHY_100M_MASK)
 #define PHY_STATUS_FULL_DUPLEX(SR)  ((SR) & PHY_FULL_DUPLEX_MASK)
+
+/* PHY0 register list */
+#define PHY0_REG_LIST  PHY_BASIC_CONTROL_REG,\
+                       PHY_BASIC_STATUS_REG,\
+                       PHY_ID1_REG,\
+                       PHY_ID2_REG,\
+                       PHY_SPECIAL_MODES_REG,\
+                       PHY_INTERRUPT_FLAG_REG,\
+                       PHY_INTERRUPT_MASK_REG,\
+                       PHY_STATUS_REG
+
+/* PHY0 register index */
+#define PHY0_BASIC_STATUS_REG_IDX (1U)
+#define PHY0_STATUS_REG_IDX (7U)
+
+/* PHY1 register list */
+#define PHY1_REG_LIST  PHY_BASIC_CONTROL_REG,\
+                       PHY_BASIC_STATUS_REG,\
+                       PHY_ID1_REG,\
+                       PHY_ID2_REG,\
+                       PHY_SPECIAL_MODES_REG,\
+                       PHY_INTERRUPT_FLAG_REG,\
+                       PHY_INTERRUPT_MASK_REG,\
+                       PHY_STATUS_REG
+
+/* PHY1 register index */
+#define PHY1_BASIC_STATUS_REG_IDX (1U)
+#define PHY1_STATUS_REG_IDX (7U)
 
 #endif

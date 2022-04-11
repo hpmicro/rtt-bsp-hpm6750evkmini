@@ -101,7 +101,7 @@ static uint32_t compare_buffers(uint8_t *expected, uint8_t *actual, uint32_t siz
 }
 
 /* descriptor should be 8-byte aligned */
-dma_linked_descriptor_t descriptors[4] __attribute__ ((aligned(8)));
+ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(8) dma_linked_descriptor_t descriptors[4];
 
 void isr_dma(void)
 {

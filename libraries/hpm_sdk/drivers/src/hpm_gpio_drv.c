@@ -57,11 +57,10 @@ void gpio_config_pin_interrupt(GPIO_Type *ptr, uint32_t gpio_index, uint8_t pin_
 
 void gpio_enable_pin_output_with_initial(GPIO_Type *ptr, uint32_t port, uint8_t pin, uint8_t initial)
 {
-    ptr->OE[port].SET = 1 << pin;
     if (initial & 1) {
         ptr->DO[port].SET = 1 << pin;
     } else {
         ptr->DO[port].CLEAR = 1 << pin;
     }
+    ptr->OE[port].SET = 1 << pin;
 }
-

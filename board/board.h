@@ -12,6 +12,7 @@
 #include "hpm_soc.h"
 #include "hpm_soc_feature.h"
 #include "hpm_clock_drv.h"
+#include "hpm_enet_drv.h"
 #include "pinmux.h"
 
 #define BOARD_NAME "hpm6750evkmini"
@@ -157,7 +158,12 @@
 #define BOARD_PDMA_BASE HPM_PDMA
 
 /* enet section */
-#define BOARD_APP_ENET_BASE HPM_ENET1
+#define BOARD_ENET1_RST_GPIO        HPM_GPIO0
+#define BOARD_ENET1_RST_GPIO_INDEX  GPIO_DO_GPIOD
+#define BOARD_ENET1_RST_GPIO_PIN    (15U)
+#define BOARD_ENET1_INF             enet_inf_rmii
+#define BOARD_ENET1_INT_REF_CLK     (0U)
+#define BOARD_ENET1_PHY_RST_TIME    (30)
 
 /* adc section */
 #define BOARD_APP_ADC12_BASE HPM_ADC0
@@ -178,14 +184,14 @@
 /*
  * timer for board delay
  */
-#define BOARD_DELAY_TIMER (HPM_GPTMR7)
+#define BOARD_DELAY_TIMER (HPM_GPTMR0)
 #define BOARD_DELAY_TIMER_CH 0
-#define BOARD_DELAY_TIMER_CLK_NAME (clock_gptmr7)
+#define BOARD_DELAY_TIMER_CLK_NAME (clock_gptmr0)
 
-#define BOARD_CALLBACK_TIMER (HPM_GPTMR7)
+#define BOARD_CALLBACK_TIMER (HPM_GPTMR0)
 #define BOARD_CALLBACK_TIMER_CH 1
-#define BOARD_CALLBACK_TIMER_IRQ IRQn_GPTMR7
-#define BOARD_CALLBACK_TIMER_CLK_NAME (clock_gptmr7)
+#define BOARD_CALLBACK_TIMER_IRQ IRQn_GPTMR0
+#define BOARD_CALLBACK_TIMER_CLK_NAME (clock_gptmr0)
 
 /* SDXC section */
 #define BOARD_APP_SDCARD_SDXC_BASE            (HPM_SDXC1)
@@ -303,6 +309,8 @@ uint32_t board_init_i2s_clock(I2S_Type *ptr);
 uint32_t board_init_pdm_clock(void);
 uint32_t board_init_dao_clock(void);
 
+uint32_t board_init_gptmr_clock(GPTMR_Type *ptr);
+
 void board_init_sd_pins(SDXC_Type *ptr);
 uint32_t board_sd_configure_clock(SDXC_Type *ptr, uint32_t freq);
 void board_sd_switch_pins_to_1v8(SDXC_Type *ptr);
@@ -324,8 +332,15 @@ void board_init_rgb_pwm_pins(void);
 
 void board_timer_create(uint32_t ms, void *cb);
 
+/* Initialize enet pins */
+hpm_stat_t board_init_enet_pins(ENET_Type *ptr);
+
 /* Initialize enet reference clock in RMII mode */
-hpm_stat_t board_init_enet_rmii_reference_clock(ENET_Type *ptr);
+hpm_stat_t board_init_enet_rmii_reference_clock(ENET_Type *ptr, bool internal);
+
+/* Reset an enet PHY */
+void board_reset_enet_phy(ENET_Type *ptr);
+
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus */

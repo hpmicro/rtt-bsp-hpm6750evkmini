@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021 - 2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -9,6 +9,7 @@
 
 #include "hpm_common.h"
 #include "hpm_soc.h"
+#include <rtthread.h>
 
 #define MCAUSE_INSTR_ADDR_MISALIGNED (0U)       //!< Instruction Address misaligned
 #define MCAUSE_INSTR_ACCESS_FAULT (1U)          //!< Instruction access fault
@@ -52,9 +53,40 @@ __attribute__((weak)) void syscall_handler(uint32_t n, uint32_t a0, uint32_t a1,
 {
 }
 
-__attribute__((weak)) uint32_t exception_handler(uint32_t cause, uint32_t epc)
+__attribute__((section(".isr_vector"))) uint32_t exception_handler(uint32_t cause, uint32_t epc)
 {
     /* Unhandled Trap */
+    uint32_t mdcause = read_csr(CSR_MDCAUSE);
+    switch(cause)
+    {
+    case MCAUSE_INSTR_ADDR_MISALIGNED:
+        rt_kprintf("exception: instruction address was misaligned, mdcause=0x%x\n", mdcause);
+        break;
+    case MCAUSE_INSTR_ACCESS_FAULT:
+        rt_kprintf("exception: instruction access fault happened, mdcause=0x%x\n", mdcause);
+        break;
+    case MCAUSE_ILLEGAL_INSTR:
+        rt_kprintf("exception: illegal instruction was met, mdcause=0x%x\n", mdcause);
+        break;
+    case MCAUSE_BREAKPOINT:
+        rt_kprintf("exception: breakpoint was hit, mdcause=0x%x\n", mdcause);
+        break;
+    case MCAUSE_LOAD_ADDR_MISALIGNED:
+        rt_kprintf("exception: load address was misaligned, mdcause=0x%x\n", mdcause);
+        break;
+    case MCAUSE_LOAD_ACCESS_FAULT:
+        rt_kprintf("exception: load access fault happened, epc=%08x, mdcause=0x%x\n", epc, mdcause);
+        break;
+    case MCAUSE_STORE_AMO_ADDR_MISALIGNED:
+        rt_kprintf("exception: store amo address was misaligned, epc=%08x\n", epc);
+        break;
+    case MCAUSE_STORE_AMO_ACCESS_FAULT:
+        rt_kprintf("exception: store amo access fault happened, epc=%08x\n", epc);
+        break;
+    default:
+        rt_kprintf("Unknown exception happened, cause=%d\n", cause);
+        break;
+    }
     return epc;
 }
 

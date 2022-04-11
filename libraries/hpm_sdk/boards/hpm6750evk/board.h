@@ -191,7 +191,8 @@
 #define BOARD_APP_ADC16_BASE HPM_ADC3
 #define BOARD_APP_ADC12_IRQn IRQn_ADC0
 #define BOARD_APP_ADC16_IRQn IRQn_ADC3
-#define BOARD_APP_ADC_CH                         (0U)
+#define BOARD_APP_ADC12_CH                       (11U)
+#define BOARD_APP_ADC16_CH                       (2U)
 #define BOARD_APP_ADC_SEQ_DMA_SIZE_IN_4BYTES     (1024U)
 #define BOARD_APP_ADC_PREEMPT_DMA_SIZE_IN_4BYTES (192U)
 #define BOARD_APP_ADC_PREEMPT_TRIG_LEN           (1U)
@@ -420,6 +421,9 @@ void board_init_sd_pins(SDXC_Type *ptr);
 uint32_t board_sd_configure_clock(SDXC_Type *ptr, uint32_t freq);
 void board_sd_switch_pins_to_1v8(SDXC_Type *ptr);
 bool board_sd_detect_card(SDXC_Type *ptr);
+
+void board_init_adc12_pins(void);
+void board_init_adc16_pins(void);
 
 void board_init_usb_pins(void);
 void board_usb_vbus_ctrl(uint8_t usb_index, uint8_t level);

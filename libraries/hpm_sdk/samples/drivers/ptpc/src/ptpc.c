@@ -77,9 +77,9 @@ void pps_interrupt(void)
     intc_m_enable_irq_with_priority(PTPC_IRQ, 1);
 
     /*
-     * config pps
+     * config pps frequency
      */
-    p = 15;
+    p = 1;
     printf("Config pps IRQ frequency: %d Hz\n", 1 << p);
     if (status_success != ptpc_set_pps(PTPC, PTPC_INDEX, p)) {
         printf("Failed to set frequency to %d Hz\n", 1 << p);

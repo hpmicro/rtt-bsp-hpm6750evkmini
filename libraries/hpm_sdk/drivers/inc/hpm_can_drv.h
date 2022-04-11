@@ -58,6 +58,7 @@ typedef enum _can_loopback_mode {
     can_loopback_none,              /**< Non-loopback mode */
     can_loopback_internal,          /**< Internal loopback mode */
     can_loopback_external,          /**< External loopback mode */
+    can_loopback_end,
 } can_loopback_mode_t;
 
 /**
@@ -96,10 +97,10 @@ enum {
  * @brief CAN Bit timing parameters
  */
 typedef struct {
-    uint32_t prescaler;     /**< Prescaler value */
-    uint32_t num_seg1;      /**< Seg1 value */
-    uint32_t num_seg2;      /**< Seg2 value */
-    uint32_t num_sjw;       /**< SJW value */
+    uint16_t prescaler;     /**< Prescaler value */
+    uint16_t num_seg1;      /**< Seg1 value */
+    uint16_t num_seg2;      /**< Seg2 value */
+    uint16_t num_sjw;       /**< SJW value */
 } can_bit_timing_param_t;
 
 /**
@@ -175,16 +176,32 @@ typedef struct {
  * @brief CAN configuration
  */
 typedef struct {
-    uint32_t baudrate;                          /**< CAN 2.0 baudrate */
-    uint32_t baudrate_fd;                       /**< CANFD baudrate */
+    union {
+        struct {
+            uint32_t baudrate;                  /**< CAN2.0 baudrate / CANFD norminal baudrate */
+            uint32_t baudrate_fd;               /**< CANFD data baudrate */
+            /**< minimum sampliing point, value range (0-1000), samplepoint_min/1000 will be use in driver */
+            uint16_t can20_samplepoint_min;
+            /**< maximum sampling point, value range (0-1000), samplepoint_max/1000 will be use in driver */
+            uint16_t can20_samplepoint_max;
+            /**< minimum sampliing point, value range (0-1000), samplepoint_min/1000 will be use in driver */
+            uint16_t canfd_samplepoint_min;
+            /**< maximum sampling point, value range (0-1000), samplepoint_max/1000 will be use in driver */
+            uint16_t canfd_samplepoint_max;
+        };
+        struct {
+            can_bit_timing_param_t can_timing;  /**< CAN2.0 /CANFD norminal low-level bit timing parameters */
+            can_bit_timing_param_t canfd_timing;/**< CANFD low-level bit timing parameters */
+        };
+    };
     can_loopback_mode_t loopback_mode;          /**< CAN loopback mode */
-    bool enable_canfd;                          /**< CANFD enable flag */
+    bool use_lowlevel_timing_setting;           /**< Use low-level timing setting */
+    bool enable_canfd;                          /**< Enable CAN FD */
     bool enable_self_ack;                       /**< CAN self-ack flag */
     bool disable_re_transmission_for_ptb;       /**< disable re-transmission for primary transmit buffer */
     bool disable_re_transmission_for_stb;       /**< disable re-transmission for secondary transmit buffer */
-    uint32_t filter_list_num;                   /**< element number of CAN filters in filter list */
+    uint16_t filter_list_num;                   /**< element number of CAN filters in filter list */
     can_filter_config_t *filter_list;           /**< CAN filter list pointer */
-
 } can_config_t;
 
 
@@ -643,9 +660,30 @@ static inline void can_set_fast_speed_timing(CAN_Type *base, const can_bit_timin
  * @param [in] option CAN bit timing option
  * @param [in] src_clk_freq CAN IP source clock frequency
  * @param [in] baudrate CAN baudrate in MHz
+ * @param [in] samplepoint_min Minimum Sample point, range(0-1000), samplepoint_min / 1000 will be used in calculation
+ * @param [in] samplepoint_max Maximum Sample point, range(0-1000), samplepoint_max / 1000 will be used in calculation
  * @retval API execution status, status_success or status_invalid_argument
  */
-hpm_stat_t can_set_bit_timing(CAN_Type *base, can_bit_timing_option_t option, uint32_t src_clk_freq, uint32_t baudrate);
+hpm_stat_t can_set_bit_timing(CAN_Type *base, can_bit_timing_option_t option,
+                              uint32_t src_clk_freq, uint32_t baudrate,
+                              uint16_t samplepoint_min, uint16_t samplepoint_max);
+
+
+/**
+ * @brief Calculate the CAN bit timing for CAN BUS
+ * @param [in] src_clk_freq CAN IP source clock frequency
+ * @param [in] option CAN bit timing option
+ * @param [in] baudrate CAN baudrate in MHz
+ * @param [in] samplepoint_min Minimum Sample point, range(0-1000), samplepoint_min / 1000 will be used in calculation
+ * @param [in] samplepoint_max Maximum Sample point, range(0-1000), samplepoint_max / 1000 will be used in calculation
+ * @param [out] timing_param Calculated CAN bit timing parameter
+ * @retval API execution status, status_success or status_invalid_argument
+ */
+hpm_stat_t can_calculate_bit_timing(uint32_t src_clk_freq, can_bit_timing_option_t option, uint32_t baudrate,
+                              uint16_t samplepoint_min, uint16_t samplepoint_max,
+                              can_bit_timing_param_t *timing_param);
+
+
 
 /**
  * @brief Configure the acceptable filter

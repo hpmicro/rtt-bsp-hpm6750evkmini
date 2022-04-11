@@ -4,8 +4,7 @@
 .. toctree::
    :maxdepth: 3
 
-   jpeg_hw/README
-   libjpeg_turbo_decode/README
+   jpeg_decode/README
    libjpeg_turbo_encode/README
 
 ```

@@ -12,4 +12,4 @@
 ### 运行
 ***
 littglevgl music将会显示在LCD屏上
-![lv_demo_music](../../../doc/images/samples/lv_demo_music.git "lv_demo_music")
+![lv_demo_music](../../../doc/images/samples/lv_demo_music.gif "lv_demo_music")

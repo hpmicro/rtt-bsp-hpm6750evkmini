@@ -43,6 +43,7 @@
 
 #include "lwip/opt.h"
 #include "lwip/prot/iana.h"
+#include "lwip/altcp.h"
 
 /**
  * @defgroup httpd_opts Options

@@ -80,12 +80,6 @@
 
 /* Device virtual file system */
 
-#define RT_USING_DFS
-#define DFS_USING_WORKDIR
-#define DFS_FILESYSTEMS_MAX 4
-#define DFS_FILESYSTEM_TYPES_MAX 4
-#define DFS_FD_MAX 16
-#define RT_USING_DFS_DEVFS
 /* end of Device virtual file system */
 
 /* Device Drivers */
@@ -107,7 +101,6 @@
 /* POSIX layer and C standard library */
 
 #define RT_USING_LIBC
-#define RT_USING_POSIX
 #define RT_LIBC_USING_TIME
 #define RT_LIBC_DEFAULT_TIMEZONE 8
 /* end of POSIX layer and C standard library */

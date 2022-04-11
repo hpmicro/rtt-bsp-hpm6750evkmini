@@ -13,3 +13,4 @@ HPM6750EVKMINI 开板的 RT-Thread Studio 板级支持包
 - pwmbeep_demo
 - usb_device_generic_hid
 - uart_dma_demo
+- timer_demo

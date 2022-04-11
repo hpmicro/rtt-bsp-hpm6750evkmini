@@ -32,7 +32,7 @@
 	#define CFG_TUSB_OS                 OPT_OS_NONE
 #endif
 
- #define CFG_TUSB_DEBUG           1
+ #define CFG_TUSB_DEBUG					1
 
 /* USB DMA on some MCUs can only access a specific SRAM region with restriction on alignment.
  * Tinyusb use follows macros to declare transferring memory so that they can be put
@@ -42,7 +42,7 @@
  * - CFG_TUSB_MEM_ALIGN   : __attribute__ ((aligned(4)))
  */
 #ifndef CFG_TUSB_MEM_SECTION
-	#define CFG_TUSB_MEM_SECTION
+	#define CFG_TUSB_MEM_SECTION		__attribute__ ((section(".noncacheable")))
 #endif
 
 #ifndef CFG_TUSB_MEM_ALIGN
