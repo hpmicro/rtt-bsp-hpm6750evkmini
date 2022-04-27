@@ -809,7 +809,7 @@ uint32_t board_init_gptmr_clock(GPTMR_Type *ptr)
         clock_set_source_divider(clock_gptmr6, clk_src_pll1_clk1, 4);
         freq = clock_get_frequency(clock_gptmr6);
     }
-    else if (ptr == HPM_GPTMR6) {
+    else if (ptr == HPM_GPTMR7) {
         clock_add_to_group(clock_gptmr7, 0);
         clock_set_source_divider(clock_gptmr7, clk_src_pll1_clk1, 4);
         freq = clock_get_frequency(clock_gptmr7);

@@ -9,7 +9,7 @@ board:
   large_image: documents/images/board_large.png
   name: HPM6750EVKMINI
   price_cn: 298.00 CNY
-  price_global: 42.00 USD
+  price_global: 46.00 USD
   sale_contact_cn: http://www.hpmicro.com/
   sale_contact_global: http://www.hpmicro.com/
   small_image: documents/images/board_small.png
@@ -53,7 +53,7 @@ features_zh:
 - '板载蜂鸣器'
 pkg_type: Board_Support_Packages
 pkg_vendor: HPMicro
-pkg_version: 0.4.0
+pkg_version: 0.4.1
 
 template_projects:
 - project_name: blink_led

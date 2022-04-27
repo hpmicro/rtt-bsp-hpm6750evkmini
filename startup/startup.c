@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2021 - 2022 hpmicro
+ *
+ *
+ */
+
 #include "hpm_common.h"
 #include "hpm_soc.h"
 #include "hpm_l1c_drv.h"
@@ -66,7 +72,7 @@ __attribute__((weak)) void c_startup(void)
         *(__ramfunc_start__ + i) = *(__etext + (__data_end__ - __data_start__) + i);
     }
 
-    /* noncacheable init section LMA: etext + data length + ramfunc legnth */
+    /* noncacheable init section LMA: etext + data length + ramfunc length */
     size = __noncacheable_init_end__ - __noncacheable_init_start__;
     for (i = 0; i < size; i++) {
         *(__noncacheable_init_start__ + i) = *(__etext + (__data_end__ - __data_start__) + (__ramfunc_end__ - __ramfunc_start__) + i);
@@ -80,7 +86,10 @@ __attribute__((weak)) int main(void)
 
 void reset_handler(void)
 {
-
+    /**
+     * Disable preemptive interrupt
+     */
+    HPM_PLIC->FEATURE = 0;
     /*
      * Initialize LMA/VMA sections.
      * Relocation for any sections that need to be copied from LMA to VMA.

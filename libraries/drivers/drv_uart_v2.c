@@ -22,7 +22,7 @@
 #ifdef RT_USING_SERIAL_V2
 
 #ifdef RT_SERIAL_USING_DMA
-#ifndef BOARD_UART_DMA 
+#ifndef BOARD_UART_DMA
 #define BOARD_UART_DMA HPM_HDMA
 #define BOARD_UART_DMA_IRQ IRQn_HDMA
 #define BOARD_UART_DMAMUX  HPM_DMAMUX
@@ -69,6 +69,7 @@ static rt_err_t hpm_uart_control(struct rt_serial_device *serial, int cmd, void 
 static int hpm_uart_putc(struct rt_serial_device *serial, char ch);
 static int hpm_uart_getc(struct rt_serial_device *serial);
 
+#ifdef RT_SERIAL_USING_DMA
 int hpm_uart_dma_register_channel(struct rt_serial_device *serial,
                                                  uint32_t src,
                                                  uint32_t ch,
@@ -98,6 +99,7 @@ static void hpm_uart_dma_unregister_channel(uint32_t ch)
     dma_channels[ch].tranfer_error = RT_NULL;
     dmamux_disable_channel(BOARD_UART_DMAMUX, ch);
 }
+#endif /* RT_SERIAL_USING_DMA */
 
 #if defined(BSP_USING_UART0)
 struct rt_serial_device serial0;
@@ -150,7 +152,7 @@ SDK_DECLARE_EXT_ISR_M(IRQn_UART4,uart4_isr)
 
 
 #if defined(BSP_USING_UART5)
-struct rt_serial_device serial0;
+struct rt_serial_device serial5;
 void uart5_isr(void)
 {
     hpm_uart_isr(&serial5);
@@ -644,6 +646,7 @@ enum
 #endif
 };
 
+#ifdef RT_SERIAL_USING_DMA
 void dma_isr(void)
 {
     rt_interrupt_enter();
@@ -677,6 +680,7 @@ void dma_isr(void)
     rt_interrupt_leave();
 }
 SDK_DECLARE_EXT_ISR_M(BOARD_UART_DMA_IRQ, dma_isr)
+#endif
 
 
 static void uart_tx_done(struct rt_serial_device *serial)
@@ -693,8 +697,10 @@ static void uart_rx_done(struct rt_serial_device *serial)
         l1c_dc_invalidate((uint32_t)rx_fifo->buffer, serial->config.rx_bufsz);
     }
     rt_hw_serial_isr(serial, RT_SERIAL_EVENT_RX_DMADONE | (serial->config.rx_bufsz << 8));
+#ifdef RT_SERIAL_USING_DMA
     /* prepare for next read */
     hpm_uart_dma_config(serial, (void *)RT_DEVICE_FLAG_DMA_RX);
+#endif
 }
 
 /**
@@ -762,6 +768,7 @@ static rt_err_t hpm_uart_configure(struct rt_serial_device *serial, struct seria
     uart_config.baudrate = cfg->baud_rate;
     uart_config.num_of_stop_bits = cfg->stop_bits;
     uart_config.parity = cfg->parity;
+#ifdef RT_SERIAL_USING_DMA
     if (uart->dma_flags & (RT_DEVICE_FLAG_DMA_TX | RT_DEVICE_FLAG_DMA_RX)) {
         uart_config.fifo_enable = true;
         uart_config.dma_enable = true;
@@ -772,6 +779,7 @@ static rt_err_t hpm_uart_configure(struct rt_serial_device *serial, struct seria
             uart_config.rx_fifo_level = uart_rx_fifo_trg_not_empty;
         }
     }
+#endif
 
     uart_config.word_length = cfg->data_bits - DATA_BITS_5;
     uart_init(uart->uart_base, &uart_config);
@@ -831,16 +839,20 @@ static rt_err_t hpm_uart_control(struct rt_serial_device *serial, int cmd, void 
 
     if(ctrl_arg & (RT_DEVICE_FLAG_RX_BLOCKING | RT_DEVICE_FLAG_RX_NON_BLOCKING))
     {
+#ifdef RT_SERIAL_USING_DMA
         if (uart->dma_flags & RT_DEVICE_FLAG_DMA_RX)
             ctrl_arg = RT_DEVICE_FLAG_DMA_RX;
         else
+#endif
             ctrl_arg = RT_DEVICE_FLAG_INT_RX;
     }
     else if(ctrl_arg & (RT_DEVICE_FLAG_TX_BLOCKING | RT_DEVICE_FLAG_TX_NON_BLOCKING))
     {
+#ifdef RT_SERIAL_USING_DMA
         if (uart->dma_flags & RT_DEVICE_FLAG_DMA_TX)
             ctrl_arg = RT_DEVICE_FLAG_DMA_TX;
         else
+#endif
             ctrl_arg = RT_DEVICE_FLAG_INT_TX;
     }
 
@@ -880,18 +892,24 @@ static rt_err_t hpm_uart_control(struct rt_serial_device *serial, int cmd, void 
                 intc_m_enable_irq_with_priority(uart->irq_num, 1);
             }
             break;
-            
+
         case RT_DEVICE_CTRL_CONFIG:
+#ifdef RT_SERIAL_USING_DMA
             if (ctrl_arg & (RT_DEVICE_FLAG_DMA_RX | RT_DEVICE_FLAG_DMA_TX)) {
                 hpm_uart_dma_config(serial, (void *)ctrl_arg);
-            } else {
+            } else
+#endif
+            {
                 hpm_uart_control(serial, RT_DEVICE_CTRL_SET_INT, (void *)ctrl_arg);
             }
             break;
         case RT_DEVICE_CHECK_OPTMODE:
+#ifdef RT_SERIAL_USING_DMA
             if ((ctrl_arg & RT_DEVICE_FLAG_DMA_TX)) {
                 return RT_SERIAL_TX_BLOCKING_NO_BUFFER;
-            } else {
+            } else
+#endif
+            {
                 return RT_SERIAL_TX_BLOCKING_BUFFER;
             }
     }
@@ -928,13 +946,14 @@ static rt_size_t hpm_uart_transmit(struct rt_serial_device *serial,
     RT_ASSERT(size);
 
     struct hpm_uart *uart  = (struct hpm_uart *)serial->parent.user_data;
-
+#ifdef RT_SERIAL_USING_DMA
     if (uart->dma_flags & RT_DEVICE_FLAG_DMA_TX) {
         hpm_uart_dma_register_channel(serial, uart->tx_dma_source, uart->tx_dma_channel, uart_tx_done, RT_NULL, RT_NULL);
         intc_m_enable_irq(uart->tx_dma_irq);
         hpm_uart_transmit_dma(uart->tx_dma, uart->tx_dma_channel, uart->uart_base, buf, size);
         return size;
     }
+#endif
     hpm_uart_control(serial, RT_DEVICE_CTRL_CONFIG, (void *)tx_flag);
     return size;
 }
@@ -954,7 +973,9 @@ static int hpm_uart_config(void)
     struct serial_configure config = RT_SERIAL_CONFIG_DEFAULT;
 
 #ifdef BSP_USING_UART0
+#ifdef RT_SERIAL_USING_DMA
     uarts[HPM_UART0_INDEX].dma_flags = 0;
+#endif
     uarts[HPM_UART0_INDEX].serial->config = config;
     uarts[HPM_UART0_INDEX].serial->config.rx_bufsz = BSP_UART0_RX_BUFSIZE;
     uarts[HPM_UART0_INDEX].serial->config.tx_bufsz = BSP_UART0_TX_BUFSIZE;

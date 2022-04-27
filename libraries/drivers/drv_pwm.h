@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 hpm
+ * Copyright (c) 2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Change Logs:
  * Date         Author      Notes
- * 2022-01-11   hpm     First version
+ * 2022-01-11   HPMICRO     First version
  */
 #ifndef LIBRARIES_DRIVERS_DRV_PWM_H_
 #define LIBRARIES_DRIVERS_DRV_PWM_H_

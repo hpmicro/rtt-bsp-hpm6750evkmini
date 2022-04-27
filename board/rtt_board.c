@@ -82,6 +82,9 @@ void rt_hw_board_init(void)
 {
     rtt_board_init();
 
+    /* initialize memory system */
+    rt_system_heap_init(RT_HW_HEAP_BEGIN, RT_HW_HEAP_END);
+
     /* Configure the OS Tick */
     os_tick_config();
 
@@ -116,9 +119,6 @@ void rt_hw_board_init(void)
 #endif
 
     rt_console_set_device(RT_CONSOLE_DEVICE_NAME);
-
-    /* initialize memory system */
-    rt_system_heap_init(RT_HW_HEAP_BEGIN, RT_HW_HEAP_END);
 }
 
 void rt_hw_console_output(const char *str)

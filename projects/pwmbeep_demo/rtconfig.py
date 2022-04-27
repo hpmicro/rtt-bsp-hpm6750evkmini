@@ -26,7 +26,7 @@ else:
 
 
 
-BUILD = 'flash_xip_debug'
+BUILD = 'flash_debug'
 
 if PLATFORM == 'gcc':
     PREFIX = 'riscv64-unknown-elf-'
@@ -61,18 +61,18 @@ if PLATFORM == 'gcc':
         CFLAGS += ' -O2 -Os'
         LFLAGS += ' -O2 -Os'
         LINKER_FILE = 'board/linker_scripts/ram_rtt.ld'
-    elif BUILD == 'flash_xip_debug':
+    elif BUILD == 'flash_debug':
         CFLAGS += ' -gdwarf-2'
         AFLAGS += ' -gdwarf-2'
         CFLAGS += ' -O0'
         LFLAGS += ' -O0'
         CFLAGS += ' -DFLASH_XIP=1'
-        LINKER_FILE = 'board/linker_scripts/flash_xip_rtt.ld'
-    elif BUILD == 'flash_xip_release':
+        LINKER_FILE = 'board/linker_scripts/flash_rtt.ld'
+    elif BUILD == 'flash_release':
         CFLAGS += ' -O2 -Os'
         LFLAGS += ' -O2 -Os'
         CFLAGS += ' -DFLASH_XIP=1'
-        LINKER_FILE = 'board/linker_scripts/flash_xip_rtt.ld'
+        LINKER_FILE = 'board/linker_scripts/flash_rtt.ld'
     else:
         CFLAGS += ' -O2 -Os'
         LFLAGS += ' -O2 -Os'

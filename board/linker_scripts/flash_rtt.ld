@@ -7,37 +7,84 @@ ENTRY(_start)
 
 STACK_SIZE = DEFINED(_stack_size) ? _stack_size : 0x4000;
 HEAP_SIZE = DEFINED(_heap_size) ? _heap_size : 1M;
+FLASH_SIZE = DEFINED(_flash_size) ? _flash_size : 16M;
 SDRAM_SIZE = DEFINED(_sdram_size) ? _sdram_size : 16M;
 NONCACHEABLE_SIZE = DEFINED(_noncacheable_size) ? _noncacheable_size : 4M;
 
 MEMORY
 {
+    XPI0 (rx) : ORIGIN = 0x80000000, LENGTH = FLASH_SIZE
     ILM (wx) : ORIGIN = 0, LENGTH = 256K
     DLM (w) : ORIGIN = 0x80000, LENGTH = 256K
-    /* It's alias address of core0 ILM+DLM, but accessing via system bus */
-    CORE0_LM_SLV (wx) : ORIGIN = 0x1000000, LENGTH = 512K
-    /* It's alias address of core1 ILM+DLM, but accessing via system bus */
-    CORE1_LM_SLV (wx) : ORIGIN = 0x1180000, LENGTH = 512K
     AXI_SRAM (wx) : ORIGIN = 0x1080000, LENGTH = 1536K
     SDRAM (wx) : ORIGIN = 0x40000000, LENGTH = SDRAM_SIZE - NONCACHEABLE_SIZE
-    NONCACHEABLE (wx) : ORIGIN = 0x40000000 + SDRAM_SIZE - NONCACHEABLE_SIZE, LENGTH = NONCACHEABLE_SIZE
+    SDRAM_NONCACHEABLE (wx) : ORIGIN = 0x40000000 + SDRAM_SIZE - NONCACHEABLE_SIZE, LENGTH = NONCACHEABLE_SIZE
 }
+
+__nor_cfg_option_load_addr__ = ORIGIN(XPI0) + 0x400;
+__boot_header_load_addr__ = ORIGIN(XPI0) + 0x1000;
+__app_load_addr__ = ORIGIN(XPI0) + 0x3000;
+__boot_header_length__ = __boot_header_end__ - __boot_header_start__;
+__app_offset__ = __app_load_addr__ - __boot_header_load_addr__;
 
 SECTIONS
 {
-    .vectors : {
-        . = ALIGN(8);
-        KEEP(*(.isr_vector))
-        KEEP(*(.vector_table))
-        . = ALIGN(8);
-    } > AXI_SRAM
+    .nor_cfg_option __nor_cfg_option_load_addr__ : {
+        KEEP(*(.nor_cfg_option))
+    } > XPI0
 
-    .start : {
+    .boot_header __boot_header_load_addr__ : {
+        __boot_header_start__ = .;
+        KEEP(*(.boot_header))
+        KEEP(*(.fw_info_table))
+        KEEP(*(.dc_info))
+        __boot_header_end__ = .;
+    } > XPI0
+
+    .start __app_load_addr__ : {
         . = ALIGN(8);
         KEEP(*(.start))
+    } > XPI0
+
+    __vector_load_addr__ = ADDR(.start) + SIZEOF(.start);
+    .vectors : AT(__vector_load_addr__) {
+        . = ALIGN(8);
+        __vector_ram_start__ = .;
+        KEEP(*(.vector_table))
+        KEEP(*(.isr_vector))
+
+        . = ALIGN(8);
+        __vector_ram_end__ = .;
     } > AXI_SRAM
 
-    .text : {
+    .fast : AT(etext + __data_end__ - __data_start__) {
+        . = ALIGN(8);
+        __ramfunc_start__ = .;
+        *(.fast)
+
+        /* RT-Thread Core Start */
+        KEEP(*context_gcc.o(.text* .rodata*))
+        KEEP(*cpuport.o (.text .text* .rodata .rodata*))
+        KEEP(*trap_entry.o (.text .text* .rodata .rodata*))
+        KEEP(*irq.o (.text .text* .rodata .rodata*))
+        KEEP(*clock.o (.text .text* .rodata .rodata*))
+        KEEP(*kservice.o (.text .text* .rodata .rodata*))
+        KEEP(*scheduler.o (.text .text* .rodata .rodata*))
+        KEEP(*trap.o (.text .text* .rodata .rodata*))
+        KEEP(*idle.o (.text .text* .rodata .rodata*))
+        KEEP(*ipc.o (.text .text* .rodata .rodata*))
+        KEEP(*thread.o (.text .text* .rodata .rodata*))
+		KEEP(*object.o (.text .text* .rodata .rodata*))
+        KEEP(*timer.o (.text .text* .rodata .rodata*))
+        KEEP(*mem.o (.text .text* .rodata .rodata*))
+        KEEP(*mempool.o (.text .text* .rodata .rodata*))
+        /* RT-Thread Core End */
+
+        . = ALIGN(8);
+        __ramfunc_end__ = .;
+    } > AXI_SRAM
+
+    .text (__vector_load_addr__ + __vector_ram_end__ - __vector_ram_start__) : {
         . = ALIGN(8);
         *(.text)
         *(.text*)
@@ -50,7 +97,6 @@ SECTIONS
         *(.dyn*)
         *(.gnu*)
         *(.pl*)
-        *(FalPartTable)
 
         KEEP(*(.eh_frame))
         *(.eh_frame*)
@@ -89,15 +135,15 @@ SECTIONS
 
         /* RT-Thread related sections - end */
 
-        PROVIDE (__etext = .);
-        PROVIDE (_etext = .);
-        PROVIDE (etext = .);
-    } > AXI_SRAM
+    } > XPI0
 
     .rel : {
         KEEP(*(.rel*))
-    } > AXI_SRAM
+    } > XPI0
 
+    PROVIDE (__etext = .);
+    PROVIDE (_etext = .);
+    PROVIDE (etext = .);
 
     .data : AT(etext) {
         . = ALIGN(8);
@@ -114,8 +160,8 @@ SECTIONS
         KEEP(*(.dynamic))
         KEEP(*(.got*))
         KEEP(*(.got))
-        KEEP(*(.gcc_execpt_table))
-        KEEP(*(.gcc_execpt_table.*))
+        KEEP(*(.gcc_except_table))
+        KEEP(*(.gcc_except_table.*))
 
         . = ALIGN(8);
         PROVIDE(__preinit_array_start = .);
@@ -145,22 +191,14 @@ SECTIONS
         KEEP(*(EXCLUDE_FILE (*crtend*.o) .dtors))
         KEEP(*(SORT(.dtors.*)))
         KEEP(*(.dtors))
-
         . = ALIGN(8);
         __data_end__ = .;
         PROVIDE (__edata = .);
         PROVIDE (_edata = .);
         PROVIDE (edata = .);
-    } > DLM
+    } > SDRAM
+    __fw_size__ = __data_end__ - __data_start__ + etext - __app_load_addr__;
 
-    .fast : AT(etext + __data_end__ - __data_start__) {
-        . = ALIGN(8);
-        PROVIDE(__ramfunc_start__ = .);
-        *(.fast)
-        . = ALIGN(8);
-        PROVIDE(__ramfunc_end__ = .);
-    } > AXI_SRAM
-    
     .noncacheable : AT(etext + __data_end__ - __data_start__ + __ramfunc_end__ - __ramfunc_start__){
         . = ALIGN(8);
         __noncacheable_init_start__ = .;
@@ -171,9 +209,7 @@ SECTIONS
         KEEP(*(.noncacheable.bss))
         __noncacheable_bss_end__ = .;
         . = ALIGN(8);
-    } > NONCACHEABLE
-    __noncacheable_start__ = ORIGIN(NONCACHEABLE);
-    __noncacheable_end__ = ORIGIN(NONCACHEABLE) + LENGTH(NONCACHEABLE);
+    } > SDRAM_NONCACHEABLE
 
     .bss : {
         . = ALIGN(8);
@@ -190,25 +226,30 @@ SECTIONS
         . = ALIGN(8);
         _end = .;
         __bss_end__ = .;
-    } > DLM
-
-    .stack : {
-        . = ALIGN(8);
-        __stack_base__ = .;
-        . += STACK_SIZE;
-        PROVIDE (_stack = .);
-        PROVIDE (_stack_in_dlm = .);
-    } > DLM
-
-    .framebuffer (NOLOAD) : {
-        KEEP(*(.framebuffer))
-    } > SDRAM
+    } > AXI_SRAM
 
     .heap : {
         . = ALIGN(8);
         __heap_start__ = .;
         . += HEAP_SIZE;
         __heap_end__ = .;
-
     } > SDRAM
+
+    .framebuffer (NOLOAD) : {
+        . = ALIGN(8);
+        KEEP(*(.framebuffer))
+        . = ALIGN(8);
+    } > SDRAM
+
+    .stack : {
+        . = ALIGN(8);
+        __stack_base__ = .;
+        . += STACK_SIZE;
+        . = ALIGN(8);
+        PROVIDE (_stack = .);
+        PROVIDE (_stack_in_dlm = .);
+    } > AXI_SRAM
+
+    __noncacheable_start__ = ORIGIN(SDRAM_NONCACHEABLE);
+    __noncacheable_end__ = ORIGIN(SDRAM_NONCACHEABLE) + LENGTH(SDRAM_NONCACHEABLE);
 }

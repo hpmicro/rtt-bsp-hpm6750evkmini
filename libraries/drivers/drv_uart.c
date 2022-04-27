@@ -87,7 +87,7 @@ SDK_DECLARE_EXT_ISR_M(IRQn_UART4,uart4_isr)
 
 
 #if defined(BSP_USING_UART5)
-struct rt_serial_device serial0;
+struct rt_serial_device serial5;
 void uart5_isr(void)
 {
     hpm_uart_isr(&serial5);

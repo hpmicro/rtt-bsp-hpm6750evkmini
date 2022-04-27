@@ -6,7 +6,7 @@
  * Change Logs:
  * Date           Author       Notes
  * 2021-06-01     KyleChan     first version
- * 2021-03-15     HPMicro      Added buffer managment according to cacheline size
+ * 2021-03-15     HPMicro      Added buffer management according to cache-line size
  */
 
 #include <rthw.h>
@@ -16,6 +16,10 @@
 #define DBG_TAG    "UART"
 #define DBG_LVL    DBG_INFO
 #include <rtdbg.h>
+
+#ifndef SOC_CACHELINE_ALIGN_SIZE
+#define SOC_CACHELINE_ALIGN_SIZE 64
+#endif
 
 #ifdef RT_USING_POSIX
 #include <dfs_posix.h>
@@ -28,10 +32,6 @@
 
 #ifdef putc
 #undef putc
-#endif
-
-#ifndef SOC_CACHELINE_ALIGN_SIZE
-#define SOC_CACHELINE_ALIGN_SIZE 64
 #endif
 
 static rt_err_t serial_fops_rx_ind(rt_device_t dev, rt_size_t size)
@@ -982,7 +982,7 @@ static rt_err_t rt_serial_close(struct rt_device *dev)
     /* Disable serial receive mode. */
     rt_serial_rx_disable(dev, dev->open_flag &
                         (RT_SERIAL_RX_BLOCKING | RT_SERIAL_RX_NON_BLOCKING));
-    /* Disable serial tranmit mode. */
+    /* Disable serial transmit mode. */
     rt_serial_tx_disable(dev, dev->open_flag &
                         (RT_SERIAL_TX_BLOCKING | RT_SERIAL_TX_NON_BLOCKING));
 
