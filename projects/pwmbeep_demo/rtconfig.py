@@ -3,9 +3,11 @@ import sys
 
 # toolchains options
 ARCH='risc-v'
-CPU='d45'
+CPU='hpmicro'
+CHIP_NAME='HPM6750'
 
 CROSS_TOOL='gcc'
+
 
 # bsp lib config
 BSP_LIBRARY_TYPE = None

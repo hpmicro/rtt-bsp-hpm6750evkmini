@@ -1,5 +1,16 @@
 # Change Log
 
+## v0.5.0
+- Integrated the SDK v0.10.0 release
+  - Note:
+    - The docs folder in SDK root directory were removed
+- Updated
+  - Upgraded toolchain to GCC 11.1.0
+- Added examples:
+  - can_example
+  - ethernet_ptp_master_demo
+  - ethernet_ptp_slave_demo
+
 ## v0.4.1
 - Updated
     - Added ram_debug for each demo

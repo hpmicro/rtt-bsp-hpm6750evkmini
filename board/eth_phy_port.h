@@ -92,7 +92,8 @@ typedef struct {
 
 /* PHY0 register index */
 #define PHY0_BASIC_STATUS_REG_IDX (1U)
-#define PHY0_STATUS_REG_IDX (7U)
+#define PHY0_ID1_REG_IDX          (2U)
+#define PHY0_STATUS_REG_IDX       (7U)
 
 /* PHY1 register list */
 #define PHY1_REG_LIST  PHY_BASIC_CONTROL_REG,\
@@ -105,7 +106,8 @@ typedef struct {
                        PHY_STATUS_REG
 
 /* PHY1 register index */
-#define PHY1_BASIC_STATUS_REG_IDX (1U)
-#define PHY1_STATUS_REG_IDX (7U)
+#define PHY_BASIC_STATUS_REG_IDX (1U)
+#define PHY_ID1_REG_IDX          (2U)
+#define PHY_STATUS_REG_IDX       (7U)
 
 #endif

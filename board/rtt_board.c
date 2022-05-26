@@ -22,6 +22,7 @@
 #include "drv_pwm.h"
 #include "drv_wdt.h"
 #include "drv_hwtimer.h"
+#include "drv_can.h"
 
 void os_tick_config(void);
 
@@ -116,6 +117,11 @@ void rt_hw_board_init(void)
 #ifdef BSP_USING_GPTMR
     /* Initialize GPTMR device */
     rt_hw_hwtimer_init();
+#endif
+
+#ifdef BSP_USING_CAN
+    /* Initialize CAN device */
+    rt_hw_can_init();
 #endif
 
     rt_console_set_device(RT_CONSOLE_DEVICE_NAME);

@@ -1,0 +1,8 @@
+.gitattributes export-ignore
+.gitignore export-ignore
+.gitmodules export-ignore
+
+common/.gitattributes export-ignore
+common/.gitignore export-ignore
+common/README.md export-ignore
+common/README_zh.md export-ignore

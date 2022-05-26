@@ -1,4 +1,17 @@
-# 更新日志
+# 更新
+
+## v0.5.0
+
+- 整合了SDK v0.10.0
+  - 注：
+    - SDK根目录下的doc目录被删除
+- 更新：
+  - Tolchain升级到GCC 11.1.0
+- 增加了如下示例：
+  - can_example
+  - ethernet_ptp_master_demo
+  - ethernet_ptp_slave_demo
+
 
 ## v0.4.1
 - 更新

@@ -260,7 +260,7 @@ void board_timer_create(uint32_t ms, void *cb)
 
     config.reload = gptmr_freq / 1000 * ms;
     gptmr_channel_config(BOARD_CALLBACK_TIMER, BOARD_CALLBACK_TIMER_CH, &config, false);
-    gptmr_enable_irq(BOARD_CALLBACK_TIMER, GPTMR_CH_RLD_IRQ_MASK(BOARD_CALLBACK_TIMER_CH), true);
+    gptmr_enable_irq(BOARD_CALLBACK_TIMER, GPTMR_CH_RLD_IRQ_MASK(BOARD_CALLBACK_TIMER_CH));
     intc_m_enable_irq_with_priority(BOARD_CALLBACK_TIMER_IRQ, 1);
 
     gptmr_start_counter(BOARD_CALLBACK_TIMER, BOARD_CALLBACK_TIMER_CH);

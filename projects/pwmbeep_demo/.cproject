@@ -64,7 +64,7 @@
                   <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/components/drivers/include}&quot;" />
                   <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/components/finsh}&quot;" />
                   <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/include}&quot;" />
-                  <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/libcpu/risc-v/d45}&quot;" />
+                  <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/libcpu/risc-v/hpmicro}&quot;" />
                   <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/libcpu/risc-v/common}&quot;" />
                 </option>
                 <option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.assembler.other.651906394" name="Other assembler flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.assembler.other" useByScannerDiscovery="false" value="-ffunction-sections -fdata-sections -fno-common -ggdb -march=rv32imac -mabi=ilp32 -mcmodel=medany -DHAVE_CCONFIG_H -D_REENT_SMALL -DDOWNLOAD_MODE=DOWNLOAD_MODE_FLASHXIP -DRTOS_RTTHREAD -DRT_USING_NEWLIB -I. -Iapplications -Iboard -Irt-thread\include -Irt-thread\components\dfs\include -Irt-thread\components\dfs\filesystems\devfs -Irt-thread\components\drivers\include -Irt-thread\components\finsh -c " valueType="string" />
@@ -90,7 +90,7 @@
                   <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/components/libc/compilers/common}&quot;" />
                   <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/components/libc/compilers/gcc/newlib}&quot;" />
                   <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/include}&quot;" />
-                  <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/libcpu/risc-v/d45}&quot;" />
+                  <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/libcpu/risc-v/hpmicro}&quot;" />
                   <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//startup}&quot;" />
                 </option>
                 <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.defs.1133181116" name="Defined symbols (-D)" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
@@ -215,7 +215,7 @@
                   <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/components/drivers/include}&quot;" />
                   <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/components/finsh}&quot;" />
                   <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/include}&quot;" />
-                  <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/libcpu/risc-v/d45}&quot;" />
+                  <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/libcpu/risc-v/hpmicro}&quot;" />
                   <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/libcpu/risc-v/common}&quot;" />
                 </option>
                 <option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.assembler.other.997146109" name="Other assembler flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.assembler.other" useByScannerDiscovery="false" value="-ffunction-sections -fdata-sections -fno-common -ggdb -march=rv32imac -mabi=ilp32 -mcmodel=medany -DHAVE_CCONFIG_H -D_REENT_SMALL -DDOWNLOAD_MODE=DOWNLOAD_MODE_FLASHXIP -DRTOS_RTTHREAD -DRT_USING_NEWLIB -I. -Iapplications -Iboard -Irt-thread\include -Irt-thread\components\dfs\include -Irt-thread\components\dfs\filesystems\devfs -Irt-thread\components\drivers\include -Irt-thread\components\finsh -c " valueType="string" />
@@ -241,7 +241,7 @@
                   <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/components/libc/compilers/common}&quot;" />
                   <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/components/libc/compilers/gcc/newlib}&quot;" />
                   <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/include}&quot;" />
-                  <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/libcpu/risc-v/d45}&quot;" />
+                  <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//rt-thread/libcpu/risc-v/hpmicro}&quot;" />
                   <listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}//startup}&quot;" />
                 </option>
                 <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.defs.382104782" name="Defined symbols (-D)" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">

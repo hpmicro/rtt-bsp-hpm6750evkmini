@@ -164,7 +164,7 @@
 #define BOARD_ENET1_INF             enet_inf_rmii
 #define BOARD_ENET1_INT_REF_CLK     (0U)
 #define BOARD_ENET1_PHY_RST_TIME    (30)
-
+#define BOARD_ENET1_PTP_CLOCK       (clock_ptp1)
 /* adc section */
 #define BOARD_APP_ADC12_BASE HPM_ADC0
 #define BOARD_APP_ADC16_BASE HPM_ADC3

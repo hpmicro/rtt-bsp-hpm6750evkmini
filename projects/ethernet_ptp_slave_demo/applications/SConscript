@@ -1,0 +1,26 @@
+import rtconfig
+
+from building import *
+
+cwd = GetCurrentDir()
+
+path = [ cwd + '/ptpd/src', cwd + '/ptpd/src/dep']
+
+CPPDEFINES=[]
+
+src = ['main.c']
+src += ['ptpd/src/arith.c',
+        'ptpd/src/bmc.c',
+        'ptpd/src/protocol.c',
+        'ptpd/src/ptpd.c',
+        'ptpd/src/dep/msg.c',
+        'ptpd/src/dep/net.c',
+        'ptpd/src/dep/servo.c',
+        'ptpd/src/dep/startup.c',
+        'ptpd/src/dep/sys.c',
+        'ptpd/src/dep/timer.c'
+        ]
+
+group = DefineGroup('Applications', src, depend = [''], CPPPATH = path, CPPDEFINES=CPPDEFINES)
+
+Return('group')

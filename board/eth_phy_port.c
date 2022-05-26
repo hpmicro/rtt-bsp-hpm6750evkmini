@@ -83,7 +83,7 @@ static uint8_t *s_gphy_reg_list[] =
 phy0_reg_list,
 #endif
 
-#ifdef BSP_USING_ETH0
+#ifdef BSP_USING_ETH1
 phy1_reg_list,
 #endif
 };
@@ -119,7 +119,7 @@ static rt_phy_status phy_get_link_status(rt_phy_t *phy, rt_bool_t *status)
 {
     uint16_t reg_status;
 
-    reg_status = enet_read_phy(phy->bus->hw_obj, phy->addr, ((uint8_t *)phy->parent.user_data)[PHY1_BASIC_STATUS_REG_IDX]);
+    reg_status = enet_read_phy(phy->bus->hw_obj, phy->addr, phy->reg_list[PHY_BASIC_STATUS_REG_IDX]);
 
     #if PHY_AUTO_NEGO
         reg_status &= PHY_AUTONEGO_COMPLETE_MASK | PHY_LINKED_STATUS_MASK;
@@ -137,7 +137,7 @@ static rt_phy_status phy_get_link_speed_duplex(rt_phy_t *phy, rt_uint32_t *speed
 {
     uint16_t reg_status;
 
-    reg_status = enet_read_phy(phy->bus->hw_obj, phy->addr, ((uint8_t *)phy->parent.user_data)[PHY1_STATUS_REG_IDX]);
+    reg_status = enet_read_phy(phy->bus->hw_obj, phy->addr, phy->reg_list[PHY_STATUS_REG_IDX]);
 
     *speed = PHY_STATUS_SPEED_100M(reg_status) ? PHY_SPEED_100M : PHY_SPEED_10M;
     *duplex = PHY_STATUS_FULL_DUPLEX(reg_status) ? PHY_FULL_DUPLEX: PHY_HALF_DUPLEX;
@@ -193,10 +193,11 @@ static void phy_poll_status(void *parameter)
 static void phy_detection(void *parameter)
 {
     uint8_t detected_count = 0;
-    struct rt_phy_msg msg = {PHY_ID1_REG, 0};
+    struct rt_phy_msg msg = {0, 0};
     phy_device_t *phy_dev = (phy_device_t *)parameter;
     rt_uint32_t i;
 
+    msg.reg = phy_dev->phy.reg_list[PHY_ID1_REG_IDX];
     phy_dev->phy.ops->init(phy_dev->phy.bus->hw_obj, phy_dev->phy.addr, PHY_MDIO_CSR_CLK_FREQ);
 
     while(phy_dev->phy.addr == 0xffff)
@@ -205,6 +206,7 @@ static void phy_detection(void *parameter)
         for (i = 0; i <= 0x1f; i++)
         {
             ((rt_phy_t *)(phy_dev->phy.parent.user_data))->addr = i;
+
             phy_dev->phy.parent.read(&(phy_dev->phy.parent), 0, &msg, 1);
 
             if (msg.value == PHY_ID1)
@@ -270,7 +272,8 @@ int phy_device_register(void)
         s_gphys[i]->phy_dev->phy.ops     = &phy_ops;
 
         /* Set PHY register list */
-        s_gphys[i]->phy_dev->phy.parent.user_data = s_gphy_reg_list[i];
+        s_gphys[i]->phy_dev->phy.reg_list = s_gphy_reg_list[i];
+
         rt_hw_phy_register(&s_gphys[i]->phy_dev->phy, PHY_NAME);
     }
 

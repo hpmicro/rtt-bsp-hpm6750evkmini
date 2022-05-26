@@ -36,6 +36,9 @@
 #define RW007_SPI_BUS_NAME                    "spi1"
 
 
+/* CAN section */
+#define BOARD_CAN_NAME                        "can1"
+
 /***************************************************************
  *
  * RT-Thread related definitions
