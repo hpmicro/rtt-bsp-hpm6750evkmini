@@ -5,6 +5,14 @@
  *
  */
 
+/*
+ * Note:
+ *   PY and PZ IOs: if any SOC pin function needs to be routed to these IOs,
+ *  besides of IOC, PIOC/BIOC needs to be configured SOC_GPIO_X_xx, so that
+ *  expected SoC function can be enabled on these IOs.
+ *
+ */
+
 #include "board.h"
 
 void init_uart_pins(UART_Type *ptr)
@@ -12,6 +20,7 @@ void init_uart_pins(UART_Type *ptr)
     if (ptr == HPM_UART0) {
         HPM_IOC->PAD[IOC_PAD_PY07].FUNC_CTL = IOC_PY07_FUNC_CTL_UART0_RXD;
         HPM_IOC->PAD[IOC_PAD_PY06].FUNC_CTL = IOC_PY06_FUNC_CTL_UART0_TXD;
+        /* PY port IO needs to configure PIOC as well */
         HPM_PIOC->PAD[IOC_PAD_PY07].FUNC_CTL = IOC_PY06_FUNC_CTL_SOC_PY_06;
         HPM_PIOC->PAD[IOC_PAD_PY06].FUNC_CTL = IOC_PY07_FUNC_CTL_SOC_PY_07;
     } else if (ptr == HPM_UART2) {
@@ -20,6 +29,7 @@ void init_uart_pins(UART_Type *ptr)
     } else if (ptr == HPM_UART13) {
         HPM_IOC->PAD[IOC_PAD_PZ08].FUNC_CTL = IOC_PZ08_FUNC_CTL_UART13_RXD;
         HPM_IOC->PAD[IOC_PAD_PZ09].FUNC_CTL = IOC_PZ09_FUNC_CTL_UART13_TXD;
+        /* PZ port IO needs to configure BIOC as well */
         HPM_BIOC->PAD[IOC_PAD_PZ08].FUNC_CTL = IOC_PZ08_FUNC_CTL_SOC_PZ_08;
         HPM_BIOC->PAD[IOC_PAD_PZ09].FUNC_CTL = IOC_PZ09_FUNC_CTL_SOC_PZ_09;
     }
@@ -83,8 +93,9 @@ void init_i2c_pins_as_gpio(I2C_Type *ptr)
     if (ptr == HPM_I2C0) {
         /* I2C0 */
         HPM_IOC->PAD[IOC_PAD_PZ11].FUNC_CTL = IOC_PZ11_FUNC_CTL_GPIO_Z_11;
-        HPM_BIOC->PAD[IOC_PAD_PZ11].FUNC_CTL = 3;
         HPM_IOC->PAD[IOC_PAD_PZ10].FUNC_CTL = IOC_PZ10_FUNC_CTL_GPIO_Z_10;
+        /* PZ port IO needs to configure BIOC as well */
+        HPM_BIOC->PAD[IOC_PAD_PZ11].FUNC_CTL = 3;
         HPM_BIOC->PAD[IOC_PAD_PZ10].FUNC_CTL = 3;
     } else {
         while(1);
@@ -98,6 +109,7 @@ void init_i2c_pins(I2C_Type *ptr)
                                             | IOC_PAD_FUNC_CTL_LOOP_BACK_MASK;
         HPM_IOC->PAD[IOC_PAD_PZ10].FUNC_CTL = IOC_PB10_FUNC_CTL_I2C0_SDA
                                             | IOC_PAD_FUNC_CTL_LOOP_BACK_MASK;
+        /* PZ port IO needs to configure BIOC as well */
         HPM_BIOC->PAD[IOC_PAD_PZ11].FUNC_CTL = 3;
         HPM_BIOC->PAD[IOC_PAD_PZ10].FUNC_CTL = 3;
         HPM_IOC->PAD[IOC_PAD_PZ11].PAD_CTL = IOC_PAD_PAD_CTL_OD_MASK;
@@ -180,6 +192,7 @@ void init_gpio_pins(void)
 #ifdef USING_GPIO0_FOR_GPIOZ
     HPM_IOC->PAD[IOC_PAD_PZ02].FUNC_CTL = IOC_PZ02_FUNC_CTL_GPIO_Z_02;
     HPM_IOC->PAD[IOC_PAD_PZ02].PAD_CTL = pad_ctl;
+    /* PZ port IO needs to configure BIOC as well */
     HPM_BIOC->PAD[IOC_PAD_PZ02].FUNC_CTL = IOC_PZ02_FUNC_CTL_SOC_PZ_02;
 #endif
 }
@@ -239,16 +252,18 @@ void init_i2s_pins(I2S_Type *ptr)
 void init_dao_pins(void)
 {
     HPM_IOC->PAD[IOC_PAD_PY08].FUNC_CTL = IOC_PY08_FUNC_CTL_DAOR_P;
-    HPM_PIOC->PAD[IOC_PAD_PY08].FUNC_CTL = IOC_PY08_FUNC_CTL_SOC_PY_08;
     HPM_IOC->PAD[IOC_PAD_PY09].FUNC_CTL = IOC_PY09_FUNC_CTL_DAOR_N;
+    /* PY port IO needs to configure PIOC */
+    HPM_PIOC->PAD[IOC_PAD_PY08].FUNC_CTL = IOC_PY08_FUNC_CTL_SOC_PY_08;
     HPM_PIOC->PAD[IOC_PAD_PY09].FUNC_CTL = IOC_PY09_FUNC_CTL_SOC_PY_09;
 }
 
 void init_pdm_pins(void)
 {
     HPM_IOC->PAD[IOC_PAD_PY10].FUNC_CTL = IOC_PY10_FUNC_CTL_PDM0_CLK;
-    HPM_PIOC->PAD[IOC_PAD_PY10].FUNC_CTL = IOC_PY10_FUNC_CTL_SOC_PY_10;
     HPM_IOC->PAD[IOC_PAD_PY11].FUNC_CTL = IOC_PY11_FUNC_CTL_PDM0_D_0;
+    /* PY port IO needs to configure PIOC */
+    HPM_PIOC->PAD[IOC_PAD_PY10].FUNC_CTL = IOC_PY10_FUNC_CTL_SOC_PY_10;
     HPM_PIOC->PAD[IOC_PAD_PY11].FUNC_CTL = IOC_PY11_FUNC_CTL_SOC_PY_11;
 }
 
@@ -260,10 +275,10 @@ void init_vad_pins(void)
 
 void init_cam_pins(void)
 {
-#ifdef CAMREA_RESET_PWDN_CONFIGURABLE
-    HPM_IOC->PAD[IOC_PAD_PX08].FUNC_CTL = IOC_PX08_FUNC_CTL_GPIO_X_08;
-    HPM_IOC->PAD[IOC_PAD_PX09].FUNC_CTL = IOC_PX09_FUNC_CTL_GPIO_X_09;
-#endif
+    /* configure rst pin function */
+    HPM_IOC->PAD[IOC_PAD_PY05].FUNC_CTL = IOC_PY05_FUNC_CTL_GPIO_Y_05;
+    /* PY port IO needs to configure PIOC */
+    HPM_PIOC->PAD[IOC_PAD_PY05].FUNC_CTL = IOC_PY05_FUNC_CTL_SOC_PY_05;
 
     HPM_IOC->PAD[IOC_PAD_PA10].FUNC_CTL = IOC_PA10_FUNC_CTL_CAM0_XCLK;
     HPM_IOC->PAD[IOC_PAD_PA11].FUNC_CTL = IOC_PA11_FUNC_CTL_CAM0_PIXCLK;

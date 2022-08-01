@@ -39,13 +39,13 @@ hpm_stat_t touch_get_data(touch_point_t *points, uint8_t *num_of_points)
 
 void pull_int_pin(bool high)
 {
-    gpio_enable_pin_output(BOARD_CAP_INTR_GPIO, BOARD_CAP_INTR_GPIO_INDEX, BOARD_CAP_INTR_GPIO_PIN);
+    gpio_set_pin_output(BOARD_CAP_INTR_GPIO, BOARD_CAP_INTR_GPIO_INDEX, BOARD_CAP_INTR_GPIO_PIN);
     gpio_write_pin(BOARD_CAP_INTR_GPIO, BOARD_CAP_INTR_GPIO_INDEX, BOARD_CAP_INTR_GPIO_PIN, 1);
 }
 
 void float_int_pin(void)
 {
-    gpio_disable_pin_output(BOARD_CAP_INTR_GPIO, BOARD_CAP_INTR_GPIO_INDEX, BOARD_CAP_INTR_GPIO_PIN);
+    gpio_set_pin_input(BOARD_CAP_INTR_GPIO, BOARD_CAP_INTR_GPIO_INDEX, BOARD_CAP_INTR_GPIO_PIN);
 }
 
 hpm_stat_t touch_init(I2C_Type *i2c_ptr)

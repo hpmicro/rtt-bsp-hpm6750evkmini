@@ -29508,7 +29508,7 @@
     </Register>
     <Register name="MODCTRL" start="+0x4" size="0x4">
       <BitField name="AESALG" start="28" size="4"/>
-      <BitField name="ASEMOD" start="24" size="4"/>
+      <BitField name="AESMOD" start="24" size="4"/>
       <BitField name="AESKS" start="18" size="6"/>
       <BitField name="RESERVED" start="17" size="1"/>
       <BitField name="AESDIR" start="16" size="1"/>
@@ -42087,6 +42087,14 @@
       <BitField name="VBG_1P0" start="16" size="5"/>
       <BitField name="VBG_P65" start="8" size="5"/>
       <BitField name="VBG_P50" start="0" size="5"/>
+    </Register>
+    <Register name="LDO_CFG" start="+0x4" size="0x4">
+      <BitField name="RES_TRIM" start="24" size="2"/>
+      <BitField name="CP_TRIM" start="20" size="2"/>
+      <BitField name="EN_SL" start="18" size="1"/>
+      <BitField name="DIS_PD" start="17" size="1"/>
+      <BitField name="ENABLE" start="16" size="1"/>
+      <BitField name="VOLT" start="0" size="12"/>
     </Register>
     <Register name="IRC32K_CFG" start="+0x8" size="0x4">
       <BitField name="IRC_TRIMMED" start="31" size="1"/>

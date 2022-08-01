@@ -176,6 +176,15 @@ START_FUNC _start
         csrw    mstatus, zero
         csrw    mcause, zero
 
+#ifdef __riscv_flen
+    /* Enable FPU */
+    li t0, CSR_MSTATUS_FS_MASK
+    csrrs t0, mstatus, t0
+
+    /* Initialize FCSR */
+    fscsr zero
+#endif
+
 #ifdef INIT_EXT_RAM_FOR_DATA
     la t0, _stack_safe
     mv sp, t0
@@ -219,14 +228,7 @@ MARK_FUNC __SEGGER_init_done
 #else
     #define HANDLER_TRAP freertos_risc_v_trap_handler
 #endif
-#ifdef __riscv_flen
-    /* Enable FPU */
-    li t0, CSR_MSTATUS_FS_MASK
-    csrrs t0, mstatus, t0
 
-    /* Initialize FCSR */
-    fscsr zero
-#endif
 #ifndef USE_NONVECTOR_MODE
     /* Initial machine trap-vector Base */
     la t0, __vector_table
@@ -363,18 +365,6 @@ args:
 nmi_handler:
 1:    j 1b
 
-    .global default_irq_handler
-    .weak default_irq_handler
-    .align 2
-default_irq_handler:
-1:    j 1b
-
-    .macro IRQ_HANDLER irq
-    .weak default_isr_\irq
-    .set default_isr_\irq, default_irq_handler
-    .long default_isr_\irq
-    .endm
-
-#include "vectors.S"
+#include "../vectors.h"
   
 /*************************** End of file ****************************/

@@ -129,6 +129,7 @@ def generate_ses_project(config, out_dir="."):
     config["target"]["link_symbols"] = get_link_symbols(config)
     config["target"]["linker"] = unix_relative_path_get(config["target"]["linker"], out_dir)
     config["target"]["register_definition"] = unix_relative_path_get(config["target"]["register_definition"], out_dir)
+    config["target"]["cpu_register_definition"] = unix_relative_path_get(config["target"]["cpu_register_definition"], out_dir)
     config["target"]["ses_link_input"] = unix_relative_path_get(config["target"]["ses_link_input"], out_dir)
     s = ""
 

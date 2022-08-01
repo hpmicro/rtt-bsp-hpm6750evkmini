@@ -42,7 +42,8 @@ _start:
     /* Initialize FCSR */
     fscsr zero
 #endif
-
+    /* Disable Vector mode */
+    csrci CSR_MMISC_CTL, 2
     /* Initialize trap_entry base */
     la t0, irq_handler_trap
     csrw mtvec, t0

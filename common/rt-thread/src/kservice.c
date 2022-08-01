@@ -1259,7 +1259,7 @@ void rt_kputs(const char *str)
  *
  * @param fmt is the format parameters.
  */
-RT_WEAK void rt_kprintf(const char *fmt, ...)
+RT_WEAK int rt_kprintf(const char *fmt, ...)
 {
     va_list args;
     rt_size_t length;

@@ -155,6 +155,7 @@ static void phy_poll_status(void *parameter)
     rt_uint32_t speed, duplex;
     phy_device_t *phy_dev;
     struct eth_device* eth_dev;
+    char const *ps[] = {"10Mbps", "100Mbps", "1000Mbps"};
 
     eth_phy_monitor_handle_t *phy_monitor_handle = (eth_phy_monitor_handle_t *)parameter;
 
@@ -180,11 +181,11 @@ static void phy_poll_status(void *parameter)
         {
             phy_dev->phy_link = status ? PHY_LINK_UP : PHY_LINK_DOWN;
             eth_device_linkchange(eth_dev, status);
-            LOG_I("PHY%d Status: %s", i, status ? "Link up" : "Link down\n");
+            LOG_I("PHY Status: %s", status ? "Link up" : "Link down\n");
             if (status == PHY_LINK_UP)
             {
-                LOG_I("PHY%d Speed:  %s", i, phy_dev->phy_info.phy_speed & PHY_SPEED_100M ? "100Mbps" : "10Mbps");
-                LOG_I("PHY%d Duplex: %s\n", i, phy_dev->phy_info.phy_duplex & PHY_FULL_DUPLEX ? "full duplex" : "half duplex");
+                LOG_I("PHY Speed: %s", ps[phy_dev->phy_info.phy_speed]);
+                LOG_I("PHY Duplex: %s\n", phy_dev->phy_info.phy_duplex & PHY_FULL_DUPLEX ? "full duplex" : "half duplex");
             }
         }
     }
@@ -206,26 +207,26 @@ static void phy_detection(void *parameter)
         for (i = 0; i <= 0x1f; i++)
         {
             ((rt_phy_t *)(phy_dev->phy.parent.user_data))->addr = i;
-
             phy_dev->phy.parent.read(&(phy_dev->phy.parent), 0, &msg, 1);
 
             if (msg.value == PHY_ID1)
             {
                 phy_dev->phy.addr = i;
-                break;
+                LOG_D("Found a PHY device[address:0x%02x].\n", phy_dev->phy.addr);
+                return;
             }
         }
 
+        phy_dev->phy.addr = 0xffff;
         detected_count++;
         rt_thread_mdelay(1000);
 
-        if (detected_count > 12)
+        if (detected_count > 3)
         {
-            LOG_E("No PHY device was detected, please check your hardware!\n");
+            LOG_E("No any PHY device is detected! Please check your hardware!\n");
+            return;
         }
     }
-
-    LOG_D("Found a PHY, address:0x%02x\n", phy_dev->phy.addr);
 }
 
 static void phy_monitor_thread_entry(void *args)

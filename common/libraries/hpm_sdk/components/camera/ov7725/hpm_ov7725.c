@@ -131,7 +131,7 @@ void ov7725_restore_default_values(camera_context_t *context)
     }
 }
 
-hpm_stat_t ov7725_reset(camera_context_t *context)
+hpm_stat_t ov7725_software_reset(camera_context_t *context)
 {
     hpm_stat_t stat = status_success;
 
@@ -243,3 +243,15 @@ hpm_stat_t ov7725_init(camera_context_t *context, camera_config_t *ov_config)
     return stat;
 }
 
+void ov7725_power_up(camera_context_t *context)
+{
+    assert((context->delay_ms != NULL) && (context->write_rst != NULL) && (context->write_pwdn != NULL));
+
+    context->write_rst(OV7725_RST_ACTIVE);
+    context->write_pwdn(OV7725_PWDN_ACTIVE);
+    context->delay_ms(5);
+    context->write_pwdn(OV7725_PWDN_INACTIVE);
+    context->delay_ms(2);
+    context->write_rst(OV7725_RST_INACTIVE);
+    context->delay_ms(20);
+}

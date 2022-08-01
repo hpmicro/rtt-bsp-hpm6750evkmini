@@ -13,7 +13,8 @@ static UART_Type* g_console_uart = NULL;
 
 hpm_stat_t console_init(console_config_t *cfg)
 {
-    hpm_stat_t stat = status_success;
+    hpm_stat_t stat = status_fail;
+
     if (cfg->type == console_type_uart)
     {
         uart_config_t config = {0};
@@ -25,6 +26,7 @@ hpm_stat_t console_init(console_config_t *cfg)
             g_console_uart = (UART_Type *)cfg->base;
         }
     }
+
     return stat;
 }
 

@@ -16,3 +16,4 @@ RT-Thread Studio BSP for HPM6750EVKMINI Board
 - can_example
 - ethernet_ptp_master_demo
 - ethernet_ptp_slave_demo
+- usb_host_msc_udisk

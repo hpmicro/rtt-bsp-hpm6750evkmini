@@ -12,9 +12,9 @@
 typedef struct {
     __R  uint8_t  RESERVED0[16];               /* 0x0 - 0xF: Reserved */
     __RW uint32_t CTRL;                        /* 0x10: Control Register */
-    __RW uint32_t RESTART;                     /* 0x14: Restart Register */
+    __W  uint32_t RESTART;                     /* 0x14: Restart Register */
     __W  uint32_t WREN;                        /* 0x18: Write Protection Register */
-    __RW uint32_t ST;                          /* 0x1C: Status Register */
+    __W  uint32_t ST;                          /* 0x1C: Status Register */
 } WDG_Type;
 
 
@@ -50,7 +50,7 @@ typedef struct {
  * 6: Clock period x 2^14
  * 7: Clock period x 2^15
  * 8: Clock period x 2^17
- * 9: Clock period x 2^18
+ * 9: Clock period x 2^19
  * 10: Clock period x 2^21
  * 11: Clock period x 2^23
  * 12: Clock period x 2^25
@@ -113,7 +113,7 @@ typedef struct {
 
 /* Bitfield definition for register: RESTART */
 /*
- * RESTART (RW)
+ * RESTART (WO)
  *
  * Write the magic number
  * ATCWDT200_RESTART_NUM to restart the
@@ -128,8 +128,7 @@ typedef struct {
 /*
  * WEN (WO)
  *
- * Write the magic number
- * ATCWDT200_WP_NUM to disable the write
+ * Write the magic code to disable the write
  * protection of the Control Register and the
  * Restart Register.
  */
@@ -140,7 +139,7 @@ typedef struct {
 
 /* Bitfield definition for register: ST */
 /*
- * INTEXPIRED (RW)
+ * INTEXPIRED (W1C)
  *
  * The status of the watchdog interrupt timer
  * 0: timer is not expired yet

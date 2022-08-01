@@ -19,8 +19,8 @@ typedef struct
 {
     I2C_Type *ptr;
     void (*delay_ms)(uint32_t ms);
-    void (*power_down_pin)(bool active);
-    void (*reset_pin)(bool active);
+    void (*write_rst)(uint8_t state);
+    void (*write_pwdn)(uint8_t state);
 } camera_context_t;
 
 typedef enum

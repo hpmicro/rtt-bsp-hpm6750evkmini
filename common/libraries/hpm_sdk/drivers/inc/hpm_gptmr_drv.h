@@ -309,6 +309,18 @@ static inline void gptmr_update_cmp(GPTMR_Type *ptr, uint8_t ch_index, uint8_t c
 }
 
 /**
+ * @brief gptmr channel update reload
+ *
+ * @param [in] ptr GPTMR base address
+ * @param [in] ch_index channel index
+ * @param [in] reload reload value
+ */
+static inline void gptmr_channel_config_update_reload(GPTMR_Type *ptr, uint8_t ch_index, uint32_t reload)
+{
+    ptr->CHANNEL[ch_index].RLD = GPTMR_CHANNEL_RLD_RLD_SET(reload);
+}
+
+/**
  * @brief gptmr channel config
  *
  * @param [in] ptr GPTMR base address

@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2021 hpm
+ * Copyright (c) 2021 - 2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Change Logs:
  * Date         Author      Notes
- * 2022-01-11   hpm     First version
+ * 2022-01-11   hpmicro     First version
+ * 2022-07-10   hpmicro     Driver optimization for multiple instances 
  */
 
 #include <rtdevice.h>
@@ -461,6 +462,7 @@ int rt_hw_eth_init(void)
         /* Set mac0 address */
         s_geths[i]->enet_dev->mac_config.mac_addr_high[0] = MAC_ADDR5 << 8 | MAC_ADDR4;
         s_geths[i]->enet_dev->mac_config.mac_addr_low[0] = MAC_ADDR3 << 24 | MAC_ADDR2 << 16 | MAC_ADDR1 << 8 | MAC_ADDR0;
+        s_geths[i]->enet_dev->mac_config.valid_max_count = 1;
 
         /* Set instance */
         s_geths[i]->enet_dev->instance = s_geths[i]->base;

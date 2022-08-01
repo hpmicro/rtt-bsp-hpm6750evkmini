@@ -56,22 +56,22 @@ hpm_stat_t ptpc_set_timer_output(PTPC_Type *ptr, uint8_t can_index, bool use_ptp
     return status_success;
 }
 
-hpm_stat_t ptpc_set_ns_update(PTPC_Type *ptr, uint8_t index, uint32_t ns)
+hpm_stat_t ptpc_set_ns_update(PTPC_Type *ptr, uint8_t index, uint32_t ns, ptpc_counting_mode mode)
 {
     if ((PTPC_PTPC_CTRL0_SUBSEC_DIGITAL_ROLLOVER_GET(ptr->PTPC[index].CTRL0) == ptpc_ns_counter_rollover_digital)
             && (ns > PTPC_MAX_NS_COUNTER)) {
         return status_invalid_argument;
     }
-    ptr->PTPC[index].TS_UPDTL = (ptr->PTPC[index].TS_UPDTL & ~(PTPC_PTPC_TS_UPDTL_NS_UPDATE_MASK)) | PTPC_PTPC_TS_UPDTL_NS_UPDATE_SET(ns);
+    ptr->PTPC[index].TS_UPDTL = PTPC_PTPC_TS_UPDTL_NS_UPDATE_SET(ns) | PTPC_PTPC_TS_UPDTL_ADD_SUB_SET(mode);
     return status_success;
 }
-hpm_stat_t ptpc_update_timer(PTPC_Type *ptr, uint8_t index, uint32_t sec, uint32_t ns, bool decr)
+
+hpm_stat_t ptpc_update_timer(PTPC_Type *ptr, uint8_t index, uint32_t sec, uint32_t ns, ptpc_counting_mode mode)
 {
-    if (status_success != ptpc_set_ns_update(ptr, index, ns)) {
+    if (status_success != ptpc_set_ns_update(ptr, index, ns, mode)) {
         return status_invalid_argument;
     }
     ptpc_set_second_update(ptr, index, sec);
-    ptr->PTPC[index].TS_UPDTL = (ptr->PTPC[index].TS_UPDTL & ~PTPC_PTPC_TS_UPDTL_ADD_SUB_MASK) | PTPC_PTPC_TS_UPDTL_ADD_SUB_SET(decr);
     ptr->PTPC[index].CTRL0 |= PTPC_PTPC_CTRL0_UPDATE_TIMER_MASK;
     return status_success;
 }
@@ -79,14 +79,14 @@ hpm_stat_t ptpc_update_timer(PTPC_Type *ptr, uint8_t index, uint32_t sec, uint32
 void ptpc_init_timer(PTPC_Type *ptr, uint8_t index)
 {
     ptpc_set_second_update(ptr, index, 0);
-    ptpc_set_ns_update(ptr, index, 0);
+    ptpc_set_ns_update(ptr, index, 0, ptpc_counting_increment);
     ptr->PTPC[index].CTRL0 |= PTPC_PTPC_CTRL0_INIT_TIMER_MASK;
 }
 
-hpm_stat_t ptpc_init_timer_with_initial(PTPC_Type *ptr, uint8_t index, uint32_t sec, uint32_t ns, bool decr)
+hpm_stat_t ptpc_init_timer_with_initial(PTPC_Type *ptr, uint8_t index, uint32_t sec, uint32_t ns, ptpc_counting_mode mode)
 {
-    if (status_success != ptpc_set_ns_update(ptr, index, ns)) {
-        return status_fail;
+    if (status_success != ptpc_set_ns_update(ptr, index, ns, mode)) {
+        return status_invalid_argument;
     }
     ptpc_set_second_update(ptr, index, sec);
     ptr->PTPC[index].CTRL0 |= PTPC_PTPC_CTRL0_INIT_TIMER_MASK;

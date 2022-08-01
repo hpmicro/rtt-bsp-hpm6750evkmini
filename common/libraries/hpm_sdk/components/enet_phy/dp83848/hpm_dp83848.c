@@ -75,7 +75,7 @@ bool dp83848_basic_mode_init(ENET_Type *ptr, dp83848_config_t *config)
         para |= DP83848_BMCR_SPEED0_SET(config->speed) | DP83848_BMCR_SPEED1_SET(config->speed >> 1);
     }
 
-    /* check the id of dp83867 */
+    /* check the id of dp83848 */
     if (dp83848_id_check(ptr) == false) {
         return false;
     }
@@ -90,4 +90,3 @@ bool dp83848_basic_mode_init(ENET_Type *ptr, dp83848_config_t *config)
 void dp83848_init_auto_negotiation(void)
 {
 }
-

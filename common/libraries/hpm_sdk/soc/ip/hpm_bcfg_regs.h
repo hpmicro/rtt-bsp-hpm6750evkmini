@@ -11,7 +11,7 @@
 
 typedef struct {
     __RW uint32_t VBG_CFG;                     /* 0x0: Bandgap config */
-    __R  uint8_t  RESERVED0[4];                /* 0x4 - 0x7: Reserved */
+    __RW uint32_t LDO_CFG;                     /* 0x4: LDO config */
     __RW uint32_t IRC32K_CFG;                  /* 0x8: On-chip 32k oscillator config */
     __RW uint32_t XTAL32K_CFG;                 /* 0xC: XTAL 32K config */
     __RW uint32_t CLK_CFG;                     /* 0x10: Clock config */
@@ -84,6 +84,77 @@ typedef struct {
 #define BCFG_VBG_CFG_VBG_P50_SHIFT (0U)
 #define BCFG_VBG_CFG_VBG_P50_SET(x) (((uint32_t)(x) << BCFG_VBG_CFG_VBG_P50_SHIFT) & BCFG_VBG_CFG_VBG_P50_MASK)
 #define BCFG_VBG_CFG_VBG_P50_GET(x) (((uint32_t)(x) & BCFG_VBG_CFG_VBG_P50_MASK) >> BCFG_VBG_CFG_VBG_P50_SHIFT)
+
+/* Bitfield definition for register: LDO_CFG */
+/*
+ * RES_TRIM (RW)
+ *
+ * Resistor trim
+ */
+#define BCFG_LDO_CFG_RES_TRIM_MASK (0x3000000UL)
+#define BCFG_LDO_CFG_RES_TRIM_SHIFT (24U)
+#define BCFG_LDO_CFG_RES_TRIM_SET(x) (((uint32_t)(x) << BCFG_LDO_CFG_RES_TRIM_SHIFT) & BCFG_LDO_CFG_RES_TRIM_MASK)
+#define BCFG_LDO_CFG_RES_TRIM_GET(x) (((uint32_t)(x) & BCFG_LDO_CFG_RES_TRIM_MASK) >> BCFG_LDO_CFG_RES_TRIM_SHIFT)
+
+/*
+ * CP_TRIM (RW)
+ *
+ * Capacitor trim
+ */
+#define BCFG_LDO_CFG_CP_TRIM_MASK (0x300000UL)
+#define BCFG_LDO_CFG_CP_TRIM_SHIFT (20U)
+#define BCFG_LDO_CFG_CP_TRIM_SET(x) (((uint32_t)(x) << BCFG_LDO_CFG_CP_TRIM_SHIFT) & BCFG_LDO_CFG_CP_TRIM_MASK)
+#define BCFG_LDO_CFG_CP_TRIM_GET(x) (((uint32_t)(x) & BCFG_LDO_CFG_CP_TRIM_MASK) >> BCFG_LDO_CFG_CP_TRIM_SHIFT)
+
+/*
+ * EN_SL (RW)
+ *
+ * enable selfload, this bit helps improve LDO performance when current less than 200nA
+ * 0: self load disabled
+ * 1: selfload enabled
+ */
+#define BCFG_LDO_CFG_EN_SL_MASK (0x40000UL)
+#define BCFG_LDO_CFG_EN_SL_SHIFT (18U)
+#define BCFG_LDO_CFG_EN_SL_SET(x) (((uint32_t)(x) << BCFG_LDO_CFG_EN_SL_SHIFT) & BCFG_LDO_CFG_EN_SL_MASK)
+#define BCFG_LDO_CFG_EN_SL_GET(x) (((uint32_t)(x) & BCFG_LDO_CFG_EN_SL_MASK) >> BCFG_LDO_CFG_EN_SL_SHIFT)
+
+/*
+ * DIS_PD (RW)
+ *
+ * disable pull down resistor, enable pull down may lead to more power but better response
+ * 0: pulldown resistor enabled
+ * 1: pulldown resistor disabled
+ */
+#define BCFG_LDO_CFG_DIS_PD_MASK (0x20000UL)
+#define BCFG_LDO_CFG_DIS_PD_SHIFT (17U)
+#define BCFG_LDO_CFG_DIS_PD_SET(x) (((uint32_t)(x) << BCFG_LDO_CFG_DIS_PD_SHIFT) & BCFG_LDO_CFG_DIS_PD_MASK)
+#define BCFG_LDO_CFG_DIS_PD_GET(x) (((uint32_t)(x) & BCFG_LDO_CFG_DIS_PD_MASK) >> BCFG_LDO_CFG_DIS_PD_SHIFT)
+
+/*
+ * ENABLE (RW)
+ *
+ * LDO enable
+ * 0: LDO is disabled
+ * 1: LDO is enabled
+ */
+#define BCFG_LDO_CFG_ENABLE_MASK (0x10000UL)
+#define BCFG_LDO_CFG_ENABLE_SHIFT (16U)
+#define BCFG_LDO_CFG_ENABLE_SET(x) (((uint32_t)(x) << BCFG_LDO_CFG_ENABLE_SHIFT) & BCFG_LDO_CFG_ENABLE_MASK)
+#define BCFG_LDO_CFG_ENABLE_GET(x) (((uint32_t)(x) & BCFG_LDO_CFG_ENABLE_MASK) >> BCFG_LDO_CFG_ENABLE_SHIFT)
+
+/*
+ * VOLT (RW)
+ *
+ * LDO voltage setting in mV, valid range through 600mV to 1100mV, step 20mV.  Hardware select voltage no less than target if not on valid steps, with maximum 1100mV.
+ * 600: 600mV
+ * 620: 620mV
+ * . . .
+ * 1100:1100mV
+ */
+#define BCFG_LDO_CFG_VOLT_MASK (0xFFFU)
+#define BCFG_LDO_CFG_VOLT_SHIFT (0U)
+#define BCFG_LDO_CFG_VOLT_SET(x) (((uint32_t)(x) << BCFG_LDO_CFG_VOLT_SHIFT) & BCFG_LDO_CFG_VOLT_MASK)
+#define BCFG_LDO_CFG_VOLT_GET(x) (((uint32_t)(x) & BCFG_LDO_CFG_VOLT_MASK) >> BCFG_LDO_CFG_VOLT_SHIFT)
 
 /* Bitfield definition for register: IRC32K_CFG */
 /*

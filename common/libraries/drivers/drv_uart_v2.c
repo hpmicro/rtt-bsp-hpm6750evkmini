@@ -6,6 +6,7 @@
  * Change Logs:
  * Date         Author      Notes
  * 2022-03-08   HPMICRO     First version
+ * 2022-07-28   HPMICRO     Fix compiling warning if RT_SERIAL_USING_DMA was not defined 
  *
  */
 #include <rtthread.h>
@@ -63,7 +64,9 @@ struct hpm_uart {
 
 extern void init_uart_pins(UART_Type *ptr);
 static void hpm_uart_isr(struct rt_serial_device *serial);
+#ifdef RT_SERIAL_USING_DMA
 static void hpm_dma_isr(DMA_Type *dma, struct rt_serial_device *serial);
+#endif
 static rt_err_t hpm_uart_configure(struct rt_serial_device *serial, struct serial_configure *cfg);
 static rt_err_t hpm_uart_control(struct rt_serial_device *serial, int cmd, void *arg);
 static int hpm_uart_putc(struct rt_serial_device *serial, char ch);
@@ -680,7 +683,7 @@ void dma_isr(void)
     rt_interrupt_leave();
 }
 SDK_DECLARE_EXT_ISR_M(BOARD_UART_DMA_IRQ, dma_isr)
-#endif
+
 
 
 static void uart_tx_done(struct rt_serial_device *serial)
@@ -702,6 +705,7 @@ static void uart_rx_done(struct rt_serial_device *serial)
     hpm_uart_dma_config(serial, (void *)RT_DEVICE_FLAG_DMA_RX);
 #endif
 }
+#endif
 
 /**
  * @brief UART common interrupt process. This
@@ -782,7 +786,8 @@ static rt_err_t hpm_uart_configure(struct rt_serial_device *serial, struct seria
 #endif
 
     uart_config.word_length = cfg->data_bits - DATA_BITS_5;
-    uart_init(uart->uart_base, &uart_config);
+    hpm_stat_t status = uart_init(uart->uart_base, &uart_config);
+    return (status != status_success) ? -RT_ERROR : RT_EOK;
 }
 
 #ifdef RT_SERIAL_USING_DMA
@@ -922,6 +927,8 @@ static int hpm_uart_putc(struct rt_serial_device *serial, char ch)
 {
     struct hpm_uart *uart  = (struct hpm_uart *)serial->parent.user_data;
     uart_send_byte(uart->uart_base, ch);
+    uart_flush(uart->uart_base);
+    return ch;
 }
 
 static int hpm_uart_getc(struct rt_serial_device *serial)
@@ -945,8 +952,8 @@ static rt_size_t hpm_uart_transmit(struct rt_serial_device *serial,
     RT_ASSERT(buf != RT_NULL);
     RT_ASSERT(size);
 
-    struct hpm_uart *uart  = (struct hpm_uart *)serial->parent.user_data;
 #ifdef RT_SERIAL_USING_DMA
+    struct hpm_uart *uart  = (struct hpm_uart *)serial->parent.user_data;
     if (uart->dma_flags & RT_DEVICE_FLAG_DMA_TX) {
         hpm_uart_dma_register_channel(serial, uart->tx_dma_source, uart->tx_dma_channel, uart_tx_done, RT_NULL, RT_NULL);
         intc_m_enable_irq(uart->tx_dma_irq);
@@ -984,6 +991,19 @@ static int hpm_uart_config(void)
 #endif
 #ifdef BSP_UART0_TX_USING_DMA
     uarts[HPM_UART0_INDEX].dma_flags |= RT_DEVICE_FLAG_DMA_TX;
+#endif
+#endif
+
+#ifdef BSP_USING_UART2
+    uarts[HPM_UART2_INDEX].dma_flags = 0;
+    uarts[HPM_UART2_INDEX].serial->config = config;
+    uarts[HPM_UART2_INDEX].serial->config.rx_bufsz = BSP_UART2_RX_BUFSIZE;
+    uarts[HPM_UART2_INDEX].serial->config.tx_bufsz = BSP_UART2_TX_BUFSIZE;
+#ifdef BSP_UART2_RX_USING_DMA
+    uarts[HPM_UART2_INDEX].dma_flags |= RT_DEVICE_FLAG_DMA_RX;
+#endif
+#ifdef BSP_UART2_TX_USING_DMA
+    uarts[HPM_UART2_INDEX].dma_flags |= RT_DEVICE_FLAG_DMA_TX;
 #endif
 #endif
 

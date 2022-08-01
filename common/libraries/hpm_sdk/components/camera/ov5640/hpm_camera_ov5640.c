@@ -9,20 +9,17 @@
 
 hpm_stat_t camera_device_init(camera_context_t *camera_context, camera_config_t *camera_config)
 {
+    assert(camera_context->delay_ms != NULL);
+
     hpm_stat_t stat = status_success;
 
-#ifdef CAMREA_RESET_PWDN_CONFIGURABLE
-    /* power  scequence */
-    camera_context->reset_pin(true);
-    camera_context->power_down_pin(true);
-    camera_context->delay_ms(10);
-    camera_context->power_down_pin(false);
-    camera_context->delay_ms(10);
-    camera_context->reset_pin(false);
-    camera_context->delay_ms(20);
+#ifdef HPM_CAM_EXECUTE_POWER_UP_SEQUENCE
+    /* execute power up sequence */
+    ov5640_power_up(camera_context);
 #endif
 
-    stat = ov5640_soft_reset(camera_context);
+    /* software reset */
+    stat = ov5640_software_reset(camera_context);
     if (stat != status_success) {
         return stat;
     }
@@ -32,3 +29,4 @@ hpm_stat_t camera_device_init(camera_context_t *camera_context, camera_config_t 
 
     return stat;
 }
+

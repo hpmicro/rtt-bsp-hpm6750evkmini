@@ -51,17 +51,56 @@ HPM6750是一款主频达816Mhz的双核微控制器。该芯片拥有最大2M�
 | OFF  | 千兆网口 |
 | ON   | PWM      |
 
+(lab_hpm6750_evk_board)=
 ## 按键
 
+(lab_hpm6750_evk_board_buttons)=
 | 名称 | 功能 |
+| ---- | -------- |
 |PBUTN (S2) | 电源按键, TinyUF2 Boot按键, GPIO 按键|
 |WBUTN (S3) | WAKE UP 按键|
 |RESET (S4) | Reset 按键|
 
 ## 引脚描述
 
-(lab_hpm6750_evk_board)=
-
 - J12端子的 `P-UH 、P-UL`引脚为PWM输出引脚，如下图所示
 
   ![image-1](../../doc/images/boards/hpm6750evk/hpm6750evk_pwm_output_pin.jpg "image-1")
+
+- SPI引脚：
+
+| 功能 | 位置 |
+| ---- | -------- |
+| SPI2.CSN    | J20[6] |
+| SPI2.SCLK   | J20[7] |
+| SPI2.MISO   | J20[8] |
+| SPI2.MOSI   | J20[9] |
+
+- I2C引脚：
+
+| 功能 | 位置 |
+| ---- | -------- |
+| I2C0.SCL    | J20[3] |
+| I2C0.SDA    | J20[4] |
+
+- CORE1调试串口引脚：
+| 功能 | 位置 |
+| ---- | -------- |
+| UART13.TXD    | J20[5] |
+| UART13.RXD    | J20[6] |
+
+- ACMP引脚
+
+| 功能 | 位置 |
+| ---- | -------- |
+| CMP.INN6    | J12[8] |
+| CMP.COMP_1  | J12[6] |
+
+- GPTMR引脚
+
+| 功能 | 位置 |
+| ---- | -------- |
+| GPTMR4.CAPT_1  | J12[6] |
+| GPTMR3.COMP_1  | J12[7] |
+
+

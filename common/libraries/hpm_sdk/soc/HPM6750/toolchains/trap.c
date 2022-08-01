@@ -42,7 +42,7 @@ __attribute__((weak)) void mchtmr_isr(void)
 {
 }
 
-__attribute__((weak)) void mswi_isr(void)
+__attribute__((weak)) void swi_isr(void)
 {
 }
 
@@ -141,7 +141,7 @@ void irq_handler_trap(void)
 
     else if ((mcause & CSR_MCAUSE_INTERRUPT_MASK) && ((mcause & CSR_MCAUSE_EXCEPTION_CODE_MASK) == IRQ_M_SOFT)) {
         /* Machine SWI interrupt */
-        mswi_isr();
+        swi_isr();
         intc_m_complete_swi();
     } else if (!(mcause & CSR_MCAUSE_INTERRUPT_MASK) && ((mcause & CSR_MCAUSE_EXCEPTION_CODE_MASK) == MCAUSE_ECALL_FROM_MACHINE_MODE)) {
         /* Machine Syscal call */

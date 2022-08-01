@@ -1,5 +1,124 @@
 # Change Log
 
+## [0.12.1] - 2022-07-01:
+
+Main changes since 0.12.0
+
+### Fixed:
+  - update lwipopt.h for updated enet driver
+
+## [0.12.0] - 2022-06-30:
+
+Tested with SES 6.32
+
+Main changes since 0.11.0
+
+### Changed:
+  - boards: hpm6360evk has been renamed to hpm6300evk
+  - boards: Use CSR_CYCLE in the clock_delay function
+  - soc: hpm_soc.h: include hpm_common.h
+  - driver: rename hpm_pmu_drv.c to hpm_pcfg_drv.h
+  - driver: spi: change to non-blocking interfaces
+  - driver: dma: update driver to adapt to different DMA instance constraints
+  - components: enet_phy: update dp83867 driver
+  - components: enet_phy: remove rtl8211 driver
+  - cmake: enable nano newlib by default
+  - cmake: move distclean to the beginning
+  - middleware: littlevgl enable PDMA by default
+  - middleware: tinyusb: upgrade to 0.13.0
+  - samples: tinyusb: device: cdc_msc: adjust buffer size
+  - samples: drivers: plic: use gpio toggle count as nested irq
+
+### Fixed:
+  - drivers: pwm: fix function name inconsistency bug
+  - drivers: enet: remove "board.h" in enet driver
+  - drivers: clock: Fix bugs in hpm6360 clock driver
+  - drivers: clock: returns wrong adc/dac clock in HPM6360
+  - drivers: dram: failed to configure 8bit mode.
+  - freertos: fix issue about running on core1
+  - boards: hpm6300evk pmp_entry set initial value
+  - middleware: littlevgl: fix pdma cache op issue
+  - middleware: littlevgl: fix doxygen markdown for pdma driver
+  - middleware: lvgl: ses: update ram linker.
+  - middleware: hpm_math: fix ffa cache size error
+  - samples: audio_codec: remove the wrong dependency
+  - samples: FATFS demo cannot support write/read if FATFS passes unaligned buffer address
+
+### Added:
+  - samples: add memstress and flash stress
+  - drivers: clock: add implement common delay function based on mcycle and mcycleh register
+  - boards: add hpm6300evk support
+  - boards: hpm6750evkmini: motor control support
+  - soc: add svd files
+  - middleware: lwip: iperf: enable iperf and add udp function
+  - samples: lwip: add lwip_iperf
+
+## [0.11.0] - 2022-05-31:
+Main changes since 0.10.0-hpm6360-er
+
+### Changed:
+  - readme: change the location of the starting document
+  - components: change hal_adc_xx to hpm_adc_xx
+  - drivers: update the I2C driver
+  - cmake: change default rv_arch to rv32imac
+  - cmake: modified in a zephyr-compatible way
+  - drivers: uart: redefined struct with zephyr
+  - cmake: change soc and board name
+  - cmake: ses: support enable ext_dsp in project file.
+  - samples/tinyusb/host: optimize the toggle rate of the blinking led
+  - samples/tinyusb/device: replace mchtimer with board_timer for led_linking_taskk
+  - samples/tinyusb/device: optimize the implement of led_blinking_task
+  - soc: update IP header and soc header files
+
+### Fixed:
+  - samples: motor_ctrl: bldc_block: fix some error
+  - middleware: hpm_math: fix andes toolchain compile error
+  - middleware: hpm_math: fix libdsp.a error
+  - middleware: hpm_math: add ext-dsp for SES
+  - samples: openocd_algo: fix func_table placement.
+  - boards: hpm6360evk: correct cpu frequency
+  - boards: fix warning caused by code irregularities
+  - boards: LED status is not the same between hpm6750mini rev-A and rev-B
+  - boards: update board_led_write.
+
+## Added:
+  - driver: add spi_setup_dma_transfer() API
+  - middleware: hpm_math: add software fft function
+  - middleware: hpm_math: add ffa to hpm_math
+  - samples: i2c: update the sample b2b
+  - samples: hpm_math: add fft_performance demo
+  - samples: add SPI DMA sample
+  - samples: multicore coremark using debug console only
+  - samples: 1588: add ptp v1 master/slave
+
+## [0.10.0_hpm6300] - 2022-05-16:
+Main changes since 0.10.0
+
+### Changed:
+  - ip register header file update
+  - ses_proj: using generated complete cpu_regs_xml to replace general cpu registers xml
+  - drivers: gpiom: move gpiom_gpio_t into hpm_gpiom_src.h
+  - drivers: update the enet driver
+  - samples: dram: change sdram test address in dma demo
+  - samples: drivers: mbx: exclude flash targets for core0 as well.
+  - samples: lwip: update ethernetif.c
+
+### Fixed:
+  - drivers: ptpc: update ptpc_init_timer_with_initial.
+  - drivers: can: bug fix and update
+  - soc: correct vector table inclusion and swi name
+  - env.sh: fix HPM_SDK_BASE setting problem with msys.
+  - samples: sha256_example: failed to run case 13 and 14 with gcc.
+
+### Added:
+  - soc: add HPM6360 support
+  - drivers: add ffa, pllctlv2, dac
+  - boards: add hpm6360evk support
+  - components: add adcx module
+  - components/enet_phy: add the RTL8201 driver
+  - samples: drivers: dac, ffa
+  - samples: rgb_red: add evkmini ver B support
+
 ## [0.10.0] - 2022-04-30:
 Main changes since 0.9.0
 
@@ -146,4 +265,3 @@ All changes since 0.6.2
   - samples: drivers: gpiom: Add example to demonstrate gpiom's function
   - drivers: common: add macro to put data into noncacheable sections
   - middleware: integrate lwip
-

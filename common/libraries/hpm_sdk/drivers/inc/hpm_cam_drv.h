@@ -79,6 +79,9 @@
 typedef struct {
     uint32_t width;
     uint32_t height;
+    bool pixclk_sampling_falling;
+    bool hsync_active_low;
+    bool vsync_active_low;
     bool color_ext;
     bool data_pack_msb;
     bool enable_buffer2;

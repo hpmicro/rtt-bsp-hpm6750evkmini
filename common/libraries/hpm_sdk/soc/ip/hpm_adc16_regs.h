@@ -13,8 +13,8 @@ typedef struct {
     __RW uint32_t CONFIG[12];                  /* 0x0 - 0x2C:  */
     __RW uint32_t TRG_DMA_ADDR;                /* 0x30:  */
     __R  uint8_t  RESERVED0[972];              /* 0x34 - 0x3FF: Reserved */
-    __R  uint32_t BUS_RESULT[8];               /* 0x400 - 0x41C:  */
-    __R  uint8_t  RESERVED1[224];              /* 0x420 - 0x4FF: Reserved */
+    __R  uint32_t BUS_RESULT[16];              /* 0x400 - 0x43C:  */
+    __R  uint8_t  RESERVED1[192];              /* 0x440 - 0x4FF: Reserved */
     __RW uint32_t BUF_CFG0;                    /* 0x500:  */
     __R  uint8_t  RESERVED2[764];              /* 0x504 - 0x7FF: Reserved */
     __RW uint32_t SEQ_CFG0;                    /* 0x800:  */
@@ -28,10 +28,10 @@ typedef struct {
         __RW uint32_t PRD_THSHD_CFG;           /* 0xC04:  */
         __R  uint32_t PRD_RESULT;              /* 0xC08:  */
         __R  uint8_t  RESERVED0[4];            /* 0xC0C - 0xC0F: Reserved */
-    } PRD_CFG[8];
-    __R  uint8_t  RESERVED4[896];              /* 0xC80 - 0xFFF: Reserved */
-    __RW uint32_t SAMPLE_CFG[8];               /* 0x1000 - 0x101C:  */
-    __R  uint8_t  RESERVED5[228];              /* 0x1020 - 0x1103: Reserved */
+    } PRD_CFG[16];
+    __R  uint8_t  RESERVED4[768];              /* 0xD00 - 0xFFF: Reserved */
+    __RW uint32_t SAMPLE_CFG[16];              /* 0x1000 - 0x103C:  */
+    __R  uint8_t  RESERVED5[196];              /* 0x1040 - 0x1103: Reserved */
     __RW uint32_t CONV_CFG1;                   /* 0x1104:  */
     __RW uint32_t ADC_CFG0;                    /* 0x1108:  */
     __R  uint8_t  RESERVED6[4];                /* 0x110C - 0x110F: Reserved */
@@ -83,6 +83,7 @@ typedef struct {
 /*
  * INTEN2 (RW)
  *
+ * interupt enable for 3rd conversion
  */
 #define ADC16_CONFIG_INTEN2_MASK (0x200000UL)
 #define ADC16_CONFIG_INTEN2_SHIFT (21U)
@@ -92,6 +93,7 @@ typedef struct {
 /*
  * CHAN2 (RW)
  *
+ * channel number for 3rd conversion
  */
 #define ADC16_CONFIG_CHAN2_MASK (0x1F0000UL)
 #define ADC16_CONFIG_CHAN2_SHIFT (16U)
@@ -101,6 +103,7 @@ typedef struct {
 /*
  * INTEN1 (RW)
  *
+ * interupt enable for 2nd conversion
  */
 #define ADC16_CONFIG_INTEN1_MASK (0x2000U)
 #define ADC16_CONFIG_INTEN1_SHIFT (13U)
@@ -110,11 +113,22 @@ typedef struct {
 /*
  * CHAN1 (RW)
  *
+ * channel number for 2nd conversion
  */
 #define ADC16_CONFIG_CHAN1_MASK (0x1F00U)
 #define ADC16_CONFIG_CHAN1_SHIFT (8U)
 #define ADC16_CONFIG_CHAN1_SET(x) (((uint32_t)(x) << ADC16_CONFIG_CHAN1_SHIFT) & ADC16_CONFIG_CHAN1_MASK)
 #define ADC16_CONFIG_CHAN1_GET(x) (((uint32_t)(x) & ADC16_CONFIG_CHAN1_MASK) >> ADC16_CONFIG_CHAN1_SHIFT)
+
+/*
+ * QUEUE_EN (RW)
+ *
+ * preemption queue enable control
+ */
+#define ADC16_CONFIG_QUEUE_EN_MASK (0x40U)
+#define ADC16_CONFIG_QUEUE_EN_SHIFT (6U)
+#define ADC16_CONFIG_QUEUE_EN_SET(x) (((uint32_t)(x) << ADC16_CONFIG_QUEUE_EN_SHIFT) & ADC16_CONFIG_QUEUE_EN_MASK)
+#define ADC16_CONFIG_QUEUE_EN_GET(x) (((uint32_t)(x) & ADC16_CONFIG_QUEUE_EN_MASK) >> ADC16_CONFIG_QUEUE_EN_SHIFT)
 
 /*
  * INTEN0 (RW)
@@ -175,7 +189,7 @@ typedef struct {
 /*
  * WAIT_DIS (RW)
  *
- * set to disable read wait, get result immediately but maybe not current conversion result.
+ * set to disable read waiting, get result immediately but maybe not current conversion result.
  */
 #define ADC16_BUF_CFG0_WAIT_DIS_MASK (0x1U)
 #define ADC16_BUF_CFG0_WAIT_DIS_SHIFT (0U)
@@ -861,6 +875,14 @@ typedef struct {
 #define ADC16_BUS_RESULT_CHN5 (5UL)
 #define ADC16_BUS_RESULT_CHN6 (6UL)
 #define ADC16_BUS_RESULT_CHN7 (7UL)
+#define ADC16_BUS_RESULT_CHN8 (8UL)
+#define ADC16_BUS_RESULT_CHN9 (9UL)
+#define ADC16_BUS_RESULT_CHN10 (10UL)
+#define ADC16_BUS_RESULT_CHN11 (11UL)
+#define ADC16_BUS_RESULT_CHN12 (12UL)
+#define ADC16_BUS_RESULT_CHN13 (13UL)
+#define ADC16_BUS_RESULT_CHN14 (14UL)
+#define ADC16_BUS_RESULT_CHN15 (15UL)
 
 /* SEQ_QUE register group index macro definition */
 #define ADC16_SEQ_QUE_CFG0 (0UL)
@@ -889,6 +911,14 @@ typedef struct {
 #define ADC16_PRD_CFG_CHN5 (5UL)
 #define ADC16_PRD_CFG_CHN6 (6UL)
 #define ADC16_PRD_CFG_CHN7 (7UL)
+#define ADC16_PRD_CFG_CHN8 (8UL)
+#define ADC16_PRD_CFG_CHN9 (9UL)
+#define ADC16_PRD_CFG_CHN10 (10UL)
+#define ADC16_PRD_CFG_CHN11 (11UL)
+#define ADC16_PRD_CFG_CHN12 (12UL)
+#define ADC16_PRD_CFG_CHN13 (13UL)
+#define ADC16_PRD_CFG_CHN14 (14UL)
+#define ADC16_PRD_CFG_CHN15 (15UL)
 
 /* SAMPLE_CFG register group index macro definition */
 #define ADC16_SAMPLE_CFG_CHN0 (0UL)
@@ -899,6 +929,14 @@ typedef struct {
 #define ADC16_SAMPLE_CFG_CHN5 (5UL)
 #define ADC16_SAMPLE_CFG_CHN6 (6UL)
 #define ADC16_SAMPLE_CFG_CHN7 (7UL)
+#define ADC16_SAMPLE_CFG_CHN8 (8UL)
+#define ADC16_SAMPLE_CFG_CHN9 (9UL)
+#define ADC16_SAMPLE_CFG_CHN10 (10UL)
+#define ADC16_SAMPLE_CFG_CHN11 (11UL)
+#define ADC16_SAMPLE_CFG_CHN12 (12UL)
+#define ADC16_SAMPLE_CFG_CHN13 (13UL)
+#define ADC16_SAMPLE_CFG_CHN14 (14UL)
+#define ADC16_SAMPLE_CFG_CHN15 (15UL)
 
 /* ADC16_PARAMS register group index macro definition */
 #define ADC16_ADC16_PARAMS_ADC16_PARA00 (0UL)

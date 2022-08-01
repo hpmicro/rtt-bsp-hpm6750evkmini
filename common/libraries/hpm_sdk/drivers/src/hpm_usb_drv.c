@@ -176,7 +176,7 @@ void usb_dcd_disconnect(USB_Type *ptr)
     /* Clear the sof flag */
     ptr->USBSTS |= USB_USBSTS_SRI_MASK;
 
-    /* Wait a SOF (It will not be a dead loop even usb cable is not connnected.) */
+    /* Wait a SOF (It will not be a dead loop even usb cable is not connected.) */
     while (USB_USBSTS_SRI_GET(ptr->USBSTS) == 0) {
 
     }

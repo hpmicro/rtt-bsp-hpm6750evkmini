@@ -5,7 +5,8 @@
  *
  * Change Logs:
  * Date         Author      Notes
- * 2022-01-11   hpm     First version
+ * 2022-01-11   hpmicro     First version
+ * 2022-07-28   hpmicro     Fixed compiling warnings
  */
 
 #include <rtthread.h>
@@ -16,6 +17,7 @@
 #include "board.h"
 #include "drv_gpio.h"
 #include "hpm_gpio_drv.h"
+#include "hpm_gpiom_drv.h"
 #include "hpm_clock_drv.h"
 
 typedef struct
@@ -25,31 +27,31 @@ typedef struct
 } gpio_irq_map_t;
 
 static const gpio_irq_map_t hpm_gpio_irq_map[] = {
-#ifdef GPIO_IE_GPIOA
+#ifdef IRQn_GPIO0_A
         { GPIO_IE_GPIOA, IRQn_GPIO0_A },
 #endif
-#ifdef GPIO_IE_GPIOB
+#ifdef IRQn_GPIO0_B
         { GPIO_IE_GPIOB, IRQn_GPIO0_B },
 #endif
-#ifdef GPIO_IE_GPIOC
+#ifdef IRQn_GPIO0_C
         { GPIO_IE_GPIOC, IRQn_GPIO0_C },
 #endif
 #ifdef GPIO_IE_GPIOD
         { GPIO_IE_GPIOD, IRQn_GPIO0_D },
 #endif
-#ifdef GPIO_IE_GPIOE
+#ifdef IRQn_GPIO0_E
         { GPIO_IE_GPIOE, IRQn_GPIO0_E },
 #endif
-#ifdef GPIO_IE_GPIOF
+#ifdef IRQn_GPIO0_F
         { GPIO_IE_GPIOF, IRQn_GPIO0_F },
 #endif
-#ifdef GPIO_IE_GPIOX
+#ifdef IRQn_GPIO0_X
         { GPIO_IE_GPIOX, IRQn_GPIO0_X },
 #endif
-#ifdef GPIO_IE_GPIOY
+#ifdef IRQn_GPIO0_Y
         { GPIO_IE_GPIOY, IRQn_GPIO0_Y },
 #endif
-#ifdef GPIO_IE_GPIOZ
+#ifdef IRQn_GPIO0_Z
         { GPIO_IE_GPIOZ, IRQn_GPIO0_Z },
 #endif
         };
@@ -74,7 +76,6 @@ static int hpm_get_gpi_irq_num(uint32_t gpio_idx)
 static void hpm_gpio_isr(uint32_t gpio_index, GPIO_Type *base)
 {
     uint32_t pin_idx = 0;
-    uint32_t isr_status = gpio_get_port_interrupt_flags(base, gpio_index);
     for(pin_idx = 0; pin_idx < 32; pin_idx++)
     {
         if (gpio_check_pin_interrupt_flag(base, gpio_index, pin_idx))
@@ -168,27 +169,42 @@ static void hpm_pin_mode(rt_device_t dev, rt_base_t pin, rt_base_t mode)
     uint32_t gpio_idx = pin >> 5;
     uint32_t pin_idx = pin & 0x1FU;
 
+    gpiom_set_pin_controler(HPM_GPIOM, gpio_idx, pin_idx, gpiom_soc_gpio0);
+
     HPM_IOC->PAD[pin].FUNC_CTL = 0;
+
+    switch (gpio_idx)
+    {
+    case GPIO_DI_GPIOY :
+        HPM_PIOC->PAD[pin].FUNC_CTL = 3;
+        break;
+    case GPIO_DI_GPIOZ :
+        HPM_BIOC->PAD[pin].FUNC_CTL = 3;
+        break;
+    default :
+        break;
+    }
+
     switch (mode)
     {
     case PIN_MODE_OUTPUT:
-        gpio_enable_pin_output(HPM_GPIO0, gpio_idx, pin_idx);
+        gpio_set_pin_output(HPM_GPIO0, gpio_idx, pin_idx);
         HPM_IOC->PAD[pin].PAD_CTL &=  ~(IOC_PAD_PAD_CTL_PS_MASK | IOC_PAD_PAD_CTL_PE_MASK | IOC_PAD_PAD_CTL_OD_MASK);
         break;
     case PIN_MODE_INPUT:
-        gpio_disable_pin_output(HPM_GPIO0, gpio_idx, pin_idx);
+        gpio_set_pin_input(HPM_GPIO0, gpio_idx, pin_idx);
         HPM_IOC->PAD[pin].PAD_CTL &= ~(IOC_PAD_PAD_CTL_PS_MASK | IOC_PAD_PAD_CTL_PE_MASK);
         break;
     case PIN_MODE_INPUT_PULLDOWN:
-        gpio_disable_pin_output(HPM_GPIO0, gpio_idx, pin_idx);
+        gpio_set_pin_input(HPM_GPIO0, gpio_idx, pin_idx);
         HPM_IOC->PAD[pin].PAD_CTL = (HPM_IOC->PAD[pin].PAD_CTL & ~IOC_PAD_PAD_CTL_PS_MASK) | IOC_PAD_PAD_CTL_PE_SET(1);
         break;
     case PIN_MODE_INPUT_PULLUP:
-        gpio_disable_pin_output(HPM_GPIO0, gpio_idx, pin_idx);
+        gpio_set_pin_input(HPM_GPIO0, gpio_idx, pin_idx);
         HPM_IOC->PAD[pin].PAD_CTL |= IOC_PAD_PAD_CTL_PE_SET(1) | IOC_PAD_PAD_CTL_PS_SET(1);
         break;
     case PIN_MODE_OUTPUT_OD:
-        gpio_enable_pin_output(HPM_GPIO0, gpio_idx, pin_idx);
+        gpio_set_pin_output(HPM_GPIO0, gpio_idx, pin_idx);
         HPM_IOC->PAD[pin].PAD_CTL = (HPM_IOC->PAD[pin].PAD_CTL & ~(IOC_PAD_PAD_CTL_PS_MASK | IOC_PAD_PAD_CTL_PE_MASK)) | IOC_PAD_PAD_CTL_OD_SET(1);
         break;
     default:
@@ -218,9 +234,6 @@ static void hpm_pin_write(rt_device_t dev, rt_base_t pin, rt_base_t value)
 static rt_err_t hpm_pin_attach_irq(struct rt_device *device, rt_int32_t pin, rt_uint32_t mode,
         void (*hdr)(void *args), void *args)
 {
-    /* TODO: Check the validity of the pin value */
-    uint32_t gpio_idx = pin >> 5;
-    uint32_t pin_idx = pin & 0x1FU;
 
     rt_base_t level;
     level = rt_hw_interrupt_disable();
@@ -235,10 +248,6 @@ static rt_err_t hpm_pin_attach_irq(struct rt_device *device, rt_int32_t pin, rt_
 
 static rt_err_t hpm_pin_detach_irq(struct rt_device *device, rt_int32_t pin)
 {
-    /* TODO: Check the validity of the pin value */
-    uint32_t gpio_idx = pin >> 5;
-    uint32_t pin_idx = pin & 0x1FU;
-
     rt_base_t level;
     level = rt_hw_interrupt_disable();
     hpm_gpio_pin_hdr_tbl[pin].pin = -1;

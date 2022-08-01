@@ -190,6 +190,8 @@ typedef struct {
  * @brief spi common transfer control config structure
  */
 typedef struct {
+    bool tx_dma_enable;
+    bool rx_dma_enable;
     uint8_t trans_mode;
     uint8_t data_phase_fmt;
     uint8_t dummy_cnt;
@@ -271,11 +273,28 @@ void spi_format_init(SPI_Type *ptr, spi_format_config_t *config);
  * @param [in] wsize spi sent data size in byte
  * @param [in] rbuff spi receive data buff address
  * @param [in] rsize spi receive data size
+ * @retval hpm_stat_t status_success if spi transfer without any error
  */
 hpm_stat_t spi_transfer(SPI_Type *ptr,
                         spi_control_config_t *config,
                         uint8_t *cmd, uint32_t *addr,
                         uint8_t *wbuff, uint32_t wsize,  uint8_t *rbuff, uint32_t rsize);
+
+/**
+ * @brief spi setup dma transfer
+ *
+ * @param [in] ptr SPI base address
+ * @param [in] config spi_control_config_t
+ * @param [in] cmd spi transfer mode
+ * @param [in] addr spi transfer target address
+ * @param [in] wsize spi sent data size in byte
+ * @param [in] rsize spi receive data size
+ * @retval hpm_stat_t status_success if spi setup dma transfer without any error
+ */
+hpm_stat_t spi_setup_dma_transfer(SPI_Type *ptr,
+                        spi_control_config_t *config,
+                        uint8_t *cmd, uint32_t *addr,
+                        uint32_t wsize, uint32_t rsize);
 
 /**
  * @}

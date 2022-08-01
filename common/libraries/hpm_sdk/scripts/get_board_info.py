@@ -6,6 +6,7 @@ import yaml
 
 BOARD_INFO_NAME_KEY = 'name'
 BOARD_INFO_SOC_KEY="soc"
+BOARD_INFO_DEVICE_NAME_KEY="device"
 BOARD_INFO_OPENOCD_SOC_KEY="openocd-soc"
 BOARD_INFO_OPENOCD_PROBE_KEY="openocd-probe"
 BOARD_INFO_FEATURE_KEY="feature"
@@ -42,6 +43,11 @@ def get_info(board_yml, info_type = "soc"):
             elif (info_type == "name"):
                 if BOARD_INFO_NAME_KEY in board_info["board"].keys():
                     result = ("%s" % board_info["board"][BOARD_INFO_NAME_KEY])
+            elif(info_type == "device"):
+                if BOARD_INFO_DEVICE_NAME_KEY in board_info["board"].keys():
+                    result = ("%s" % board_info["board"][BOARD_INFO_DEVICE_NAME_KEY])
+                else:
+                    result = ""
             else:
                 is_error = True
         except yaml.YAMLError as e:

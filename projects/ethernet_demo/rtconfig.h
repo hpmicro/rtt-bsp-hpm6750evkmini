@@ -6,7 +6,7 @@
 /* RT-Thread Kernel */
 
 #define RT_NAME_MAX 8
-#define RT_ALIGN_SIZE 4
+#define RT_ALIGN_SIZE 8
 #define RT_THREAD_PRIORITY_32
 #define RT_THREAD_PRIORITY_MAX 32
 #define RT_TICK_PER_SECOND 1000
@@ -101,8 +101,6 @@
 #define RT_USING_HWTIMER
 #define RT_USING_PHY
 #define RT_USING_PIN
-#define RT_USING_RTC
-#define RT_USING_SPI
 
 /* Using USB */
 
@@ -167,12 +165,12 @@
 #define RT_LWIP_UDP_PCB_NUM 4
 #define RT_LWIP_TCP_PCB_NUM 4
 #define RT_LWIP_TCP_SEG_NUM 40
-#define RT_LWIP_TCP_SND_BUF 8196
-#define RT_LWIP_TCP_WND 8196
+#define RT_LWIP_TCP_SND_BUF 14600
+#define RT_LWIP_TCP_WND 14600
 #define RT_LWIP_TCPTHREAD_PRIORITY 10
 #define RT_LWIP_TCPTHREAD_MBOX_SIZE 8
 #define RT_LWIP_TCPTHREAD_STACKSIZE 4096
-#define RT_LWIP_ETHTHREAD_PRIORITY 21
+#define RT_LWIP_ETHTHREAD_PRIORITY 12
 #define RT_LWIP_ETHTHREAD_STACKSIZE 4096
 #define RT_LWIP_ETHTHREAD_MBOX_SIZE 16
 #define LWIP_NETIF_STATUS_CALLBACK 1
@@ -232,9 +230,6 @@
 #define PKG_USING_NETUTILS
 #define PKG_NETUTILS_IPERF
 #define PKG_NETUTILS_NTP
-#define NTP_USING_AUTO_SYNC
-#define NTP_AUTO_SYNC_FIRST_DELAY 30
-#define NTP_AUTO_SYNC_PERIOD 3600
 #define NETUTILS_NTP_HOSTNAME "cn.ntp.org.cn"
 #define NETUTILS_NTP_HOSTNAME2 "ntp.rt-thread.org"
 #define NETUTILS_NTP_HOSTNAME3 "edu.ntp.org.cn"
@@ -286,10 +281,6 @@
 
 /* end of enhanced kernel services */
 
-/* POSIX extension functions */
-
-/* end of POSIX extension functions */
-
 /* acceleration: Assembly language or algorithmic acceleration packages */
 
 /* end of acceleration: Assembly language or algorithmic acceleration packages */
@@ -305,6 +296,10 @@
 
 /* peripheral libraries and drivers */
 
+
+/* Kendryte SDK */
+
+/* end of Kendryte SDK */
 /* end of peripheral libraries and drivers */
 
 /* AI packages */
@@ -340,9 +335,6 @@
 #define BSP_UART0_TX_DMA_CHANNEL 1
 #define BSP_UART0_RX_BUFSIZE 128
 #define BSP_UART0_TX_BUFSIZE 0
-#define BSP_USING_SPI
-#define BSP_USING_SPI1
-#define BSP_USING_RTC
 #define BSP_USING_ETH
 #define BSP_USING_ETH1
 #define BSP_USING_GPTMR

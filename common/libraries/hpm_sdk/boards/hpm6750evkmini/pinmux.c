@@ -5,6 +5,14 @@
  *
  */
 
+/*
+ * Note:
+ *   PY and PZ IOs: if any SOC pin function needs to be routed to these IOs,
+ *  besides of IOC, PIOC/BIOC needs to be configured SOC_GPIO_X_xx, so that
+ *  expected SoC function can be enabled on these IOs.
+ *
+ */
+
 #include "board.h"
 
 void init_uart_pins(UART_Type *ptr)
@@ -12,6 +20,7 @@ void init_uart_pins(UART_Type *ptr)
     if (ptr == HPM_UART0) {
         HPM_IOC->PAD[IOC_PAD_PY07].FUNC_CTL = IOC_PY07_FUNC_CTL_UART0_RXD;
         HPM_IOC->PAD[IOC_PAD_PY06].FUNC_CTL = IOC_PY06_FUNC_CTL_UART0_TXD;
+        /* PY port IO needs to configure PIOC as well */
         HPM_PIOC->PAD[IOC_PAD_PY07].FUNC_CTL = IOC_PY06_FUNC_CTL_SOC_PY_06;
         HPM_PIOC->PAD[IOC_PAD_PY06].FUNC_CTL = IOC_PY07_FUNC_CTL_SOC_PY_07;
     } else if (ptr == HPM_UART6) {
@@ -23,11 +32,13 @@ void init_uart_pins(UART_Type *ptr)
     } else if (ptr == HPM_UART13) {
         HPM_IOC->PAD[IOC_PAD_PZ08].FUNC_CTL = IOC_PZ08_FUNC_CTL_UART13_RXD;
         HPM_IOC->PAD[IOC_PAD_PZ09].FUNC_CTL = IOC_PZ09_FUNC_CTL_UART13_TXD;
+        /* PZ port IO needs to configure BIOC as well */
         HPM_BIOC->PAD[IOC_PAD_PZ08].FUNC_CTL = IOC_PZ08_FUNC_CTL_SOC_PZ_08;
         HPM_BIOC->PAD[IOC_PAD_PZ09].FUNC_CTL = IOC_PZ09_FUNC_CTL_SOC_PZ_09;
     } else if (ptr == HPM_UART14) {
         HPM_IOC->PAD[IOC_PAD_PZ10].FUNC_CTL = IOC_PZ10_FUNC_CTL_UART14_RXD;
         HPM_IOC->PAD[IOC_PAD_PZ11].FUNC_CTL = IOC_PZ11_FUNC_CTL_UART14_TXD;
+        /* PZ port IO needs to configure BIOC as well */
         HPM_BIOC->PAD[IOC_PAD_PZ10].FUNC_CTL = IOC_PZ10_FUNC_CTL_SOC_PZ_10;
         HPM_BIOC->PAD[IOC_PAD_PZ11].FUNC_CTL = IOC_PZ11_FUNC_CTL_SOC_PZ_11;
     }
@@ -174,6 +185,7 @@ void init_gpio_pins(void)
 #ifdef USING_GPIO0_FOR_GPIOZ
     HPM_IOC->PAD[IOC_PAD_PZ02].FUNC_CTL = IOC_PZ02_FUNC_CTL_GPIO_Z_02;
     HPM_IOC->PAD[IOC_PAD_PZ02].PAD_CTL = pad_ctl;
+    /* PZ port IO needs to configure BIOC as well */
     HPM_BIOC->PAD[IOC_PAD_PZ02].FUNC_CTL = IOC_PZ02_FUNC_CTL_SOC_PZ_02;
 #endif
 }
@@ -214,6 +226,19 @@ void init_gptmr_pins(GPTMR_Type *ptr)
     }
 }
 
+void init_hall_trgm_pins(void)
+{
+    HPM_IOC->PAD[IOC_PAD_PD19].FUNC_CTL = IOC_PD19_FUNC_CTL_TRGM2_P_09;
+    HPM_IOC->PAD[IOC_PAD_PD23].FUNC_CTL = IOC_PD23_FUNC_CTL_TRGM2_P_11;
+    HPM_IOC->PAD[IOC_PAD_PD24].FUNC_CTL = IOC_PD24_FUNC_CTL_TRGM2_P_10;
+}
+
+void init_qei_trgm_pins(void)
+{
+    HPM_IOC->PAD[IOC_PAD_PD16].FUNC_CTL = IOC_PD16_FUNC_CTL_TRGM2_P_06;
+    HPM_IOC->PAD[IOC_PAD_PD20].FUNC_CTL = IOC_PD20_FUNC_CTL_TRGM2_P_07;
+}
+
 void init_i2s_pins(I2S_Type *ptr)
 {
     if (ptr == HPM_I2S0) {
@@ -235,6 +260,7 @@ void init_pdm_pins(void)
 {
     HPM_IOC->PAD[IOC_PAD_PY10].FUNC_CTL = IOC_PY10_FUNC_CTL_PDM0_CLK;
     HPM_IOC->PAD[IOC_PAD_PY11].FUNC_CTL = IOC_PY11_FUNC_CTL_PDM0_D_0;
+    /* PY port IO needs to configure PIOC as well */
     HPM_PIOC->PAD[IOC_PAD_PY10].FUNC_CTL = IOC_PY10_FUNC_CTL_SOC_PY_10;
     HPM_PIOC->PAD[IOC_PAD_PY11].FUNC_CTL = IOC_PY11_FUNC_CTL_SOC_PY_11;
 }
@@ -309,8 +335,12 @@ void init_pwm_pins(PWM_Type *ptr)
         HPM_IOC->PAD[IOC_PAD_PB26].FUNC_CTL = IOC_PB26_FUNC_CTL_PWM0_P_5;
         HPM_IOC->PAD[IOC_PAD_PB27].FUNC_CTL = IOC_PB27_FUNC_CTL_PWM0_P_4;
     } else if (ptr == HPM_PWM1) {
-        HPM_IOC->PAD[IOC_PAD_PB18].FUNC_CTL = IOC_PB18_FUNC_CTL_PWM1_P_1;
-        HPM_IOC->PAD[IOC_PAD_PB19].FUNC_CTL = IOC_PB19_FUNC_CTL_PWM1_P_0;
+        HPM_IOC->PAD[IOC_PAD_PB21].FUNC_CTL = IOC_PB21_FUNC_CTL_PWM1_P_3;
+        HPM_IOC->PAD[IOC_PAD_PB22].FUNC_CTL = IOC_PB22_FUNC_CTL_PWM1_P_2;
+        HPM_IOC->PAD[IOC_PAD_PB24].FUNC_CTL = IOC_PB24_FUNC_CTL_PWM1_P_5;
+        HPM_IOC->PAD[IOC_PAD_PB25].FUNC_CTL = IOC_PB25_FUNC_CTL_PWM1_P_4;
+        HPM_IOC->PAD[IOC_PAD_PB29].FUNC_CTL = IOC_PB29_FUNC_CTL_PWM1_P_7;
+        HPM_IOC->PAD[IOC_PAD_PB30].FUNC_CTL = IOC_PB30_FUNC_CTL_PWM1_P_6;
     } else if (ptr == HPM_PWM3) {
         HPM_IOC->PAD[IOC_PAD_PE05].FUNC_CTL = IOC_PE05_FUNC_CTL_PWM3_P_4;
     }
@@ -332,6 +362,13 @@ void init_adc16_pins(void)
 {
     /* ADC3.INA2 */
     HPM_IOC->PAD[IOC_PAD_PE29].FUNC_CTL = IOC_PAD_FUNC_CTL_ANALOG_MASK;
+}
+
+void init_adc_bldc_pins(void)
+{
+    HPM_IOC->PAD[IOC_PAD_PE15].FUNC_CTL = IOC_PAD_FUNC_CTL_ANALOG_MASK;
+    HPM_IOC->PAD[IOC_PAD_PE16].FUNC_CTL = IOC_PAD_FUNC_CTL_ANALOG_MASK;
+    HPM_IOC->PAD[IOC_PAD_PE17].FUNC_CTL = IOC_PAD_FUNC_CTL_ANALOG_MASK;
 }
 
 void init_usb_pins(USB_Type *ptr)
@@ -427,12 +464,7 @@ void init_led_pins_as_pwm(void)
 
 void init_led_pins_as_gpio(void)
 {
-    uint32_t pad_ctl = IOC_PAD_PAD_CTL_PE_SET(1) | IOC_PAD_PAD_CTL_PS_SET(1);
-
     HPM_IOC->PAD[IOC_PAD_PB18].FUNC_CTL = IOC_PB18_FUNC_CTL_GPIO_B_18;
-    HPM_IOC->PAD[IOC_PAD_PB18].PAD_CTL = pad_ctl;
     HPM_IOC->PAD[IOC_PAD_PB19].FUNC_CTL = IOC_PB19_FUNC_CTL_GPIO_B_19;
-    HPM_IOC->PAD[IOC_PAD_PB19].PAD_CTL = pad_ctl;
     HPM_IOC->PAD[IOC_PAD_PB20].FUNC_CTL = IOC_PB20_FUNC_CTL_GPIO_B_20;
-    HPM_IOC->PAD[IOC_PAD_PB20].PAD_CTL = pad_ctl;
 }

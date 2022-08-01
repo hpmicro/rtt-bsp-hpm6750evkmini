@@ -35,8 +35,11 @@ HPM6750是一款主频达816Mhz的双核微控制器。该芯片拥有最大2M�
 |OFF, ON| 串行启动 |
 |ON, OFF| 在系统编程 |
 
+(lab_hpm6750_evkmini_board)=
 ## 按键
+(lab_hpm6750_evkmini_board_buttons)=
 | 名称 | 功能 |
+|----------|------------|
 |PBUTN (S2) | 电源按键, TinyUF2 Boot按键, GPIO 按键|
 |WBUTN (S3) | WAKE UP 按键|
 |RESET (S4) | Reset 按键|
@@ -44,5 +47,40 @@ HPM6750是一款主频达816Mhz的双核微控制器。该芯片拥有最大2M�
 
 ## 引脚描述
 
-(lab_hpm6750_evk_board)=
 
+- SPI引脚：
+
+| 功能 | 位置 |
+| ---- | -------- |
+| SPI2.CSN    | P1[24] |
+| SPI2.SCLK   | P1[23] |
+| SPI2.MISO   | P1[21] |
+| SPI2.MOSI   | P1[19] |
+
+- I2C引脚：
+
+| 功能 | 位置 |
+| ---- | -------- |
+| I2C0.SCL    | P1[13] |
+| I2C0.SDA    | P1[15] |
+
+- CORE1调试串口引脚：
+
+| 功能 | 位置 |
+| ---- | -------- |
+| UART13.TXD    | P1[8] |
+| UART13.RXD    | P1[10] |
+
+- ACMP引脚
+
+| 功能 | 位置 |
+| ---- | -------- |
+| CMP.INN6    | P2[11] |
+| CMP.COMP_1  | P1[7] |
+
+- GPTMR引脚
+
+| 功能 | 位置 |
+| ---- | -------- |
+| GPTMR2.CAPT_2  | P2[15] |
+| GPTMR2.COMP_2  | P2[19] |

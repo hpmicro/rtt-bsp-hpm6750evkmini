@@ -30,6 +30,8 @@ hpm_stat_t console_init(console_config_t *cfg);
 
 uint8_t console_receive_byte(void);
 
+void console_send_byte(uint8_t c);
+
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus */

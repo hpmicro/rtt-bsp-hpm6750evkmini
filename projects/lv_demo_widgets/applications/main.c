@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2022 hpmicro
  *
  * Change Logs:
  * Date         Author          Notes
- * 2021-08-13   Fan YANG        first version
+ * 2022-02-14   hpmicro         first version
  *
  */
 
@@ -37,7 +37,7 @@ void thread_entry(void *parameter)
     while(1)
     {
         lv_task_handler();
-        rt_thread_mdelay(10);
+        rt_thread_mdelay(5);
     }
 }
 

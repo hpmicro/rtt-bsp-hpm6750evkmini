@@ -13,6 +13,9 @@ void cam_get_default_config(CAM_Type *ptr, cam_config_t *config, display_pixel_f
 {
     config->width = 320;
     config->height = 240;
+    config->pixclk_sampling_falling = false;
+    config->hsync_active_low = false;
+    config->vsync_active_low = false;
     config->color_ext = false;
     config->data_pack_msb = false;
     config->enable_buffer2 = false;
@@ -73,7 +76,9 @@ hpm_stat_t cam_init(CAM_Type *ptr, cam_config_t *config)
 
     cam_reset(ptr);
 
-    ptr->CR1 = CAM_CR1_INV_HSYNC_MASK
+    ptr->CR1 = CAM_CR1_INV_PIXCLK_SET(config->pixclk_sampling_falling)
+        | CAM_CR1_INV_HSYNC_SET(config->hsync_active_low)
+        | CAM_CR1_INV_VSYNC_SET(config->vsync_active_low)
         | CAM_CR1_RESTART_BUSPTR_MASK
         | CAM_CR1_COLOR_EXT_SET(config->color_ext)
         | CAM_CR1_PACK_DIR_SET(config->data_pack_msb)

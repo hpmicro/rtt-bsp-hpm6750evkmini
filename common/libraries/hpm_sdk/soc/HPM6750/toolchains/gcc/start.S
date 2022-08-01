@@ -21,6 +21,15 @@ _start:
     /* reset mstatus to 0*/
     csrrw x0, mstatus, x0
 
+#ifdef __riscv_flen
+    /* Enable FPU */
+    li t0, CSR_MSTATUS_FS_MASK
+    csrrs t0, mstatus, t0
+
+    /* Initialize FCSR */
+    fscsr zero
+#endif
+
 #ifdef INIT_EXT_RAM_FOR_DATA
     la t0, _stack_safe
     mv sp, t0
@@ -40,15 +49,6 @@ _start:
     /* Initialize EXEC.IT table */
     la t0, _ITB_BASE_
     csrw uitb, t0
-#endif
-
-#ifdef __riscv_flen
-    /* Enable FPU */
-    li t0, CSR_MSTATUS_FS_MASK
-    csrrs t0, mstatus, t0
-
-    /* Initialize FCSR */
-    fscsr zero
 #endif
 
 #ifndef CONFIG_FREERTOS 
@@ -85,16 +85,4 @@ exit:
 nmi_handler:
 1:    j 1b
 
-    .global default_irq_handler
-    .weak default_irq_handler
-    .align 2
-default_irq_handler:
-1:    j 1b
-
-    .macro IRQ_HANDLER irq
-    .weak default_isr_\irq
-    .set default_isr_\irq, default_irq_handler
-    .long default_isr_\irq
-    .endm
-
-#include "../vectors.S"
+#include "../vectors.h"

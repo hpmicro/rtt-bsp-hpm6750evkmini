@@ -1,3 +1,6 @@
+# Copyright 2021-2022 hpmicro
+# SPDX-License-Identifier: BSD-3-Clause
+
 import os
 import sys
 
@@ -31,7 +34,7 @@ else:
 BUILD = 'flash_debug'
 
 if PLATFORM == 'gcc':
-    PREFIX = 'riscv64-unknown-elf-'
+    PREFIX = 'riscv32-unknown-elf-'
     CC = PREFIX + 'gcc'
     CXX = PREFIX + 'g++'
     AS = PREFIX + 'gcc'
@@ -44,12 +47,12 @@ if PLATFORM == 'gcc':
     OBJCPY = PREFIX + 'objcopy'
     STRIP = PREFIX + 'strip'
 
-    DEVICE = ' -std=c99 -DUSE_NONVECTOR_MODE=1'
-    ARCH_ABI = ' -march=rv32imac -mabi=ilp32 -mcmodel=medlow '
+    DEVICE = ' -std=gnu11 -DUSE_NONVECTOR_MODE=1'
+    ARCH_ABI = '   -mcmodel=medlow '
     CFLAGS = DEVICE + ARCH_ABI + ' -ffunction-sections -fdata-sections -fno-common'
     AFLAGS = CFLAGS
-    LFLAGS  = ARCH_ABI + ' --specs=nosys.specs -nostartfiles -Wl,--gc-sections '
-
+    LFLAGS  = ARCH_ABI + '  --specs=nano.specs --specs=nosys.specs  -u _printf_float -u _scanf_float -nostartfiles -Wl,--gc-sections '
+  
     CPATH = ''
     LPATH = ''
 

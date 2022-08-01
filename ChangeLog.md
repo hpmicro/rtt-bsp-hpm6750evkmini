@@ -1,5 +1,19 @@
 # Change Log
 
+## v0.7.0
+- Integrated the SDK v0.12.1 release
+  - Note:
+    - The docs,middleware folder in SDK root directory were removed
+- Updated:
+  - Switched toolchain to RISC-V-GCC-RV32
+  - Improved the throughput for 100M Ethernet
+  - Implemented i2c driver
+- Fixed:
+  - flashdb_demo: "fal bench" command may report error
+  - SD card multi-block read/write issue
+- Added examples:
+  - usb_host_msc_udisk
+
 ## v0.5.0
 - Integrated the SDK v0.10.0 release
   - Note:

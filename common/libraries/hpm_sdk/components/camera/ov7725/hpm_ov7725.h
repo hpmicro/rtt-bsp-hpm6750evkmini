@@ -18,6 +18,11 @@
 #define OV7725_CHIP_ID_LOW_BYTE_ADDR              (0x0B)
 #define OV7725_CHIP_ID_LOW_BYTE_VALUE             (0x21) /* need to check */
 
+#define OV7725_RST_ACTIVE    0
+#define OV7725_RST_INACTIVE  1
+#define OV7725_PWDN_ACTIVE   1
+#define OV7725_PWDN_INACTIVE 0
+
 #define GAIN                    (0x00U) /* AGC – Gain control gain setting */
 #define BLUE                    (0x01U) /* AWB – Blue channel gain setting */
 #define RED                     (0x02U) /* AWB – Red channel gain setting */
@@ -183,8 +188,8 @@
 
 #define LC_CTR                  (0x46U) /* Lens Correction Control */
 #define LC_CTR_RGB_COMP_1       (0x00U) /* R, G, and B channel compensation coefficient is set by LC_COEF ((0x49U)) */
-#define LC_CTR_RGB_COMP_3       (0x04U) /* R, G, and B channel compensation coefficient is set by registers
-                                        LC_COEFB ((0x4BU)), LC_COEF ((0x49U)), and LC_COEFR ((0x4CU)), respectively */
+/* R, G, and B channel compensation coefficient is set by registers LC_COEFB ((0x4BU)), LC_COEF ((0x49U)), and LC_COEFR ((0x4CU)), respectively */
+#define LC_CTR_RGB_COMP_3       (0x04U)
 #define LC_CTR_EN               (0x01U) /* Lens correction enable */
 #define LC_XC                   (0x47U) /* X Coordinate of Lens Correction Center Relative to Array Center */
 #define LC_YC                   (0x48U) /* Y Coordinate of Lens Correction Center Relative to Array Center */
@@ -353,12 +358,19 @@ hpm_stat_t ov7725_write_register(camera_context_t *context, uint8_t reg, uint8_t
 /*
  * ov7725 reset
  */
-hpm_stat_t ov7725_reset(camera_context_t *context);
+hpm_stat_t ov7725_software_reset(camera_context_t *context);
 
 /*
  * ov7725 check chip id
  */
 hpm_stat_t ov7725_check_chip_id(camera_context_t *context);
+
+/**
+ * @brief ov7725 power up
+ *
+ * @param [in] context camera_context_t
+ */
+void ov7725_power_up(camera_context_t *context);
 
 #ifdef __cplusplus
 }

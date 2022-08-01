@@ -178,22 +178,22 @@ typedef struct {
 #define SDP_MODCTRL_AESALG_GET(x) (((uint32_t)(x) & SDP_MODCTRL_AESALG_MASK) >> SDP_MODCTRL_AESALG_SHIFT)
 
 /*
- * ASEMOD (RW)
+ * AESMOD (RW)
  *
  * AES mode selection.
  * 0x0 = ECB;
  * 0x1 = CBC;
  * Others, reserved.
  */
-#define SDP_MODCTRL_ASEMOD_MASK (0xF000000UL)
-#define SDP_MODCTRL_ASEMOD_SHIFT (24U)
-#define SDP_MODCTRL_ASEMOD_SET(x) (((uint32_t)(x) << SDP_MODCTRL_ASEMOD_SHIFT) & SDP_MODCTRL_ASEMOD_MASK)
-#define SDP_MODCTRL_ASEMOD_GET(x) (((uint32_t)(x) & SDP_MODCTRL_ASEMOD_MASK) >> SDP_MODCTRL_ASEMOD_SHIFT)
+#define SDP_MODCTRL_AESMOD_MASK (0xF000000UL)
+#define SDP_MODCTRL_AESMOD_SHIFT (24U)
+#define SDP_MODCTRL_AESMOD_SET(x) (((uint32_t)(x) << SDP_MODCTRL_AESMOD_SHIFT) & SDP_MODCTRL_AESMOD_MASK)
+#define SDP_MODCTRL_AESMOD_GET(x) (((uint32_t)(x) & SDP_MODCTRL_AESMOD_MASK) >> SDP_MODCTRL_AESMOD_SHIFT)
 
 /*
  * AESKS (RW)
  *
- * ASE Key Selection.
+ * AES Key Selection.
  * These regisgers are being used to select the AES key that stored in the 16x128 key ram of the SDP, or select the key from the OTP. Detail as following:
  * 0x00: key from the 16x128, this is the key read address, valid for AES128; AES256 will use 128 bit from this address and 128 bit key from next address as 256 bit AES key.
  * 0x01: key from the 16x128, this is the key read address, valid for AES128, not valid for AES286.

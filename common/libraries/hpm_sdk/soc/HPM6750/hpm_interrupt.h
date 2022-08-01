@@ -597,10 +597,10 @@ void mchtmr_isr(void) {\
  *
  * @param[in] isr - SWI IRQ handler function pointer
  */
-#define SDK_DECLARE_MSWI_ISR(isr)\
+#define SDK_DECLARE_SWI_ISR(isr)\
 void isr(void) __attribute__((section(".isr_vector")));\
-HPM_EXTERN_C void mswi_isr(void) __attribute__((section(".isr_vector"))); \
-void mswi_isr(void) {\
+HPM_EXTERN_C void swi_isr(void) __attribute__((section(".isr_vector"))); \
+void swi_isr(void) {\
     isr();\
 }
 

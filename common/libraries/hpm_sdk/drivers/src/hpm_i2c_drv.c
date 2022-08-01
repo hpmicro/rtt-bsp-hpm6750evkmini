@@ -430,17 +430,20 @@ hpm_stat_t i2c_init_slave(I2C_Type *ptr, uint32_t src_clk_in_hz,
     return stat;
 }
 
-hpm_stat_t i2c_slave_write(I2C_Type *ptr, uint8_t buf)
+hpm_stat_t i2c_slave_write(I2C_Type *ptr, uint8_t *buf, const uint32_t size)
 {
-    uint32_t retry;
     volatile uint32_t status;
+    uint32_t retry;
+    uint32_t left;
 
     retry = 0;
-    while (retry < HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
+    left = size;
+    while (left) {
         status = ptr->STATUS;
         if (!(status & I2C_STATUS_FIFOFULL_MASK)) {
-            ptr->DATA = buf;
-            break;
+            ptr->DATA = *(buf++);
+            left--;
+            retry = 0;
         } else {
             if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
                 break;
@@ -450,6 +453,23 @@ hpm_stat_t i2c_slave_write(I2C_Type *ptr, uint8_t buf)
     }
     if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
         return status_timeout;
+    }
+
+    retry = 0;
+    while (!(ptr->STATUS & I2C_STATUS_CMPL_MASK)) {
+        if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
+            break;
+        }
+        retry++;
+    }
+    if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
+        return status_timeout;
+    }
+    /* clear status, CMPL must to be cleared at slave mode before next transaction */
+    i2c_clear_status(ptr, ptr->STATUS);
+
+    if (i2c_get_data_count(ptr) != size) {
+        return status_i2c_transmit_not_completed;
     }
 
     return status_success;
@@ -482,6 +502,23 @@ hpm_stat_t i2c_slave_read(I2C_Type *ptr,
         return status_timeout;
     }
 
+    retry = 0;
+    while (!(ptr->STATUS & I2C_STATUS_CMPL_MASK)) {
+        if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
+            break;
+        }
+        retry++;
+    }
+    if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
+        return status_timeout;
+    }
+    /* clear status, CMPL must to be cleared at slave mode before next transaction */
+    i2c_clear_status(ptr, ptr->STATUS);
+
+    if (i2c_get_data_count(ptr) != size) {
+        return status_i2c_transmit_not_completed;
+    }
+
     return status_success;
 }
 
@@ -495,5 +532,29 @@ void i2c_master_start_dma_write(I2C_Type *i2c_ptr, const uint16_t device_address
         | I2C_CTRL_DIR_SET(I2C_DIR_MASTER_WRITE)
         | I2C_CTRL_DATACNT_SET(size);
 
+    i2c_ptr->SETUP |= I2C_SETUP_DMAEN_MASK;
+
     i2c_ptr->CMD = I2C_CMD_ISSUE_DATA_TRANSMISSION;
+}
+
+void i2c_master_start_dma_read(I2C_Type *i2c_ptr, const uint16_t device_address, uint32_t size)
+{
+    i2c_ptr->ADDR = I2C_ADDR_ADDR_SET(device_address);
+    i2c_ptr->CTRL = I2C_CTRL_PHASE_START_MASK
+        | I2C_CTRL_PHASE_STOP_MASK
+        | I2C_CTRL_PHASE_ADDR_MASK
+        | I2C_CTRL_PHASE_DATA_MASK
+        | I2C_CTRL_DIR_SET(I2C_DIR_MASTER_READ)
+        | I2C_CTRL_DATACNT_SET(size);
+
+    i2c_ptr->SETUP |= I2C_SETUP_DMAEN_MASK;
+
+    i2c_ptr->CMD = I2C_CMD_ISSUE_DATA_TRANSMISSION;
+}
+
+void i2c_slave_dma_transfer(I2C_Type *i2c_ptr, uint32_t size)
+{
+    i2c_ptr->CTRL |= I2C_CTRL_DATACNT_SET(size);
+
+    i2c_ptr->SETUP |= I2C_SETUP_DMAEN_MASK;
 }

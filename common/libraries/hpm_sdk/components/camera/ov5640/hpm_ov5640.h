@@ -19,6 +19,11 @@
 #define OV5640_CHIP_ID_LOW_BYTE_ADDR              (0x300B)
 #define OV5640_CHIP_ID_LOW_BYTE_VALUE             (0x40)
 
+#define OV5640_RST_ACTIVE    0
+#define OV5640_RST_INACTIVE  1
+#define OV5640_PWDN_ACTIVE   1
+#define OV5640_PWDN_INACTIVE 0
+
 /* Camera clock configuration elements. */
 typedef struct {
     uint32_t resolution;
@@ -86,7 +91,7 @@ hpm_stat_t ov5640_write_multi_registers(camera_context_t *context, const ov5640_
 /*
  * ov5640 softreset
  */
-hpm_stat_t ov5640_soft_reset(camera_context_t *context);
+hpm_stat_t ov5640_software_reset(camera_context_t *context);
 
 /*
  * ov5640 set pixel format
@@ -155,6 +160,13 @@ hpm_stat_t ov5640_set_light_mode(camera_context_t *context, int32_t lightmode);
  * ov5640 set special effect
  */
 hpm_stat_t ov5640_set_special_effect(camera_context_t *context, int32_t effect);
+
+/**
+ * @brief ov5640 power up
+ *
+ * @param [in] context camera_context_t
+ */
+void ov5640_power_up(camera_context_t *context);
 
 #ifdef __cplusplus
 }

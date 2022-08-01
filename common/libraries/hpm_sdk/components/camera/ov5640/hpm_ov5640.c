@@ -499,7 +499,7 @@ hpm_stat_t ov5640_write_multi_registers(camera_context_t *context, const ov5640_
     return stat;
 }
 
-hpm_stat_t ov5640_soft_reset(camera_context_t *context)
+hpm_stat_t ov5640_software_reset(camera_context_t *context)
 {
     hpm_stat_t stat = status_success;
 
@@ -808,3 +808,15 @@ hpm_stat_t ov5640_init(camera_context_t *context, camera_config_t *ov_config)
     return stat;
 }
 
+void ov5640_power_up(camera_context_t *context)
+{
+    assert((context->delay_ms != NULL) && (context->write_rst != NULL) && (context->write_pwdn != NULL));
+
+    context->write_rst(OV5640_RST_ACTIVE);
+    context->write_pwdn(OV5640_PWDN_ACTIVE);
+    context->delay_ms(5);
+    context->write_pwdn(OV5640_PWDN_INACTIVE);
+    context->delay_ms(2);
+    context->write_rst(OV5640_RST_INACTIVE);
+    context->delay_ms(20);
+}

@@ -10,12 +10,12 @@
 #include <errno.h>
 #include "hpm_common.h"
 
-caddr_t _sbrk(int incr)
+void *_sbrk(int incr)
 {
     extern char __heap_start__, __heap_end__;
     static char *heap_end;
     char *prev_heap_end;
-    caddr_t ret;
+    void *ret;
 
     if (heap_end == NULL)
     {
@@ -28,13 +28,13 @@ caddr_t _sbrk(int incr)
     {
         errno = ENOMEM;
 
-        ret = (caddr_t)-1;
+        ret = (void *)-1;
     }
     else
     {
         heap_end = (char *)((unsigned int)heap_end + (unsigned int)incr);
 
-        ret = (caddr_t)prev_heap_end;
+        ret = (void *)prev_heap_end;
     }
 
     return ret;

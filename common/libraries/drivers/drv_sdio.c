@@ -2,10 +2,12 @@
  * Copyright (c) 2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Change Logs:
+ * Date         Author      Notes
+ * 2022-02-23   hpmicro     First version
+ * 2022-07-19   hpmicro     Fixed the multi-block read/write issue
  */
-
-
-
 #include <rtthread.h>
 
 #ifdef BSP_USING_SDXC
@@ -73,7 +75,10 @@ static void hpm_sdmmc_request(struct rt_mmcsd_host *host, struct rt_mmcsd_req *r
     uint32_t *aligned_buf = NULL;
     hpm_stat_t err = status_invalid_argument;
 
-    RT_ASSERT(host != RT_NULL);RT_ASSERT(host->private_data != RT_NULL);RT_ASSERT(req != RT_NULL);RT_ASSERT(req->cmd != RT_NULL);
+    RT_ASSERT(host != RT_NULL);
+    RT_ASSERT(host->private_data != RT_NULL);
+    RT_ASSERT(req != RT_NULL);
+    RT_ASSERT(req->cmd != RT_NULL);
 
     mmcsd = (struct hpm_mmcsd *) host->private_data;
 
@@ -183,10 +188,17 @@ static void hpm_sdmmc_request(struct rt_mmcsd_host *host, struct rt_mmcsd_req *r
             sdxc_data.tx_data = NULL;
         }
         xfer.data = &sdxc_data;
+
+
     }
     else
     {
         xfer.data = NULL;
+    }
+
+    if ((req->data->blks > 1) && ((cmd->cmd_code == READ_MULTIPLE_BLOCK) || ((cmd->cmd_code == WRITE_MULTIPLE_BLOCK))))
+    {
+        xfer.data->enable_auto_cmd12 = true;
     }
 
     err = sdxc_transfer_blocking(mmcsd->sdxc_base, &adma_config, &xfer);
@@ -228,38 +240,12 @@ static void hpm_sdmmc_request(struct rt_mmcsd_host *host, struct rt_mmcsd_req *r
             l1c_dc_invalidate((uint32_t) data->buf, read_size);
             rt_exit_critical();
         }
-
-#if defined(DBG_LEVEL) && (DBG_LEVEL >= DBG_INFO)
-        if ((cmd->cmd_code == 17) || (cmd->cmd_code == 18))
-        {
-            uint8_t *data_8 = (uint8_t*) data->buf;
-            uint32_t data_size = data->blksize * data->blks;
-            for (uint32_t i = 0; i < data_size; i += 16)
-            {
-                LOG_I("%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-                        data_8[0], data_8[1], data_8[2], data_8[3], data_8[4], data_8[5], data_8[6], data_8[7],
-                        data_8[8], data_8[9], data_8[10], data_8[11],data_8[12], data_8[13], data_8[14], data_8[15]);
-                data_8 += 16;
-            }
-        }
-#endif
     }
 
     if (aligned_buf != NULL)
     {
         rt_free_align(aligned_buf);
         aligned_buf = NULL;
-    }
-
-    if (req->stop->cmd_code == STOP_TRANSMISSION)
-    {
-        sdxc_cmd.cmd_index = STOP_TRANSMISSION;
-        sdxc_cmd.resp_type = sdxc_dev_resp_r1b;
-        sdxc_cmd.cmd_flags = 0;
-        sdxc_cmd.cmd_argument = req->stop->arg;
-        sdxc_send_command(mmcsd->sdxc_base, &sdxc_cmd);
-
-        sdxc_wait_cmd_done(mmcsd->sdxc_base, &sdxc_cmd, true);
     }
 
     if ((cmd->flags & RESP_MASK) == RESP_R2)

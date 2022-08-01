@@ -24,7 +24,7 @@ typedef struct {
     __RW uint32_t MISC_CFGR;                   /* 0x58: Misc configuration Registers */
     __R  uint8_t  RESERVED3[4];                /* 0x5C - 0x5F: Reserved */
     __RW uint32_t RXDSLOT[4];                  /* 0x60 - 0x6C: Rx Slots Enable for Rx Data0 */
-    __RW uint32_t TXDSLOT[4];                  /* 0x70 - 0x7C: Tx Slots Enable for Rx Data0 */
+    __RW uint32_t TXDSLOT[4];                  /* 0x70 - 0x7C: Tx Slots Enable for Tx Data0. */
 } I2S_Type;
 
 
@@ -265,7 +265,7 @@ typedef struct {
 /*
  * TX_UD (W1C)
  *
- * Asserted when tx fifo is underflow. Write 1 to any of these 4 bits will clear the underflow error.
+ * Asserted when tx fifo is underflow. Should be ANDed with CTRL[tx_en] the for correct value. Write 1 to any of these 4 bits will clear the underflow error.
  */
 #define I2S_STA_TX_UD_MASK (0x1E000UL)
 #define I2S_STA_TX_UD_SHIFT (13U)
@@ -273,7 +273,7 @@ typedef struct {
 #define I2S_STA_TX_UD_GET(x) (((uint32_t)(x) & I2S_STA_TX_UD_MASK) >> I2S_STA_TX_UD_SHIFT)
 
 /*
- * RX_OV (RW)
+ * RX_OV (W1C)
  *
  * Asserted when rx fifo is overflow. Write 1 to any of these 4 bits will clear the overflow error.
  */

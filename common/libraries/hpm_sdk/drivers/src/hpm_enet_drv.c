@@ -8,7 +8,6 @@
 /*---------------------------------------------------------------------*
  * Includes
  *---------------------------------------------------------------------*/
-#include "board.h"
 #include "hpm_enet_drv.h"
 #include "hpm_enet_soc_drv.h"
 
@@ -50,11 +49,11 @@ static int enet_dma_init(ENET_Type *ptr, enet_desc_t *desc, uint32_t intr)
 
     ptr->DMA_BUS_MODE &= ~ENET_DMA_BUS_MODE_FB_MASK;
 
-    /* set programmable burst length */
-    ptr->DMA_BUS_MODE |= ENET_DMA_BUS_MODE_PBL_SET(enet_pbl_16);
+    /* enable pblx8 mode */
+    ptr->DMA_BUS_MODE |= ENET_DMA_BUS_MODE_PBLX8_MASK;
 
-    /* disable pblx8 mode */
-    ptr->DMA_BUS_MODE &= ~ENET_DMA_BUS_MODE_PBLX8_MASK;
+    /* set programmable burst length */
+    ptr->DMA_BUS_MODE |= ENET_DMA_BUS_MODE_PBL_SET(enet_pbl_32);
 
     /* disable separate pbl */
     ptr->DMA_BUS_MODE &= ~ENET_DMA_BUS_MODE_USP_MASK;
@@ -100,13 +99,6 @@ static int enet_mac_init(ENET_Type *ptr, enet_mac_config_t *config, enet_inf_typ
         }
     }
 
-    ptr->MAC_ADDR[ENET_MAC_ADDR_1].HIGH |= ENET_MAC_ADDR_HIGH_AE_MASK;
-    ptr->MAC_ADDR[ENET_MAC_ADDR_1].HIGH |= ENET_MAC_ADDR_HIGH_SA_MASK;
-    ptr->MAC_ADDR[ENET_MAC_ADDR_1].HIGH &= ~ENET_MAC_ADDR_HIGH_MBC_MASK;
-
-    ptr->MAC_ADDR[ENET_MAC_ADDR_1].HIGH &= ~ENET_MAC_ADDR_HIGH_AE_MASK;
-    ptr->MAC_ADDR[ENET_MAC_ADDR_1].HIGH &= ~ENET_MAC_ADDR_HIGH_SA_MASK;
-
 
     /* set the appropriate filters for the incoming frames */
     ptr->MACFF |= ENET_MACFF_RA_SET(1);      /* receive all */
@@ -124,6 +116,15 @@ static int enet_mac_init(ENET_Type *ptr, enet_mac_config_t *config, enet_inf_typ
     } else {
         return status_invalid_argument;
     }
+
+    ptr->MACCFG |= ENET_MACCFG_DM_MASK;
+
+    if (ENET_MACCFG_DM_GET(ptr->MACCFG) == 0) {
+        ptr->MACCFG |= ENET_MACCFG_IFG_SET(4);
+    } else {
+        ptr->MACCFG |= ENET_MACCFG_IFG_SET(2);
+    }
+
 
     /* enable transmitter enable and receiver */
     ptr->MACCFG |= ENET_MACCFG_TE_MASK | ENET_MACCFG_RE_MASK;
@@ -193,7 +194,6 @@ int enet_controller_init(ENET_Type *ptr, enet_inf_type_t inf_type, enet_desc_t *
 
     /* Initialize MAC */
     enet_mac_init(ptr, config, inf_type, mask_intr);
-
 
     return true;
 }

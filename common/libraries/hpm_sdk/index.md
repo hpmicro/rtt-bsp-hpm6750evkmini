@@ -7,7 +7,7 @@ hpm sdk
    :name: HPM README Document
 
    CHANGELOG
-   doc/README
+   README
    boards/index
    samples/index
    doc/src/sdk_doc/README

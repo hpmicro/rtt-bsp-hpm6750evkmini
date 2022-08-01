@@ -45,6 +45,9 @@
       rv_arch_ext="xv5"
       rv_debug_extensions="Andes"
       rv_toolchain_prefix="andes-"
+      {% if target["enable_nds_dsp"] -%}
+      rv32andes_compiler_ext_dsp="Yes"
+      {%- endif %}
       {% else %}
       rv_arch_ext=""
       rv_debug_extensions="None"
@@ -57,6 +60,9 @@
       {% if target["cplusplus"] -%}
       gcc_cplusplus_language_standard="c++11"
       libcxx="Yes"
+      {%- if target["enable_cpp_exceptions"] -%}
+      cpp_enable_exceptions="Yes"
+      {%- endif %}
       {%- endif %}
       {% if target["ses_link_input"] -%}
       linker_additional_files="{{ target["ses_link_input"] }}"
@@ -66,6 +72,7 @@
     <file file_name="{{ file.path }}"/>{% endfor %}</folder>{% endfor %}
     <configuration
       Name="Debug"
+      debug_cpu_registers_file="{{ target["cpu_register_definition"] }}"
       debug_register_definition_file="{{ target["register_definition"] }}"
       gdb_server_allow_memory_access_during_execution="Yes"
       gdb_server_ignore_checksum_errors="No"
@@ -73,6 +80,7 @@
       />
     <configuration
       Name="Release"
+      debug_cpu_registers_file="{{ target["cpu_register_definition"] }}"
       debug_register_definition_file="{{ target["register_definition"] }}"
       />
   </project>

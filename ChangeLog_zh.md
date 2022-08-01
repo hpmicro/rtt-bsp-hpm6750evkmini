@@ -1,4 +1,18 @@
 # 更新
+## v0.7.0
+
+- 整合了SDK v0.12.1
+  - 注：
+    - SDK根目录下的doc等目录被删除
+- 更新：
+  - Toolchain切换到RISC-V-GCC-RV32
+  - 提升了100M以太网吞吐率
+  - 增加了i2c驱动
+- 修复：
+  - flashdb_demo中fal bench 命令可能会报写错误
+  - sd卡 multi-block read/write 错误
+- 增加了如下示例：
+  - usb_host_msc_udisk
 
 ## v0.5.0
 

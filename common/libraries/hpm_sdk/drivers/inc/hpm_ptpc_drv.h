@@ -27,7 +27,7 @@
 
 #define PTPC_MAX_NS_COUNTER (0x3B9ACA00UL)
 
-/*
+/**
  * @brief Counter types
  */
 typedef enum ptpc_ns_counter_rollover_type {
@@ -35,7 +35,7 @@ typedef enum ptpc_ns_counter_rollover_type {
     ptpc_ns_counter_rollover_digital = 1, /**< digital mode, resolution 1ns, overflow at 0x3B9ACA00 */
 } ptpc_ns_counter_rollover_type_t;
 
-/*
+/**
  * @brief Capture trigger types
  */
 typedef enum ptpc_capture_trigger_type {
@@ -46,7 +46,15 @@ typedef enum ptpc_capture_trigger_type {
                                         | PTPC_PTPC_CTRL0_CAPT_SNAP_NEG_EN_MASK,
 } ptpc_capture_trigger_type_t;
 
-/*
+/**
+ * @brief Capture trigger types
+ */
+typedef enum ptpc_counting_mode {
+    ptpc_counting_increment = 0,            /**< Increment the counter */
+    ptpc_counting_decrement = 1,            /**< Decrement the counter */
+} ptpc_counting_mode;
+
+/**
  * @brief Timer config
  */
 typedef struct {
@@ -140,10 +148,11 @@ static inline void ptpc_set_second_update(PTPC_Type *ptr, uint8_t index, uint32_
  * @param[in] ptr PTPC base address
  * @param[in] index Target index
  * @param[in] ns Ns value (31 bits, 0x3B9ACA00 max)
+ * @param[in] mode Counting mode
  *
  * @return status_success if everything is okay
  */
-hpm_stat_t ptpc_set_ns_update(PTPC_Type *ptr, uint8_t index, uint32_t ns);
+hpm_stat_t ptpc_set_ns_update(PTPC_Type *ptr, uint8_t index, uint32_t ns, ptpc_counting_mode mode);
 
 /**
  * @brief   Get current timestamp Second portion
@@ -204,11 +213,11 @@ static inline void ptpc_update_timestamp_second(PTPC_Type *ptr, uint8_t index, u
  * @param[in] ptr PTPC base address
  * @param[in] index Target index
  * @param[in] ns Target ns
- * @param[in] decr Decrement if true
+ * @param[in] mode Counting mode
  */
-static inline void ptpc_update_timestamp_ns(PTPC_Type *ptr, uint8_t index, uint32_t ns, bool decr)
+static inline void ptpc_update_timestamp_ns(PTPC_Type *ptr, uint8_t index, uint32_t ns, ptpc_counting_mode mode)
 {
-    ptr->PTPC[index].TS_UPDTL = PTPC_PTPC_TS_UPDTL_NS_UPDATE_SET(ns) | PTPC_PTPC_TS_UPDTL_ADD_SUB_SET(decr);
+    ptr->PTPC[index].TS_UPDTL = PTPC_PTPC_TS_UPDTL_NS_UPDATE_SET(ns) | PTPC_PTPC_TS_UPDTL_ADD_SUB_SET(mode);
 }
 
 /**
@@ -364,11 +373,11 @@ void ptpc_init_timer(PTPC_Type *ptr, uint8_t index);
  * @param[in] index Target index
  * @param[in] sec Seconds
  * @param[in] ns Ns
- * @param[in] decr Decrement if true
+ * @param[in] mode Counting mode
  *
  * @return status_success if everything is okay
  */
-hpm_stat_t ptpc_init_timer_with_initial(PTPC_Type *ptr, uint8_t index, uint32_t sec, uint32_t ns, bool decr);
+hpm_stat_t ptpc_init_timer_with_initial(PTPC_Type *ptr, uint8_t index, uint32_t sec, uint32_t ns, ptpc_counting_mode mode);
 
 /**
  * @brief   Update timestamp counter
@@ -377,10 +386,10 @@ hpm_stat_t ptpc_init_timer_with_initial(PTPC_Type *ptr, uint8_t index, uint32_t 
  * @param[in] index Target index
  * @param[in] sec Seconds
  * @param[in] ns Ns
- * @param[in] decr Decrement if true
+ * @param[in] mode Counting mode
  * @return status_success if everything is okay
  */
-hpm_stat_t ptpc_update_timer(PTPC_Type *ptr, uint8_t index, uint32_t sec, uint32_t ns, bool decr);
+hpm_stat_t ptpc_update_timer(PTPC_Type *ptr, uint8_t index, uint32_t sec, uint32_t ns, ptpc_counting_mode mode);
 
 /**
  * @brief   Set period of pulse generated per second

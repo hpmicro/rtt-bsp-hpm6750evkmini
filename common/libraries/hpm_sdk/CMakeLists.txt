@@ -10,10 +10,10 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
 # to store all options
-add_library(hpm_sdk_lib_itf INTERFACE)
+add_library(${HPM_SDK_LIB_ITF} INTERFACE)
 
-add_library(hpm_sdk_lib STATIC "")
-target_link_libraries(hpm_sdk_lib PUBLIC hpm_sdk_lib_itf)
+add_library(${HPM_SDK_LIB} STATIC "")
+target_link_libraries(${HPM_SDK_LIB} PUBLIC ${HPM_SDK_LIB_ITF})
 
 include(cmake/extra_flags.cmake)
 
@@ -114,6 +114,10 @@ if(DEFINED CUSTOM_STARTUP_FILE)
 endif()
 
 sdk_sys_inc(${SYSROOT_DIR}/include)
+
+# parse module list file provided in soc folder, it will decide which modules to be enabled under drivers folder
+import_soc_modules(soc/${HPM_SOC}/soc_modules.list)
+
 add_subdirectory(arch)
 add_subdirectory(boards)
 add_subdirectory(soc)
@@ -133,13 +137,13 @@ if(DEFINED USE_LINKER_TEMPLATE)
    add_custom_command(
        OUTPUT ${LINKER_SCRIPT}
        DEPENDS
-       ${HPM_SDK_BASE}/soc/${SOC}/toolchains/gcc/linker.ld
+       ${HPM_SDK_BASE}/soc/${HPM_SOC}/toolchains/gcc/linker.ld
        ${linker_script_dep}
        COMMAND ${CMAKE_C_COMPILER}
        -x assembler-with-cpp
        -MD -MF ${LINKER_SCRIPT}.dep -MT ${base_name}/${LINKER_SCRIPT}
        ${all_defs}
-       -E ${HPM_SDK_BASE}/soc/${SOC}/toolchains/gcc/linker.ld
+       -E ${HPM_SDK_BASE}/soc/${HPM_SOC}/toolchains/gcc/linker.ld
        -P
        -o ${LINKER_SCRIPT}
        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
@@ -157,11 +161,11 @@ set_target_properties(${APP_ELF_NAME} PROPERTIES LINK_DEPENDS ${LINKER_SCRIPT})
 if("${TOOLCHAIN_VARIANT}" STREQUAL "nds-gcc")
     target_link_libraries(${APP_ELF_NAME}
         "-Wl,-Map=${PROJECT_BINARY_DIR}/${APP_MAP_NAME}"
-        hpm_sdk_lib hpm_sdk_lib_itf hpm_sdk_nds_lib_itf app)
+        ${HPM_SDK_LIB} ${HPM_SDK_LIB_ITF} hpm_sdk_nds_lib_itf app)
 else()
     target_link_libraries(${APP_ELF_NAME}
     "-Wl,-Map=${PROJECT_BINARY_DIR}/${APP_MAP_NAME}"
-    hpm_sdk_lib hpm_sdk_lib_itf app)
+    ${HPM_SDK_LIB} ${HPM_SDK_LIB_ITF} app)
 endif()
 
 add_custom_command(

@@ -8,6 +8,8 @@
 #ifndef HPM_SOC_FEATURE_H
 #define HPM_SOC_FEATURE_H
 
+#include "hpm_soc.h"
+
 /*
  * I2C Section
  */
@@ -16,10 +18,12 @@
 /*
  * PMIC Section
  */
-#define PCFG_SOC_LDO1P1_MIN_VOLTAGE_IN_MV (900U)
-#define PCFG_SOC_LDO1P1_MAX_VOLTAGE_IN_MV (1100U)
-#define PCFG_SOC_LDO2P5_MIN_VOLTAGE_IN_MV (2100U)
-#define PCFG_SOC_LDO2P5_MAX_VOLTAGE_IN_MV (2500U)
+#define PCFG_SOC_LDO1P1_MIN_VOLTAGE_IN_MV (700U)
+#define PCFG_SOC_LDO1P1_MAX_VOLTAGE_IN_MV (1320U)
+#define PCFG_SOC_LDO2P5_MIN_VOLTAGE_IN_MV (2125)
+#define PCFG_SOC_LDO2P5_MAX_VOLTAGE_IN_MV (2900U)
+#define PCFG_SOC_DCDC_MIN_VOLTAGE_IN_MV (600U)
+#define PCFG_SOC_DCDC_MAX_VOLTAGE_IN_MV (1375U)
 
 /*
  * I2S Section
@@ -56,7 +60,8 @@
 /*
  * DMA Section
  */
-#define DMA_SOC_TRANSFER_WIDTH_MAX DMA_TRANSFER_WIDTH_DOUBLE_WORD
+#define DMA_SOC_TRANSFER_WIDTH_MAX(x) (((x) == HPM_XDMA) ? DMA_TRANSFER_WIDTH_DOUBLE_WORD : DMA_TRANSFER_WIDTH_WORD)
+#define DMA_SOC_TRANSFER_PER_BURST_MAX(x) (((x) == HPM_XDMA) ? DMA_NUM_TRANSFER_PER_BURST_1024T : DMA_NUM_TRANSFER_PER_BURST_128T)
 #define DMA_SOC_BUS_NUM (1U)
 #define DMA_SOC_CHANNEL_NUM (8U)
 
@@ -104,12 +109,25 @@
 #define ENET_SOC_ALT_EHD_DES_MIN_LEN               (4U)
 #define ENET_SOC_ALT_EHD_DES_MAX_LEN               (8U)
 #define ENET_SOC_ALT_EHD_DES_LEN                   (8U)
+
 /*
 * ADC Section
 */
-#define ADC_SOC_MAX_SEQ_LEN         (16U)
-#define ADC_SOC_MAX_TRIG_CH_LEN     (4U)
-#define ADC_SOC_DMA_ADDR_ALIGNMENT  (4U)
+#define ADC_SOC_MAX_SEQ_LEN                        (16U)
+#define ADC_SOC_MAX_TRIG_CH_LEN                    (4U)
+#define ADC_SOC_DMA_ADDR_ALIGNMENT                 (4U)
+#define ADC_SOC_CONFIG_INTEN_CHAN_BIT_SIZE         (8U)
+#define ADC_SOC_PREEMPT_ENABLE_CTRL_SUPPORT        (0U)
+
+#define ADC12_SOC_CLOCK_CLK_DIV                    (2U)
+#define ADC12_SOC_CALIBRATION_WAITING_LOOP_CNT     (10)
+#define ADC12_SOC_MAX_CH_NUM                       (17U)
+#define ADC12_SOC_TEMP_CH_NUM                      (18U)
+#define ADC12_SOC_INVALID_TEMP_BASE                (0xF0010000UL)
+
+#define ADC16_SOC_PARAMS_LEN                       (34U)
+#define ADC16_SOC_MAX_CH_NUM                       (7U)
+#define ADC16_SOC_TEMP_CH_NUM                      (14U)
 
 /*
  * SYSCTL Section
@@ -126,5 +144,10 @@
  * CAN Section
  */
 #define CAN_SOC_MAX_COUNT       (4U)
+
+/*
+ * CAN Section
+ */
+#define UART_SOC_FIFO_SIZE       (16U)
 
 #endif /* HPM_SOC_FEATURE_H */

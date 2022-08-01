@@ -8,9 +8,6 @@
 #ifndef HPM_ADC16_DRV_H
 #define HPM_ADC16_DRV_H
 
-/*---------------------------------------------------------------------*
- * Includes
- *---------------------------------------------------------------------*/
 #include "hpm_common.h"
 #include "hpm_adc16_regs.h"
 #include "hpm_soc_feature.h"
@@ -22,48 +19,66 @@
  * @{
  */
 
-/*---------------------------------------------------------------------*
- *  Typedef Enum Declarations
- *---------------------------------------------------------------------*/
-
 /** @brief Define ADC16 conversion modes. */
 typedef enum {
-   adc16_conv_mode_oneshot = 0,
+    adc16_conv_mode_oneshot = 0,
     adc16_conv_mode_period,
     adc16_conv_mode_sequence,
-    adc16_conv_mode_preempt
+    adc16_conv_mode_preemption
 } adc16_conversion_mode_t;
 
-/** @brief Define a trigger event of one trigger conversion. */
-#define adc16_event_trig_complete       ADC16_INT_STS_TRIG_CMPT_MASK
+/** @brief  Define ADC16 irq events. */
+typedef enum {
+    /** This mask indicates that a trigger conversion is complete. */
+    adc16_event_trig_complete       = ADC16_INT_STS_TRIG_CMPT_MASK,
 
-/** @brief Define a DMA abort event in sequence mode . */
-#define adc16_event_seq_dma_abort       ADC16_INT_STS_SEQ_DMAABT_MASK
+    /** This mask indicates that a conflict caused by software-triggered conversions. */
+    adc16_event_trig_sw_conflict    = ADC16_INT_STS_TRIG_SW_CFLCT_MASK,
 
-/** @brief Define a complete event of the full of sequence conversions. */
-#define adc16_event_seq_full_complete   ADC16_INT_STS_SEQ_CMPT_MASK
+    /** This mask indicates that a conflict caused by hardware-triggered conversions. */
+    adc16_event_trig_hw_conflict    = ADC16_INT_STS_TRIG_HW_CFLCT_MASK,
 
-/** @brief Define a complete event of one of the full of sequence conversions. */
-#define adc16_event_seq_single_complete ADC16_INT_STS_SEQ_CVC_MASK
+    /** This mask indicates that a conflict caused when bus reading from different channels. */
+    adc16_event_read_conflict       = ADC16_INT_STS_READ_CFLCT_MASK,
 
-/*---------------------------------------------------------------------*
- *  Typedef Struct Declarations
- *---------------------------------------------------------------------*/
+    /** This mask indicates that a conflict caused by sequence-triggered conversions. */
+    adc16_event_seq_sw_conflict     = ADC16_INT_STS_SEQ_SW_CFLCT_MASK,
+
+    /** This mask indicates that a conflict caused by hardware-triggered conversions. */
+    adc16_event_seq_hw_conflict     = ADC16_INT_STS_SEQ_HW_CFLCT_MASK,
+
+    /** This mask indicates that DMA is stopped currently. */
+    adc16_event_seq_dma_abort       = ADC16_INT_STS_SEQ_DMAABT_MASK,
+
+    /** This mask indicates that all of the configured conversion(s) in a queue is(are) complete. */
+    adc16_event_seq_full_complete   = ADC16_INT_STS_SEQ_CMPT_MASK,
+
+    /** This mask indicates that one of the configured conversion(s) in a queue is complete. */
+    adc16_event_seq_single_complete = ADC16_INT_STS_SEQ_CVC_MASK,
+
+    /** This mask indicates that DMA FIFO is full currently. */
+    adc16_event_dma_fifo_full       = ADC16_INT_STS_DMA_FIFO_FULL_MASK
+} adc16_irq_event_t;
+
 /** @brief ADC16 common configuration struct. */
 typedef struct {
-    uint8_t ch;
-    uint8_t sample_cycle_shift;
     uint8_t conv_mode;
     uint8_t wait_dis;
-    uint16_t thshdh;
-    uint16_t thshdl;
-    uint32_t sample_cycle;
     uint32_t adc_clk_div;
     uint16_t conv_duration;
     bool port3_rela_time;
     bool sel_sync_ahb;
     bool adc_ahb_en;
 } adc16_config_t;
+
+/** @brief ADC16 channel configuration struct. */
+typedef struct {
+   uint8_t ch;
+   uint16_t thshdh;
+   uint16_t thshdl;
+   uint8_t sample_cycle_shift;
+   uint32_t sample_cycle;
+} adc16_channel_config_t;
 
 /** @brief ADC16 DMA configuration struct. */
 typedef struct {
@@ -73,7 +88,7 @@ typedef struct {
     bool stop_en;
 } adc16_dma_config_t;
 
-/** @brief ADC16 DMA configuration struct for sequence mode. */
+/** @brief ADC16 DMA configuration struct for the sequence mode. */
 typedef struct {
     uint32_t result    :16;
     uint32_t seq_num   :4;
@@ -83,7 +98,7 @@ typedef struct {
     uint32_t cycle_bit :1;
 } adc16_seq_dma_data_t;
 
-/** @brief ADC16 DMA configuration struct for preemption mode. */
+/** @brief ADC16 DMA configuration struct for the preemption mode. */
 typedef struct {
     uint32_t result     :16;
     uint32_t trig_ch    :2;
@@ -92,23 +107,23 @@ typedef struct {
     uint32_t adc_ch     :5;
     uint32_t            :2;
     uint32_t cycle_bit  :1;
-} adc16_preempt_dma_data_t;
+} adc16_pmt_dma_data_t;
 
-/** @brief ADC16 configuration struct for period mode. */
+/** @brief ADC16 configuration struct for the the period mode. */
 typedef struct {
-    uint32_t clk_src_in_hz;
+    uint32_t clk_src_freq_in_hz;
     uint8_t ch;
     uint8_t prescale;
-    uint8_t period_ms;
+    uint8_t period_in_ms;
 } adc16_prd_config_t;
 
-/** @brief ADC16 queue configuration struct for sequence mode. */
+/** @brief ADC16 queue configuration struct for the sequence mode. */
 typedef struct {
     bool seq_int_en;
     uint8_t ch;
 } adc16_seq_queue_config_t;
 
-/** @brief ADC16 configuration struct for sequence mode. */
+/** @brief ADC16 configuration struct for the sequence mode. */
 typedef struct {
     adc16_seq_queue_config_t queue[ADC_SOC_MAX_SEQ_LEN];
     bool restart_en;
@@ -118,17 +133,14 @@ typedef struct {
     uint8_t seq_len;
 } adc16_seq_config_t;
 
-/** @brief ADC16 trigger configuration struct for preempt mode. */
+/** @brief ADC16 trigger configuration struct for the preemption mode. */
 typedef struct {
     bool    inten[ADC_SOC_MAX_TRIG_CH_LEN];
     uint8_t adc_ch[ADC_SOC_MAX_TRIG_CH_LEN];
     uint8_t trig_ch;
     uint8_t trig_len;
-} adc16_trig_config_t;
+} adc16_pmt_config_t;
 
-/*---------------------------------------------------------------------*
- *  API Declarations
- *---------------------------------------------------------------------*/
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -138,53 +150,85 @@ extern "C" {
  */
 
 /**
- * @brief Get a default configuration for an adc16 instance.
+ * @brief Get a default configuration for an ADC16 instance.
  *
- * @param[out] config A pointer to the configuration struct of "adc16_config_t".
+ * @param[out] config A pointer to the configuration struct of @ref adc16_config_t.
  *
  */
-void adc16_init_default_config(adc16_config_t *config);
+void adc16_get_default_config(adc16_config_t *config);
 
 /**
- * @brief Initialize an adc16 instance.
+ * @brief Get a default configuration for an ADC16 Channel.
  *
- * @param[in] ptr An adc16 peripheral base address.
- * @param[in] config A pointer to the configuration struct of "adc16_config_t".
- * @retval status_success Initialize an ADC instance successfully.
- * @retval status_invalid_argument Initialize an ADC instance unsuccessfully because of passing one or more invalid arguments.
+ * @param[out] config A pointer to the configuration struct of @ref adc16_channel_config_t.
+ */
+void adc16_get_channel_default_config(adc16_channel_config_t *config);
+
+/**
+ * @brief Initialize an ADC16 instance.
+ *
+ * @param[in] ptr An ADC16 peripheral base address.
+ * @param[in] config A pointer to the configuration struct of @ref adc16_config_t.
+ * @return A result of initializing an ADC16 instance.
+ * @retval status_success Initialize an ADC16 instance successfully. Please refer to @ref hpm_stat_t.
+ * @retval status_invalid_argument Initialize an ADC16 instance unsuccessfully due to passing one or more invalid arguments. Please refer to @ref hpm_stat_t.
  */
 hpm_stat_t adc16_init(ADC16_Type *ptr, adc16_config_t *config);
 
 /**
- * @brief Configure the periodic mode for an adc16 instance.
+ * @brief Initialize an ADC16 channel
  *
- * @param[in] ptr An adc16 peripheral base address.
- * @param[in] config A pointer to the configuration struct of "adc16_prd_config_t".
- * @retval status_success Configure the periodic mode for an ADC instance successfully.
- * @retval status_invalid_argument Configure the periodic mode for an ADC instance unsuccessfully because of passing one or more invalid arguments.
- *
+ * @param[in] ptr An ADC16 peripheral base address.
+ * @param[in] config A pointer to the configuration struct of @ref adc16_channel_config_t.
+ * @return A result of initializing an ADC16 channel.
+ * @retval status_success Initialize an ADC16 channel successfully. Please refert to @ref hpm_stat_t.
+ * @retval status_invalid_argument Initialize an ADC16 channel unsuccessfully due to passing one or more invalid arguments. Please refert to @ref hpm_stat_t.
  */
-hpm_stat_t adc16_set_period_config(ADC16_Type *ptr, adc16_prd_config_t *config);
+hpm_stat_t adc16_channel_init(ADC16_Type *ptr, adc16_channel_config_t *config);
 
 /**
- * @brief Configure the sequence mode for an adc16 instance.
+ * @brief Configure the the period mode for an ADC16 instance.
  *
- * @param[in] ptr An adc16 peripheral base address.
- * @param[in] config A pointer to configuration struct of "adc16_seq_config_t".
- * @retval status_success Configure the sequence mode for an ADC instance successfully.
- * @retval status_invalid_argument Configure the sequence mode for an ADC instance unsuccessfully because of passing one or more invalid arguments.
+ * @param[in] ptr An ADC16 peripheral base address.
+ * @param[in] config A pointer to the configuration struct of @ref adc16_prd_config_t.
+ * @return A result of configuring the the period mode for an ADC16 instance.
+ * @retval status_success Configure the the period mode successfully. Please refert to @ref hpm_stat_t.
+ * @retval status_invalid_argument Configure the the period mode unsuccessfully due to passing one or more invalid arguments. Please refert to @ref hpm_stat_t.
  */
-hpm_stat_t adc16_set_sequence_config(ADC16_Type *ptr, adc16_seq_config_t *config);
+hpm_stat_t adc16_set_prd_config(ADC16_Type *ptr, adc16_prd_config_t *config);
 
 /**
- * @brief Configure the preemption mode for an adc16 instance.
+ * @brief Configure the sequence mode for an ADC16 instance.
  *
- * @param[in] ptr An adc16 peripheral base address.
- * @param[in] config a pointer to configuration struct of "adc16_trig_config_t".
- * @retval status_success Configure the preemption mode for an ADC instance successfully.
- * @retval status_invalid_argument Configure the preemption mode for an ADC instance unsuccessfully because of passing one or more invalid arguments.
+ * @param[in] ptr An ADC16 peripheral base address.
+ * @param[in] config A pointer to configuration struct of @ref adc16_seq_config_t.
+ * @return A result of configuring the sequence mode for an ADC16 instance.
+ * @retval status_success Configure the sequence mode successfully. Please refert to @ref hpm_stat_t.
+ * @retval status_invalid_argument Configure the sequence mode unsuccessfully due to passing one or more invalid arguments. Please refert to @ref hpm_stat_t.
  */
-hpm_stat_t adc16_set_preempt_config(ADC16_Type *ptr, adc16_trig_config_t *config);
+hpm_stat_t adc16_set_seq_config(ADC16_Type *ptr, adc16_seq_config_t *config);
+
+/**
+ * @brief Configure the preemption mode for an ADC16 instance.
+ *
+ * @param[in] ptr An ADC16 peripheral base address.
+ * @param[in] config A pointer to configuration struct of @ref adc16_pmt_config_t.
+ * @return A result of configuring the preemption mode for an ADC16 instance.
+ * @retval status_success Configure the preemption mode successfully. Please refert to @ref hpm_stat_t.
+ * @retval status_invalid_argument Configure the preemption mode unsuccessfully due to passing one or more invalid arguments. Please refert to @ref hpm_stat_t.
+ */
+hpm_stat_t adc16_set_pmt_config(ADC16_Type *ptr, adc16_pmt_config_t *config);
+
+/**
+ * @brief Set the queue enable control.
+ *
+ * @param[in] ptr An ADC16 peripheral base address.
+ * @param[in] trig_ch An ADC16 peripheral trigger channel.
+ * @param[in] enable A enable control
+ * @retval status_success Get the result of an ADC16 conversion in oneshot mode successfully.
+ * @retval status_invalid_argument Get the result of an ADC16 conversion in oneshot mode unsuccessfully due to passing invalid arguments.
+ */
+hpm_stat_t adc16_set_pmt_queue_enable(ADC16_Type *ptr, uint8_t trig_ch, bool enable);
 
 /** @} */
 
@@ -194,10 +238,10 @@ hpm_stat_t adc16_set_preempt_config(ADC16_Type *ptr, adc16_trig_config_t *config
  */
 
 /**
- * @brief Configure the stop position offset in the specified memory for DMA write operation for sequence mode.
+ * @brief Configure the stop position offset in the specified memory of DMA write operation for the sequence mode.
  *
- * @param[in] ptr An adc16 peripheral base address.
- * @param[in] stop_pos The stop position offset.
+ * @param[in] ptr An ADC16 peripheral base address.
+ * @param[in] stop_pos A stop position offset.
  */
 static inline void adc16_set_seq_stop_pos(ADC16_Type *ptr, uint16_t stop_pos)
 {
@@ -206,21 +250,21 @@ static inline void adc16_set_seq_stop_pos(ADC16_Type *ptr, uint16_t stop_pos)
 }
 
 /**
- * @brief Configure the start address of DMA write operation for preemption mode.
+ * @brief Configure the start address of DMA write operation for the preemption mode.
  *
- * @param[in] ptr An adc16 peripheral base address.
- * @param[in] addr The start address of DMA write operation.
+ * @param[in] ptr An ADC16 peripheral base address.
+ * @param[in] addr A start address of DMA write operation.
  */
-static inline void adc16_init_preempt_dma(ADC16_Type *ptr, uint32_t addr)
+static inline void adc16_init_pmt_dma(ADC16_Type *ptr, uint32_t addr)
 {
     ptr->TRG_DMA_ADDR = addr & ADC16_TRG_DMA_ADDR_TRG_DMA_ADDR_MASK;
 }
 
 /**
- * @brief Configure the start address of DMA write operation for preemption mode.
+ * @brief Configure the start address of DMA write operation for the preemption mode.
  *
- * @param[in] ptr An adc16 peripheral base address.
- * @param[in] config A pointer to configuration struct of "adc16_dma_config_t".
+ * @param[in] ptr An ADC16 peripheral base address.
+ * @param[in] config A pointer to configuration struct of @ref adc16_dma_config_t.
  */
 void adc16_init_seq_dma(ADC16_Type *ptr, adc16_dma_config_t *config);
 
@@ -232,11 +276,11 @@ void adc16_init_seq_dma(ADC16_Type *ptr, adc16_dma_config_t *config);
  */
 
 /**
- * @brief Get ADC status flags.
+ * @brief Get all ADC16 status flags.
  *
- * This function gets all ADC status flags.
- * @param[in] ptr An adc16 peripheral base address.
- * @retval Status The adc16 interrupt status flags.
+ * @param[in] ptr An ADC16 peripheral base address.
+ * @return A mask indicating all corresponding interrupt statuses.
+ * @retval A mask. Please refer to @ref adc16_irq_event_t.
  */
 static inline uint32_t adc16_get_status_flags(ADC16_Type *ptr)
 {
@@ -244,12 +288,12 @@ static inline uint32_t adc16_get_status_flags(ADC16_Type *ptr)
 }
 
 /**
- * @brief Get the setting value of wait disable.
+ * @brief Get the setting value of the WAIT_DIS bit.
  *
- * This status flag is only used when wait_dis is set to disable.
- *
- * @param[in] ptr An adc16 peripheral base address.
- * @retval Status It means whether the current setting of wait disable is disable.
+ * @param[in] ptr An ADC16 peripheral base address.
+ * @return Status that indicats whether the current setting of the WAIT_DIS bit in the BUF_RESULT register is disabled.
+ * @retval true  It means that the WAIT_DIS bit is 1.
+ * @retval false It means that the WAIT_DIS bit is 0.
  */
 static inline bool adc16_get_wait_dis_status(ADC16_Type *ptr)
 {
@@ -257,13 +301,13 @@ static inline bool adc16_get_wait_dis_status(ADC16_Type *ptr)
 }
 
 /**
- * @brief Get status flag of a Conversion.
+ * @brief Get the status of a conversion validity.
  *
- * This status flag is only used when wait_dis is set to disable.
+ * @param[in] ptr An ADC16 peripheral base address.
+ * @param[in] ch An ADC16 peripheral channel.
+ * @retval Status indicating the validity of the current conversion result.
  *
- * @param[in] ptr An adc16 peripheral base address.
- * @param[in] ch An adc16 peripheral channel.
- * @retval Status It means  the current conversion is valid.
+ * @note This function is only used when the WAIT_DIS bit in the BUF_RESULT register is 1.
  */
 static inline bool adc16_get_conv_valid_status(ADC16_Type *ptr, uint8_t ch)
 {
@@ -271,12 +315,13 @@ static inline bool adc16_get_conv_valid_status(ADC16_Type *ptr, uint8_t ch)
 }
 
 /**
- * @brief Clear status flags.
+ * @brief Clear the status flags.
  *
- * Only the specified flags can be cleared by writing INT_STS register.
  *
- * @param[in] ptr An adc16 peripheral base address.
- * @param[in] mask Mask value for flags to be cleared. Refer to "_adc16_status_flags".
+ * @param[in] ptr An ADC16 peripheral base address.
+ * @param[in] mask A mask that means the specified flags to be cleared. Please refer to @ref adc16_irq_event_t.
+ *
+ * @note Only the specified flags can be cleared by writing the INT_STS register.
  */
 static inline void adc16_clear_status_flags(ADC16_Type *ptr, uint32_t mask)
 {
@@ -293,8 +338,8 @@ static inline void adc16_clear_status_flags(ADC16_Type *ptr, uint32_t mask)
 /**
  * @brief Enable interrupts.
  *
- * @param[in] ptr An adc16 peripheral base address.
- * @param[in] mask Mask value for interrupt events. Refer to "_adc16_interrupt_enable".
+ * @param[in] ptr An ADC16 peripheral base address.
+ * @param[in] mask A mask indicating the specified ADC interrupt events. Please refer to @ref adc16_irq_event_t.
  */
 static inline void adc16_enable_interrupts(ADC16_Type *ptr, uint32_t mask)
 {
@@ -304,8 +349,8 @@ static inline void adc16_enable_interrupts(ADC16_Type *ptr, uint32_t mask)
 /**
  * @brief Disable interrupts.
  *
- * @param[in] ptr An adc16 peripheral base address.
- * @param[in] mask Mask value for interrupt events. Refer to "_adc16_interrupt_enable".
+ * @param[in] ptr An ADC16 peripheral base address.
+ * @param[in] mask A mask indicating the specified interrupt events. Please refer to @ref adc16_irq_event_t.
  */
 static inline void adc16_disable_interrupts(ADC16_Type *ptr, uint32_t mask)
 {
@@ -320,34 +365,33 @@ static inline void adc16_disable_interrupts(ADC16_Type *ptr, uint32_t mask)
  */
 
 /**
- * @brief Do a software trigger for sequence mode.
+ * @brief Trigger ADC coversions by software
  *
- * @param[in] ptr An adc16 peripheral base address.
- *
+ * @param[in] ptr An ADC16 peripheral base address.
  */
 void adc16_trigger_seq_by_sw(ADC16_Type *ptr);
 
 /**
  * @brief Get the result in oneshot mode.
  *
- * @param[in] ptr An adc16 peripheral base address.
- * @param[in] ch An adc16 peripheral channel.
- * @param[out] result The result of an adc16 conversion.
- *
- * @retval status_success Get the result of an adc16 conversion in oneshot mode successfully.
- * @retval status_invalid_argument Get the result of an adc16 conversion in oneshot mode unsuccessfully because of passing invalid arguments.
+ * @param[in] ptr An ADC16 peripheral base address.
+ * @param[in] ch An ADC16 peripheral channel.
+ * @param[out] result A pointer to an ADC16 conversion result.
+ * @return An implementation result of getting an ADC16 conversion result in oneshot mode.
+ * @retval status_success Get the result of an ADC16 conversion in oneshot mode successfully. Please refert to @ref hpm_stat_t.
+ * @retval status_invalid_argument Get the result of an ADC16 conversion in oneshot mode unsuccessfully due to passing invalid arguments. Please refert to @ref hpm_stat_t.
  */
 hpm_stat_t adc16_get_oneshot_result(ADC16_Type *ptr, uint8_t ch, uint16_t *result);
 
 /**
- * @brief Get the result in periodic mode.
+ * @brief Get the result in the period mode.
  *
- * @param[in] ptr An adc16 peripheral base address.
- * @param[in] ch An adc16 peripheral channel.
- * @param[out] result The result of an adc16 conversion.
- *
- * @retval status_success Get the result of an adc16 conversion in periodic mode successfully.
- * @retval status_invalid_argument Get the result of an adc16 conversion in periodic mode unsuccessfully because of passing invalid arguments.
+ * @param[in] ptr An ADC16 peripheral base address.
+ * @param[in] ch An ADC16 peripheral channel.
+ * @param[out] result A pointer to a specified ADC16 conversion result
+ * @return An implementation of getting an ADC16 conversion result in the period mode.
+ * @retval status_success Get the result of an ADC16 conversion in the period mode successfully. Please refert to @ref hpm_stat_t.
+ * @retval status_invalid_argument Get the result of an ADC16 conversion in the period mode unsuccessfully due to passing invalid arguments. Please refert to @ref hpm_stat_t.
  */
 hpm_stat_t adc16_get_prd_result(ADC16_Type *ptr, uint8_t ch, uint16_t *result);
 

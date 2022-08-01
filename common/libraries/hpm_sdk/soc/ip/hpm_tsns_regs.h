@@ -154,7 +154,7 @@ typedef struct {
  * 1: twice and average
  * 2: 4 times and average(default)
  * . . .
- * 7: 256 times and average
+ * 7: 128 times and average
  */
 #define TSNS_CONFIG_AVERAGE_MASK (0x700U)
 #define TSNS_CONFIG_AVERAGE_SHIFT (8U)

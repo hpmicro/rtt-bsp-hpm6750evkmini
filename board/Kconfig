@@ -17,7 +17,7 @@ menu "On-chip Peripheral Drivers"
         bool "Enable UART"
         default y
         select RT_USING_SERIAL
-        
+
         if BSP_USING_UART
             menuconfig BSP_USING_UART0
                 bool "Enable UART0 (Debugger)"
@@ -172,7 +172,7 @@ menu "On-chip Peripheral Drivers"
                         default 0
                 endif
         endif
-        
+
 
 
     menuconfig BSP_USING_SPI
@@ -196,10 +196,10 @@ menu "On-chip Peripheral Drivers"
        default n
 
     menuconfig BSP_USING_ETH
-       bool "Enable Ethernet"       
-       default n 
-       select RT_USING_ETH 
-        if BSP_USING_ETH     
+       bool "Enable Ethernet"
+       default n
+       select RT_USING_ETH
+        if BSP_USING_ETH
             config BSP_USING_ETH1
                 bool "Enable ETH1"
                     default n
@@ -287,11 +287,11 @@ menu "On-chip Peripheral Drivers"
     menuconfig INIT_EXT_RAM_FOR_DATA
         bool "INIT_EXT_RAM_FOR_DATA"
         default y
-        
-        
+
+
     menuconfig BSP_USING_XPI_FLASH
     	bool "Enable XPI FLASH"
-	default n 
+	default n
     	select PKG_USING_FAL if BSP_USING_XPI_FLASH
 
     menuconfig BSP_USING_PWM
@@ -305,9 +305,12 @@ menu "On-chip Peripheral Drivers"
        		config BSP_USING_USB_DEVICE
                 bool "Enable USB Device"
                     default n
+            config BSP_USING_USB_HOST
+                bool "Enable USB HOST"
+                    default n
        endif
-       
-     
+
+
      menuconfig BSP_USING_WDG
      	bool "Enable Watchdog"
      	default n
@@ -326,7 +329,7 @@ menu "On-chip Peripheral Drivers"
      			bool "Enable WDG3"
      			default n
      	endif
-     		
+
      menuconfig BSP_USING_CAN
      	bool "Enable CAN"
      	default n
@@ -344,7 +347,38 @@ menu "On-chip Peripheral Drivers"
      		config BSP_USING_CAN3
      			bool "Enable CAN3"
      			default n
-     endif
+     	endif
+
+     menuconfig BSP_USING_ADC
+     	bool "Enable ADC"
+     	default n
+     	select RT_USING_ADC if BSP_USING_ADC
+     	if BSP_USING_ADC
+     		menuconfig BSP_USING_ADC12
+     		bool "Enable ADC12"
+     		default n
+     			if BSP_USING_ADC12
+		     		config BSP_USING_ADC0
+		     			bool "Enable ADC0"
+		     			default n
+		     		config BSP_USING_ADC1
+		     			bool "Enable ADC1"
+		     			default n
+		     		config BSP_USING_ADC2
+		     			bool "Enable ADC2"
+		     			default n
+		     	endif
+	     	if !BSP_USING_ADC12
+		     	menuconfig BSP_USING_ADC16
+	     		bool "Enable ADC16"
+	     		default n
+	     			if BSP_USING_ADC16
+			     		config BSP_USING_ADC3
+			     			bool "Enable ADC3"
+			     			default n
+		     		endif
+	     	endif
+         endif
 endmenu
 
 

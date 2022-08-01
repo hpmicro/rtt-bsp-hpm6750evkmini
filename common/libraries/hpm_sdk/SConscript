@@ -12,6 +12,7 @@ src = []
 
 src += ['drivers/src/hpm_pmp_drv.c']
 src += ['drivers/src/hpm_pllctl_drv.c']
+src += ['drivers/src/hpm_pllctlv2_drv.c']
 src += ['drivers/src/hpm_dma_drv.c']
 
 
@@ -34,7 +35,10 @@ if GetDepend(['BSP_USING_WDG']):
     src += ['drivers/src/hpm_wdg_drv.c']
 
 if GetDepend(['BSP_USING_ADC']):
-    src += ['drivers/src/hpm_adc12_drv.c']
+	if GetDepend(['BSP_USING_ADC12']):
+    	    src += ['drivers/src/hpm_adc12_drv.c']
+	if GetDepend(['BSP_USING_ADC16']):
+    	    src += ['drivers/src/hpm_adc16_drv.c']
 
 if GetDepend(['BSP_USING_CAN']):
     src += ['drivers/src/hpm_can_drv.c']
@@ -61,8 +65,8 @@ if GetDepend(['BSP_USING_PWM']):
     src += ['drivers/src/hpm_pwm_drv.c']
 
 if GetDepend(['BSP_USING_USB']):
-    src += ['drivers/src/hpm_usb_drv.c'] 
-    
+    src += ['drivers/src/hpm_usb_drv.c']
+
 group = DefineGroup('Libraries', src, depend = [''], CPPPATH = path)
 
 Return ('group')

@@ -23,6 +23,8 @@
 #include "drv_wdt.h"
 #include "drv_hwtimer.h"
 #include "drv_can.h"
+#include "drv_adc.h"
+#include "drv_usb.h"
 
 void os_tick_config(void);
 
@@ -41,9 +43,9 @@ void rtt_board_init(void)
 
 void app_init_led_pins(void)
 {
-    gpio_enable_pin_output(APP_LED0_GPIO_CTRL, APP_LED0_GPIO_INDEX, APP_LED0_GPIO_PIN);
-    gpio_enable_pin_output(APP_LED1_GPIO_CTRL, APP_LED1_GPIO_INDEX, APP_LED1_GPIO_PIN);
-    gpio_enable_pin_output(APP_LED2_GPIO_CTRL, APP_LED2_GPIO_INDEX, APP_LED2_GPIO_PIN);
+    gpio_set_pin_output(APP_LED0_GPIO_CTRL, APP_LED0_GPIO_INDEX, APP_LED0_GPIO_PIN);
+    gpio_set_pin_output(APP_LED1_GPIO_CTRL, APP_LED1_GPIO_INDEX, APP_LED1_GPIO_PIN);
+    gpio_set_pin_output(APP_LED2_GPIO_CTRL, APP_LED2_GPIO_INDEX, APP_LED2_GPIO_PIN);
 
     gpio_write_pin(APP_LED0_GPIO_CTRL, APP_LED0_GPIO_INDEX, APP_LED0_GPIO_PIN, APP_LED_OFF);
     gpio_write_pin(APP_LED1_GPIO_CTRL, APP_LED1_GPIO_INDEX, APP_LED1_GPIO_PIN, APP_LED_OFF);
@@ -124,6 +126,16 @@ void rt_hw_board_init(void)
     rt_hw_can_init();
 #endif
 
+#ifdef BSP_USING_ADC
+    /* Initialize ADC device */
+    init_adc_pins();
+    rt_hw_adc_init();
+#endif
+
+#ifdef BSP_USING_USB_HOST
+    rt_hw_usb_init();
+#endif
+
     rt_console_set_device(RT_CONSOLE_DEVICE_NAME);
 }
 
@@ -143,3 +155,17 @@ ATTR_PLACE_AT(".isr_vector") void mchtmr_isr(void)
     rt_tick_increase();
     rt_interrupt_leave();
 }
+
+void rt_hw_cpu_reset(void)
+{
+    HPM_PPOR->RESET_ENABLE = (1UL << 31);
+    HPM_PPOR->RESET_HOT &= ~(1UL << 31);
+    HPM_PPOR->RESET_COLD |= (1UL << 31);
+
+    HPM_PPOR->SOFTWARE_RESET = 1000U;
+    while(1) {
+
+    }
+}
+
+MSH_CMD_EXPORT_ALIAS(rt_hw_cpu_reset, reset, reset the board);

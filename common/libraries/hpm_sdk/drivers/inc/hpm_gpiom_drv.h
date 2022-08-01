@@ -9,6 +9,7 @@
 #define HPM_GPIOM_DRV_H
 
 #include "hpm_gpiom_regs.h"
+#include "hpm_gpiom_soc_drv.h"
 
 /**
  * 
@@ -17,14 +18,6 @@
  * @ingroup io_interfaces
  * @{
  */
-
-/* @brief gpiom control module */
-typedef enum gpiom_gpio {
-    gpiom_soc_gpio0 = 0,
-    gpiom_soc_gpio1 = 1,
-    gpiom_core0_fast = 2,
-    gpiom_core1_fast = 3,
-} gpiom_gpio_t;
 
 /* @brief pin visibility */
 typedef enum gpiom_pin_visibility {

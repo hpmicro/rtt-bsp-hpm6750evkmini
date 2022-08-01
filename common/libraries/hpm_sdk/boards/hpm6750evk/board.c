@@ -209,12 +209,12 @@ uint32_t board_init_dram_clock(void)
 void board_power_cycle_lcd(void)
 {
     /* turn off backlight */
-    gpio_enable_pin_output(BOARD_LCD_BACKLIGHT_GPIO_BASE, BOARD_LCD_BACKLIGHT_GPIO_INDEX, BOARD_LCD_BACKLIGHT_GPIO_PIN);
+    gpio_set_pin_output(BOARD_LCD_BACKLIGHT_GPIO_BASE, BOARD_LCD_BACKLIGHT_GPIO_INDEX, BOARD_LCD_BACKLIGHT_GPIO_PIN);
     gpio_write_pin(BOARD_LCD_BACKLIGHT_GPIO_BASE, BOARD_LCD_BACKLIGHT_GPIO_INDEX, BOARD_LCD_BACKLIGHT_GPIO_PIN, 0);
 
     board_delay_ms(150);
     /* power recycle */
-    gpio_enable_pin_output(BOARD_LCD_POWER_GPIO_BASE, BOARD_LCD_POWER_GPIO_INDEX, BOARD_LCD_POWER_GPIO_PIN);
+    gpio_set_pin_output(BOARD_LCD_POWER_GPIO_BASE, BOARD_LCD_POWER_GPIO_INDEX, BOARD_LCD_POWER_GPIO_PIN);
     gpio_write_pin(BOARD_LCD_POWER_GPIO_BASE, BOARD_LCD_POWER_GPIO_INDEX, BOARD_LCD_POWER_GPIO_PIN, 0);
     board_delay_ms(150);
     gpio_write_pin(BOARD_LCD_POWER_GPIO_BASE, BOARD_LCD_POWER_GPIO_INDEX, BOARD_LCD_POWER_GPIO_PIN, 1);
@@ -235,21 +235,7 @@ void board_init_lcd(void)
 
 void board_delay_ms(uint32_t ms)
 {
-    uint32_t gptmr_freq;
-    gptmr_channel_config_t config;
-    gptmr_channel_get_default_config(BOARD_DELAY_TIMER, &config);
-
-    clock_add_to_group(BOARD_DELAY_TIMER_CLK_NAME, 0);
-    gptmr_freq = clock_get_frequency(BOARD_DELAY_TIMER_CLK_NAME);
-
-    config.reload = gptmr_freq / 1000 * ms;
-    gptmr_channel_config(BOARD_DELAY_TIMER, BOARD_DELAY_TIMER_CH, &config, false);
-    gptmr_start_counter(BOARD_DELAY_TIMER, BOARD_DELAY_TIMER_CH);
-    while (!gptmr_check_status(BOARD_DELAY_TIMER, GPTMR_CH_RLD_STAT_MASK(BOARD_DELAY_TIMER_CH))) {
-        __asm("nop");
-    }
-    gptmr_stop_counter(BOARD_DELAY_TIMER, BOARD_DELAY_TIMER_CH);
-    gptmr_clear_status(BOARD_DELAY_TIMER, GPTMR_CH_RLD_STAT_MASK(BOARD_DELAY_TIMER_CH));
+    clock_cpu_delay_ms(ms);
 }
 
 void board_timer_isr(void)
@@ -284,8 +270,8 @@ void board_i2c_bus_clear(I2C_Type *ptr)
 {
     init_i2c_pins_as_gpio(ptr);
     if (ptr == BOARD_CAP_I2C_BASE) {
-        gpio_disable_pin_output(BOARD_LED_GPIO_CTRL, BOARD_CAP_I2C_SDA_GPIO_INDEX, BOARD_CAP_I2C_SDA_GPIO_PIN);
-        gpio_disable_pin_output(BOARD_LED_GPIO_CTRL, BOARD_CAP_I2C_CLK_GPIO_INDEX, BOARD_CAP_I2C_CLK_GPIO_PIN);
+        gpio_set_pin_input(BOARD_LED_GPIO_CTRL, BOARD_CAP_I2C_SDA_GPIO_INDEX, BOARD_CAP_I2C_SDA_GPIO_PIN);
+        gpio_set_pin_input(BOARD_LED_GPIO_CTRL, BOARD_CAP_I2C_CLK_GPIO_INDEX, BOARD_CAP_I2C_CLK_GPIO_PIN);
         if (!gpio_read_pin(BOARD_LED_GPIO_CTRL, BOARD_CAP_I2C_CLK_GPIO_INDEX, BOARD_CAP_I2C_CLK_GPIO_PIN)) {
             printf("CLK is low, please power cycle the board\n");
             while (1) {}
@@ -297,7 +283,7 @@ void board_i2c_bus_clear(I2C_Type *ptr)
             return;
         }
 
-        gpio_enable_pin_output(BOARD_LED_GPIO_CTRL, BOARD_CAP_I2C_CLK_GPIO_INDEX, BOARD_CAP_I2C_CLK_GPIO_PIN);
+        gpio_set_pin_output(BOARD_LED_GPIO_CTRL, BOARD_CAP_I2C_CLK_GPIO_INDEX, BOARD_CAP_I2C_CLK_GPIO_PIN);
         while (1) {
             for (uint32_t i = 0; i < 9; i++) {
                 gpio_write_pin(BOARD_LED_GPIO_CTRL, BOARD_CAP_I2C_CLK_GPIO_INDEX, BOARD_CAP_I2C_CLK_GPIO_PIN, 1);
@@ -332,7 +318,7 @@ void board_init_i2c(I2C_Type *ptr)
     freq = clock_get_frequency(BOARD_CAP_I2C_CLK_NAME);
     stat = i2c_init_master(BOARD_CAP_I2C_BASE, freq, &config);
     if (stat != status_success) {
-        printf("failed to initialize i2c 0x%x\n", BOARD_CAP_I2C_BASE);
+        printf("failed to initialize i2c 0x%x\n", (uint32_t)BOARD_CAP_I2C_BASE);
         while (1) {}
     }
 }
@@ -373,15 +359,15 @@ uint32_t board_init_spi_clock(SPI_Type *ptr)
 void board_init_cap_touch(void)
 {
     init_cap_pins();
-    gpio_enable_pin_output_with_initial(BOARD_CAP_RST_GPIO, BOARD_CAP_RST_GPIO_INDEX, BOARD_CAP_RST_GPIO_PIN, 0);
-    gpio_enable_pin_output_with_initial(BOARD_CAP_INTR_GPIO, BOARD_CAP_INTR_GPIO_INDEX, BOARD_CAP_INTR_GPIO_PIN, 0);
+    gpio_set_pin_output_with_initial(BOARD_CAP_RST_GPIO, BOARD_CAP_RST_GPIO_INDEX, BOARD_CAP_RST_GPIO_PIN, 0);
+    gpio_set_pin_output_with_initial(BOARD_CAP_INTR_GPIO, BOARD_CAP_INTR_GPIO_INDEX, BOARD_CAP_INTR_GPIO_PIN, 0);
 
     board_delay_ms(1);
     gpio_write_pin(BOARD_CAP_INTR_GPIO, BOARD_CAP_INTR_GPIO_INDEX, BOARD_CAP_INTR_GPIO_PIN, 1);
     board_delay_ms(10);
     gpio_write_pin(BOARD_CAP_RST_GPIO, BOARD_CAP_RST_GPIO_INDEX, BOARD_CAP_RST_GPIO_PIN, 1);
 
-    gpio_disable_pin_output(BOARD_CAP_INTR_GPIO, BOARD_CAP_INTR_GPIO_INDEX, BOARD_CAP_INTR_GPIO_PIN);
+    gpio_set_pin_input(BOARD_CAP_INTR_GPIO, BOARD_CAP_INTR_GPIO_INDEX, BOARD_CAP_INTR_GPIO_PIN);
     board_init_i2c(BOARD_CAP_I2C_BASE);
 }
 
@@ -398,9 +384,9 @@ void board_init_spi_pins(SPI_Type *ptr)
 void board_init_led_pins(void)
 {
     init_led_pins_as_gpio();
-    gpio_enable_pin_output_with_initial(BOARD_R_GPIO_CTRL, BOARD_R_GPIO_INDEX, BOARD_R_GPIO_PIN, BOARD_LED_OFF_LEVEL);
-    gpio_enable_pin_output_with_initial(BOARD_G_GPIO_CTRL, BOARD_G_GPIO_INDEX, BOARD_G_GPIO_PIN, BOARD_LED_OFF_LEVEL);
-    gpio_enable_pin_output_with_initial(BOARD_B_GPIO_CTRL, BOARD_B_GPIO_INDEX, BOARD_B_GPIO_PIN, BOARD_LED_OFF_LEVEL);
+    gpio_set_pin_output_with_initial(BOARD_R_GPIO_CTRL, BOARD_R_GPIO_INDEX, BOARD_R_GPIO_PIN, BOARD_LED_OFF_LEVEL);
+    gpio_set_pin_output_with_initial(BOARD_G_GPIO_CTRL, BOARD_G_GPIO_INDEX, BOARD_G_GPIO_PIN, BOARD_LED_OFF_LEVEL);
+    gpio_set_pin_output_with_initial(BOARD_B_GPIO_CTRL, BOARD_B_GPIO_INDEX, BOARD_B_GPIO_PIN, BOARD_LED_OFF_LEVEL);
 }
 
 void board_led_toggle(void)
@@ -415,45 +401,22 @@ void board_led_toggle(void)
 #endif
 }
 
-void board_led_write(bool state)
+void board_led_write(uint8_t state)
 {
-    gpio_write_pin(BOARD_LED_GPIO_CTRL, BOARD_LED_GPIO_INDEX, BOARD_LED_GPIO_PIN, state ? BOARD_LED_ON_LEVEL : BOARD_LED_OFF_LEVEL);
+    gpio_write_pin(BOARD_LED_GPIO_CTRL, BOARD_LED_GPIO_INDEX, BOARD_LED_GPIO_PIN, state);
 }
-
-#ifdef CAMREA_RESET_PWDN_CONFIGURABLE
-void board_reset_camera(bool active)
-{
-    if (active) {
-        /* reset, active low */
-        gpio_write_pin(BOARD_LED_GPIO_CTRL, GPIO_DI_GPIOX, 8, 0);
-    } else {
-        /* clear reset */
-       gpio_write_pin(BOARD_LED_GPIO_CTRL, GPIO_DI_GPIOX, 8, 1);
-    }
-}
-
-void board_power_down_camera(bool active)
-{
-    if (active) {
-        /* power down, active high */
-        gpio_write_pin(BOARD_LED_GPIO_CTRL, GPIO_DI_GPIOX, 9, 1);
-    } else {
-        /* power up */
-        gpio_write_pin(BOARD_LED_GPIO_CTRL, GPIO_DI_GPIOX, 9, 0);
-    }
-}
-#endif
 
 void board_init_cam_pins(void)
 {
-#ifdef CAMREA_RESET_PWDN_CONFIGURABLE
-    /* RST */
-    gpio_enable_pin_output(BOARD_LED_GPIO_CTRL, GPIO_DI_GPIOX, 8);
-    /* PWNDN */
-    gpio_enable_pin_output(BOARD_LED_GPIO_CTRL, GPIO_DI_GPIOX, 9);
-#endif
-
     init_cam_pins();
+    /* enable cam RST pin out with high level */
+    gpio_set_pin_output_with_initial(BOARD_CAM_RST_GPIO_CTRL, BOARD_CAM_RST_GPIO_INDEX, BOARD_CAM_RST_GPIO_PIN, 1);
+}
+
+void board_write_cam_rst(uint8_t state)
+{
+    gpio_write_pin(BOARD_CAM_RST_GPIO_CTRL, BOARD_CAM_RST_GPIO_INDEX, BOARD_CAM_RST_GPIO_PIN, state);
+
 }
 
 void board_init_usb_pins(void)
@@ -462,12 +425,12 @@ void board_init_usb_pins(void)
     init_usb_pins();
 
     /* configure USBx ID pins as input function */
-    gpio_disable_pin_output(BOARD_USB0_ID_PORT, BOARD_USB0_ID_GPIO_INDEX, BOARD_USB0_ID_GPIO_PIN);
-    gpio_disable_pin_output(BOARD_USB1_ID_PORT, BOARD_USB1_ID_GPIO_INDEX, BOARD_USB1_ID_GPIO_PIN);
+    gpio_set_pin_input(BOARD_USB0_ID_PORT, BOARD_USB0_ID_GPIO_INDEX, BOARD_USB0_ID_GPIO_PIN);
+    gpio_set_pin_input(BOARD_USB1_ID_PORT, BOARD_USB1_ID_GPIO_INDEX, BOARD_USB1_ID_GPIO_PIN);
 
     /* configure USBx OC Flag pins as input function */
-    gpio_disable_pin_output(BOARD_USB0_OC_PORT, BOARD_USB0_OC_GPIO_INDEX, BOARD_USB0_OC_GPIO_PIN);
-    gpio_disable_pin_output(BOARD_USB1_OC_PORT, BOARD_USB1_OC_GPIO_INDEX, BOARD_USB1_OC_GPIO_PIN);
+    gpio_set_pin_input(BOARD_USB0_OC_PORT, BOARD_USB0_OC_GPIO_INDEX, BOARD_USB0_OC_GPIO_PIN);
+    gpio_set_pin_input(BOARD_USB1_OC_PORT, BOARD_USB1_OC_GPIO_INDEX, BOARD_USB1_OC_GPIO_PIN);
 }
 
 void board_usb_vbus_ctrl(uint8_t usb_index, uint8_t level)
@@ -598,7 +561,7 @@ void board_init_clock(void)
     clock_connect_group_to_cpu(0, 0);
 
     if (status_success != pllctl_init_int_pll_with_freq(HPM_PLLCTL, 0, BOARD_CPU_FREQ)) {
-        printf("Failed to set pll0_clk0 to %dHz\n", BOARD_CPU_FREQ);
+        printf("Failed to set pll0_clk0 to %ldHz\n", BOARD_CPU_FREQ);
         while(1);
     }
 
@@ -606,6 +569,8 @@ void board_init_clock(void)
     clock_set_source_divider(clock_cpu1, clk_src_pll0_clk0, 1);
     /* Connect Group1 to CPU1 */
     clock_connect_group_to_cpu(1, 1);
+
+    clock_update_core_clock();
 }
 
 uint32_t board_init_cam_clock(CAM_Type *ptr)
@@ -940,8 +905,10 @@ hpm_stat_t board_init_enet_ptp_clock(ENET_Type *ptr)
 {
     /* set clock source */
     if (ptr == HPM_ENET0) {
+        /* make sure pll0_clk0 output clock at 400MHz to get a clock at 100MHz for the enet0 ptp function */
         clock_set_source_divider(clock_ptp0, clk_src_pll1_clk1, 4); /* 100MHz */
     } else if (ptr == HPM_ENET1) {
+        /* make sure pll0_clk0 output clock at 400MHz to get a clock at 100MHz for the enet1 ptp function */
         clock_set_source_divider(clock_ptp1, clk_src_pll1_clk1, 4); /* 100MHz */
     } else {
         return status_invalid_argument;
@@ -983,11 +950,11 @@ hpm_stat_t board_init_enet_pins(ENET_Type *ptr)
     init_enet_pins(ptr);
 
     if (ptr == HPM_ENET0) {
-        gpio_enable_pin_output_with_initial(BOARD_ENET_RGMII_RST_GPIO, BOARD_ENET_RGMII_RST_GPIO_INDEX, BOARD_ENET_RGMII_RST_GPIO_PIN, 0);
+        gpio_set_pin_output_with_initial(BOARD_ENET_RGMII_RST_GPIO, BOARD_ENET_RGMII_RST_GPIO_INDEX, BOARD_ENET_RGMII_RST_GPIO_PIN, 0);
         board_delay_ms(1);
         gpio_write_pin(BOARD_ENET_RGMII_RST_GPIO, BOARD_ENET_RGMII_RST_GPIO_INDEX, BOARD_ENET_RGMII_RST_GPIO_PIN, 1);
     } else if (ptr == HPM_ENET1) {
-        gpio_enable_pin_output_with_initial(BOARD_ENET_RMII_RST_GPIO, BOARD_ENET_RMII_RST_GPIO_INDEX, BOARD_ENET_RMII_RST_GPIO_PIN, 0);
+        gpio_set_pin_output_with_initial(BOARD_ENET_RMII_RST_GPIO, BOARD_ENET_RMII_RST_GPIO_INDEX, BOARD_ENET_RMII_RST_GPIO_PIN, 0);
         board_delay_ms(1);
         gpio_write_pin(BOARD_ENET_RMII_RST_GPIO, BOARD_ENET_RMII_RST_GPIO_INDEX, BOARD_ENET_RMII_RST_GPIO_PIN, 1);
     } else {

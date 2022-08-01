@@ -368,8 +368,7 @@ typedef struct {
 } enet_ptp_time_t;
 
 /* PTP config strcut */
-typedef struct
-{
+typedef struct {
     uint8_t ssinc;
     uint8_t sub_sec_count_res;
     uint8_t update_method;

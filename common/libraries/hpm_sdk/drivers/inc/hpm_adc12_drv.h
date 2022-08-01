@@ -8,9 +8,6 @@
 #ifndef HPM_ADC12_DRV_H
 #define HPM_ADC12_DRV_H
 
-/*---------------------------------------------------------------------*
- * Includes
- *---------------------------------------------------------------------*/
 #include "hpm_common.h"
 #include "hpm_adc12_regs.h"
 #include "hpm_soc_feature.h"
@@ -21,10 +18,6 @@
  * @ingroup adc_interfaces
  * @{
  */
-
-/*---------------------------------------------------------------------*
- *  Typedef Enum Declarations
- *---------------------------------------------------------------------*/
 
 /** @brief Define ADC12 sample signal types. */
 typedef enum {
@@ -45,41 +38,61 @@ typedef enum {
     adc12_conv_mode_oneshot = 0,
     adc12_conv_mode_period,
     adc12_conv_mode_sequence,
-    adc12_conv_mode_preempt
+    adc12_conv_mode_preemption
 } adc12_conversion_mode_t;
 
-/** @brief Define a trigger event of one trigger conversion. */
-#define adc12_event_trig_complete       ADC12_INT_STS_TRIG_CMPT_MASK
+/** @brief  Define ADC12 irq events. */
+typedef enum {
+    /** This mask indicates that a trigger conversion is complete. */
+    adc12_event_trig_complete       = ADC12_INT_STS_TRIG_CMPT_MASK,
 
-/** @brief Define a DMA abort event in sequence mode . */
-#define adc12_event_seq_dma_abort       ADC12_INT_STS_SEQ_DMAABT_MASK
+    /** This mask indicates that a conflict caused by software-triggered conversions. */
+    adc12_event_trig_sw_conflict    = ADC12_INT_STS_TRIG_SW_CFLCT_MASK,
 
-/** @brief Define a complete event of the full of sequence conversions. */
-#define adc12_event_seq_full_complete   ADC12_INT_STS_SEQ_CMPT_MASK
+    /** This mask indicates that a conflict caused by hardware-triggered conversions. */
+    adc12_event_trig_hw_conflict    = ADC12_INT_STS_TRIG_HW_CFLCT_MASK,
 
-/** @brief Define a complete event of one of the full of sequence conversions. */
+    /** This mask indicates that a conflict caused when bus reading from different channels. */
+    adc12_event_read_conflict       = ADC12_INT_STS_READ_CFLCT_MASK,
 
-#define adc12_event_seq_single_complete ADC12_INT_STS_SEQ_CVC_MASK
+    /** This mask indicates that a conflict caused by sequence-triggered conversions. */
+    adc12_event_seq_sw_conflict     = ADC12_INT_STS_SEQ_SW_CFLCT_MASK,
 
-/*---------------------------------------------------------------------*
- *  Typedef Struct Declarations
- *---------------------------------------------------------------------*/
+    /** This mask indicates that a conflict caused by hardware-triggered conversions. */
+    adc12_event_seq_hw_conflict     = ADC12_INT_STS_SEQ_HW_CFLCT_MASK,
+
+    /** This mask indicates that DMA is stopped currently. */
+    adc12_event_seq_dma_abort       = ADC12_INT_STS_SEQ_DMAABT_MASK,
+
+    /** This mask indicates that all of the configured conversion(s) in a queue is(are) complete. */
+    adc12_event_seq_full_complete   = ADC12_INT_STS_SEQ_CMPT_MASK,
+
+    /** This mask indicates that one of the configured conversion(s) in a queue is complete. */
+    adc12_event_seq_single_complete = ADC12_INT_STS_SEQ_CVC_MASK,
+
+    /** This mask indicates that DMA FIFO is full currently. */
+    adc12_event_dma_fifo_full       = ADC12_INT_STS_DMA_FIFO_FULL_MASK
+} adc12_irq_event_t;
 
 /** @brief ADC12 common configuration struct. */
 typedef struct {
-    uint8_t ch;
-    uint8_t diff_sel;
     uint8_t res;
-    uint8_t sample_cycle_shift;
     uint8_t conv_mode;
     uint8_t wait_dis;
-    uint16_t thshdh;
-    uint16_t thshdl;
-    uint32_t sample_cycle;
     uint32_t adc_clk_div;
     bool sel_sync_ahb;
     bool adc_ahb_en;
 } adc12_config_t;
+
+/** @brief ADC12 channel configuration struct. */
+typedef struct {
+   uint8_t ch;
+   uint8_t diff_sel;
+   uint16_t thshdh;
+   uint16_t thshdl;
+   uint8_t sample_cycle_shift;
+   uint32_t sample_cycle;
+} adc12_channel_config_t;
 
 /** @brief ADC12 DMA configuration struct. */
 typedef struct {
@@ -89,7 +102,7 @@ typedef struct {
     bool stop_en;
 } adc12_dma_config_t;
 
-/** @brief ADC12 DMA configuration struct for sequence mode. */
+/** @brief ADC12 DMA configuration struct for the sequence mode. */
 typedef struct {
     uint32_t           :4;
     uint32_t result    :12;
@@ -100,7 +113,7 @@ typedef struct {
     uint32_t cycle_bit :1;
 } adc12_seq_dma_data_t;
 
-/** @brief ADC12 DMA configuration struct for preemption mode. */
+/** @brief ADC12 DMA configuration struct for the preemption mode. */
 typedef struct {
     uint32_t            :4;
     uint32_t result     :12;
@@ -110,23 +123,23 @@ typedef struct {
     uint32_t adc_ch     :5;
     uint32_t            :2;
     uint32_t cycle_bit  :1;
-} adc12_preempt_dma_data_t;
+} adc12_pmt_dma_data_t;
 
-/** @brief ADC12 configuration struct for period mode. */
+/** @brief ADC12 configuration struct for the period mode. */
 typedef struct {
     uint32_t clk_src_freq_in_hz;
     uint8_t ch;
     uint8_t prescale;
-    uint8_t period;
+    uint8_t period_in_ms;
 } adc12_prd_config_t;
 
-/** @brief ADC12 queue configuration struct for sequence mode. */
+/** @brief ADC12 queue configuration struct for the sequence mode. */
 typedef struct {
     bool seq_int_en;
     uint8_t ch;
 } adc12_seq_queue_config_t;
 
-/** @brief ADC12 configuration struct for sequence mode. */
+/** @brief ADC12 configuration struct for the sequence mode. */
 typedef struct {
     adc12_seq_queue_config_t queue[ADC_SOC_MAX_SEQ_LEN];
     bool restart_en;
@@ -136,17 +149,14 @@ typedef struct {
     uint8_t seq_len;
 } adc12_seq_config_t;
 
-/** @brief ADC12 trigger configuration struct for preempt mode. */
+/** @brief ADC12 trigger configuration struct for the preemption mode. */
 typedef struct {
     bool    inten[ADC_SOC_MAX_TRIG_CH_LEN];
     uint8_t adc_ch[ADC_SOC_MAX_TRIG_CH_LEN];
     uint8_t trig_ch;
     uint8_t trig_len;
-} adc12_trig_config_t;
+} adc12_pmt_config_t;
 
-/*---------------------------------------------------------------------*
- *  API Declarations
- *---------------------------------------------------------------------*/
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -158,51 +168,71 @@ extern "C" {
 /**
  * @brief Get a default configuration for an ADC12 instance.
  *
- * @param[out] config A pointer to the configuration struct of "adc12_config_t".
- *
+ * @param[out] config A pointer to the configuration struct of @ref adc12_config_t.
  */
-void adc12_init_default_config(adc12_config_t *config);
+void adc12_get_default_config(adc12_config_t *config);
+
+/**
+ * @brief Get a default configuration for an ADC12 channel.
+ *
+ * @param[out] config A pointer to the configuration struct of @ref adc12_channel_config_t.
+ */
+void adc12_get_channel_default_config(adc12_channel_config_t *config);
 
 /**
  * @brief Initialize an ADC12 instance.
  *
  * @param[in] ptr An ADC12 peripheral base address.
- * @param[in] config A pointer to the configuration struct of "adc12_config_t".
- * @retval status_success Initialize an ADC instance successfully.
- * @retval status_invalid_argument Initialize an ADC instance unsuccessfully because of passing one or more invalid arguments.
+ * @param[in] config A pointer to the configuration struct of @ref adc12_config_t.
+ * @return A result of initializing an ADC12 instance.
+ * @retval status_success Initialize an ADC12 instance successfully. Please refer to @ref hpm_stat_t.
+ * @retval status_invalid_argument Initialize an ADC12 instance unsuccessfully due to passing one or more invalid arguments. Please refert to @ref hpm_stat_t.
  */
 hpm_stat_t adc12_init(ADC12_Type *ptr, adc12_config_t *config);
 
 /**
- * @brief Configure the periodic mode for an ADC12 instance.
+ * @brief Initialize an ADC12 channel.
  *
  * @param[in] ptr An ADC12 peripheral base address.
- * @param[in] config A pointer to the configuration struct of "adc12_prd_config_t".
- * @retval status_success Configure the periodic mode for an ADC instance successfully.
- * @retval status_invalid_argument Configure the periodic mode for an ADC instance unsuccessfully because of passing one or more invalid arguments.
- *
+ * @param[in] config A pointer to the configuration struct of @ref adc12_channel_config_t.
+ * @return A result of initializing an ADC12 channel.
+ * @retval status_success Initialize an ADC12 channel successfully. Please refert to @ref hpm_stat_t.
+ * @retval status_invalid_argument Initialize an ADC12 channel unsuccessfully due to passing one or more invalid arguments. Please refert to @ref hpm_stat_t.
  */
-hpm_stat_t adc12_set_period_config(ADC12_Type *ptr, adc12_prd_config_t *config);
+hpm_stat_t adc12_init_channel(ADC12_Type *ptr, adc12_channel_config_t *config);
 
 /**
- * @brief Configure the sequence mode for an ADC12 instance.
+ * @brief Configure the the period mode for an ADC12 instance.
  *
  * @param[in] ptr An ADC12 peripheral base address.
- * @param[in] config A pointer to configuration struct of "adc12_seq_config_t".
- * @retval status_success Configure the sequence mode for an ADC instance successfully.
- * @retval status_invalid_argument Configure the sequence mode for an ADC instance unsuccessfully because of passing one or more invalid arguments.
+ * @param[in] config A pointer to the configuration struct of @ref adc12_prd_config_t.
+ * @return A result of configuring the the period mode for an ADC12 instance.
+ * @retval status_success Configure the the period mode successfully. Please refert to @ref hpm_stat_t.
+ * @retval status_invalid_argument Configure the the period mode unsuccessfully due to passing one or more invalid arguments. Please refert to @ref hpm_stat_t.
  */
-hpm_stat_t adc12_set_sequence_config(ADC12_Type *ptr, adc12_seq_config_t *config);
+hpm_stat_t adc12_set_prd_config(ADC12_Type *ptr, adc12_prd_config_t *config);
+
+/**
+ * @brief Configure the the sequence mode for an ADC12 instance.
+ *
+ * @param[in] ptr An ADC12 peripheral base address.
+ * @param[in] config A pointer to configuration struct of @ref adc12_seq_config_t.
+ * @return A result of configuring the the sequence mode for an ADC12 instance.
+ * @retval status_success Configure the the sequence mode successfully. Please refert to @ref hpm_stat_t.
+ * @retval status_invalid_argument Configure the the sequence mode unsuccessfully due to passing one or more invalid arguments. Please refert to @ref hpm_stat_t.
+ */
+hpm_stat_t adc12_set_seq_config(ADC12_Type *ptr, adc12_seq_config_t *config);
 
 /**
  * @brief Configure the preemption mode for an ADC12 instance.
  *
  * @param[in] ptr An ADC12 peripheral base address.
- * @param[in] config a pointer to configuration struct of "adc12_trig_config_t".
- * @retval status_success Configure the preemption mode for an ADC instance successfully.
- * @retval status_invalid_argument Configure the preemption mode for an ADC instance unsuccessfully because of passing one or more invalid arguments.
+ * @param[in] config A pointer to configuration struct of @ref adc12_pmt_config_t.
+ * @return A result of configuring the preemption mode for an ADC12 instance.
+ * @retval status_success Configure the preemption mode successfully. Please refert to @ref hpm_stat_t.
+ * @retval status_invalid_argument Configure the preemption mode unsuccessfully due to passing one or more invalid arguments. Please refert to @ref hpm_stat_t.
  */
-hpm_stat_t adc12_set_preempt_config(ADC12_Type *ptr, adc12_trig_config_t *config);
+hpm_stat_t adc12_set_pmt_config(ADC12_Type *ptr, adc12_pmt_config_t *config);
 
 /** @} */
 
@@ -212,10 +242,10 @@ hpm_stat_t adc12_set_preempt_config(ADC12_Type *ptr, adc12_trig_config_t *config
  */
 
 /**
- * @brief Configure the stop position offset in the specified memory for DMA write operation for sequence mode.
+ * @brief Configure the stop position offset in the specified memory of DMA write operation for the the sequence mode.
  *
  * @param[in] ptr An ADC12 peripheral base address.
- * @param[in] stop_pos The stop position offset.
+ * @param[in] stop_pos A stop position offset.
  */
 static inline void adc12_set_seq_stop_pos(ADC12_Type *ptr, uint16_t stop_pos)
 {
@@ -224,10 +254,10 @@ static inline void adc12_set_seq_stop_pos(ADC12_Type *ptr, uint16_t stop_pos)
 }
 
 /**
- * @brief Configure the start address of DMA write operation for preemption mode.
+ * @brief Configure the start address of DMA write operation for the preemption mode.
  *
  * @param[in] ptr An ADC12 peripheral base address.
- * @param[in] addr The start address of DMA write operation.
+ * @param[in] addr A start address of DMA write operation.
  */
 static inline void adc12_init_pmt_dma(ADC12_Type *ptr, uint32_t addr)
 {
@@ -235,10 +265,10 @@ static inline void adc12_init_pmt_dma(ADC12_Type *ptr, uint32_t addr)
 }
 
 /**
- * @brief Configure the start address of DMA write operation for preemption mode.
+ * @brief Configure the start address of DMA write operation for the preemption mode.
  *
  * @param[in] ptr An ADC12 peripheral base address.
- * @param[in] config A pointer to configuration struct of "adc12_dma_config_t".
+ * @param[in] config A pointer to configuration struct of @ref adc12_dma_config_t.
  */
 void adc12_init_seq_dma(ADC12_Type *ptr, adc12_dma_config_t *config);
 
@@ -250,11 +280,11 @@ void adc12_init_seq_dma(ADC12_Type *ptr, adc12_dma_config_t *config);
  */
 
 /**
- * @brief Get ADC status flags.
+ * @brief Get all ADC12 status flags.
  *
- * This function gets all ADC status flags.
  * @param[in] ptr An ADC12 peripheral base address.
- * @retval Status The ADC12 interrupt status flags.
+ * @return A mask indicating all corresponding interrupt statuses.
+ * @retval A mask. Please refer to @ref adc12_irq_event_t.
  */
 static inline uint32_t adc12_get_status_flags(ADC12_Type *ptr)
 {
@@ -262,12 +292,12 @@ static inline uint32_t adc12_get_status_flags(ADC12_Type *ptr)
 }
 
 /**
- * @brief Get the setting value of wait disable.
- *
- * This status flag is only used when wait_dis is set to disable.
+ * @brief Get the setting value of the WAIT_DIS bit.
  *
  * @param[in] ptr An ADC12 peripheral base address.
- * @retval Status It means whether the current setting of wait disable is disable.
+ * @return Status that indicats whether the current setting of the WAIT_DIS bit in the BUF_RESULT register is disabled.
+ * @retval true  It means that the WAIT_DIS bit is 1.
+ * @retval false It means that the WAIT_DIS bit is 0.
  */
 static inline bool adc12_get_wait_dis_status(ADC12_Type *ptr)
 {
@@ -275,13 +305,13 @@ static inline bool adc12_get_wait_dis_status(ADC12_Type *ptr)
 }
 
 /**
- * @brief Get status flag of a conversion.
- *
- * This status flag is only used when wait_dis is set to disable.
+ * @brief Get the status of a conversion validity.
  *
  * @param[in] ptr An ADC12 peripheral base address.
  * @param[in] ch An ADC12 peripheral channel.
- * @retval Status It means  the current conversion is valid.
+ * @retval Status indicating the validity of the current conversion result.
+ *
+ * @note This function is only used when the WAIT_DIS bit in the BUF_RESULT register is 1.
  */
 static inline bool adc12_get_conv_valid_status(ADC12_Type *ptr, uint8_t ch)
 {
@@ -289,12 +319,13 @@ static inline bool adc12_get_conv_valid_status(ADC12_Type *ptr, uint8_t ch)
 }
 
 /**
- * @brief Clear status flags.
+ * @brief Clear the status flags.
  *
- * Only the specified flags can be cleared by writing INT_STS register.
  *
  * @param[in] ptr An ADC12 peripheral base address.
- * @param[in] mask Mask value for flags to be cleared. Refer to "_adc12_status_flags".
+ * @param[in] mask A mask that means the specified flags to be cleared. Please refer to @ref adc12_irq_event_t.
+ *
+ * @note Only the specified flags can be cleared by writing the INT_STS register.
  */
 static inline void adc12_clear_status_flags(ADC12_Type *ptr, uint32_t mask)
 {
@@ -312,7 +343,7 @@ static inline void adc12_clear_status_flags(ADC12_Type *ptr, uint32_t mask)
  * @brief Enable interrupts.
  *
  * @param[in] ptr An ADC12 peripheral base address.
- * @param[in] mask Mask value for interrupt events. Refer to "_adc12_interrupt_enable".
+ * @param[in] mask A mask indicating the specified ADC interrupt events. Please refer to @ref adc12_irq_event_t.
  */
 static inline void adc12_enable_interrupts(ADC12_Type *ptr, uint32_t mask)
 {
@@ -323,7 +354,7 @@ static inline void adc12_enable_interrupts(ADC12_Type *ptr, uint32_t mask)
  * @brief Disable interrupts.
  *
  * @param[in] ptr An ADC12 peripheral base address.
- * @param[in] mask Mask value for interrupt events. Refer to "_adc12_interrupt_enable".
+ * @param[in] mask A mask indicating the specified interrupt events. Please refer to @ref adc12_irq_event_t.
  */
 static inline void adc12_disable_interrupts(ADC12_Type *ptr, uint32_t mask)
 {
@@ -338,30 +369,35 @@ static inline void adc12_disable_interrupts(ADC12_Type *ptr, uint32_t mask)
  */
 
 /**
+ * @brief Trigger ADC coversions by software
+ *
+ * @param[in] ptr An ADC12 peripheral base address.
+ */
+void adc12_trigger_seq_by_sw(ADC12_Type *ptr);
+
+/**
  * @brief Get the result in oneshot mode.
  *
  * @param[in] ptr An ADC12 peripheral base address.
  * @param[in] ch An ADC12 peripheral channel.
- * @param[out] result The result of an ADC12 conversion.
- *
- * @retval status_success Get the result of an ADC12 conversion in oneshot mode successfully.
- * @retval status_invalid_argument Get the result of an ADC12 conversion in oneshot mode unsuccessfully because of passing invalid arguments.
+ * @param[out] result A pointer to an ADC12 conversion result.
+ * @return An implementation result of getting an ADC12 conversion result in oneshot mode.
+ * @retval status_success Get the result of an ADC12 conversion in oneshot mode successfully. Please refert to @ref hpm_stat_t.
+ * @retval status_invalid_argument Get the result of an ADC12 conversion in oneshot mode unsuccessfully due to passing invalid arguments. Please refert to @ref hpm_stat_t.
  */
 hpm_stat_t adc12_get_oneshot_result(ADC12_Type *ptr, uint8_t ch, uint16_t *result);
 
 /**
- * @brief Get the result in periodic mode.
+ * @brief Get the result in the period mode.
  *
  * @param[in] ptr An ADC12 peripheral base address.
  * @param[in] ch An ADC12 peripheral channel.
- * @param[out] result The result of an ADC12 conversion.
- *
- * @retval status_success Get the result of an ADC12 conversion in periodic mode successfully.
- * @retval status_invalid_argument Get the result of an ADC12 conversion in periodic mode unsuccessfully because of passing invalid arguments.
+ * @param[out] result A pointer to a specified ADC12 conversion result
+ * @return An implementation of getting an ADC12 conversion result in the period mode.
+ * @retval status_success Get the result of an ADC12 conversion in the period mode successfully. Please refert to @ref hpm_stat_t.
+ * @retval status_invalid_argument Get the result of an ADC12 conversion in the period mode unsuccessfully due to passing invalid arguments. Please refert to @ref hpm_stat_t.
  */
 hpm_stat_t adc12_get_prd_result(ADC12_Type *ptr, uint8_t ch, uint16_t *result);
-
-void adc12_trigger_seq_by_sw(ADC12_Type *ptr);
 
 /** @} */
 

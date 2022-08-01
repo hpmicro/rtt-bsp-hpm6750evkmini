@@ -120,7 +120,7 @@ typedef struct uart_modem_config {
 /**
  * @brief UART config
  */
-typedef struct uart_config {
+typedef struct hpm_uart_config {
  
     uint32_t src_freq_in_hz;            /**< Source clock frequency in Hz */
     uint32_t baudrate;                  /**< Baudrate */

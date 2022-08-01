@@ -49,6 +49,7 @@ static inline void dmamux_disable_channel(DMAMUX_Type *ptr, uint8_t ch_index)
  * @brief   Config DMAMUX
  *
  * @param[in] ptr DMAMUX base address
+ * @param[in] ch_index channel to be configured
  * @param[in] src DMAMUX source
  * @param[in] enable Set true to enable the channel
  */

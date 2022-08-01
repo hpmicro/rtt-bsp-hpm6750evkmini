@@ -301,7 +301,7 @@ static rt_err_t hpm_can_configure(struct rt_can_device *can, struct can_configur
     }
 
     drv_can->can_config.enable_tx_buffer_priority_mode = (cfg->privmode != 0U) ? true : false;
-
+    init_can_pins(drv_can->can_base);
     uint32_t can_clk = board_init_can_clock(drv_can->can_base);
     drv_can->can_config.filter_list_num = drv_can->filter_num;
     drv_can->can_config.filter_list = &drv_can->filter_list[0];
@@ -317,7 +317,6 @@ static rt_err_t hpm_can_configure(struct rt_can_device *can, struct can_configur
 static rt_err_t hpm_can_control(struct rt_can_device *can, int cmd, void *arg)
 {
     RT_ASSERT(can);
-    RT_ASSERT(cfg);
 
     hpm_can_t *drv_can = (hpm_can_t*) can->parent.user_data;
     RT_ASSERT(drv_can);
@@ -510,7 +509,6 @@ static rt_err_t hpm_can_control(struct rt_can_device *can, int cmd, void *arg)
 static int hpm_can_sendmsg(struct rt_can_device *can, const void *buf, rt_uint32_t boxno)
 {
     RT_ASSERT(can);
-    RT_ASSERT(cfg);
 
     hpm_can_t *drv_can = (hpm_can_t*) can->parent.user_data;
     RT_ASSERT(drv_can);
@@ -600,7 +598,7 @@ static int hpm_can_sendmsg(struct rt_can_device *can, const void *buf, rt_uint32
 
 static int hpm_can_recvmsg(struct rt_can_device *can, void *buf, rt_uint32_t boxno)
 {
-    RT_ASSERT(can);RT_ASSERT(cfg);
+    RT_ASSERT(can);
 
     hpm_can_t *drv_can = (hpm_can_t*) can->parent.user_data;
     RT_ASSERT(drv_can);

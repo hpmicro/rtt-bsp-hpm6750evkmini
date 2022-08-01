@@ -12,18 +12,18 @@
 typedef struct {
     __RW uint32_t RBUF[20];                    /* 0x0 - 0x4C: receive buffer registers and reception time stamp */
     __RW uint32_t TBUF[18];                    /* 0x50 - 0x94: transmit buffer register */
-    __RW uint32_t TTS[2];                      /* 0x98 - 0x9C: transmission time stamp, LSB 32bit */
+    __R  uint32_t TTS[2];                      /* 0x98 - 0x9C: transmission time stamp, LSB 32bit */
     __RW uint32_t CMD_STA_CMD_CTRL;            /* 0xA0: config, status, command and control bits */
     __RW uint8_t  RTIE;                        /* 0xA4: Receive and Transmit Interrupt Enable Register RTIE */
-    __RW uint8_t  RTIF;                        /* 0xA5: Receive and Transmit Interrupt Flag Register RTIF (0xa5) */
+    __W  uint8_t  RTIF;                        /* 0xA5: Receive and Transmit Interrupt Flag Register RTIF (0xa5) */
     __RW uint8_t  ERRINT;                      /* 0xA6: ERRor INTerrupt Enable and Flag Register ERRINT */
     __RW uint8_t  LIMIT;                       /* 0xA7: Warning Limits Register LIMIT */
     __RW uint32_t S_PRESC;                     /* 0xA8: Bit Timing Register(Slow Speed) */
     __RW uint32_t F_PRESC;                     /* 0xAC: Bit Timing Register(Fast Speed) */
-    __RW uint8_t  EALCAP;                      /* 0xB0: Error and Arbitration Lost Capture Register EALCAP */
+    __R  uint8_t  EALCAP;                      /* 0xB0: Error and Arbitration Lost Capture Register EALCAP */
     __RW uint8_t  TDC;                         /* 0xB1: Transmitter Delay Compensation Register TDC */
-    __RW uint8_t  RECNT;                       /* 0xB2: Error Counter Registers RECNT */
-    __RW uint8_t  TECNT;                       /* 0xB3: Error Counter Registers TECNT */
+    __R  uint8_t  RECNT;                       /* 0xB2: Error Counter Registers RECNT */
+    __R  uint8_t  TECNT;                       /* 0xB3: Error Counter Registers TECNT */
     __RW uint8_t  ACFCTRL;                     /* 0xB4: Acceptance Filter Control Register ACFCTRL */
     __RW uint8_t  TIMECFG;                     /* 0xB5: CiA 603 Time-Stamping TIMECFG */
     __RW uint16_t ACF_EN;                      /* 0xB6: Acceptance Filter Enable ACF_EN */
@@ -62,13 +62,12 @@ typedef struct {
 
 /* Bitfield definition for register array: TTS */
 /*
- * TTS_WRD0 (RW)
+ * TTS_WRD0 (RO)
  *
  * transmission time stamp, word 0, LSB 32bit
  */
 #define CAN_TTS_TTS_WRD0_MASK (0xFFFFFFFFUL)
 #define CAN_TTS_TTS_WRD0_SHIFT (0U)
-#define CAN_TTS_TTS_WRD0_SET(x) (((uint32_t)(x) << CAN_TTS_TTS_WRD0_SHIFT) & CAN_TTS_TTS_WRD0_MASK)
 #define CAN_TTS_TTS_WRD0_GET(x) (((uint32_t)(x) & CAN_TTS_TTS_WRD0_MASK) >> CAN_TTS_TTS_WRD0_SHIFT)
 
 /* Bitfield definition for register: CMD_STA_CMD_CTRL */
@@ -98,7 +97,7 @@ typedef struct {
 #define CAN_CMD_STA_CMD_CTRL_ROM_GET(x) (((uint32_t)(x) & CAN_CMD_STA_CMD_CTRL_ROM_MASK) >> CAN_CMD_STA_CMD_CTRL_ROM_SHIFT)
 
 /*
- * ROV (RW)
+ * ROV (RO)
  *
  * Receive buffer OVerflow
  * 1 – Overflow. At least one message is lost.
@@ -107,7 +106,6 @@ typedef struct {
  */
 #define CAN_CMD_STA_CMD_CTRL_ROV_MASK (0x20000000UL)
 #define CAN_CMD_STA_CMD_CTRL_ROV_SHIFT (29U)
-#define CAN_CMD_STA_CMD_CTRL_ROV_SET(x) (((uint32_t)(x) << CAN_CMD_STA_CMD_CTRL_ROV_SHIFT) & CAN_CMD_STA_CMD_CTRL_ROV_MASK)
 #define CAN_CMD_STA_CMD_CTRL_ROV_GET(x) (((uint32_t)(x) & CAN_CMD_STA_CMD_CTRL_ROV_MASK) >> CAN_CMD_STA_CMD_CTRL_ROV_SHIFT)
 
 /*
@@ -137,7 +135,7 @@ typedef struct {
 #define CAN_CMD_STA_CMD_CTRL_RBALL_GET(x) (((uint32_t)(x) & CAN_CMD_STA_CMD_CTRL_RBALL_MASK) >> CAN_CMD_STA_CMD_CTRL_RBALL_SHIFT)
 
 /*
- * RSTAT (RW)
+ * RSTAT (RO)
  *
  * Receive buffer STATus
  * 00 - empty
@@ -147,7 +145,6 @@ typedef struct {
  */
 #define CAN_CMD_STA_CMD_CTRL_RSTAT_MASK (0x3000000UL)
 #define CAN_CMD_STA_CMD_CTRL_RSTAT_SHIFT (24U)
-#define CAN_CMD_STA_CMD_CTRL_RSTAT_SET(x) (((uint32_t)(x) << CAN_CMD_STA_CMD_CTRL_RSTAT_SHIFT) & CAN_CMD_STA_CMD_CTRL_RSTAT_MASK)
 #define CAN_CMD_STA_CMD_CTRL_RSTAT_GET(x) (((uint32_t)(x) & CAN_CMD_STA_CMD_CTRL_RSTAT_MASK) >> CAN_CMD_STA_CMD_CTRL_RSTAT_SHIFT)
 
 /*
@@ -229,7 +226,7 @@ typedef struct {
 #define CAN_CMD_STA_CMD_CTRL_TTTBM_GET(x) (((uint32_t)(x) & CAN_CMD_STA_CMD_CTRL_TTTBM_MASK) >> CAN_CMD_STA_CMD_CTRL_TTTBM_SHIFT)
 
 /*
- * TSSTAT (RW)
+ * TSSTAT (RO)
  *
  * Transmission Secondary STATus bits
  * If TTEN=0 or TTTBM=0:
@@ -245,7 +242,6 @@ typedef struct {
  */
 #define CAN_CMD_STA_CMD_CTRL_TSSTAT_MASK (0x30000UL)
 #define CAN_CMD_STA_CMD_CTRL_TSSTAT_SHIFT (16U)
-#define CAN_CMD_STA_CMD_CTRL_TSSTAT_SET(x) (((uint32_t)(x) << CAN_CMD_STA_CMD_CTRL_TSSTAT_SHIFT) & CAN_CMD_STA_CMD_CTRL_TSSTAT_MASK)
 #define CAN_CMD_STA_CMD_CTRL_TSSTAT_GET(x) (((uint32_t)(x) & CAN_CMD_STA_CMD_CTRL_TSSTAT_MASK) >> CAN_CMD_STA_CMD_CTRL_TSSTAT_SHIFT)
 
 /*
@@ -472,7 +468,7 @@ typedef struct {
 #define CAN_CMD_STA_CMD_CTRL_TSSS_GET(x) (((uint32_t)(x) & CAN_CMD_STA_CMD_CTRL_TSSS_MASK) >> CAN_CMD_STA_CMD_CTRL_TSSS_SHIFT)
 
 /*
- * RACTIVE (RW)
+ * RACTIVE (RO)
  *
  * Reception ACTIVE (Receive Status bit)
  * 1 - The controller is currently receiving a frame.
@@ -480,11 +476,10 @@ typedef struct {
  */
 #define CAN_CMD_STA_CMD_CTRL_RACTIVE_MASK (0x4U)
 #define CAN_CMD_STA_CMD_CTRL_RACTIVE_SHIFT (2U)
-#define CAN_CMD_STA_CMD_CTRL_RACTIVE_SET(x) (((uint32_t)(x) << CAN_CMD_STA_CMD_CTRL_RACTIVE_SHIFT) & CAN_CMD_STA_CMD_CTRL_RACTIVE_MASK)
 #define CAN_CMD_STA_CMD_CTRL_RACTIVE_GET(x) (((uint32_t)(x) & CAN_CMD_STA_CMD_CTRL_RACTIVE_MASK) >> CAN_CMD_STA_CMD_CTRL_RACTIVE_SHIFT)
 
 /*
- * TACTIVE (RW)
+ * TACTIVE (RO)
  *
  * Transmission ACTIVE (Transmit Status bit)
  * 1 - The controller is currently transmitting a frame.
@@ -492,7 +487,6 @@ typedef struct {
  */
 #define CAN_CMD_STA_CMD_CTRL_TACTIVE_MASK (0x2U)
 #define CAN_CMD_STA_CMD_CTRL_TACTIVE_SHIFT (1U)
-#define CAN_CMD_STA_CMD_CTRL_TACTIVE_SET(x) (((uint32_t)(x) << CAN_CMD_STA_CMD_CTRL_TACTIVE_SHIFT) & CAN_CMD_STA_CMD_CTRL_TACTIVE_MASK)
 #define CAN_CMD_STA_CMD_CTRL_TACTIVE_GET(x) (((uint32_t)(x) & CAN_CMD_STA_CMD_CTRL_TACTIVE_MASK) >> CAN_CMD_STA_CMD_CTRL_TACTIVE_SHIFT)
 
 /*
@@ -588,7 +582,7 @@ typedef struct {
 #define CAN_RTIE_EIE_GET(x) (((uint8_t)(x) & CAN_RTIE_EIE_MASK) >> CAN_RTIE_EIE_SHIFT)
 
 /*
- * TSFF (RW)
+ * TSFF (RO)
  *
  * If TTEN=0 or TTTBM=0: Transmit Secondary buffer Full Flag
  * 1 - The STB is filled with the maximal number of messages.
@@ -600,12 +594,11 @@ typedef struct {
  */
 #define CAN_RTIE_TSFF_MASK (0x1U)
 #define CAN_RTIE_TSFF_SHIFT (0U)
-#define CAN_RTIE_TSFF_SET(x) (((uint8_t)(x) << CAN_RTIE_TSFF_SHIFT) & CAN_RTIE_TSFF_MASK)
 #define CAN_RTIE_TSFF_GET(x) (((uint8_t)(x) & CAN_RTIE_TSFF_MASK) >> CAN_RTIE_TSFF_SHIFT)
 
 /* Bitfield definition for register: RTIF */
 /*
- * RIF (RW)
+ * RIF (W1C)
  *
  * Receive Interrupt Flag
  * 1 - Data or a remote frame has been received and is available in the receive buffer.
@@ -617,7 +610,7 @@ typedef struct {
 #define CAN_RTIF_RIF_GET(x) (((uint8_t)(x) & CAN_RTIF_RIF_MASK) >> CAN_RTIF_RIF_SHIFT)
 
 /*
- * ROIF (RW)
+ * ROIF (W1C)
  *
  * RB Overrun Interrupt Flag
  * 1 - At least one received message has been overwritten in the RB.
@@ -630,7 +623,7 @@ typedef struct {
 #define CAN_RTIF_ROIF_GET(x) (((uint8_t)(x) & CAN_RTIF_ROIF_MASK) >> CAN_RTIF_ROIF_SHIFT)
 
 /*
- * RFIF (RW)
+ * RFIF (W1C)
  *
  * RB Full Interrupt Flag
  * 1 - All RBs are full. If no RB will be released until the next valid message is received,
@@ -643,7 +636,7 @@ typedef struct {
 #define CAN_RTIF_RFIF_GET(x) (((uint8_t)(x) & CAN_RTIF_RFIF_MASK) >> CAN_RTIF_RFIF_SHIFT)
 
 /*
- * RAFIF (RW)
+ * RAFIF (W1C)
  *
  * RB Almost Full Interrupt Flag
  * 1 - number of filled RB slots >= AFWL_i
@@ -655,7 +648,7 @@ typedef struct {
 #define CAN_RTIF_RAFIF_GET(x) (((uint8_t)(x) & CAN_RTIF_RAFIF_MASK) >> CAN_RTIF_RAFIF_SHIFT)
 
 /*
- * TPIF (RW)
+ * TPIF (W1C)
  *
  * Transmission Primary Interrupt Flag
  * 1 - The requested transmission of the PTB has been successfully completed.
@@ -668,7 +661,7 @@ typedef struct {
 #define CAN_RTIF_TPIF_GET(x) (((uint8_t)(x) & CAN_RTIF_TPIF_MASK) >> CAN_RTIF_TPIF_SHIFT)
 
 /*
- * TSIF (RW)
+ * TSIF (W1C)
  *
  * Transmission Secondary Interrupt Flag
  * 1 - The requested transmission of the STB has been successfully completed.
@@ -682,7 +675,7 @@ typedef struct {
 #define CAN_RTIF_TSIF_GET(x) (((uint8_t)(x) & CAN_RTIF_TSIF_MASK) >> CAN_RTIF_TSIF_SHIFT)
 
 /*
- * EIF (RW)
+ * EIF (W1C)
  *
  * Error Interrupt Flag
  * 1 - The border of the error warning limit has been crossed in either direction,
@@ -695,7 +688,7 @@ typedef struct {
 #define CAN_RTIF_EIF_GET(x) (((uint8_t)(x) & CAN_RTIF_EIF_MASK) >> CAN_RTIF_EIF_SHIFT)
 
 /*
- * AIF (RW)
+ * AIF (W1C)
  *
  * Abort Interrupt Flag
  * 1 - After setting TPA or TSA the appropriated message(s) have been aborted.
@@ -711,18 +704,17 @@ typedef struct {
 
 /* Bitfield definition for register: ERRINT */
 /*
- * EWARN (RW)
+ * EWARN (RO)
  *
  * Error WARNing limit reached
  * 1 - One of the error counters RECNT or TECNT is equal or bigger than EWL0 - The values in both counters are less than EWL.
  */
 #define CAN_ERRINT_EWARN_MASK (0x80U)
 #define CAN_ERRINT_EWARN_SHIFT (7U)
-#define CAN_ERRINT_EWARN_SET(x) (((uint8_t)(x) << CAN_ERRINT_EWARN_SHIFT) & CAN_ERRINT_EWARN_MASK)
 #define CAN_ERRINT_EWARN_GET(x) (((uint8_t)(x) & CAN_ERRINT_EWARN_MASK) >> CAN_ERRINT_EWARN_SHIFT)
 
 /*
- * EPASS (RW)
+ * EPASS (RO)
  *
  * Error Passive mode active
  * 0 - not active (node is error active)
@@ -730,7 +722,6 @@ typedef struct {
  */
 #define CAN_ERRINT_EPASS_MASK (0x40U)
 #define CAN_ERRINT_EPASS_SHIFT (6U)
-#define CAN_ERRINT_EPASS_SET(x) (((uint8_t)(x) << CAN_ERRINT_EPASS_SHIFT) & CAN_ERRINT_EPASS_MASK)
 #define CAN_ERRINT_EPASS_GET(x) (((uint8_t)(x) & CAN_ERRINT_EPASS_MASK) >> CAN_ERRINT_EPASS_SHIFT)
 
 /*
@@ -744,7 +735,7 @@ typedef struct {
 #define CAN_ERRINT_EPIE_GET(x) (((uint8_t)(x) & CAN_ERRINT_EPIE_MASK) >> CAN_ERRINT_EPIE_SHIFT)
 
 /*
- * EPIF (RW)
+ * EPIF (W1C)
  *
  * Error Passive Interrupt Flag. EPIF will be activated if the error status changes from error
  * active to error passive or vice versa and if this interrupt is enabled.
@@ -765,7 +756,7 @@ typedef struct {
 #define CAN_ERRINT_ALIE_GET(x) (((uint8_t)(x) & CAN_ERRINT_ALIE_MASK) >> CAN_ERRINT_ALIE_SHIFT)
 
 /*
- * ALIF (RW)
+ * ALIF (W1C)
  *
  * Arbitration Lost Interrupt Flag
  */
@@ -785,7 +776,7 @@ typedef struct {
 #define CAN_ERRINT_BEIE_GET(x) (((uint8_t)(x) & CAN_ERRINT_BEIE_MASK) >> CAN_ERRINT_BEIE_SHIFT)
 
 /*
- * BEIF (RW)
+ * BEIF (W1C)
  *
  * Bus Error Interrupt Flag
  */
@@ -913,7 +904,7 @@ typedef struct {
 
 /* Bitfield definition for register: EALCAP */
 /*
- * KOER (RW)
+ * KOER (RO)
  *
  * Kind Of ERror (Error code)
  * 000 - no error
@@ -928,17 +919,15 @@ typedef struct {
  */
 #define CAN_EALCAP_KOER_MASK (0xE0U)
 #define CAN_EALCAP_KOER_SHIFT (5U)
-#define CAN_EALCAP_KOER_SET(x) (((uint8_t)(x) << CAN_EALCAP_KOER_SHIFT) & CAN_EALCAP_KOER_MASK)
 #define CAN_EALCAP_KOER_GET(x) (((uint8_t)(x) & CAN_EALCAP_KOER_MASK) >> CAN_EALCAP_KOER_SHIFT)
 
 /*
- * ALC (RW)
+ * ALC (RO)
  *
  * Arbitration Lost Capture (bit position in the frame where the arbitration has been lost)
  */
 #define CAN_EALCAP_ALC_MASK (0x1FU)
 #define CAN_EALCAP_ALC_SHIFT (0U)
-#define CAN_EALCAP_ALC_SET(x) (((uint8_t)(x) << CAN_EALCAP_ALC_SHIFT) & CAN_EALCAP_ALC_MASK)
 #define CAN_EALCAP_ALC_GET(x) (((uint8_t)(x) & CAN_EALCAP_ALC_MASK) >> CAN_EALCAP_ALC_SHIFT)
 
 /* Bitfield definition for register: TDC */
@@ -967,7 +956,7 @@ typedef struct {
 
 /* Bitfield definition for register: RECNT */
 /*
- * RECNT (RW)
+ * RECNT (RO)
  *
  * Receive Error CouNT (number of errors during reception)
  * RECNT is incremented and decremented as defined in the CAN specification.
@@ -976,12 +965,11 @@ typedef struct {
  */
 #define CAN_RECNT_RECNT_MASK (0xFFU)
 #define CAN_RECNT_RECNT_SHIFT (0U)
-#define CAN_RECNT_RECNT_SET(x) (((uint8_t)(x) << CAN_RECNT_RECNT_SHIFT) & CAN_RECNT_RECNT_MASK)
 #define CAN_RECNT_RECNT_GET(x) (((uint8_t)(x) & CAN_RECNT_RECNT_MASK) >> CAN_RECNT_RECNT_SHIFT)
 
 /* Bitfield definition for register: TECNT */
 /*
- * TECNT (RW)
+ * TECNT (RO)
  *
  * Transmit Error CouNT (number of errors during transmission)
  * TECNT is incremented and decremented as defined in the CAN specification.
@@ -990,7 +978,6 @@ typedef struct {
  */
 #define CAN_TECNT_TECNT_MASK (0xFFU)
 #define CAN_TECNT_TECNT_SHIFT (0U)
-#define CAN_TECNT_TECNT_SET(x) (((uint8_t)(x) << CAN_TECNT_TECNT_SHIFT) & CAN_TECNT_TECNT_MASK)
 #define CAN_TECNT_TECNT_GET(x) (((uint8_t)(x) & CAN_TECNT_TECNT_MASK) >> CAN_TECNT_TECNT_SHIFT)
 
 /* Bitfield definition for register: ACFCTRL */

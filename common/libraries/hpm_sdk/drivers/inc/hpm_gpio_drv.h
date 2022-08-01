@@ -76,38 +76,38 @@ static inline void gpio_write_pin(GPIO_Type *ptr, uint32_t port, uint8_t pin, ui
 }
 
 /**
- * @brief   Disable pin output
+ * @brief   Set pin to input mode
  *
  * @param ptr GPIO base address
  * @param port Port index
  * @param pin Pin index
  */
-static inline void gpio_disable_pin_output(GPIO_Type *ptr, uint32_t port, uint8_t pin)
+static inline void gpio_set_pin_input(GPIO_Type *ptr, uint32_t port, uint8_t pin)
 {
     ptr->OE[port].CLEAR = 1 << pin;
 }
 
 /**
- * @brief   Enable pin output
+ * @brief   Set pin to output mode
  *
  * @param ptr GPIO base address
  * @param port Port index
  * @param pin Pin index
  */
-static inline void gpio_enable_pin_output(GPIO_Type *ptr, uint32_t port, uint8_t pin)
+static inline void gpio_set_pin_output(GPIO_Type *ptr, uint32_t port, uint8_t pin)
 {
     ptr->OE[port].SET = 1 << pin;
 }
 
 /**
- * @brief   Enable pin output with initial value
+ * @brief   Set pin to output mode with initial value
  *
  * @param ptr GPIO base address
  * @param port Port index
  * @param pin Pin index
  * @param initial Initial value
  */
-void gpio_enable_pin_output_with_initial(GPIO_Type *ptr, uint32_t port, uint8_t pin, uint8_t initial);
+void gpio_set_pin_output_with_initial(GPIO_Type *ptr, uint32_t port, uint8_t pin, uint8_t initial);
 
 /**
  * @brief   Check specific pin interrupt status

@@ -261,6 +261,21 @@ static inline void i2c_enable_irq(I2C_Type *ptr, uint32_t mask)
 }
 
 /**
+ * @brief enable 10 bit address mode
+ *
+ * @details enable 10 bit address mode, if not, address is 7 bit mode
+ *
+ * @param [in] ptr I2C base address
+ * @param [in] enable
+ *  @arg true: enable 10 bit address mode
+ *  @arg false: enable 7 bit address mode
+ */
+static inline void i2c_enable_10bit_address_mode(I2C_Type *ptr, bool enable)
+{
+    ptr->SETUP |= I2C_SETUP_ADDRESSING_SET(enable);
+}
+
+/**
  * @brief I2C master initialization
  *
  * @details Initialized I2C controller working at master mode
@@ -335,11 +350,22 @@ hpm_stat_t i2c_master_write(I2C_Type *ptr,
  *
  * @details Write data to I2C device by DMA
  *
- * @param [in] ptr I2C base address
+ * @param [in] i2c_ptr I2C base address
  * @param [in] device_address I2C slave address
  * @param [in] size size of data to be sent in bytes
  */
 void i2c_master_start_dma_write(I2C_Type *i2c_ptr, const uint16_t device_address, uint32_t size);
+
+/**
+ * @brief I2C master start read data by DMA
+ *
+ * @details Read data to I2C device by DMA
+ *
+ * @param [in] i2c_ptr I2C base address
+ * @param [in] device_address I2C slave address
+ * @param [in] size size of data to be read in bytes
+ */
+void i2c_master_start_dma_read(I2C_Type *i2c_ptr, const uint16_t device_address, uint32_t size);
 
 /**
  * @brief I2C master read data from certain slave device 
@@ -382,18 +408,17 @@ hpm_stat_t i2c_init_slave(I2C_Type *ptr, uint32_t src_clk_in_hz,
  */
 hpm_stat_t i2c_slave_read(I2C_Type *ptr, uint8_t *buf, const uint32_t size);
 
-
 /**
  * @brief I2C slave write data
  *
- * @details Write one byte at slave mode. Slave sends one byte every write, since it
- * does not know how much data master is requesting.
+ * @details Write data at slave mode.
  *
  * @param [in] ptr I2C base address
- * @param [in] buf the data to be sent
+ * @param [in] buf pointer of the buffer to store data sent from device
+ * @param [in] size size of data to be sent in bytes
  * @retval hpm_stat_t status_success if writing is completed without any error
  */
-hpm_stat_t i2c_slave_write(I2C_Type *ptr, uint8_t buf);
+hpm_stat_t i2c_slave_write(I2C_Type *ptr, uint8_t *buf, const uint32_t size);
 
 /**
  * @brief reset I2C 
@@ -411,6 +436,26 @@ static inline void i2c_dma_enable(I2C_Type *ptr)
 {
     ptr->SETUP |= I2C_SETUP_DMAEN_MASK;
 }
+
+/**
+ * @brief Disable i2c DMA
+ *
+ * @param [in] ptr I2C base address
+ */
+static inline void i2c_dma_disable(I2C_Type *ptr)
+{
+    ptr->SETUP &= ~I2C_SETUP_DMAEN_MASK;
+}
+
+/**
+ * @brief I2C slave dma transfer data
+ *
+ * @note The direction of data transmission depends on Master setting
+ *
+ * @param [in] ptr I2C base address
+ * @param [in] size size of data in bytes
+ */
+void i2c_slave_dma_transfer(I2C_Type *ptr,  const uint32_t size);
 
 /**
  * @}

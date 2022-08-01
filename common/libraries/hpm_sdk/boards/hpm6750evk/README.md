@@ -51,17 +51,53 @@ The HPM6750 is a dual-core flashless MCU running 816Mhz. It has a 2MB continuous
 | OFF  | 1000Mbits ENET |
 | ON   | PWM            |
 
+(lab_hpm6750_evk_board)=
 ## Button
-
+(lab_hpm6750_evk_board_buttons)=
 | Name | FUNCTIONS |
+| ---- | -------- |
 |PBUTN (S2) | Power Button, TinyUF2 Boot Button, GPIO Button |
 |WBUTN (S3) | WAKE UP Button |
 |RESET (S4) | Reset Button |
 
 ## Pin Description
 
-(lab_hpm6750_evk_board)=
-
-1. Description
+- PWM Pin:
 
   ![image-1](../../doc/images/boards/hpm6750evk/hpm6750evk_pwm_output_pin.jpg "image-1")
+
+- SPI Pin：
+
+| Function | Position |
+| ---- | -------- |
+| SPI2.CSN    | J20[6] |
+| SPI2.SCLK   | J20[7] |
+| SPI2.MISO   | J20[8] |
+| SPI2.MOSI   | J20[9] |
+
+- I2C Pin：
+
+| Function | Position |
+| ---- | -------- |
+| I2C0.SCL    | J20[3] |
+| I2C0.SDA    | J20[4] |
+
+- UART for core1 debug console
+| Function | Position |
+| ---- | -------- |
+| UART13.TXD    | J20[5] |
+| UART13.RXD    | J20[6] |
+
+- ACMP Pin
+
+| Function | Position |
+| ---- | -------- |
+| CMP.INN6    | J12[8] |
+| CMP.COMP_1  | J12[6] |
+
+- GPTMR Pin
+
+| Function | Function |
+| ---- | -------- |
+| GPTMR4.CAPT_1  | J12[6] |
+| GPTMR3.COMP_1  | J12[7] |

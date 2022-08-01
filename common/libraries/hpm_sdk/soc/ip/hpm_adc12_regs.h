@@ -79,6 +79,7 @@ typedef struct {
 /*
  * INTEN2 (RW)
  *
+ * interupt enable for 3rd conversion
  */
 #define ADC12_CONFIG_INTEN2_MASK (0x200000UL)
 #define ADC12_CONFIG_INTEN2_SHIFT (21U)
@@ -88,6 +89,7 @@ typedef struct {
 /*
  * CHAN2 (RW)
  *
+ * channel number for 3rd conversion
  */
 #define ADC12_CONFIG_CHAN2_MASK (0x1F0000UL)
 #define ADC12_CONFIG_CHAN2_SHIFT (16U)
@@ -97,6 +99,7 @@ typedef struct {
 /*
  * INTEN1 (RW)
  *
+ * interupt enable for 2nd conversion
  */
 #define ADC12_CONFIG_INTEN1_MASK (0x2000U)
 #define ADC12_CONFIG_INTEN1_SHIFT (13U)
@@ -106,6 +109,7 @@ typedef struct {
 /*
  * CHAN1 (RW)
  *
+ * channel number for 2nd conversion
  */
 #define ADC12_CONFIG_CHAN1_MASK (0x1F00U)
 #define ADC12_CONFIG_CHAN1_SHIFT (8U)
@@ -171,7 +175,7 @@ typedef struct {
 /*
  * WAIT_DIS (RW)
  *
- * set to disable read wait, get result immedietly but maybe not current conversion result.
+ * set to disable read waiting, get result immediately but maybe not current conversion result.
  */
 #define ADC12_BUF_CFG0_WAIT_DIS_MASK (0x1U)
 #define ADC12_BUF_CFG0_WAIT_DIS_SHIFT (0U)
