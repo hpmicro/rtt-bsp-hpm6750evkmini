@@ -62,6 +62,7 @@ void lv_port_indev_init(void)
     /*------------------
      * Touchpad
      * -----------------*/
+    board_init_cap_touch();
 
     /*Initialize your touchpad if you have*/
     touchpad_init();

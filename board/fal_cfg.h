@@ -11,7 +11,7 @@
 #include <rtconfig.h>
 #include <board.h>
 
-#ifdef PKG_USING_FAL
+#ifdef RT_USING_FAL
 #define NOR_FLASH_DEV_NAME             "norflash0"
 #define NOR_FLASH_MEM_BASE             0x80000000UL
 #define NOR_FLASH_SIZE_IN_BYTES        0x1000000UL

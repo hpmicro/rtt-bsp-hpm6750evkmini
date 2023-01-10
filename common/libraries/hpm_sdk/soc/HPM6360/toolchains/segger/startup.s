@@ -229,6 +229,9 @@ MARK_FUNC __SEGGER_init_done
 #else
     #define HANDLER_TRAP freertos_risc_v_trap_handler
     #define HANDLER_S_TRAP freertos_risc_v_trap_handler
+
+    /* Use mscratch to store isr level */
+    csrw mscratch, 0
 #endif
 
 #if !defined(USE_NONVECTOR_MODE)
@@ -250,6 +253,9 @@ MARK_FUNC __SEGGER_init_done
     la t0, HANDLER_S_TRAP
     csrw stvec, t0
 #endif
+
+    /* Disable vectored external PLIC interrupt */
+    csrci CSR_MMISC_CTL, 2
 #endif
 
 MARK_FUNC start

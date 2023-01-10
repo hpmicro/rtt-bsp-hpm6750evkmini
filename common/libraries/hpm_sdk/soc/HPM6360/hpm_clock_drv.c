@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 - 2022 hpmicro
+ * Copyright (c) 2021-2022 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -214,7 +214,7 @@ static uint32_t get_frequency_for_i2s_or_adc(uint32_t clk_src_type, uint32_t ins
         if (i2s_index < I2S_INSTANCE_NUM) {
             uint32_t mux_in_reg = SYSCTL_I2SCLK_MUX_GET(HPM_SYSCTL->I2SCLK[i2s_index]);
             if (mux_in_reg < ARRAY_SIZE(s_i2s_clk_mux_node)) {
-                node = s_adc_clk_mux_node[mux_in_reg];
+                node = s_i2s_clk_mux_node[mux_in_reg];
                 is_mux_valid = true;
             }
         }
@@ -354,7 +354,7 @@ hpm_stat_t clock_set_adc_source(clock_name_t clock_name, clk_src_t src)
 
     uint32_t clk_src_index = GET_CLK_SRC_INDEX(src);
     HPM_SYSCTL->ADCCLK[node_or_instance] =
-            (HPM_SYSCTL->ADCCLK[node_or_instance] & SYSCTL_ADCCLK_MUX_MASK) | SYSCTL_ADCCLK_MUX_SET(clk_src_index);
+            (HPM_SYSCTL->ADCCLK[node_or_instance] & ~SYSCTL_ADCCLK_MUX_MASK) | SYSCTL_ADCCLK_MUX_SET(clk_src_index);
 
     return status_success;
 }
@@ -374,7 +374,7 @@ hpm_stat_t clock_set_dac_source(clock_name_t clock_name, clk_src_t src)
 
     uint32_t clk_src_index = GET_CLK_SRC_INDEX(src);
     HPM_SYSCTL->DACCLK[node_or_instance] =
-            (HPM_SYSCTL->DACCLK[node_or_instance] & SYSCTL_DACCLK_MUX_MASK) | SYSCTL_DACCLK_MUX_SET(clk_src_index);
+            (HPM_SYSCTL->DACCLK[node_or_instance] & ~SYSCTL_DACCLK_MUX_MASK) | SYSCTL_DACCLK_MUX_SET(clk_src_index);
 
     return status_success;
 }
@@ -394,7 +394,7 @@ hpm_stat_t clock_set_i2s_source(clock_name_t clock_name, clk_src_t src)
 
     uint32_t clk_src_index = GET_CLK_SRC_INDEX(src);
     HPM_SYSCTL->I2SCLK[node_or_instance] =
-            (HPM_SYSCTL->I2SCLK[node_or_instance] & SYSCTL_I2SCLK_MUX_MASK) | SYSCTL_I2SCLK_MUX_SET(clk_src_index);
+            (HPM_SYSCTL->I2SCLK[node_or_instance] & ~SYSCTL_I2SCLK_MUX_MASK) | SYSCTL_I2SCLK_MUX_SET(clk_src_index);
 
     return status_success;
 }

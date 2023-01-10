@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 HPMicro
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
@@ -11,7 +11,7 @@
 #include "hpm_i2c_drv.h"
 #include "hpm_gpio_drv.h"
 #include "hpm_debug_console.h"
-#include "hpm_dram_drv.h"
+#include "hpm_femc_drv.h"
 #include "pinmux.h"
 #include "hpm_pmp_drv.h"
 #include "assert.h"
@@ -20,6 +20,7 @@
 #include "hpm_sdxc_drv.h"
 #include "hpm_sdxc_soc_drv.h"
 #include "hpm_pllctl_drv.h"
+#include "hpm_pcfg_drv.h"
 
 static board_timer_cb timer_cb;
 
@@ -116,7 +117,7 @@ void board_print_clock_freq(void)
     printf("mchtmr1:\t %luHz\n", clock_get_frequency(clock_mchtmr1));
     printf("xpi0:\t\t %luHz\n", clock_get_frequency(clock_xpi0));
     printf("xpi1:\t\t %luHz\n", clock_get_frequency(clock_xpi1));
-    printf("dram:\t\t %luHz\n", clock_get_frequency(clock_dram));
+    printf("femc:\t\t %luHz\n", clock_get_frequency(clock_femc));
     printf("display:\t %luHz\n", clock_get_frequency(clock_display));
     printf("cam0:\t\t %luHz\n", clock_get_frequency(clock_camera0));
     printf("cam1:\t\t %luHz\n", clock_get_frequency(clock_camera1));
@@ -183,10 +184,10 @@ void board_init_sdram_pins(void)
     init_sdram_pins();
 }
 
-uint32_t board_init_dram_clock(void)
+uint32_t board_init_femc_clock(void)
 {
-    clock_set_source_divider(clock_dram, clk_src_pll2_clk0, 2U); /* 166Mhz */
-    return clock_get_frequency(clock_dram);
+    clock_set_source_divider(clock_femc, clk_src_pll2_clk0, 2U); /* 166Mhz */
+    return clock_get_frequency(clock_femc);
 }
 
 void board_power_cycle_lcd(void)
@@ -532,7 +533,7 @@ void board_init_clock(void)
     clock_add_to_group(clock_axi1, 0);
     clock_add_to_group(clock_axi2, 0);
     clock_add_to_group(clock_ahb, 0);
-    clock_add_to_group(clock_dram, 0);
+    clock_add_to_group(clock_femc, 0);
     clock_add_to_group(clock_xpi0, 0);
     clock_add_to_group(clock_xpi1, 0);
     clock_add_to_group(clock_gptmr0, 0);
@@ -606,12 +607,17 @@ void board_init_clock(void)
     clock_add_to_group(clock_i2s2, 0);
     clock_add_to_group(clock_i2s3, 0);
 
+    /* Connect Group0 to CPU0 */
+    clock_connect_group_to_cpu(0, 0);
+
     /* Add the CPU1 clock to Group1 */
     clock_add_to_group(clock_mchtmr1, 1);
     clock_add_to_group(clock_mbx1, 1);
+    /* Connect Group1 to CPU1 */
+    clock_connect_group_to_cpu(1, 1);
 
-    /* Connect Group0 to CPU0 */
-    clock_connect_group_to_cpu(0, 0);
+    /* Bump up DCDC voltage to 1200mv */
+    pcfg_dcdc_set_voltage(HPM_PCFG, 1200);
 
     if (status_success != pllctl_init_int_pll_with_freq(HPM_PLLCTL, 0, BOARD_CPU_FREQ)) {
         printf("Failed to set pll0_clk0 to %luHz\n", BOARD_CPU_FREQ);
@@ -812,23 +818,24 @@ uint32_t board_init_gptmr_clock(GPTMR_Type *ptr)
  */
 void _init_ext_ram(void)
 {
-    uint32_t dram_clk_in_hz;
+    uint32_t femc_clk_in_hz;
+    clock_add_to_group(clock_femc, 0);
     board_init_sdram_pins();
-    dram_clk_in_hz = board_init_dram_clock();
+    femc_clk_in_hz = board_init_femc_clock();
 
-    dram_config_t config = {0};
-    dram_sdram_config_t sdram_config = {0};
+    femc_config_t config = {0};
+    femc_sdram_config_t sdram_config = {0};
 
-    dram_default_config(HPM_DRAM, &config);
-    config.dqs = DRAM_DQS_INTERNAL;
-    dram_init(HPM_DRAM, &config);
+    femc_default_config(HPM_FEMC, &config);
+    config.dqs = FEMC_DQS_INTERNAL;
+    femc_init(HPM_FEMC, &config);
 
-    sdram_config.bank_num = DRAM_SDRAM_BANK_NUM_4;
+    sdram_config.bank_num = FEMC_SDRAM_BANK_NUM_4;
     sdram_config.prescaler = 0x3;
     sdram_config.burst_len_in_byte = 8;
     sdram_config.auto_refresh_count_in_one_burst = 1;
-    sdram_config.col_addr_bits = DRAM_SDRAM_COLUMN_ADDR_9_BITS;
-    sdram_config.cas_latency = DRAM_SDRAM_CAS_LATENCY_3;
+    sdram_config.col_addr_bits = FEMC_SDRAM_COLUMN_ADDR_9_BITS;
+    sdram_config.cas_latency = FEMC_SDRAM_CAS_LATENCY_3;
 
     sdram_config.precharge_to_act_in_ns = 18;   /* Trp */
     sdram_config.act_to_rw_in_ns = 18;          /* Trcd */
@@ -841,7 +848,7 @@ void _init_ext_ram(void)
     sdram_config.refresh_to_refresh_in_ns = 66;     /* Trfc/Trc */
     sdram_config.act_to_act_in_ns = 12;             /* Trrd */
     sdram_config.idle_timeout_in_ns = 6;
-    sdram_config.cs_mux_pin = DRAM_IO_MUX_NOT_USED;
+    sdram_config.cs_mux_pin = FEMC_IO_MUX_NOT_USED;
 
     sdram_config.cs = BOARD_SDRAM_CS;
     sdram_config.base_address = BOARD_SDRAM_ADDRESS;
@@ -852,7 +859,7 @@ void _init_ext_ram(void)
     sdram_config.data_width_in_byte = BOARD_SDRAM_DATA_WIDTH_IN_BYTE;
     sdram_config.delay_cell_value = 29;
 
-    dram_config_sdram(HPM_DRAM, dram_clk_in_hz, &sdram_config);
+    femc_config_sdram(HPM_FEMC, femc_clk_in_hz, &sdram_config);
 }
 
 void board_init_sd_pins(SDXC_Type *ptr)
@@ -961,9 +968,20 @@ hpm_stat_t board_init_enet_pins(ENET_Type *ptr)
     return status_success;
 }
 
-void board_reset_enet_phy(ENET_Type *ptr)
+hpm_stat_t board_reset_enet_phy(ENET_Type *ptr)
 {
-    board_delay_ms(BOARD_ENET1_PHY_RST_TIME);
-    gpio_write_pin(BOARD_ENET1_RST_GPIO, BOARD_ENET1_RST_GPIO_INDEX, BOARD_ENET1_RST_GPIO_PIN, 1);
+    if (ptr == HPM_ENET1) {
+        gpio_write_pin(BOARD_ENET1_RST_GPIO, BOARD_ENET1_RST_GPIO_INDEX, BOARD_ENET1_RST_GPIO_PIN, 0);
+        board_delay_ms(BOARD_ENET1_PHY_RST_TIME);
+        gpio_write_pin(BOARD_ENET1_RST_GPIO, BOARD_ENET1_RST_GPIO_INDEX, BOARD_ENET1_RST_GPIO_PIN, 1);
+    } else {
+        return status_invalid_argument;
+    }
 
+    return status_success;
+}
+
+uint8_t board_enet_get_dma_pbl(ENET_Type *ptr)
+{
+    return enet_pbl_32;
 }

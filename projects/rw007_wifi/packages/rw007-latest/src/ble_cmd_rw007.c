@@ -636,6 +636,7 @@ static int ble_cmd_cfgwifi(int argc, char *argv[])
     // duration_ms == 0 by used default 60second;
     if (duration_ms < 0) return -2;
 
+    extern rt_err_t rw007_ble_cfgwifi(uint32_t duration_ms);
     return rw007_ble_cfgwifi(duration_ms);
 }
 
@@ -681,5 +682,5 @@ static int rw007_ble_msh(int argc, char *argv[])
 }
 
 #if defined(RT_USING_FINSH) && defined(FINSH_USING_MSH)
-FINSH_FUNCTION_EXPORT_ALIAS(rw007_ble_msh, __cmd_rw007_ble, ble command.);
+MSH_CMD_EXPORT_ALIAS(rw007_ble_msh, rw007_ble, ble command.);
 #endif

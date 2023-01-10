@@ -1,5 +1,17 @@
 # Change Log
 
+## v1.0.0
+- Integrated hpm_sdk v1.0.0
+  - Note:
+    - the docs, middleware, scripts, samples folder in SDK root directory were removed
+ - Updated:
+   - Improved drv_uart_v2 implementation
+   - Implemented audio driver
+   - Migrated to rt-thread v4.1.0
+   - Added support for JLink Probe
+ - Added examples:
+   - audio_pdm_dao_demo
+
 ## v0.7.0
 - Integrated the SDK v0.12.1 release
   - Note:

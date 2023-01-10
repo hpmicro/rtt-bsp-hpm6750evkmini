@@ -6,7 +6,7 @@ cwd = GetCurrentDir()
 
 path = [ cwd + '/ptpd/src', cwd + '/ptpd/src/dep']
 
-CPPDEFINES=[]
+CPPDEFINES=['__USE_ENET_PTP=1']
 
 src = ['main.c']
 src += ['ptpd/src/arith.c',

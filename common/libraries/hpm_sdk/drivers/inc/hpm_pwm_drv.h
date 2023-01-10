@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -366,13 +366,13 @@ static inline void pwm_set_force_cmd_shadow_register_hwevent(PWM_Type *pwm_x,
  */
 
 /**
- * @brief config shadow register control register
+ * @brief set shadow register control register
  *
  * @param[in] pwm_x PWM base address, HPM_PWMx(x=0..n)
  * @param[in] trigger  select when the counter related shadow registers @ref pwm_shadow_register_update_trigger_t
  * @param[in] target_cmp_index  select one of the comparators as hardware event (0..(PWM_SOC_CMP_MAX_COUNT-1))
  */
-static inline void pwm_config_load_counter_shadow_register_trigger(PWM_Type *pwm_x,
+static inline void pwm_set_load_counter_shadow_register_trigger(PWM_Type *pwm_x,
                                 pwm_shadow_register_update_trigger_t trigger,
                                 uint8_t target_cmp_index)
 {
@@ -388,7 +388,7 @@ static inline void pwm_config_load_counter_shadow_register_trigger(PWM_Type *pwm
 }
 
 /**
- * @brief configure the hardware to trigger the shadow register to update the CMP
+ * @brief configure the cmp shadow on capture mode
  *
  * @param[in] pwm_x PWM base address, HPM_PWMx(x=0..n)
  * @param[in] index cmp index (0..(PWM_SOC_CMP_MAX_COUNT-1))
@@ -401,8 +401,7 @@ static inline void pwm_load_cmp_shadow_on_capture(PWM_Type *pwm_x,
                                                    bool edge)
 {
     pwm_x->CMPCFG[index] |= PWM_CMPCFG_CMPMODE_MASK;
-    pwm_x->GCR = ((pwm_x->GCR & ~(PWM_GCR_CMPSHDWSEL_MASK | PWM_GCR_HWSHDWEDG_MASK))
-            | PWM_GCR_CMPSHDWSEL_SET(index)
+    pwm_x->GCR = ((pwm_x->GCR & ~(PWM_GCR_HWSHDWEDG_MASK))
             | PWM_GCR_HWSHDWEDG_SET(edge));
 }
 
@@ -453,6 +452,18 @@ static inline void pwm_cmp_update_cmp_value(PWM_Type *pwm_x, uint8_t index,
 {
     pwm_x->CMP[index] = (pwm_x->CMP[index] & ~(PWM_CMP_CMP_MASK | PWM_CMP_XCMP_MASK))
         | PWM_CMP_CMP_SET(cmp) | PWM_CMP_XCMP_SET(ex_cmp);
+}
+
+/**
+ * @brief Forced update of pwm cmp register value, cmp content guaranteed accurate by user
+ *
+ * @param[in] pwm_x PWM base address, HPM_PWMx(x=0..n)
+ * @param[in] index cmp index (0..(PWM_SOC_CMP_MAX_COUNT-1))
+ * @param[in] cmp cmp register data
+ */
+static inline void pwm_cmp_force_value(PWM_Type *pwm_x, uint8_t index, uint32_t cmp)
+{
+    pwm_x->CMP[index] = cmp;
 }
 
 /**
@@ -771,8 +782,8 @@ hpm_stat_t pwm_update_raw_cmp_edge_aligned(PWM_Type *pwm_x, uint8_t cmp_index,
  * @brief update raw compare value for central aligned waveform
  *
  * @param[in] pwm_x PWM base address, HPM_PWMx(x=0..n)
- * @param[in] cmp1_index index of cmp1 to be adjusted (cmp1_index must even number)
- * @param[in] cmp2_index index of cmp2 to be adjusted (cmp2_index must odd number)
+ * @param[in] cmp1_index index of cmp1 to be adjusted (cmp1_index must be even number)
+ * @param[in] cmp2_index index of cmp2 to be adjusted (cmp2_index must be odd number)
  * @param[in] target_cmp1 target compare value for cmp1
  * @param[in] target_cmp2 target compare value for cmp2
  * @retval hpm_stat_t @ref status_invalid_argument or @ref status_success cmp1_index

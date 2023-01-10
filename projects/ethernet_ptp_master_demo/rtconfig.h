@@ -12,15 +12,17 @@
 #define RT_TICK_PER_SECOND 1000
 #define RT_USING_OVERFLOW_CHECK
 #define RT_USING_HOOK
+#define RT_HOOK_USING_FUNC_PTR
 #define RT_USING_IDLE_HOOK
 #define RT_IDLE_HOOK_LIST_SIZE 4
-#define IDLE_THREAD_STACK_SIZE 512
+#define IDLE_THREAD_STACK_SIZE 1024
 #define RT_USING_TIMER_SOFT
 #define RT_TIMER_THREAD_PRIO 4
-#define RT_TIMER_THREAD_STACK_SIZE 512
+#define RT_TIMER_THREAD_STACK_SIZE 1024
 
 /* kservice optimization */
 
+#define RT_PRINTF_LONGLONG
 /* end of kservice optimization */
 
 /* Inter-Thread communication */
@@ -36,6 +38,7 @@
 
 #define RT_USING_MEMPOOL
 #define RT_USING_SMALL_MEM
+#define RT_USING_SMALL_MEM_AS_HEAP
 #define RT_USING_HEAP
 /* end of Memory Management */
 
@@ -45,9 +48,8 @@
 #define RT_USING_CONSOLE
 #define RT_CONSOLEBUF_SIZE 128
 #define RT_CONSOLE_DEVICE_NAME "uart0"
-#define RT_PRINTF_LONGLONG
 /* end of Kernel Device Object */
-#define RT_VER_NUM 0x40005
+#define RT_VER_NUM 0x40100
 /* end of RT-Thread Kernel */
 
 /* RT-Thread Components */
@@ -56,15 +58,8 @@
 #define RT_USING_USER_MAIN
 #define RT_MAIN_THREAD_STACK_SIZE 2048
 #define RT_MAIN_THREAD_PRIORITY 10
-
-/* C++ features */
-
-/* end of C++ features */
-
-/* Command shell */
-
-#define RT_USING_FINSH
 #define RT_USING_MSH
+#define RT_USING_FINSH
 #define FINSH_USING_MSH
 #define FINSH_THREAD_NAME "tshell"
 #define FINSH_THREAD_PRIORITY 20
@@ -76,22 +71,17 @@
 #define MSH_USING_BUILT_IN_COMMANDS
 #define FINSH_USING_DESCRIPTION
 #define FINSH_ARG_MAX 10
-/* end of Command shell */
-
-/* Device virtual file system */
-
 #define RT_USING_DFS
+#define DFS_USING_POSIX
 #define DFS_USING_WORKDIR
 #define DFS_FILESYSTEMS_MAX 4
 #define DFS_FILESYSTEM_TYPES_MAX 4
 #define DFS_FD_MAX 16
 #define RT_USING_DFS_DEVFS
-/* end of Device virtual file system */
 
 /* Device Drivers */
 
 #define RT_USING_DEVICE_IPC
-#define RT_PIPE_BUFSZ 512
 #define RT_USING_SYSTEM_WORKQUEUE
 #define RT_SYSTEM_WORKQUEUE_STACKSIZE 2048
 #define RT_SYSTEM_WORKQUEUE_PRIORITY 23
@@ -109,17 +99,27 @@
 /* end of Using USB */
 /* end of Device Drivers */
 
-/* POSIX layer and C standard library */
+/* C/C++ and POSIX layer */
 
-#define RT_USING_LIBC
-#define RT_USING_POSIX
-#define RT_LIBC_USING_TIME
 #define RT_LIBC_DEFAULT_TIMEZONE 8
-/* end of POSIX layer and C standard library */
+
+/* POSIX (Portable Operating System Interface) layer */
+
+#define RT_USING_POSIX_FS
+#define RT_USING_POSIX_POLL
+#define RT_USING_POSIX_SELECT
+#define RT_USING_POSIX_SOCKET
+
+/* Interprocess Communication (IPC) */
+
+
+/* Socket is in the 'Network' category */
+
+/* end of Interprocess Communication (IPC) */
+/* end of POSIX (Portable Operating System Interface) layer */
+/* end of C/C++ and POSIX layer */
 
 /* Network */
-
-/* Socket abstraction layer */
 
 #define RT_USING_SAL
 #define SAL_INTERNET_CHECK
@@ -129,22 +129,15 @@
 #define SAL_USING_LWIP
 /* end of protocol stack implement */
 #define SAL_USING_POSIX
-/* end of Socket abstraction layer */
-
-/* Network interface device */
-
 #define RT_USING_NETDEV
 #define NETDEV_USING_IFCONFIG
 #define NETDEV_USING_PING
 #define NETDEV_USING_NETSTAT
 #define NETDEV_IPV4 1
 #define NETDEV_IPV6 0
-/* end of Network interface device */
-
-/* light weight TCP/IP stack */
-
 #define RT_USING_LWIP
 #define RT_USING_LWIP212
+#define RT_USING_LWIP_VER_NUM 0x20102
 #define RT_LWIP_MEM_ALIGNMENT 4
 #define RT_LWIP_IGMP
 #define RT_LWIP_ICMP
@@ -152,8 +145,8 @@
 
 /* Static IPv4 Address */
 
-#define RT_LWIP_IPADDR "192.168.11.201"
-#define RT_LWIP_GWADDR "192.168.11.1"
+#define RT_LWIP_IPADDR "10.10.10.10"
+#define RT_LWIP_GWADDR "10.10.10.1"
 #define RT_LWIP_MSKADDR "255.255.255.0"
 /* end of Static IPv4 Address */
 #define RT_LWIP_UDP
@@ -170,7 +163,7 @@
 #define RT_LWIP_TCPTHREAD_PRIORITY 10
 #define RT_LWIP_TCPTHREAD_MBOX_SIZE 8
 #define RT_LWIP_TCPTHREAD_STACKSIZE 4096
-#define RT_LWIP_ETHTHREAD_PRIORITY 8
+#define RT_LWIP_ETHTHREAD_PRIORITY 12
 #define RT_LWIP_ETHTHREAD_STACKSIZE 4096
 #define RT_LWIP_ETHTHREAD_MBOX_SIZE 16
 #define LWIP_NETIF_STATUS_CALLBACK 1
@@ -181,18 +174,9 @@
 #define LWIP_SO_RCVBUF 1
 #define LWIP_SO_LINGER 0
 #define LWIP_NETIF_LOOPBACK 0
+#define RT_LWIP_USING_HW_CHECKSUM
 #define RT_LWIP_USING_PING
-#define LWIP_NOASSERT
-/* end of light weight TCP/IP stack */
-
-/* AT commands */
-
-/* end of AT commands */
 /* end of Network */
-
-/* VBUS(Virtual Software BUS) */
-
-/* end of VBUS(Virtual Software BUS) */
 
 /* Utilities */
 
@@ -237,8 +221,8 @@
 #define NETUTILS_NTP_HOSTNAME "cn.ntp.org.cn"
 #define NETUTILS_NTP_HOSTNAME2 "ntp.rt-thread.org"
 #define NETUTILS_NTP_HOSTNAME3 "edu.ntp.org.cn"
-#define PKG_USING_NETUTILS_V132
-#define PKG_NETUTILS_VER_NUM 0x10302
+#define PKG_USING_NETUTILS_LATEST_VERSION
+#define PKG_NETUTILS_VER_NUM 0x99999
 
 /* IoT Cloud */
 
@@ -285,10 +269,6 @@
 
 /* end of enhanced kernel services */
 
-/* POSIX extension functions */
-
-/* end of POSIX extension functions */
-
 /* acceleration: Assembly language or algorithmic acceleration packages */
 
 /* end of acceleration: Assembly language or algorithmic acceleration packages */
@@ -304,11 +284,26 @@
 
 /* peripheral libraries and drivers */
 
+/* sensors drivers */
+
+/* end of sensors drivers */
+
+/* touch drivers */
+
+/* end of touch drivers */
+
+/* Kendryte SDK */
+
+/* end of Kendryte SDK */
 /* end of peripheral libraries and drivers */
 
 /* AI packages */
 
 /* end of AI packages */
+
+/* Signal Processing and Control Algorithm Packages */
+
+/* end of Signal Processing and Control Algorithm Packages */
 
 /* miscellaneous packages */
 
@@ -324,6 +319,49 @@
 
 /* end of entertainment: terminal games and other interesting software packages */
 /* end of miscellaneous packages */
+
+/* Arduino libraries */
+
+
+/* Projects */
+
+/* end of Projects */
+
+/* Sensors */
+
+/* end of Sensors */
+
+/* Display */
+
+/* end of Display */
+
+/* Timing */
+
+/* end of Timing */
+
+/* Data Processing */
+
+/* end of Data Processing */
+
+/* Data Storage */
+
+/* Communication */
+
+/* end of Communication */
+
+/* Device Control */
+
+/* end of Device Control */
+
+/* Other */
+
+/* Signal IO */
+
+/* end of Signal IO */
+
+/* Uncategorized */
+
+/* end of Arduino libraries */
 /* end of RT-Thread online packages */
 
 /* Hardware Drivers Config */
@@ -343,7 +381,7 @@
 #define BSP_USING_ETH
 #define BSP_USING_ETH1
 #define BSP_USING_GPTMR
-#define BSP_USING_DRAM
+#define BSP_USING_FEMC
 #define INIT_EXT_RAM_FOR_DATA
 /* end of On-chip Peripheral Drivers */
 /* end of Hardware Drivers Config */

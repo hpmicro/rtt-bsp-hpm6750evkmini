@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -7,10 +7,6 @@
 
 #include "hpm_adc16_drv.h"
 #include "hpm_soc_feature.h"
-
-#define ADC16_IS_CHANNEL_INVALID(CH) (CH > ADC16_SOC_MAX_CH_NUM && CH != ADC16_SOC_TEMP_CH_NUM)
-#define ADC16_IS_TRIG_CH_INVLAID(CH) (CH > ADC16_SOC_MAX_TRIG_CH_NUM)
-#define ADC16_IS_TRIG_LEN_INVLAID(TRIG_LEN) (TRIG_LEN > ADC_SOC_MAX_TRIG_CH_LEN)
 
 void adc16_get_default_config(adc16_config_t *config)
 {
@@ -76,7 +72,7 @@ static hpm_stat_t adc16_do_calibration(ADC16_Type *ptr)
     ptr->CONV_CFG1 = (ptr->CONV_CFG1 & ~ADC16_CONV_CFG1_CLOCK_DIVIDER_MASK)
                    | ADC16_CONV_CFG1_CLOCK_DIVIDER_SET(clk_div_temp);
 
-    for(j = 0; j < 4; j++) {
+    for (j = 0; j < 4; j++) {
         /* Set startcal */
         ptr->ANA_CTRL0 |= ADC16_ANA_CTRL0_STARTCAL_MASK;
 
@@ -84,7 +80,8 @@ static hpm_stat_t adc16_do_calibration(ADC16_Type *ptr)
         ptr->ANA_CTRL0 &= ~ADC16_ANA_CTRL0_STARTCAL_MASK;
 
         /* Polling calibration status */
-        while (ADC16_ANA_STATUS_CALON_GET(ptr->ANA_STATUS)) {}
+        while (ADC16_ANA_STATUS_CALON_GET(ptr->ANA_STATUS)) {
+        }
 
         /* Read parameters */
         for (i = 0; i < ADC16_SOC_PARAMS_LEN; i++) {
@@ -173,7 +170,7 @@ hpm_stat_t adc16_init(ADC16_Type *ptr, adc16_config_t *config)
     return status_success;
 }
 
-hpm_stat_t adc16_channel_init(ADC16_Type *ptr, adc16_channel_config_t *config)
+hpm_stat_t adc16_init_channel(ADC16_Type *ptr, adc16_channel_config_t *config)
 {
     /* Check the specified channel number */
     if (ADC16_IS_CHANNEL_INVALID(config->ch)) {
@@ -192,13 +189,18 @@ hpm_stat_t adc16_channel_init(ADC16_Type *ptr, adc16_channel_config_t *config)
     return status_success;
 }
 
-void adc16_init_seq_dma(ADC16_Type *ptr, adc16_dma_config_t *dma_config)
+hpm_stat_t adc16_init_seq_dma(ADC16_Type *ptr, adc16_dma_config_t *dma_config)
 {
+     /* Check the DMA buffer length  */
+    if (ADC16_IS_SEQ_DMA_BUFF_LEN_INVLAID(dma_config->buff_len_in_4bytes)) {
+        return status_invalid_argument;
+    }
+
     /* Reset ADC DMA  */
     ptr->SEQ_DMA_CFG |= ADC16_SEQ_DMA_CFG_DMA_RST_MASK;
 
     /* Reset memory to clear all of cycle bits */
-    memset(dma_config->start_addr, 0x00, dma_config->size_in_4bytes * sizeof(uint32_t));
+    memset(dma_config->start_addr, 0x00, dma_config->buff_len_in_4bytes * sizeof(uint32_t));
 
     /* De-reset ADC DMA */
     ptr->SEQ_DMA_CFG &= ~ADC16_SEQ_DMA_CFG_DMA_RST_MASK;
@@ -208,7 +210,7 @@ void adc16_init_seq_dma(ADC16_Type *ptr, adc16_dma_config_t *dma_config)
 
     /* Set ADC DMA memory dword length */
     ptr->SEQ_DMA_CFG = (ptr->SEQ_DMA_CFG & ~ADC16_SEQ_DMA_CFG_BUF_LEN_MASK)
-                     | ADC16_SEQ_DMA_CFG_BUF_LEN_SET(dma_config->size_in_4bytes);
+                     | ADC16_SEQ_DMA_CFG_BUF_LEN_SET(dma_config->buff_len_in_4bytes - 1);
 
     /* Set stop_en and stop_pos */
     if (dma_config->stop_en) {
@@ -216,12 +218,13 @@ void adc16_init_seq_dma(ADC16_Type *ptr, adc16_dma_config_t *dma_config)
                          | ADC16_SEQ_DMA_CFG_STOP_EN_MASK
                          | ADC16_SEQ_DMA_CFG_STOP_POS_SET(dma_config->stop_pos);
     }
+
+    return status_success;
 }
 
 hpm_stat_t adc16_set_prd_config(ADC16_Type *ptr, adc16_prd_config_t *config)
 {
-    uint32_t prd_freq, prd_reload_value;
-
+    /* Check the specified channel number */
     if (ADC16_IS_CHANNEL_INVALID(config->ch)) {
         return status_invalid_argument;
     }
@@ -234,27 +237,28 @@ hpm_stat_t adc16_set_prd_config(ADC16_Type *ptr, adc16_prd_config_t *config)
     ptr->PRD_CFG[config->ch].PRD_CFG = (ptr->PRD_CFG[config->ch].PRD_CFG & ~ADC16_PRD_CFG_PRD_CFG_PRESCALE_MASK)
                                      | ADC16_PRD_CFG_PRD_CFG_PRESCALE_SET(config->prescale);
 
-    /* Calculate period count frequency (unit in Hz) */
-    prd_freq = config->clk_src_freq_in_hz / (config->prescale + 1);
-    prd_reload_value = config->period_in_ms / 1000 * prd_freq;
 
-    /* check the validity for period count value */
-    if (prd_reload_value) {
+    /* Set period count */
         ptr->PRD_CFG[config->ch].PRD_CFG = (ptr->PRD_CFG[config->ch].PRD_CFG & ~ADC16_PRD_CFG_PRD_CFG_PRD_MASK)
-                                         | ADC16_PRD_CFG_PRD_CFG_PRD_SET(prd_reload_value);
-    }
+                                         | ADC16_PRD_CFG_PRD_CFG_PRD_SET(config->period_count);
 
     return status_success;
 }
 
-void adc16_trigger_seq_by_sw(ADC16_Type *ptr)
+hpm_stat_t adc16_trigger_seq_by_sw(ADC16_Type *ptr)
 {
+    if (ADC16_INT_STS_SEQ_SW_CFLCT_GET(ptr->INT_STS)) {
+        return status_fail;
+    }
     ptr->SEQ_CFG0 |= ADC16_SEQ_CFG0_SW_TRIG_MASK;
+
+    return status_success;
 }
 
+/* Note: the sequence length can not be larger or equal than 2 in HPM6750EVK Revision A0 */
 hpm_stat_t adc16_set_seq_config(ADC16_Type *ptr, adc16_seq_config_t *config)
 {
-    if (config->seq_len > ADC_SOC_MAX_SEQ_LEN) {
+    if (config->seq_len > ADC_SOC_SEQ_MAX_LEN) {
         return status_invalid_argument;
     }
 
@@ -265,8 +269,8 @@ hpm_stat_t adc16_set_seq_config(ADC16_Type *ptr, adc16_seq_config_t *config)
                   | ADC16_SEQ_CFG0_HW_TRIG_EN_SET(config->hw_trig_en);
 
     /* Set sequence queue */
-    for (int i = 0; i < config->seq_len; i++)
-    {
+    for (int i = 0; i < config->seq_len; i++) {
+        /* Check the specified channel number */
         if (ADC16_IS_CHANNEL_INVALID(config->queue[i].ch)) {
             return status_invalid_argument;
         }
@@ -338,7 +342,56 @@ hpm_stat_t adc16_get_prd_result(ADC16_Type *ptr, uint8_t ch, uint16_t *result)
         return status_invalid_argument;
     }
 
-    *result = ptr->PRD_CFG[ch].PRD_RESULT;
+    *result = ADC16_PRD_CFG_PRD_RESULT_CHAN_RESULT_GET(ptr->PRD_CFG[ch].PRD_RESULT);
 
     return status_success;
+}
+
+void adc16_enable_temp_sensor(ADC16_Type *ptr)
+{
+    uint32_t clk_div_temp;
+
+    /* Get input clock divider */
+    clk_div_temp = ADC16_CONV_CFG1_CLOCK_DIVIDER_GET(ptr->CONV_CFG1);
+
+    /* Set input clock divider temporarily */
+    ptr->CONV_CFG1 = (ptr->CONV_CFG1 & ~ADC16_CONV_CFG1_CLOCK_DIVIDER_MASK) | ADC16_CONV_CFG1_CLOCK_DIVIDER_SET(1);
+
+    /* Enable ADC config clock */
+    ptr->ANA_CTRL0 |= ADC16_ANA_CTRL0_ADC_CLK_ON_MASK;
+
+    /* Enable the temperature sensor */
+    ptr->ADC16_CONFIG0 |= ADC16_ADC16_CONFIG0_TEMPSNS_EN_MASK | ADC16_ADC16_CONFIG0_REG_EN_MASK
+                        | ADC16_ADC16_CONFIG0_BANDGAP_EN_MASK | ADC16_ADC16_CONFIG0_CAL_AVG_CFG_SET(5);
+
+    /* Disable ADC config clock */
+    ptr->ANA_CTRL0 &= ~ADC16_ANA_CTRL0_ADC_CLK_ON_MASK;
+
+    /* Recover input clock divider */
+    ptr->CONV_CFG1 = (ptr->CONV_CFG1 & ~ADC16_CONV_CFG1_CLOCK_DIVIDER_MASK) | ADC16_CONV_CFG1_CLOCK_DIVIDER_SET(clk_div_temp);
+}
+
+void adc16_disable_temp_sensor(ADC16_Type *ptr)
+{
+    uint32_t clk_div_temp;
+
+    /* Get input clock divider */
+    clk_div_temp = ADC16_CONV_CFG1_CLOCK_DIVIDER_GET(ptr->CONV_CFG1);
+
+    /* Set input clock divider temporarily */
+    ptr->CONV_CFG1 = (ptr->CONV_CFG1 & ~ADC16_CONV_CFG1_CLOCK_DIVIDER_MASK)
+                   | ADC16_CONV_CFG1_CLOCK_DIVIDER_SET(1);
+
+    /* Enable ADC clock */
+    ptr->ANA_CTRL0 |= ADC16_ANA_CTRL0_ADC_CLK_ON_MASK;
+
+    /* Disable the temp sensor */
+    ptr->ADC16_CONFIG0 &= ~ADC16_ADC16_CONFIG0_TEMPSNS_EN_MASK;
+
+    /* Disable ADC clock */
+    ptr->ANA_CTRL0 &= ~ADC16_ANA_CTRL0_ADC_CLK_ON_MASK;
+
+    /* Recover input clock divider */
+    ptr->CONV_CFG1 = (ptr->CONV_CFG1 & ~ADC16_CONV_CFG1_CLOCK_DIVIDER_MASK)
+                   | ADC16_CONV_CFG1_CLOCK_DIVIDER_SET(clk_div_temp);
 }

@@ -1,4 +1,17 @@
 # 更新
+
+## 1.0.0
+- 整合了hpm_sdk v1.0.0
+  - 注：
+    - SDK根目录下的docs,middleware,samples, scripts等目录被移除
+- 更新：
+  - 改善了drv_uart_v2驱动
+  - 实现了audio 驱动
+  - 迁移到rt-thread v4.1.0
+  - 增加了对JLink调试器的支持
+- 新增如下示例：
+  - audio_pdm_dao_demo
+
 ## v0.7.0
 
 - 整合了SDK v0.12.1

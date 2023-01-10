@@ -9,6 +9,8 @@
 #define HAVE_CCONFIG_H
 #define HPM6750
 #define RT_USING_NEWLIB
+#define _POSIX_C_SOURCE 1
+#define _REENT_SMALL
 #define __RTTHREAD__
 
 #endif /*RTCONFIG_PREINC_H__*/

@@ -39,12 +39,24 @@
  * 2020-10-11     Meco Man     add value overflow-check code
  * 2021-01-03     Meco Man     implement rt_mb_urgent()
  * 2021-05-30     Meco Man     implement rt_mutex_trytake()
+ * 2022-01-07     Gabriel      Moving __on_rt_xxxxx_hook to ipc.c
+ * 2022-01-24     THEWON       let rt_mutex_take return thread->error when using signal
  */
 
 #include <rtthread.h>
 #include <rthw.h>
 
-#ifdef RT_USING_HOOK
+#ifndef __on_rt_object_trytake_hook
+    #define __on_rt_object_trytake_hook(parent)     __ON_HOOK_ARGS(rt_object_trytake_hook, (parent))
+#endif
+#ifndef __on_rt_object_take_hook
+    #define __on_rt_object_take_hook(parent)        __ON_HOOK_ARGS(rt_object_take_hook, (parent))
+#endif
+#ifndef __on_rt_object_put_hook
+    #define __on_rt_object_put_hook(parent)         __ON_HOOK_ARGS(rt_object_put_hook, (parent))
+#endif
+
+#if defined(RT_USING_HOOK) && defined(RT_HOOK_USING_FUNC_PTR)
 extern void (*rt_object_trytake_hook)(struct rt_object *object);
 extern void (*rt_object_take_hook)(struct rt_object *object);
 extern void (*rt_object_put_hook)(struct rt_object *object);
@@ -287,6 +299,7 @@ rt_err_t rt_sem_init(rt_sem_t    sem,
 {
     RT_ASSERT(sem != RT_NULL);
     RT_ASSERT(value < 0x10000U);
+    RT_ASSERT((flag == RT_IPC_FLAG_FIFO) || (flag == RT_IPC_FLAG_PRIO));
 
     /* initialize object */
     rt_object_init(&(sem->parent.parent), RT_Object_Class_Semaphore, name);
@@ -377,8 +390,10 @@ rt_sem_t rt_sem_create(const char *name, rt_uint32_t value, rt_uint8_t flag)
 {
     rt_sem_t sem;
 
-    RT_DEBUG_NOT_IN_INTERRUPT;
     RT_ASSERT(value < 0x10000U);
+    RT_ASSERT((flag == RT_IPC_FLAG_FIFO) || (flag == RT_IPC_FLAG_PRIO));
+
+    RT_DEBUG_NOT_IN_INTERRUPT;
 
     /* allocate object */
     sem = (rt_sem_t)rt_object_allocate(RT_Object_Class_Semaphore, name);
@@ -419,12 +434,12 @@ RTM_EXPORT(rt_sem_create);
  */
 rt_err_t rt_sem_delete(rt_sem_t sem)
 {
-    RT_DEBUG_NOT_IN_INTERRUPT;
-
     /* parameter check */
     RT_ASSERT(sem != RT_NULL);
     RT_ASSERT(rt_object_get_type(&sem->parent.parent) == RT_Object_Class_Semaphore);
     RT_ASSERT(rt_object_is_systemobject(&sem->parent.parent) == RT_FALSE);
+
+    RT_DEBUG_NOT_IN_INTERRUPT;
 
     /* wakeup all suspended threads */
     _ipc_list_resume_all(&(sem->parent.suspend_thread));
@@ -500,7 +515,7 @@ rt_err_t rt_sem_take(rt_sem_t sem, rt_int32_t time)
         else
         {
             /* current context checking */
-            RT_DEBUG_IN_THREAD_CONTEXT;
+            RT_DEBUG_SCHEDULER_AVAILABLE(RT_TRUE);
 
             /* semaphore is unavailable, push to suspend list */
             /* get current thread */
@@ -711,8 +726,7 @@ RTM_EXPORT(rt_sem_control);
  *
  * @param    flag is the mutex flag, which determines the queuing way of how multiple threads wait
  *           when the mutex is not available.
- *           NOTE: The mutex flag can ONLY be RT_IPC_FLAG_PRIO. Using RT_IPC_FLAG_FIFO will seriously affect
- *           the real-time performance of the system.
+ *           NOTE: This parameter has been obsoleted. It can be RT_IPC_FLAG_PRIO, RT_IPC_FLAG_FIFO or RT_NULL.
  *
  * @return   Return the operation status. When the return value is RT_EOK, the initialization is successful.
  *           If the return value is any other values, it represents the initialization failed.
@@ -721,7 +735,8 @@ RTM_EXPORT(rt_sem_control);
  */
 rt_err_t rt_mutex_init(rt_mutex_t mutex, const char *name, rt_uint8_t flag)
 {
-    (void)flag;
+    /* flag parameter has been obsoleted */
+    RT_UNUSED(flag);
 
     /* parameter check */
     RT_ASSERT(mutex != RT_NULL);
@@ -793,8 +808,7 @@ RTM_EXPORT(rt_mutex_detach);
  *
  * @param    flag is the mutex flag, which determines the queuing way of how multiple threads wait
  *           when the mutex is not available.
- *           NOTE: The mutex flag can ONLY be RT_IPC_FLAG_PRIO. Using RT_IPC_FLAG_FIFO will seriously affect
- *           the real-time performance of the system.
+ *           NOTE: This parameter has been obsoleted. It can be RT_IPC_FLAG_PRIO, RT_IPC_FLAG_FIFO or RT_NULL.
  *
  * @return   Return a pointer to the mutex object. When the return value is RT_NULL, it means the creation failed.
  *
@@ -803,7 +817,9 @@ RTM_EXPORT(rt_mutex_detach);
 rt_mutex_t rt_mutex_create(const char *name, rt_uint8_t flag)
 {
     struct rt_mutex *mutex;
-    (void)flag;
+
+    /* flag parameter has been obsoleted */
+    RT_UNUSED(flag);
 
     RT_DEBUG_NOT_IN_INTERRUPT;
 
@@ -848,12 +864,12 @@ RTM_EXPORT(rt_mutex_create);
  */
 rt_err_t rt_mutex_delete(rt_mutex_t mutex)
 {
-    RT_DEBUG_NOT_IN_INTERRUPT;
-
     /* parameter check */
     RT_ASSERT(mutex != RT_NULL);
     RT_ASSERT(rt_object_get_type(&mutex->parent.parent) == RT_Object_Class_Mutex);
     RT_ASSERT(rt_object_is_systemobject(&mutex->parent.parent) == RT_FALSE);
+
+    RT_DEBUG_NOT_IN_INTERRUPT;
 
     /* wakeup all suspended threads */
     _ipc_list_resume_all(&(mutex->parent.suspend_thread));
@@ -871,10 +887,10 @@ RTM_EXPORT(rt_mutex_delete);
  * @brief    This function will take a mutex, if the mutex is unavailable, the thread shall wait for
  *           the mutex up to a specified time.
  *
- * @note     When this function is called, the count value of the sem->value will decrease 1 until it is equal to 0.
- *           When the sem->value is 0, it means that the mutex is unavailable. At this time, it will suspend the
+ * @note     When this function is called, the count value of the mutex->value will decrease 1 until it is equal to 0.
+ *           When the mutex->value is 0, it means that the mutex is unavailable. At this time, it will suspend the
  *           thread preparing to take the mutex.
- *           On the contrary, the rt_sem_release() function will increase the count value of sem->value by 1 each time.
+ *           On the contrary, the rt_mutex_release() function will increase the count value of mutex->value by 1 each time.
  *
  * @see      rt_mutex_trytake()
  *
@@ -896,7 +912,8 @@ rt_err_t rt_mutex_take(rt_mutex_t mutex, rt_int32_t time)
     struct rt_thread *thread;
 
     /* this function must not be used in interrupt even if time = 0 */
-    RT_DEBUG_IN_THREAD_CONTEXT;
+    /* current context checking */
+    RT_DEBUG_SCHEDULER_AVAILABLE(RT_TRUE);
 
     /* parameter check */
     RT_ASSERT(mutex != RT_NULL);
@@ -932,9 +949,6 @@ rt_err_t rt_mutex_take(rt_mutex_t mutex, rt_int32_t time)
     }
     else
     {
-#ifdef RT_USING_SIGNALS
-__again:
-#endif /* RT_USING_SIGNALS */
         /* The value of mutex is 1 in initial status. Therefore, if the
          * value is great than 0, it indicates the mutex is avaible.
          */
@@ -1011,11 +1025,6 @@ __again:
 
                 if (thread->error != RT_EOK)
                 {
-#ifdef RT_USING_SIGNALS
-                    /* interrupt by signal, try it again */
-                    if (thread->error == -RT_EINTR) goto __again;
-#endif /* RT_USING_SIGNALS */
-
                     /* return error */
                     return thread->error;
                 }
@@ -1257,6 +1266,7 @@ rt_err_t rt_event_init(rt_event_t event, const char *name, rt_uint8_t flag)
 {
     /* parameter check */
     RT_ASSERT(event != RT_NULL);
+    RT_ASSERT((flag == RT_IPC_FLAG_FIFO) || (flag == RT_IPC_FLAG_PRIO));
 
     /* initialize object */
     rt_object_init(&(event->parent.parent), RT_Object_Class_Event, name);
@@ -1342,6 +1352,8 @@ RTM_EXPORT(rt_event_detach);
 rt_event_t rt_event_create(const char *name, rt_uint8_t flag)
 {
     rt_event_t event;
+
+    RT_ASSERT((flag == RT_IPC_FLAG_FIFO) || (flag == RT_IPC_FLAG_PRIO));
 
     RT_DEBUG_NOT_IN_INTERRUPT;
 
@@ -1555,11 +1567,12 @@ rt_err_t rt_event_recv(rt_event_t   event,
     register rt_ubase_t level;
     register rt_base_t status;
 
-    RT_DEBUG_IN_THREAD_CONTEXT;
-
     /* parameter check */
     RT_ASSERT(event != RT_NULL);
     RT_ASSERT(rt_object_get_type(&event->parent.parent) == RT_Object_Class_Event);
+
+    /* current context checking */
+    RT_DEBUG_SCHEDULER_AVAILABLE(RT_TRUE);
 
     if (set == 0)
         return -RT_ERROR;
@@ -1766,6 +1779,7 @@ rt_err_t rt_mb_init(rt_mailbox_t mb,
                     rt_uint8_t   flag)
 {
     RT_ASSERT(mb != RT_NULL);
+    RT_ASSERT((flag == RT_IPC_FLAG_FIFO) || (flag == RT_IPC_FLAG_PRIO));
 
     /* initialize object */
     rt_object_init(&(mb->parent.parent), RT_Object_Class_MailBox, name);
@@ -1864,6 +1878,8 @@ rt_mailbox_t rt_mb_create(const char *name, rt_size_t size, rt_uint8_t flag)
 {
     rt_mailbox_t mb;
 
+    RT_ASSERT((flag == RT_IPC_FLAG_FIFO) || (flag == RT_IPC_FLAG_PRIO));
+
     RT_DEBUG_NOT_IN_INTERRUPT;
 
     /* allocate object */
@@ -1919,12 +1935,12 @@ RTM_EXPORT(rt_mb_create);
  */
 rt_err_t rt_mb_delete(rt_mailbox_t mb)
 {
-    RT_DEBUG_NOT_IN_INTERRUPT;
-
     /* parameter check */
     RT_ASSERT(mb != RT_NULL);
     RT_ASSERT(rt_object_get_type(&mb->parent.parent) == RT_Object_Class_MailBox);
     RT_ASSERT(rt_object_is_systemobject(&mb->parent.parent) == RT_FALSE);
+
+    RT_DEBUG_NOT_IN_INTERRUPT;
 
     /* resume all suspended thread */
     _ipc_list_resume_all(&(mb->parent.suspend_thread));
@@ -1979,6 +1995,9 @@ rt_err_t rt_mb_send_wait(rt_mailbox_t mb,
     RT_ASSERT(mb != RT_NULL);
     RT_ASSERT(rt_object_get_type(&mb->parent.parent) == RT_Object_Class_MailBox);
 
+    /* current context checking */
+    RT_DEBUG_SCHEDULER_AVAILABLE(timeout != 0);
+
     /* initialize delta tick */
     tick_delta = 0;
     /* get current thread */
@@ -2011,7 +2030,6 @@ rt_err_t rt_mb_send_wait(rt_mailbox_t mb,
             return -RT_EFULL;
         }
 
-        RT_DEBUG_IN_THREAD_CONTEXT;
         /* suspend current thread */
         _ipc_list_suspend(&(mb->suspend_sender_thread),
                             thread,
@@ -2222,6 +2240,9 @@ rt_err_t rt_mb_recv(rt_mailbox_t mb, rt_ubase_t *value, rt_int32_t timeout)
     RT_ASSERT(mb != RT_NULL);
     RT_ASSERT(rt_object_get_type(&mb->parent.parent) == RT_Object_Class_MailBox);
 
+    /* current context checking */
+    RT_DEBUG_SCHEDULER_AVAILABLE(timeout != 0);
+
     /* initialize delta tick */
     tick_delta = 0;
     /* get current thread */
@@ -2257,7 +2278,6 @@ rt_err_t rt_mb_recv(rt_mailbox_t mb, rt_ubase_t *value, rt_int32_t timeout)
             return -RT_ETIMEOUT;
         }
 
-        RT_DEBUG_IN_THREAD_CONTEXT;
         /* suspend current thread */
         _ipc_list_suspend(&(mb->parent.suspend_thread),
                             thread,
@@ -2463,6 +2483,7 @@ rt_err_t rt_mq_init(rt_mq_t     mq,
 
     /* parameter check */
     RT_ASSERT(mq != RT_NULL);
+    RT_ASSERT((flag == RT_IPC_FLAG_FIFO) || (flag == RT_IPC_FLAG_PRIO));
 
     /* initialize object */
     rt_object_init(&(mq->parent.parent), RT_Object_Class_MessageQueue, name);
@@ -2584,6 +2605,8 @@ rt_mq_t rt_mq_create(const char *name,
     struct rt_mq_message *head;
     register rt_base_t temp;
 
+    RT_ASSERT((flag == RT_IPC_FLAG_FIFO) || (flag == RT_IPC_FLAG_PRIO));
+
     RT_DEBUG_NOT_IN_INTERRUPT;
 
     /* allocate object */
@@ -2658,12 +2681,12 @@ RTM_EXPORT(rt_mq_create);
  */
 rt_err_t rt_mq_delete(rt_mq_t mq)
 {
-    RT_DEBUG_NOT_IN_INTERRUPT;
-
     /* parameter check */
     RT_ASSERT(mq != RT_NULL);
     RT_ASSERT(rt_object_get_type(&mq->parent.parent) == RT_Object_Class_MessageQueue);
     RT_ASSERT(rt_object_is_systemobject(&mq->parent.parent) == RT_FALSE);
+
+    RT_DEBUG_NOT_IN_INTERRUPT;
 
     /* resume all suspended thread */
     _ipc_list_resume_all(&(mq->parent.suspend_thread));
@@ -2727,6 +2750,9 @@ rt_err_t rt_mq_send_wait(rt_mq_t     mq,
     RT_ASSERT(buffer != RT_NULL);
     RT_ASSERT(size != 0);
 
+    /* current context checking */
+    RT_DEBUG_SCHEDULER_AVAILABLE(timeout != 0);
+
     /* greater than one message size */
     if (size > mq->msg_size)
         return -RT_ERROR;
@@ -2767,7 +2793,6 @@ rt_err_t rt_mq_send_wait(rt_mq_t     mq,
             return -RT_EFULL;
         }
 
-        RT_DEBUG_IN_THREAD_CONTEXT;
         /* suspend current thread */
         _ipc_list_suspend(&(mq->suspend_sender_thread),
                             thread,
@@ -3037,6 +3062,9 @@ rt_err_t rt_mq_recv(rt_mq_t    mq,
     RT_ASSERT(buffer != RT_NULL);
     RT_ASSERT(size != 0);
 
+    /* current context checking */
+    RT_DEBUG_SCHEDULER_AVAILABLE(timeout != 0);
+
     /* initialize delta tick */
     tick_delta = 0;
     /* get current thread */
@@ -3057,8 +3085,6 @@ rt_err_t rt_mq_recv(rt_mq_t    mq,
     /* message queue is empty */
     while (mq->entry == 0)
     {
-        RT_DEBUG_IN_THREAD_CONTEXT;
-
         /* reset error number in thread */
         thread->error = RT_EOK;
 

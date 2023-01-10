@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 hpmicro
+ * Copyright (c) 2022 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -26,8 +26,7 @@
  * @brief An ADC peripheral base address.
  *
  */
-typedef union
-{
+typedef union {
 #ifdef CONFIG_HAS_HPMSDK_ADC12
     ADC12_Type *adc12;
 #endif
@@ -85,7 +84,7 @@ typedef struct {
 /**
  * @brief ADC DMA configuration struct.
  *
- * */
+ */
 typedef struct {
     adc_module module;
     adc_base adc_base;
@@ -102,7 +101,7 @@ typedef struct {
 /**
  * @brief ADC configuration struct for period mode.
  *
- * */
+ */
 typedef struct {
     adc_module module;
     adc_base adc_base;
@@ -119,7 +118,7 @@ typedef struct {
 /**
  * @brief ADC configuration struct for sequence mode.
  *
- * */
+ */
 typedef struct {
     adc_module module;
     adc_base adc_base;
@@ -136,9 +135,8 @@ typedef struct {
 /**
  * @brief ADC trigger configuration struct for preempt mode.
  *
- * */
-typedef struct
-{
+ */
+typedef struct {
     adc_module module;
     adc_base adc_base;
     struct {
@@ -152,8 +150,7 @@ typedef struct
 } adc_pmt_config_t;
 
 
-typedef struct
-{
+typedef struct {
     adc_module module;
     adc_base adc_base;
 } adc_type;
@@ -224,7 +221,7 @@ static inline hpm_stat_t hpm_adc_init(adc_config_t *config)
         return status_invalid_argument;
 #endif
     } else {
-        return false;
+        return status_invalid_argument;
     }
 }
 
@@ -245,12 +242,12 @@ static inline hpm_stat_t hpm_adc_channel_init(adc_channel_config_t *config)
 #endif
     } else if (config->module == adc_module_adc16) {
 #ifdef CONFIG_HAS_HPMSDK_ADC16
-        return adc16_channel_init(config->adc_base.adc16, &config->config.adc16_ch);
+        return adc16_init_channel(config->adc_base.adc16, &config->config.adc16_ch);
 #else
         return status_invalid_argument;
 #endif
     } else {
-        return false;
+        return status_invalid_argument;
     }
 }
 
@@ -277,7 +274,7 @@ static inline hpm_stat_t hpm_adc_set_period_config(adc_prd_config_t *config)
         return status_invalid_argument;
 #endif
     } else {
-        return false;
+        return status_invalid_argument;
     }
 }
 
@@ -303,7 +300,7 @@ static inline hpm_stat_t hpm_adc_set_sequence_config(adc_seq_config_t *config)
         return status_invalid_argument;
 #endif
     } else {
-        return false;
+        return status_invalid_argument;
     }
 }
 
@@ -329,7 +326,7 @@ static inline hpm_stat_t hpm_adc_set_preempt_config(adc_pmt_config_t *config)
         return status_invalid_argument;
 #endif
     } else {
-        return false;
+        return status_invalid_argument;
     }
 }
 
@@ -403,16 +400,16 @@ static inline uint32_t hpm_adc_get_status_flags(adc_type *ptr)
 #ifdef CONFIG_HAS_HPMSDK_ADC12
         return adc12_get_status_flags(ptr->adc_base.adc12);
 #else
-        return 0;
+        return status_invalid_argument;
 #endif
     } else if (ptr->module == adc_module_adc16) {
 #ifdef CONFIG_HAS_HPMSDK_ADC16
         return adc16_get_status_flags(ptr->adc_base.adc16);
 #else
-        return 0;
+        return status_invalid_argument;
 #endif
     } else {
-        return false;
+        return status_invalid_argument;
     }
 }
 
@@ -430,16 +427,16 @@ static inline bool hpm_adc_get_wait_dis_status(adc_type *ptr)
 #ifdef CONFIG_HAS_HPMSDK_ADC12
         return adc12_get_wait_dis_status(ptr->adc_base.adc12);
 #else
-        return 1;
+        return status_invalid_argument;
 #endif
     } else if (ptr->module == adc_module_adc16) {
 #ifdef CONFIG_HAS_HPMSDK_ADC16
         return adc16_get_wait_dis_status(ptr->adc_base.adc16);
 #else
-        return 1;
+        return status_invalid_argument;
 #endif
     } else {
-        return false;
+        return status_invalid_argument;
     }
 }
 
@@ -458,16 +455,16 @@ static inline bool hpm_adc_get_conv_valid_status(adc_type *ptr, uint8_t ch)
 #ifdef CONFIG_HAS_HPMSDK_ADC12
         return adc12_get_conv_valid_status(ptr->adc_base.adc12, ch);
 #else
-        return 0;
+        return status_invalid_argument;
 #endif
     } else if (ptr->module == adc_module_adc16) {
 #ifdef CONFIG_HAS_HPMSDK_ADC16
         return adc16_get_conv_valid_status(ptr->adc_base.adc16, ch);
 #else
-        return 0;
+        return status_invalid_argument;
 #endif
     } else {
-        return false;
+        return status_invalid_argument;
     }
 }
 
@@ -555,7 +552,7 @@ static inline hpm_stat_t hpm_adc_get_oneshot_result(adc_type *ptr, uint8_t ch, u
         return status_invalid_argument;
 #endif
     } else {
-        return false;
+        return status_invalid_argument;
     }
 }
 
@@ -569,7 +566,7 @@ static inline hpm_stat_t hpm_adc_get_oneshot_result(adc_type *ptr, uint8_t ch, u
  * @retval status_success Get the result of an ADC12 conversion in periodic mode successfully.
  * @retval status_invalid_argument Get the result of an ADC12 conversion in periodic mode unsuccessfully because of passing invalid arguments.
  */
-hpm_stat_t hpm_adc_get_prd_result(adc_type *ptr, uint8_t ch, uint16_t *result)
+static inline hpm_stat_t hpm_adc_get_prd_result(adc_type *ptr, uint8_t ch, uint16_t *result)
 {
     if (ptr->module == adc_module_adc12) {
 #ifdef CONFIG_HAS_HPMSDK_ADC12
@@ -584,7 +581,7 @@ hpm_stat_t hpm_adc_get_prd_result(adc_type *ptr, uint8_t ch, uint16_t *result)
         return status_invalid_argument;
 #endif
     } else {
-        return false;
+        return status_invalid_argument;
     }
 }
 
@@ -594,7 +591,7 @@ hpm_stat_t hpm_adc_get_prd_result(adc_type *ptr, uint8_t ch, uint16_t *result)
  * @param[in] ptr An adc peripheral base address.
  *
  */
-void hpm_adc_trigger_seq_by_sw(adc_type *ptr)
+static inline hpm_stat_t hpm_adc_trigger_seq_by_sw(adc_type *ptr)
 {
      if (ptr->module == adc_module_adc12) {
 #ifdef CONFIG_HAS_HPMSDK_ADC12
@@ -604,9 +601,10 @@ void hpm_adc_trigger_seq_by_sw(adc_type *ptr)
 #ifdef CONFIG_HAS_HPMSDK_ADC16
         return adc16_trigger_seq_by_sw(ptr->adc_base.adc16);
 #endif
+    } else {
+        return status_invalid_argument;
     }
 }
-
 
 #ifdef __cplusplus
 }

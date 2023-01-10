@@ -13,32 +13,33 @@
 #include "assert.h"
 #include "hpm_clock_drv.h"
 #include "hpm_sysctl_drv.h"
-
 #include <rthw.h>
 #include <rtthread.h>
-#include "drv_uart.h"
-#include "drv_spi.h"
-#include "drv_gpio.h"
-#include "drv_pwm.h"
-#include "drv_wdt.h"
-#include "drv_hwtimer.h"
-#include "drv_can.h"
-#include "drv_adc.h"
-#include "drv_usb.h"
+#include "hpm_dma_manager.h"
 
 void os_tick_config(void);
+
+extern int rt_hw_uart_init(void);
 
 void rtt_board_init(void)
 {
     board_init_clock();
+    board_init_console();
     board_init_pmp();
 
-#ifdef BSP_USING_TOUCH
-    board_init_cap_touch();
-#endif
-#ifdef BSP_USING_LCD
-    board_init_lcd();
-#endif
+    dma_manager_init();
+
+    /* initialize memory system */
+    rt_system_heap_init(RT_HW_HEAP_BEGIN, RT_HW_HEAP_END);
+
+    /* Configure the OS Tick */
+    os_tick_config();
+
+    /* Initialize the UART driver first, because later driver initialization may require the rt_kprintf */
+    rt_hw_uart_init();
+
+    /* Set console device */
+    rt_console_set_device(RT_CONSOLE_DEVICE_NAME);
 }
 
 void app_init_led_pins(void)
@@ -85,58 +86,8 @@ void rt_hw_board_init(void)
 {
     rtt_board_init();
 
-    /* initialize memory system */
-    rt_system_heap_init(RT_HW_HEAP_BEGIN, RT_HW_HEAP_END);
-
-    /* Configure the OS Tick */
-    os_tick_config();
-
-#ifdef BSP_USING_UART
-    /* Initialize UART device */
-    rt_hw_uart_init();
-#endif
-
-#ifdef BSP_USING_SPI
-    /* Initialize SPI device */
-    rt_hw_spi_init();
-#endif
-
-#ifdef BSP_USING_GPIO
-    /* Initialize GPIO device */
-    rt_hw_pin_init();
-#endif
-
-#ifdef BSP_USING_PWM
-    /* Initialize SPI device */
-    rt_hw_pwm_init();
-#endif
-
-#ifdef BSP_USING_WDG
-    /* Initialize WDG device */
-    rt_hw_wdt_init();
-#endif
-
-#ifdef BSP_USING_GPTMR
-    /* Initialize GPTMR device */
-    rt_hw_hwtimer_init();
-#endif
-
-#ifdef BSP_USING_CAN
-    /* Initialize CAN device */
-    rt_hw_can_init();
-#endif
-
-#ifdef BSP_USING_ADC
-    /* Initialize ADC device */
-    init_adc_pins();
-    rt_hw_adc_init();
-#endif
-
-#ifdef BSP_USING_USB_HOST
-    rt_hw_usb_init();
-#endif
-
-    rt_console_set_device(RT_CONSOLE_DEVICE_NAME);
+    /* Call the RT-Thread Component Board Initialization */
+    rt_components_board_init();
 }
 
 void rt_hw_console_output(const char *str)

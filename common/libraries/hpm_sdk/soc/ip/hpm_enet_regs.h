@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 hpmicro
+ * Copyright (c) 2021-2022 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -232,8 +232,8 @@ errors */
     __R  uint8_t  RESERVED10[372];             /* 0x58C - 0x6FF: Reserved */
     __RW uint32_t TS_CTRL;                     /* 0x700: Timestamp Control Register */
     __RW uint32_t SUB_SEC_INCR;                /* 0x704: Sub-Second Increment Register */
-    __RW uint32_t SYST_SEC;                    /* 0x708: System Time - Seconds Register */
-    __RW uint32_t SYST_NSEC;                   /* 0x70C: System Time - Nanoseconds Register */
+    __R  uint32_t SYST_SEC;                    /* 0x708: System Time - Seconds Register */
+    __R  uint32_t SYST_NSEC;                   /* 0x70C: System Time - Nanoseconds Register */
     __RW uint32_t SYST_SEC_UPD;                /* 0x710: System Time - Seconds Update Register */
     __RW uint32_t SYST_NSEC_UPD;               /* 0x714: System Time - Nanoseconds Update Register */
     __RW uint32_t TS_ADDEND;                   /* 0x718: Timestamp Addend Register */
@@ -242,8 +242,8 @@ errors */
     __RW uint32_t SYSTM_H_SEC;                 /* 0x724: System Time - Higher Word Seconds Register */
     __R  uint32_t TS_STATUS;                   /* 0x728: Timestamp Status Register */
     __RW uint32_t PPS_CTRL;                    /* 0x72C: PPS Control Register */
-    __RW uint32_t AUX_TS_NSEC;                 /* 0x730: Auxiliary Timestamp - Nanoseconds Register */
-    __RW uint32_t AUX_TS_SEC;                  /* 0x734: Auxiliary Timestamp - Seconds Register */
+    __R  uint32_t AUX_TS_NSEC;                 /* 0x730: Auxiliary Timestamp - Nanoseconds Register */
+    __R  uint32_t AUX_TS_SEC;                  /* 0x734: Auxiliary Timestamp - Seconds Register */
     __R  uint8_t  RESERVED11[40];              /* 0x738 - 0x75F: Reserved */
     __RW uint32_t PPS0_INTERVAL;               /* 0x760: PPS0 Interval Register */
     __RW uint32_t PPS0_WIDTH;                  /* 0x764: PPS0 Width Register */
@@ -1552,14 +1552,13 @@ errors */
 
 /* Bitfield definition for register: MAC_ADDR_0_HIGH */
 /*
- * AE (RW)
+ * AE (RO)
  *
  * Address Enable
  *  This bit is always set to 1.
  */
 #define ENET_MAC_ADDR_0_HIGH_AE_MASK (0x80000000UL)
 #define ENET_MAC_ADDR_0_HIGH_AE_SHIFT (31U)
-#define ENET_MAC_ADDR_0_HIGH_AE_SET(x) (((uint32_t)(x) << ENET_MAC_ADDR_0_HIGH_AE_SHIFT) & ENET_MAC_ADDR_0_HIGH_AE_MASK)
 #define ENET_MAC_ADDR_0_HIGH_AE_GET(x) (((uint32_t)(x) & ENET_MAC_ADDR_0_HIGH_AE_MASK) >> ENET_MAC_ADDR_0_HIGH_AE_SHIFT)
 
 /*
@@ -5011,26 +5010,24 @@ errors */
 
 /* Bitfield definition for register: SYST_SEC */
 /*
- * TSS (RW)
+ * TSS (RO)
  *
  * Timestamp Second
  *  The value in this field indicates the current value in seconds of the System Time maintained by the MAC.
  */
 #define ENET_SYST_SEC_TSS_MASK (0xFFFFFFFFUL)
 #define ENET_SYST_SEC_TSS_SHIFT (0U)
-#define ENET_SYST_SEC_TSS_SET(x) (((uint32_t)(x) << ENET_SYST_SEC_TSS_SHIFT) & ENET_SYST_SEC_TSS_MASK)
 #define ENET_SYST_SEC_TSS_GET(x) (((uint32_t)(x) & ENET_SYST_SEC_TSS_MASK) >> ENET_SYST_SEC_TSS_SHIFT)
 
 /* Bitfield definition for register: SYST_NSEC */
 /*
- * TSSS (RW)
+ * TSSS (RO)
  *
  * Timestamp Sub Seconds
  *  The value in this field has the sub second representation of time, with an accuracy of 0.46 ns. When Bit 9 (TSCTRLSSR) is set in Register 448 (Timestamp Control Register), each bit represents 1 ns and the maximum value is 0x3B9A_C9FF, after which it rolls-over to zero.
  */
 #define ENET_SYST_NSEC_TSSS_MASK (0x7FFFFFFFUL)
 #define ENET_SYST_NSEC_TSSS_SHIFT (0U)
-#define ENET_SYST_NSEC_TSSS_SET(x) (((uint32_t)(x) << ENET_SYST_NSEC_TSSS_SHIFT) & ENET_SYST_NSEC_TSSS_MASK)
 #define ENET_SYST_NSEC_TSSS_GET(x) (((uint32_t)(x) & ENET_SYST_NSEC_TSSS_MASK) >> ENET_SYST_NSEC_TSSS_SHIFT)
 
 /* Bitfield definition for register: SYST_SEC_UPD */
@@ -5336,7 +5333,7 @@ errors */
 #define ENET_PPS_CTRL_PPSEN0_GET(x) (((uint32_t)(x) & ENET_PPS_CTRL_PPSEN0_MASK) >> ENET_PPS_CTRL_PPSEN0_SHIFT)
 
 /*
- * PPSCTRL0 (RW)
+ * PPSCTRLCMD0 (RW)
  *
  * PPSCTRL0: PPS0 Output Frequency Control
  * This field controls the frequency of the PPS0 output (ptp_pps_o[0]) signal. The default value of PPSCTRL is 0000, and the PPS output is 1 pulse (of width clk_ptp_i) every second. For other values of PPSCTRL, the PPS output becomes a generated clock of following frequencies:
@@ -5345,32 +5342,60 @@ errors */
  * - 0011: The binary rollover is 8 Hz, and the digital rollover is 4 Hz.
  * - 0100: The binary rollover is 16 Hz, and the digital rollover is 8 Hz. - ...
  * - 1111: The binary rollover is 32.768 KHz, and the digital rollover is 16.384 KHz. Note: In the binary rollover mode, the PPS output (ptp_pps_o) has a duty cycle of 50 percent with these frequencies. In the digital rollover mode, the PPS output frequency is an average number. The actual clock is of different frequency that gets synchronized every second. For example: - When PPSCTRL = 0001, the PPS (1 Hz) has a low period of 537 ms and a high period of 463 ms - When PPSCTRL = 0010, the PPS (2 Hz) is a sequence of: - One clock of 50 percent duty cycle and 537 ms period - Second clock of 463 ms period (268 ms low and 195 ms high) - When PPSCTRL = 0011, the PPS (4 Hz) is a sequence of: - Three clocks of 50 percent duty cycle and 268 ms period - Fourth clock of 195 ms period (134 ms low and 61 ms high)
+ * PPSCMD0: Flexible PPS0 Output Control
+ * 0000: No Command
+ * 0001: START Single Pulse
+ * This command generates single pulse rising at the start point defined in
+ * Target Time Registers and of a duration defined
+ * in the PPS0 Width Register.
+ * 0010: START Pulse Train
+ * This command generates the train of pulses rising at the start point
+ * defined in the Target Time Registers and of a duration defined in the
+ * PPS0 Width Register and repeated at interval defined in the PPS
+ * Interval Register. By default, the PPS pulse train is free-running unless
+ * stopped by ‘STOP Pulse train at time’ or ‘STOP Pulse Train
+ * immediately’ commands.
+ * 0011: Cancel START
+ * This command cancels the START Single Pulse and START Pulse Train
+ * commands if the system time has not crossed the programmed start
+ * time.
+ * 0100: STOP Pulse train at time
+ * This command stops the train of pulses initiated by the START Pulse
+ * Train command (PPSCMD = 0010) after the time programmed in the
+ * Target Time registers elapses.
+ * 0101: STOP Pulse Train immediately
+ * This command immediately stops the train of pulses initiated by the
+ * START Pulse Train command (PPSCMD = 0010).
+ * 0110: Cancel STOP Pulse train
+ * This command cancels the STOP pulse train at time command if the
+ * programmed stop time has not elapsed. The PPS pulse train becomes
+ * free-running on the successful execution of this command.
+ * 0111-1111: Reserved
+ * Note: These bits get cleared automatically
  */
-#define ENET_PPS_CTRL_PPSCTRL0_MASK (0xFU)
-#define ENET_PPS_CTRL_PPSCTRL0_SHIFT (0U)
-#define ENET_PPS_CTRL_PPSCTRL0_SET(x) (((uint32_t)(x) << ENET_PPS_CTRL_PPSCTRL0_SHIFT) & ENET_PPS_CTRL_PPSCTRL0_MASK)
-#define ENET_PPS_CTRL_PPSCTRL0_GET(x) (((uint32_t)(x) & ENET_PPS_CTRL_PPSCTRL0_MASK) >> ENET_PPS_CTRL_PPSCTRL0_SHIFT)
+#define ENET_PPS_CTRL_PPSCTRLCMD0_MASK (0xFU)
+#define ENET_PPS_CTRL_PPSCTRLCMD0_SHIFT (0U)
+#define ENET_PPS_CTRL_PPSCTRLCMD0_SET(x) (((uint32_t)(x) << ENET_PPS_CTRL_PPSCTRLCMD0_SHIFT) & ENET_PPS_CTRL_PPSCTRLCMD0_MASK)
+#define ENET_PPS_CTRL_PPSCTRLCMD0_GET(x) (((uint32_t)(x) & ENET_PPS_CTRL_PPSCTRLCMD0_MASK) >> ENET_PPS_CTRL_PPSCTRLCMD0_SHIFT)
 
 /* Bitfield definition for register: AUX_TS_NSEC */
 /*
- * AUXTSLO (RW)
+ * AUXTSLO (RO)
  *
  * Contains the lower 31 bits (nano-seconds field) of the auxiliary timestamp.
  */
 #define ENET_AUX_TS_NSEC_AUXTSLO_MASK (0x7FFFFFFFUL)
 #define ENET_AUX_TS_NSEC_AUXTSLO_SHIFT (0U)
-#define ENET_AUX_TS_NSEC_AUXTSLO_SET(x) (((uint32_t)(x) << ENET_AUX_TS_NSEC_AUXTSLO_SHIFT) & ENET_AUX_TS_NSEC_AUXTSLO_MASK)
 #define ENET_AUX_TS_NSEC_AUXTSLO_GET(x) (((uint32_t)(x) & ENET_AUX_TS_NSEC_AUXTSLO_MASK) >> ENET_AUX_TS_NSEC_AUXTSLO_SHIFT)
 
 /* Bitfield definition for register: AUX_TS_SEC */
 /*
- * AUXTSHI (RW)
+ * AUXTSHI (RO)
  *
  * Contains the lower 32 bits of the Seconds field of the auxiliary timestamp.
  */
 #define ENET_AUX_TS_SEC_AUXTSHI_MASK (0xFFFFFFFFUL)
 #define ENET_AUX_TS_SEC_AUXTSHI_SHIFT (0U)
-#define ENET_AUX_TS_SEC_AUXTSHI_SET(x) (((uint32_t)(x) << ENET_AUX_TS_SEC_AUXTSHI_SHIFT) & ENET_AUX_TS_SEC_AUXTSHI_MASK)
 #define ENET_AUX_TS_SEC_AUXTSHI_GET(x) (((uint32_t)(x) & ENET_AUX_TS_SEC_AUXTSHI_MASK) >> ENET_AUX_TS_SEC_AUXTSHI_SHIFT)
 
 /* Bitfield definition for register: PPS0_INTERVAL */
@@ -6931,13 +6956,13 @@ errors */
 
 /* Bitfield definition for register: CTRL2 */
 /*
- * ENET0_IRQ_EN (RW)
+ * ENET0_LPI_IRQ_EN (RW)
  *
  */
-#define ENET_CTRL2_ENET0_IRQ_EN_MASK (0xF8000000UL)
-#define ENET_CTRL2_ENET0_IRQ_EN_SHIFT (27U)
-#define ENET_CTRL2_ENET0_IRQ_EN_SET(x) (((uint32_t)(x) << ENET_CTRL2_ENET0_IRQ_EN_SHIFT) & ENET_CTRL2_ENET0_IRQ_EN_MASK)
-#define ENET_CTRL2_ENET0_IRQ_EN_GET(x) (((uint32_t)(x) & ENET_CTRL2_ENET0_IRQ_EN_MASK) >> ENET_CTRL2_ENET0_IRQ_EN_SHIFT)
+#define ENET_CTRL2_ENET0_LPI_IRQ_EN_MASK (0x20000000UL)
+#define ENET_CTRL2_ENET0_LPI_IRQ_EN_SHIFT (29U)
+#define ENET_CTRL2_ENET0_LPI_IRQ_EN_SET(x) (((uint32_t)(x) << ENET_CTRL2_ENET0_LPI_IRQ_EN_SHIFT) & ENET_CTRL2_ENET0_LPI_IRQ_EN_MASK)
+#define ENET_CTRL2_ENET0_LPI_IRQ_EN_GET(x) (((uint32_t)(x) & ENET_CTRL2_ENET0_LPI_IRQ_EN_MASK) >> ENET_CTRL2_ENET0_LPI_IRQ_EN_SHIFT)
 
 /*
  * ENET0_REFCLK_OE (RW)

@@ -16,9 +16,6 @@
 #define DBG_LVL    DBG_INFO
 #include <rtdbg.h>
 
-#include "rtt_board.h"
-
-
 extern void lv_demo_music(void);
 
 #ifndef LV_THREAD_STACK_SIZE

@@ -169,7 +169,7 @@ static void hpm_pin_mode(rt_device_t dev, rt_base_t pin, rt_base_t mode)
     uint32_t gpio_idx = pin >> 5;
     uint32_t pin_idx = pin & 0x1FU;
 
-    gpiom_set_pin_controler(HPM_GPIOM, gpio_idx, pin_idx, gpiom_soc_gpio0);
+    gpiom_set_pin_controller(HPM_GPIOM, gpio_idx, pin_idx, gpiom_soc_gpio0);
 
     HPM_IOC->PAD[pin].FUNC_CTL = 0;
 

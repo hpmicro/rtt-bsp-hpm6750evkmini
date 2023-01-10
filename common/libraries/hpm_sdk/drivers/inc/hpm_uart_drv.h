@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -11,7 +11,7 @@
 #include "hpm_uart_regs.h"
 
 /**
- * 
+ *
  * @brief UART driver APIs
  * @defgroup uart_interface UART driver APIs
  * @ingroup io_interfaces
@@ -109,7 +109,7 @@ typedef enum uart_stat {
 } uart_stat_t;
 
 /**
- * @brief UART modem config 
+ * @brief UART modem config
  */
 typedef struct uart_modem_config {
     bool auto_flow_ctrl_en;     /**< Auto flow control enable flag */
@@ -121,7 +121,6 @@ typedef struct uart_modem_config {
  * @brief UART config
  */
 typedef struct hpm_uart_config {
- 
     uint32_t src_freq_in_hz;            /**< Source clock frequency in Hz */
     uint32_t baudrate;                  /**< Baudrate */
     uint8_t num_of_stop_bits;           /**< Number of stop bits */
@@ -152,37 +151,37 @@ static inline uint8_t uart_get_fifo_size(UART_Type *ptr)
 /**
  * @brief Reset TX Fifo
  *
+ * @Note this API may modify other bit fields in FIFO control register
+ *
  * @param ptr UART base address
  */
 static inline void uart_reset_tx_fifo(UART_Type *ptr)
 {
-    if (ptr->FCR & UART_FCR_FIFOE_MASK) {
-        ptr->FCR |= UART_FCR_TFIFORST_MASK;
-    }
+    ptr->FCR = UART_FCR_TFIFORST_MASK;
 }
 
 /**
  * @brief Reset RX Fifo
  *
+ * @Note this API may modify other bit fields in FIFO control register
+ *
  * @param ptr UART base address
  */
 static inline void uart_reset_rx_fifo(UART_Type *ptr)
 {
-    if (ptr->FCR & UART_FCR_FIFOE_MASK) {
-        ptr->FCR |= UART_FCR_RFIFORST_MASK;
-    }
+    ptr->FCR = UART_FCR_RFIFORST_MASK;
 }
 
 /**
  * @brief Reset both TX and RX Fifo
  *
+ * @Note this API may modify other bit fields in FIFO control register
+ *
  * @param ptr UART base address
  */
 static inline void uart_reset_all_fifo(UART_Type *ptr)
 {
-    if (ptr->FCR & UART_FCR_FIFOE_MASK) {
-        ptr->FCR |= UART_FCR_RFIFORST_MASK | UART_FCR_TFIFORST_MASK;
-    }
+    ptr->FCR = UART_FCR_RFIFORST_MASK | UART_FCR_TFIFORST_MASK;
 }
 
 /**
@@ -250,6 +249,28 @@ static inline uint8_t uart_get_modem_status(UART_Type *ptr)
     return ptr->MSR;
 }
 
+/**
+ * @brief Write byte to TX
+ *
+ * @param ptr UART base address
+ * @param c data to be sent
+ */
+static inline void uart_write_byte(UART_Type *ptr, uint8_t c)
+{
+    ptr->THR = UART_THR_THR_SET(c);
+}
+
+
+/**
+ * @brief Read byte from RX
+ *
+ * @param ptr UART base address
+ * @retval RX byte
+ */
+static inline uint8_t uart_read_byte(UART_Type *ptr)
+{
+    return (ptr->RBR & UART_RBR_RBR_MASK);
+}
 
 /**
  * @brief Check modem status with given mask
@@ -350,7 +371,7 @@ void uart_default_config(UART_Type *ptr, uart_config_t *config);
 hpm_stat_t uart_init(UART_Type *ptr, uart_config_t *config);
 
 /**
- * @brief Send one byte
+ * @brief Send one byte after checking thresh hold status
  *
  * @param ptr UART base address
  * @param c Byte to be sent
@@ -359,7 +380,7 @@ hpm_stat_t uart_init(UART_Type *ptr, uart_config_t *config);
 hpm_stat_t uart_send_byte(UART_Type *ptr, uint8_t c);
 
 /**
- * @brief Receive one byte
+ * @brief Receive one byte after checking data ready status
  *
  * @param ptr UART base address
  * @param c Pointer to buffer to save the byte received on UART
@@ -405,6 +426,21 @@ hpm_stat_t uart_receive_data(UART_Type *ptr, uint8_t *buf, uint32_t size_in_byte
  * @retval status_success only if it succeeds
  */
 hpm_stat_t uart_send_data(UART_Type *ptr, uint8_t *buf, uint32_t size_in_byte);
+
+
+/**
+ * @brief Sets UART baudrate.
+ *
+ * This function configures the UART module baud rate. This function is used to update
+ * the UART module baud rate after the UART module is initialized by the uart_init.
+ *
+ * @param ptr UART base address
+ * @param baudrate UART baudrate to be set
+ * @param src_clock_hz UART clock source frequency in Hz.
+ * @retval status_uart_no_suitable_baudrate_parameter_found Baudrate is not supported in the current clock source
+ * @retval status_success Set baudrate succeeded.
+ */
+hpm_stat_t uart_set_baudrate(UART_Type *ptr, uint32_t baudrate, uint32_t src_clock_hz);
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 hpm
+ * Copyright (c) 2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *

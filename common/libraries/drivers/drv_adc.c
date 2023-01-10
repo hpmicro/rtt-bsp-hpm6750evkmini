@@ -143,7 +143,7 @@ static rt_err_t init_channel_config(hpm_rtt_adc *adc)
     ch_cfg.ch           = adc->channel;
     ch_cfg.sample_cycle = 20;
 
-    ret = adc16_channel_init(adc->adc_base, &ch_cfg);
+    ret = adc16_init_channel(adc->adc_base, &ch_cfg);
     if (ret != status_success) {
         return RT_ERROR;
     }

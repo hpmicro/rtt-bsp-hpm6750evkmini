@@ -444,7 +444,17 @@ static const struct rt_uart_ops hpm_uart_ops = {
 int rt_hw_uart_init(void)
 {
 
+    /* Added bypass logic here since the rt_hw_uart_init function will be initialized twice, the 2nd initialization should be bypassed */
+    static bool initialized;
     rt_err_t err = RT_EOK;
+    if (initialized)
+    {
+        return err;
+    }
+    else
+    {
+        initialized = true;
+    }
     struct serial_configure config = RT_SERIAL_CONFIG_DEFAULT;
 
     for (uint32_t i = 0; i < sizeof(uarts) / sizeof(uarts[0]); i++) {
@@ -456,9 +466,6 @@ int rt_hw_uart_init(void)
                             uarts[i].device_name,
                             RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX,
                             (void*)&uarts[i]);
-        if (err != RT_EOK) {
-            LOG_E("rt device %s failed, status=%d\n", uarts[i].device_name, err);
-        }
     }
 
     return err;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 hpmicro
+ * Copyright (c) 2021-2022 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -41,7 +41,7 @@
 
 /* IOC_PY05_FUNC_CTL function mux definitions */
 #define IOC_PY05_FUNC_CTL_PGPIO_Y_05           IOC_PAD_FUNC_CTL_ALT_SELECT_SET(0)
-#define IOC_PY05_FUNC_CTL_PWDG                 IOC_PAD_FUNC_CTL_ALT_SELECT_SET(1)
+#define IOC_PY05_FUNC_CTL_PWDG_RST             IOC_PAD_FUNC_CTL_ALT_SELECT_SET(1)
 #define IOC_PY05_FUNC_CTL_PTMR_CAPT_0          IOC_PAD_FUNC_CTL_ALT_SELECT_SET(2)
 #define IOC_PY05_FUNC_CTL_SOC_PY_05            IOC_PAD_FUNC_CTL_ALT_SELECT_SET(3)
 

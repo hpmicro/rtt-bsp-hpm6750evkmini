@@ -7,11 +7,12 @@
  * Date         Author      Notes
  * 2022-03-09   hpmicro     First implementation
  * 2022-08-01   hpmicro     Fixed random crashing during kvdb_init
+ * 2022-08-03   hpmicro     Improved erase speed
  *
  */
 #include <rtthread.h>
 #include <rthw.h>
-#ifdef PKG_USING_FAL
+#ifdef RT_USING_FAL
 #include "fal.h"
 #include "hpm_romapi.h"
 #include "board.h"
@@ -231,10 +232,24 @@ FAL_RAMFUNC static int erase(long offset, size_t size)
     hpm_stat_t status;
     int ret = (int)size;
 
+    uint32_t block_size;
+    uint32_t sector_size;
+    (void) rom_xpi_nor_get_property(BOARD_APP_XPI_NOR_XPI_BASE, &s_flashcfg, xpi_nor_property_sector_size, &sector_size);
+    (void) rom_xpi_nor_get_property(BOARD_APP_XPI_NOR_XPI_BASE, &s_flashcfg, xpi_nor_property_block_size, &block_size);
+    uint32_t erase_unit;
     while (aligned_size > 0)
     {
         FAL_ENTER_CRITICAL();
-        status = rom_xpi_nor_erase_sector(BOARD_APP_XPI_NOR_XPI_BASE, xpi_xfer_channel_auto, &s_flashcfg, offset);
+        if ((offset % block_size == 0) && (aligned_size >= block_size))
+        {
+            erase_unit = block_size;
+            status = rom_xpi_nor_erase_block(BOARD_APP_XPI_NOR_XPI_BASE, xpi_xfer_channel_auto, &s_flashcfg, offset);
+        }
+        else
+        {
+            erase_unit = sector_size;
+            status = rom_xpi_nor_erase_sector(BOARD_APP_XPI_NOR_XPI_BASE, xpi_xfer_channel_auto, &s_flashcfg, offset);
+        }
         FAL_EXIT_CRITICAL();
 
         if (status != status_success)
@@ -242,10 +257,10 @@ FAL_RAMFUNC static int erase(long offset, size_t size)
             ret = -RT_ERROR;
             break;
         }
-        offset += nor_flash0.blk_size;
-        aligned_size -= nor_flash0.blk_size;
+        offset += erase_unit;
+        aligned_size -= erase_unit;
     }
 
     return ret;
 }
-#endif /* PKG_USING_FAL */
+#endif /* RT_USING_FAL */

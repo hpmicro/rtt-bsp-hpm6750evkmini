@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021 - 2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -16,7 +16,7 @@
 #include "hpm_enet_drv.h"
 #include "eth_phy_port.h"
 #include "hpm_soc.h"
-#include "ethernetif.h"
+#include "netif/ethernetif.h"
 #include "board.h"
 
 typedef struct
@@ -156,6 +156,7 @@ static void phy_poll_status(void *parameter)
     phy_device_t *phy_dev;
     struct eth_device* eth_dev;
     char const *ps[] = {"10Mbps", "100Mbps", "1000Mbps"};
+    enet_line_speed_t line_speed[] = {enet_line_speed_10mbps, enet_line_speed_100mbps, enet_line_speed_1000mbps};
 
     eth_phy_monitor_handle_t *phy_monitor_handle = (eth_phy_monitor_handle_t *)parameter;
 
@@ -186,6 +187,8 @@ static void phy_poll_status(void *parameter)
             {
                 LOG_I("PHY Speed: %s", ps[phy_dev->phy_info.phy_speed]);
                 LOG_I("PHY Duplex: %s\n", phy_dev->phy_info.phy_duplex & PHY_FULL_DUPLEX ? "full duplex" : "half duplex");
+                enet_set_line_speed(phy_monitor_handle->phy_handle[i]->instance, line_speed[phy_dev->phy_info.phy_speed]);
+                enet_set_duplex_mode(phy_monitor_handle->phy_handle[i]->instance, phy_dev->phy_info.phy_duplex);
             }
         }
     }
@@ -241,7 +244,7 @@ static void phy_monitor_thread_entry(void *args)
         phy_detection(phy_monitor_handle->phy_handle[i]->phy_dev);
     }
 
-    phy_status_timer = rt_timer_create("PHY_Monitor", phy_poll_status, phy_monitor_handle, RT_TICK_PER_SECOND, RT_TIMER_FLAG_PERIODIC);
+    phy_status_timer = rt_timer_create("PHY_Monitor", phy_poll_status, phy_monitor_handle, RT_TICK_PER_SECOND, RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);
 
     if (!phy_status_timer || rt_timer_start(phy_status_timer) != RT_EOK)
     {
@@ -287,11 +290,10 @@ int phy_device_register(void)
     }
     else
     {
-        err = RT_ERROR;       
+        err = RT_ERROR;
     }
 
     return err;
 }
 INIT_PREV_EXPORT(phy_device_register);
 #endif /* RT_USING_PHY */
-

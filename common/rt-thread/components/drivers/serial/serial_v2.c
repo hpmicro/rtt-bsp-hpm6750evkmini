@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2022, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
  * Change Logs:
  * Date           Author       Notes
  * 2021-06-01     KyleChan     first version
- * 2021-03-15     HPMicro      Added buffer management according to cache-line size
+ * 2022-03-15     HPMicro      Added buffer management according to cache-line size
  */
 
 #include <rthw.h>
@@ -17,14 +17,17 @@
 #define DBG_LVL    DBG_INFO
 #include <rtdbg.h>
 
+
 #ifndef SOC_CACHELINE_ALIGN_SIZE
 #define SOC_CACHELINE_ALIGN_SIZE 64
 #endif
 
-#ifdef RT_USING_POSIX
-#include <dfs_posix.h>
+#ifdef RT_USING_POSIX_STDIO
+#include <unistd.h>
+#include <fcntl.h>
 #include <poll.h>
 #include <sys/ioctl.h>
+#include <dfs_file.h>
 
 #ifdef getc
 #undef getc
@@ -184,7 +187,7 @@ const static struct dfs_file_ops _serial_fops =
     RT_NULL, /* getdents */
     serial_fops_poll,
 };
-#endif
+#endif /* RT_USING_POSIX_STDIO */
 
 static rt_size_t rt_serial_get_linear_buffer(struct rt_ringbuffer       *rb,
                                                     rt_uint8_t         **ptr)
@@ -487,21 +490,27 @@ static rt_size_t _serial_fifo_tx_blocking_buf(struct rt_device        *dev,
 {
     struct rt_serial_device *serial;
     struct rt_serial_tx_fifo *tx_fifo = RT_NULL;
+    rt_size_t length = size;
+    rt_size_t offset = 0;
 
-    RT_ASSERT(dev != RT_NULL);
     if (size == 0) return 0;
 
+    RT_ASSERT(dev != RT_NULL);
     serial = (struct rt_serial_device *)dev;
     RT_ASSERT((serial != RT_NULL) && (buffer != RT_NULL));
+
     tx_fifo = (struct rt_serial_tx_fifo *) serial->serial_tx;
     RT_ASSERT(tx_fifo != RT_NULL);
+
+    if (rt_thread_self() == RT_NULL || (serial->parent.open_flag & RT_DEVICE_FLAG_STREAM))
+    {
+        /* using poll tx when the scheduler not startup or in stream mode */
+        return _serial_poll_tx(dev, pos, buffer, size);
+    }
     /* When serial transmit in tx_blocking mode,
      * if the activated mode is RT_TRUE, it will return directly */
     if (tx_fifo->activated == RT_TRUE)  return 0;
-
     tx_fifo->activated = RT_TRUE;
-    rt_size_t length = size;
-    rt_size_t offset = 0;
 
     while (size)
     {
@@ -982,7 +991,7 @@ static rt_err_t rt_serial_close(struct rt_device *dev)
     /* Disable serial receive mode. */
     rt_serial_rx_disable(dev, dev->open_flag &
                         (RT_SERIAL_RX_BLOCKING | RT_SERIAL_RX_NON_BLOCKING));
-    /* Disable serial transmit mode. */
+    /* Disable serial tranmit mode. */
     rt_serial_tx_disable(dev, dev->open_flag &
                         (RT_SERIAL_TX_BLOCKING | RT_SERIAL_TX_NON_BLOCKING));
 
@@ -1094,7 +1103,7 @@ static rt_size_t rt_serial_write(struct rt_device *dev,
         return _serial_poll_tx(dev, pos, buffer, size);
     }
 
-    if (dev->open_flag | RT_SERIAL_TX_BLOCKING)
+    if (dev->open_flag & RT_SERIAL_TX_BLOCKING)
     {
         if ((tx_fifo->rb.buffer_ptr) == RT_NULL)
         {
@@ -1156,7 +1165,7 @@ rt_err_t rt_hw_serial_register(struct rt_serial_device *serial,
     /* register a character device */
     ret = rt_device_register(device, name, flag);
 
-#if defined(RT_USING_POSIX)
+#ifdef RT_USING_POSIX_STDIO
     /* set fops */
     device->fops        = &_serial_fops;
 #endif

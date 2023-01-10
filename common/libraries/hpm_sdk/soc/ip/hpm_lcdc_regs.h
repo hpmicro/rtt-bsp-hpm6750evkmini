@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 hpmicro
+ * Copyright (c) 2021-2022 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -390,7 +390,7 @@ typedef struct {
 #define LCDC_INT_EN_DMA_DONE_GET(x) (((uint32_t)(x) & LCDC_INT_EN_DMA_DONE_MASK) >> LCDC_INT_EN_DMA_DONE_SHIFT)
 
 /*
- * URGENT_UNDERRUN (ROI)
+ * URGENT_UNDERRUN (RO)
  *
  * Asserted when the output buffer urgent underrun condition encountered
  */

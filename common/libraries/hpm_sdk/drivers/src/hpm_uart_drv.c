@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -105,7 +105,7 @@ hpm_stat_t uart_init(UART_Type *ptr, uart_config_t *config)
     tmp = ptr->LCR & (~UART_LCR_DLAB_MASK);
 
     tmp &= ~(UART_LCR_SPS_MASK | UART_LCR_EPS_MASK | UART_LCR_PEN_MASK);
-    switch(config->parity) {
+    switch (config->parity) {
     case parity_none:
         break;
     case parity_odd:
@@ -127,7 +127,7 @@ hpm_stat_t uart_init(UART_Type *ptr, uart_config_t *config)
     }
 
     tmp &= ~(UART_LCR_STB_MASK | UART_LCR_WLS_MASK);
-    switch(config->num_of_stop_bits) {
+    switch (config->num_of_stop_bits) {
     case stop_bits_1:
         break;
     case stop_bits_1_5:
@@ -158,6 +158,28 @@ hpm_stat_t uart_init(UART_Type *ptr, uart_config_t *config)
     }
 
     uart_modem_config(ptr, &config->modem_config);
+    return status_success;
+}
+
+hpm_stat_t uart_set_baudrate(UART_Type *ptr, uint32_t baudrate, uint32_t src_clock_hz)
+{
+    uint8_t osc;
+    uint16_t div;
+
+    /* Set DLAB to 1 */
+    ptr->LCR |= UART_LCR_DLAB_MASK;
+
+    if (!uart_calculate_baudrate(src_clock_hz, baudrate, &div, &osc)) {
+        return status_uart_no_suitable_baudrate_parameter_found;
+    }
+
+    ptr->OSCR = (ptr->OSCR & ~UART_OSCR_OSC_MASK) | UART_OSCR_OSC_SET(osc);
+    ptr->DLL = UART_DLL_DLL_SET(div >> 0);
+    ptr->DLM = UART_DLM_DLM_SET(div >> 8);
+
+    /* DLAB bit needs to be cleared once baudrate is configured */
+    ptr->LCR &= ~UART_LCR_DLAB_MASK;
+
     return status_success;
 }
 
@@ -218,12 +240,9 @@ hpm_stat_t uart_receive_byte(UART_Type *ptr, uint8_t *byte)
 
 void uart_set_signal_level(UART_Type *ptr, uart_signal_t signal, uart_signal_level_t level)
 {
-    if (level == uart_signal_level_low)
-    {
+    if (level == uart_signal_level_low) {
         ptr->MCR = (ptr->MCR | signal);
-    }
-    else
-    {
+    } else {
         ptr->MCR = (ptr->MCR & ~signal);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -40,11 +40,9 @@
 #define CAM_IRQ_HIST_CALCULATION_DONE (CAM_INT_EN_HIST_DONE_INT_EN_MASK)
 #define CAM_IRQ_HRESPONSE_ERROR (CAM_INT_EN_HRESP_ERR_EN_MASK)
 #define CAM_IRQ_END_OF_FRAME (CAM_INT_EN_EOF_INT_EN_MASK)
-#define CAM_IRQ_STAT_FIFO_OVERRUN (CAM_INT_EN_SF_OR_INT_EN_MASK)
-#define CAM_IRQ_RX_FIFO_OVERRUN (CAM_INT_EN_RF_OR_INT_EN_MASK)
-#define CAM_IRQ_STAT_FIFO_DMA_TRANSFER_DONE (CAM_INT_EN_SFF_DMA_DONE_INT_EN_MASK)
-#define CAM_IRQ_FB2_DMA_TRANSFER_DONE (CAM_INT_EN_FB2_DMA_DONE_INT_EN_MASK)
-#define CAM_IRQ_FB1_DMA_TRANSFER_DONE (CAM_INT_EN_FB1_DMA_DONE_INT_EN_MASK)
+#define CAM_IRQ_RX_FIFO_OVERRUN (CAM_INT_EN_RF_OR_INTEN_MASK)
+#define CAM_IRQ_FB2_DMA_TRANSFER_DONE (CAM_INT_EN_FB2_DMA_DONE_INTEN_MASK)
+#define CAM_IRQ_FB1_DMA_TRANSFER_DONE (CAM_INT_EN_FB1_DMA_DONE_INTEN_MASK)
 #define CAM_IRQ_START_OF_FRAME (CAM_INT_EN_SOF_INT_EN_MASK)
 
 /**
@@ -52,17 +50,12 @@
  */
 #define CAM_STATUS_UNSUPPORTED_CONFIGURATION (CAM_STA_ERR_CL_BWID_CFG_MASK)
 #define CAM_STATUS_HIST_CALCULATION_DONE (CAM_STA_HIST_DONE_MASK)
-#define CAM_STATUS_STAT_FIFO_OVERRUN (CAM_STA_SF_OR_INT_MASK)
 #define CAM_STATUS_RX_FIFO_OVERRUN (CAM_STA_RF_OR_INT_MASK)
-#define CAM_STATUS_STAT_FIFO_DMA_TRANSFER_DONE (CAM_STA_DMA_TSF_DONE_SFF_MASK)
-#define CAM_STATUS_STAT_FIFO_FULL (CAM_STA_STATFF_INT_MASK)
 #define CAM_STATUS_FB2_DMA_TRANSFER_DONE (CAM_STA_DMA_TSF_DONE_FB2_MASK)
 #define CAM_STATUS_FB1_DMA_TRANSFER_DONE (CAM_STA_DMA_TSF_DONE_FB1_MASK)
-#define CAM_STATUS_RX_FIFO_FULL (CAM_STA_RXFF_INT_MASK)
 #define CAM_STATUS_END_OF_FRAME (CAM_STA_EOF_INT_MASK)
 #define CAM_STATUS_START_OF_FRAME (CAM_STA_SOF_INT_MASK)
 #define CAM_STATUS_HRESPONSE_ERROR (CAM_STA_HRESP_ERR_INT_MASK)
-#define CAM_STATUS_DATA_READY (CAM_STA_DRDY_MASK)
 
 /**
  * @brief CAM input color format
@@ -85,13 +78,37 @@ typedef struct {
     bool color_ext;
     bool data_pack_msb;
     bool enable_buffer2;
-    uint8_t data_store_mode;
+    uint16_t data_store_mode;
     uint8_t color_format;
     uint8_t sensor_bitwidth;
     uint32_t buffer1;
     uint32_t buffer2;
     display_yuv2rgb_config_t csc_config;
 } cam_config_t;
+
+/**
+ * @brief cam input pixel byte order
+ */
+typedef enum {
+    cam_input_pixel_yuv444 = 0,    /* Y[23:16] U[15:8] V[7:0] */
+    cam_input_pixel_yvu444 = 1,    /* Y[23:16] V[15:8] U[7:0] */
+    cam_input_pixel_uyv444 = 2,    /* U[23:16] Y[15:8] V[7:0] */
+    cam_input_pixel_vyu444 = 3,    /* V[23:16] Y[15:8] U[7:0] */
+    cam_input_pixel_uvy444 = 4,    /* U[23:16] V[15:8] Y[7:0] */
+    cam_input_pixel_vuy444 = 5,    /* V[23:16] U[15:8] Y[7:0] */
+    cam_input_pixel_yuyv422 = 0,   /* Y0[31:24] U0[23:16] Y1[15:8] V0[7:0] */
+    cam_input_pixel_yvyu422 = 1,   /* Y0[31:24] V0[23:16] Y1[15:8] U0[7:0] */
+    cam_input_pixel_uyvy422 = 2,   /* U0[31:24] Y0[23:16] V0[15:8] Y1[7:0] */
+    cam_input_pixel_vyuy422 = 3,   /* V0[31:24] Y0[23:16] U0[15:8] Y1[7:0] */
+    cam_input_pixel_rgb565 = 0,    /* R[15:11] G[10:8] G[7:5] B[4:0] */
+    cam_input_pixel_bgr565 = 1,    /* B[15:11] G[10:8] G[7:5] R[4:0] */
+    cam_input_pixel_gbr888 = 0,    /* G[23:16] B[15:8] R[7:0] */
+    cam_input_pixel_grb888 = 1,    /* G[23:16] R[15:8] B[7:0] */
+    cam_input_pixel_bgr888 = 2,    /* B[23:16] G[15:8] R[7:0] */
+    cam_input_pixel_rgb888 = 3,    /* R[23:16] G[15:8] B[7:0] */
+    cam_input_pixel_brg888 = 4,    /* B[23:16] R[15:8] G[7:0] */
+    cam_input_pixel_rbg888 = 5,    /* R[23:16] B[15:8] G[7:0] */
+} cam_input_pixel_byte_order_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -142,6 +159,76 @@ void cam_start(CAM_Type *ptr);
  * @param [in] ptr CAM base address
  */
 void cam_stop(CAM_Type *ptr);
+
+void cam_update_buffer(CAM_Type *ptr, uint32_t buffer);
+
+/**
+ * @brief CAM enable binary output
+ *
+ * This function is used to enable CAM binary output after
+ * the CAM is initialized by the cam_init.
+ *
+ * @param [in] ptr CAM base address
+ */
+static inline void cam_enable_binary_output(CAM_Type *ptr)
+{
+    ptr->CR20 |= CAM_CR20_BINARY_EN_MASK;
+}
+
+/**
+ * @brief CAM disable binary output
+ *
+ * @param [in] ptr CAM base address
+ */
+static inline void cam_disable_binary_output(CAM_Type *ptr)
+{
+    ptr->CR20 &= ~CAM_CR20_BINARY_EN_MASK;
+}
+
+/**
+ * @brief CAM set binary threshold
+ *
+ * @param [in] ptr CAM base address
+ * @param [in] threshold threshold value of binary output
+ */
+static inline void cam_set_binary_threshold(CAM_Type *ptr, uint8_t threshold)
+{
+    ptr->CR20 = (ptr->CR20 & (~CAM_CR20_THRESHOLD_MASK)) | CAM_CR20_THRESHOLD_SET(threshold);
+}
+
+/**
+ * @brief CAM enable argb8888 output
+ *
+ * This function is used to enable CAM argb8888 pixel output after the CAM is initialized by
+ * the cam_init and input pixel byte order is configured by the cam_set_input_pixel_byte_order.
+ *
+ * @param [in] ptr CAM base address
+ */
+static inline void cam_enable_argb8888_output(CAM_Type *ptr)
+{
+    ptr->CR1 |= CAM_CR1_COLOR_EXT_MASK;
+}
+
+/**
+ * @brief CAM disable argb8888 output
+ *
+ * @param [in] ptr CAM base address
+ */
+static inline void cam_disable_argb8888_output(CAM_Type *ptr)
+{
+    ptr->CR1 &= ~CAM_CR1_COLOR_EXT_MASK;
+}
+
+/**
+ * @brief CAM set input pixel byte order
+ *
+ * @param [in] ptr CAM base address
+ * @param [in] order cam_input_pixel_byte_order_t
+ */
+static inline void cam_set_input_pixel_byte_order(CAM_Type *ptr, cam_input_pixel_byte_order_t order)
+{
+    ptr->CR2 = (ptr->CR2 & (~CAM_CR2_CLRBITFORMAT_MASK)) | CAM_CR2_CLRBITFORMAT_SET(order);
+}
 
 /**
  * @}

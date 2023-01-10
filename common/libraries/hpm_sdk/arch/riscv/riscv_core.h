@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -28,6 +28,16 @@ extern "C" {
  * @param bit bits to be cleared
  */
 #define clear_csr(csr_num, bit) __asm volatile("csrc %0, %1" : : "i"(csr_num), "r"(bit))
+
+/**
+ * @brief read and clear bits in csr
+ *
+ * @param csr_num specific csr
+ * @param bit bits to be cleared
+ *
+ * @return csr value before cleared
+ */
+#define read_clear_csr(csr_num, bit) ({ uint32_t v; __asm volatile("csrrc %0, %1, %2" : "=r"(v) : "i"(csr_num), "r"(bit)); v; })
 
 /**
  * @brief set bits in csr

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -18,6 +18,24 @@
  * @ingroup adc_interfaces
  * @{
  */
+
+/** @brief Define ADC16 validity check for the channel number */
+#define ADC16_IS_CHANNEL_INVALID(CH) (CH > ADC16_SOC_MAX_CH_NUM && CH != ADC16_SOC_TEMP_CH_NUM)
+
+/** @brief Define ADC16 validity check for the trigger number */
+#define ADC16_IS_TRIG_CH_INVLAID(CH) (CH > ADC16_SOC_MAX_TRIG_CH_NUM)
+
+/** @brief Define ADC16 validity check for the trigger length */
+#define ADC16_IS_TRIG_LEN_INVLAID(TRIG_LEN) (TRIG_LEN > ADC_SOC_MAX_TRIG_CH_LEN)
+
+/** @brief Define ADC16 validity check for the sequence length */
+#define ADC16_IS_SEQ_LEN_INVLAID(LEN)  ((LEN == 0) || (LEN > ADC_SOC_SEQ_MAX_LEN))
+
+/** @brief Define ADC16 validity check for the DMA buffer length in the sequence mode */
+#define ADC16_IS_SEQ_DMA_BUFF_LEN_INVLAID(LEN)  ((LEN == 0) || (LEN > ADC_SOC_SEQ_MAX_DMA_BUFF_LEN_IN_4BYTES))
+
+/** @brief Define ADC16 validity check for the DMA buffer length in the preemption mode */
+#define ADC16_IS_PMT_DMA_BUFF_LEN_INVLAID(LEN)  ((LEN == 0) || (LEN > ADC_SOC_PMT_MAX_DMA_BUFF_LEN_IN_4BYTES))
 
 /** @brief Define ADC16 conversion modes. */
 typedef enum {
@@ -83,7 +101,7 @@ typedef struct {
 /** @brief ADC16 DMA configuration struct. */
 typedef struct {
     uint32_t *start_addr;
-    uint32_t size_in_4bytes;
+    uint32_t buff_len_in_4bytes;
     uint32_t stop_pos;
     bool stop_en;
 } adc16_dma_config_t;
@@ -111,10 +129,9 @@ typedef struct {
 
 /** @brief ADC16 configuration struct for the the period mode. */
 typedef struct {
-    uint32_t clk_src_freq_in_hz;
     uint8_t ch;
     uint8_t prescale;
-    uint8_t period_in_ms;
+    uint8_t period_count;
 } adc16_prd_config_t;
 
 /** @brief ADC16 queue configuration struct for the sequence mode. */
@@ -125,7 +142,7 @@ typedef struct {
 
 /** @brief ADC16 configuration struct for the sequence mode. */
 typedef struct {
-    adc16_seq_queue_config_t queue[ADC_SOC_MAX_SEQ_LEN];
+    adc16_seq_queue_config_t queue[ADC_SOC_SEQ_MAX_LEN];
     bool restart_en;
     bool cont_en;
     bool sw_trig_en;
@@ -181,10 +198,10 @@ hpm_stat_t adc16_init(ADC16_Type *ptr, adc16_config_t *config);
  * @param[in] ptr An ADC16 peripheral base address.
  * @param[in] config A pointer to the configuration struct of @ref adc16_channel_config_t.
  * @return A result of initializing an ADC16 channel.
- * @retval status_success Initialize an ADC16 channel successfully. Please refert to @ref hpm_stat_t.
- * @retval status_invalid_argument Initialize an ADC16 channel unsuccessfully due to passing one or more invalid arguments. Please refert to @ref hpm_stat_t.
+ * @retval status_success Initialize an ADC16 channel successfully. Please refer to @ref hpm_stat_t.
+ * @retval status_invalid_argument Initialize an ADC16 channel unsuccessfully due to passing one or more invalid arguments. Please refer to @ref hpm_stat_t.
  */
-hpm_stat_t adc16_channel_init(ADC16_Type *ptr, adc16_channel_config_t *config);
+hpm_stat_t adc16_init_channel(ADC16_Type *ptr, adc16_channel_config_t *config);
 
 /**
  * @brief Configure the the period mode for an ADC16 instance.
@@ -192,8 +209,8 @@ hpm_stat_t adc16_channel_init(ADC16_Type *ptr, adc16_channel_config_t *config);
  * @param[in] ptr An ADC16 peripheral base address.
  * @param[in] config A pointer to the configuration struct of @ref adc16_prd_config_t.
  * @return A result of configuring the the period mode for an ADC16 instance.
- * @retval status_success Configure the the period mode successfully. Please refert to @ref hpm_stat_t.
- * @retval status_invalid_argument Configure the the period mode unsuccessfully due to passing one or more invalid arguments. Please refert to @ref hpm_stat_t.
+ * @retval status_success Configure the the period mode successfully. Please refer to @ref hpm_stat_t.
+ * @retval status_invalid_argument Configure the the period mode unsuccessfully due to passing one or more invalid arguments. Please refer to @ref hpm_stat_t.
  */
 hpm_stat_t adc16_set_prd_config(ADC16_Type *ptr, adc16_prd_config_t *config);
 
@@ -203,8 +220,8 @@ hpm_stat_t adc16_set_prd_config(ADC16_Type *ptr, adc16_prd_config_t *config);
  * @param[in] ptr An ADC16 peripheral base address.
  * @param[in] config A pointer to configuration struct of @ref adc16_seq_config_t.
  * @return A result of configuring the sequence mode for an ADC16 instance.
- * @retval status_success Configure the sequence mode successfully. Please refert to @ref hpm_stat_t.
- * @retval status_invalid_argument Configure the sequence mode unsuccessfully due to passing one or more invalid arguments. Please refert to @ref hpm_stat_t.
+ * @retval status_success Configure the sequence mode successfully. Please refer to @ref hpm_stat_t.
+ * @retval status_invalid_argument Configure the sequence mode unsuccessfully due to passing one or more invalid arguments. Please refer to @ref hpm_stat_t.
  */
 hpm_stat_t adc16_set_seq_config(ADC16_Type *ptr, adc16_seq_config_t *config);
 
@@ -214,8 +231,8 @@ hpm_stat_t adc16_set_seq_config(ADC16_Type *ptr, adc16_seq_config_t *config);
  * @param[in] ptr An ADC16 peripheral base address.
  * @param[in] config A pointer to configuration struct of @ref adc16_pmt_config_t.
  * @return A result of configuring the preemption mode for an ADC16 instance.
- * @retval status_success Configure the preemption mode successfully. Please refert to @ref hpm_stat_t.
- * @retval status_invalid_argument Configure the preemption mode unsuccessfully due to passing one or more invalid arguments. Please refert to @ref hpm_stat_t.
+ * @retval status_success Configure the preemption mode successfully. Please refer to @ref hpm_stat_t.
+ * @retval status_invalid_argument Configure the preemption mode unsuccessfully due to passing one or more invalid arguments. Please refer to @ref hpm_stat_t.
  */
 hpm_stat_t adc16_set_pmt_config(ADC16_Type *ptr, adc16_pmt_config_t *config);
 
@@ -265,8 +282,11 @@ static inline void adc16_init_pmt_dma(ADC16_Type *ptr, uint32_t addr)
  *
  * @param[in] ptr An ADC16 peripheral base address.
  * @param[in] config A pointer to configuration struct of @ref adc16_dma_config_t.
+ * @return An implementation result of DMA initializing for the sequence mode
+ * @retval status_success ADC16 initialize in sequence mode successfully. Please refert to @ref hpm_stat_t.
+ * @retval status_invalid_argument ADC16 initialize in sequence mode unsuccessfully due to passing invalid arguments. Please refert to @ref hpm_stat_t.
  */
-void adc16_init_seq_dma(ADC16_Type *ptr, adc16_dma_config_t *config);
+hpm_stat_t adc16_init_seq_dma(ADC16_Type *ptr, adc16_dma_config_t *config);
 
 /** @} */
 
@@ -365,11 +385,14 @@ static inline void adc16_disable_interrupts(ADC16_Type *ptr, uint32_t mask)
  */
 
 /**
- * @brief Trigger ADC coversions by software
+ * @brief Trigger ADC conversions by software
  *
  * @param[in] ptr An ADC16 peripheral base address.
+ * @return An implementation result of getting an ADC16 software trigger.
+ * @retval status_success ADC16 software triggers successfully. Please refer to @ref hpm_stat_t.
+ * @retval status_fail ADC16 software triggers unsuccessfully. Please refer to @ref hpm_stat_t.
  */
-void adc16_trigger_seq_by_sw(ADC16_Type *ptr);
+hpm_stat_t adc16_trigger_seq_by_sw(ADC16_Type *ptr);
 
 /**
  * @brief Get the result in oneshot mode.
@@ -378,8 +401,8 @@ void adc16_trigger_seq_by_sw(ADC16_Type *ptr);
  * @param[in] ch An ADC16 peripheral channel.
  * @param[out] result A pointer to an ADC16 conversion result.
  * @return An implementation result of getting an ADC16 conversion result in oneshot mode.
- * @retval status_success Get the result of an ADC16 conversion in oneshot mode successfully. Please refert to @ref hpm_stat_t.
- * @retval status_invalid_argument Get the result of an ADC16 conversion in oneshot mode unsuccessfully due to passing invalid arguments. Please refert to @ref hpm_stat_t.
+ * @retval status_success Get the result of an ADC16 conversion in oneshot mode successfully. Please refer to @ref hpm_stat_t.
+ * @retval status_invalid_argument Get the result of an ADC16 conversion in oneshot mode unsuccessfully due to passing invalid arguments. Please refer to @ref hpm_stat_t.
  */
 hpm_stat_t adc16_get_oneshot_result(ADC16_Type *ptr, uint8_t ch, uint16_t *result);
 
@@ -390,10 +413,24 @@ hpm_stat_t adc16_get_oneshot_result(ADC16_Type *ptr, uint8_t ch, uint16_t *resul
  * @param[in] ch An ADC16 peripheral channel.
  * @param[out] result A pointer to a specified ADC16 conversion result
  * @return An implementation of getting an ADC16 conversion result in the period mode.
- * @retval status_success Get the result of an ADC16 conversion in the period mode successfully. Please refert to @ref hpm_stat_t.
- * @retval status_invalid_argument Get the result of an ADC16 conversion in the period mode unsuccessfully due to passing invalid arguments. Please refert to @ref hpm_stat_t.
+ * @retval status_success Get the result of an ADC16 conversion in the period mode successfully. Please refer to @ref hpm_stat_t.
+ * @retval status_invalid_argument Get the result of an ADC16 conversion in the period mode unsuccessfully due to passing invalid arguments. Please refer to @ref hpm_stat_t.
  */
 hpm_stat_t adc16_get_prd_result(ADC16_Type *ptr, uint8_t ch, uint16_t *result);
+
+/**
+ * @brief Enable the temperature sensor
+ *
+ * @param[in] ptr An ADC16 peripheral base address.
+ */
+void adc16_enable_temp_sensor(ADC16_Type *ptr);
+
+/**
+ * @brief Disable the temperature sensor
+ *
+ * @param[in] ptr An ADC16 peripheral base address.
+ */
+void adc16_disable_temp_sensor(ADC16_Type *ptr);
 
 /** @} */
 

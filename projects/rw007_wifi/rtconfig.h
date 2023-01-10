@@ -12,6 +12,7 @@
 #define RT_TICK_PER_SECOND 1000
 #define RT_USING_OVERFLOW_CHECK
 #define RT_USING_HOOK
+#define RT_HOOK_USING_FUNC_PTR
 #define RT_USING_IDLE_HOOK
 #define RT_IDLE_HOOK_LIST_SIZE 4
 #define IDLE_THREAD_STACK_SIZE 512
@@ -21,6 +22,7 @@
 
 /* kservice optimization */
 
+#define RT_PRINTF_LONGLONG
 /* end of kservice optimization */
 
 /* Inter-Thread communication */
@@ -36,6 +38,7 @@
 
 #define RT_USING_MEMPOOL
 #define RT_USING_SMALL_MEM
+#define RT_USING_SMALL_MEM_AS_HEAP
 #define RT_USING_HEAP
 /* end of Memory Management */
 
@@ -45,9 +48,8 @@
 #define RT_USING_CONSOLE
 #define RT_CONSOLEBUF_SIZE 128
 #define RT_CONSOLE_DEVICE_NAME "uart0"
-#define RT_PRINTF_LONGLONG
 /* end of Kernel Device Object */
-#define RT_VER_NUM 0x40005
+#define RT_VER_NUM 0x40100
 /* end of RT-Thread Kernel */
 
 /* RT-Thread Components */
@@ -56,15 +58,8 @@
 #define RT_USING_USER_MAIN
 #define RT_MAIN_THREAD_STACK_SIZE 2048
 #define RT_MAIN_THREAD_PRIORITY 10
-
-/* C++ features */
-
-/* end of C++ features */
-
-/* Command shell */
-
-#define RT_USING_FINSH
 #define RT_USING_MSH
+#define RT_USING_FINSH
 #define FINSH_USING_MSH
 #define FINSH_THREAD_NAME "tshell"
 #define FINSH_THREAD_PRIORITY 20
@@ -76,22 +71,17 @@
 #define MSH_USING_BUILT_IN_COMMANDS
 #define FINSH_USING_DESCRIPTION
 #define FINSH_ARG_MAX 10
-/* end of Command shell */
-
-/* Device virtual file system */
-
 #define RT_USING_DFS
+#define DFS_USING_POSIX
 #define DFS_USING_WORKDIR
 #define DFS_FILESYSTEMS_MAX 4
 #define DFS_FILESYSTEM_TYPES_MAX 4
 #define DFS_FD_MAX 16
 #define RT_USING_DFS_DEVFS
-/* end of Device virtual file system */
 
 /* Device Drivers */
 
 #define RT_USING_DEVICE_IPC
-#define RT_PIPE_BUFSZ 512
 #define RT_USING_SYSTEM_WORKQUEUE
 #define RT_SYSTEM_WORKQUEUE_STACKSIZE 2048
 #define RT_SYSTEM_WORKQUEUE_PRIORITY 23
@@ -131,17 +121,27 @@
 /* end of Using USB */
 /* end of Device Drivers */
 
-/* POSIX layer and C standard library */
+/* C/C++ and POSIX layer */
 
-#define RT_USING_LIBC
-#define RT_USING_POSIX
-#define RT_LIBC_USING_TIME
 #define RT_LIBC_DEFAULT_TIMEZONE 8
-/* end of POSIX layer and C standard library */
+
+/* POSIX (Portable Operating System Interface) layer */
+
+#define RT_USING_POSIX_FS
+#define RT_USING_POSIX_POLL
+#define RT_USING_POSIX_SELECT
+#define RT_USING_POSIX_SOCKET
+
+/* Interprocess Communication (IPC) */
+
+
+/* Socket is in the 'Network' category */
+
+/* end of Interprocess Communication (IPC) */
+/* end of POSIX (Portable Operating System Interface) layer */
+/* end of C/C++ and POSIX layer */
 
 /* Network */
-
-/* Socket abstraction layer */
 
 #define RT_USING_SAL
 #define SAL_INTERNET_CHECK
@@ -151,10 +151,6 @@
 #define SAL_USING_LWIP
 /* end of protocol stack implement */
 #define SAL_USING_POSIX
-/* end of Socket abstraction layer */
-
-/* Network interface device */
-
 #define RT_USING_NETDEV
 #define NETDEV_USING_IFCONFIG
 #define NETDEV_USING_PING
@@ -162,12 +158,9 @@
 #define NETDEV_USING_AUTO_DEFAULT
 #define NETDEV_IPV4 1
 #define NETDEV_IPV6 0
-/* end of Network interface device */
-
-/* light weight TCP/IP stack */
-
 #define RT_USING_LWIP
 #define RT_USING_LWIP212
+#define RT_USING_LWIP_VER_NUM 0x20102
 #define RT_LWIP_MEM_ALIGNMENT 4
 #define RT_LWIP_IGMP
 #define RT_LWIP_ICMP
@@ -208,16 +201,7 @@
 #define LWIP_SO_LINGER 0
 #define LWIP_NETIF_LOOPBACK 0
 #define RT_LWIP_USING_PING
-/* end of light weight TCP/IP stack */
-
-/* AT commands */
-
-/* end of AT commands */
 /* end of Network */
-
-/* VBUS(Virtual Software BUS) */
-
-/* end of VBUS(Virtual Software BUS) */
 
 /* Utilities */
 
@@ -302,10 +286,6 @@
 
 /* end of enhanced kernel services */
 
-/* POSIX extension functions */
-
-/* end of POSIX extension functions */
-
 /* acceleration: Assembly language or algorithmic acceleration packages */
 
 /* end of acceleration: Assembly language or algorithmic acceleration packages */
@@ -321,6 +301,10 @@
 
 /* peripheral libraries and drivers */
 
+
+/* Kendryte SDK */
+
+/* end of Kendryte SDK */
 /* end of peripheral libraries and drivers */
 
 /* AI packages */
@@ -352,6 +336,8 @@
 /* On-chip Peripheral Drivers */
 
 #define BSP_USING_GPIO
+#define RW007_USING_BLE
+#define RW007_USING_WIFI
 #define BSP_USING_UART
 #define BSP_USING_UART0
 #define BSP_UART0_RX_BUFSIZE 128
@@ -359,7 +345,7 @@
 #define BSP_USING_SPI
 #define BSP_USING_SPI1
 #define BSP_USING_RTC
-#define BSP_USING_DRAM
+#define BSP_USING_FEMC
 #define INIT_EXT_RAM_FOR_DATA
 /* end of On-chip Peripheral Drivers */
 /* end of Hardware Drivers Config */

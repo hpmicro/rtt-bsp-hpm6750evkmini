@@ -24,7 +24,7 @@
 #include "lwip/igmp.h"
 #include "lwip/arch.h"
 #include "lwip/inet.h"
-#include "ethernetif.h"
+#include "netif/ethernetif.h"
 //#include "lwip.h"
 #include "hpm_enet_drv.h"
 

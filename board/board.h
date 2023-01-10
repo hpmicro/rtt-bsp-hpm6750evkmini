@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2022 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -13,6 +13,7 @@
 #include "hpm_soc_feature.h"
 #include "hpm_clock_drv.h"
 #include "hpm_enet_drv.h"
+#include "hpm_otp_drv.h"
 #include "pinmux.h"
 
 #define BOARD_NAME "hpm6750evkmini"
@@ -50,8 +51,8 @@
 /* sdram section */
 #define BOARD_SDRAM_ADDRESS  (0x40000000UL)
 #define BOARD_SDRAM_SIZE     (16*SIZE_1MB)
-#define BOARD_SDRAM_CS       DRAM_SDRAM_CS0
-#define BOARD_SDRAM_PORT_SIZE DRAM_SDRAM_PORT_SIZE_16_BITS
+#define BOARD_SDRAM_CS       FEMC_SDRAM_CS0
+#define BOARD_SDRAM_PORT_SIZE FEMC_SDRAM_PORT_SIZE_16_BITS
 #define BOARD_SDRAM_REFRESH_COUNT (4096UL)
 #define BOARD_SDRAM_REFRESH_IN_MS (64UL)
 #define BOARD_SDRAM_DATA_WIDTH_IN_BYTE (2UL)
@@ -158,13 +159,41 @@
 #define BOARD_PDMA_BASE HPM_PDMA
 
 /* enet section */
+#define BOARD_ENET0_RST_GPIO
+#define BOARD_ENET0_RST_GPIO_INDEX
+#define BOARD_ENET0_RST_GPIO_PIN
+
+#define BOARD_ENET0_INF             (0U)  /* 0: RMII, 1: RGMII */
+#define BOARD_ENET0_INT_REF_CLK     (0U)
+#define BOARD_ENET0_PHY_RST_TIME    (30)
+
+#if BOARD_ENET0_INF
+#define BOARD_ENET0_TX_DLY          (0U)
+#define BOARD_ENET0_RX_DLY          (0U)
+#endif
+
+#if __USE_ENET_PTP
+#define BOARD_ENET0_PTP_CLOCK       (clock_ptp0)
+#endif
+
+
 #define BOARD_ENET1_RST_GPIO        HPM_GPIO0
 #define BOARD_ENET1_RST_GPIO_INDEX  GPIO_DO_GPIOD
 #define BOARD_ENET1_RST_GPIO_PIN    (15U)
-#define BOARD_ENET1_INF             enet_inf_rmii
+
+#define BOARD_ENET1_INF             (0U)  /* 0: RMII, 1: RGMII */
 #define BOARD_ENET1_INT_REF_CLK     (0U)
 #define BOARD_ENET1_PHY_RST_TIME    (30)
+
+#if BOARD_ENET1_INF
+#define BOARD_ENET1_TX_DLY          (0U)
+#define BOARD_ENET1_RX_DLY          (0U)
+#endif
+
+#if __USE_ENET_PTP
 #define BOARD_ENET1_PTP_CLOCK       (clock_ptp1)
+#endif
+
 /* adc section */
 #define BOARD_APP_ADC12_BASE HPM_ADC0
 #define BOARD_APP_ADC16_BASE HPM_ADC3
@@ -269,7 +298,7 @@ void board_init_lcd(void);
 
 void board_init_can(CAN_Type *ptr);
 
-uint32_t board_init_dram_clock(void);
+uint32_t board_init_femc_clock(void);
 
 void board_init_sdram_pins(void);
 void board_init_gpio_pins(void);
@@ -332,14 +361,10 @@ void board_init_rgb_pwm_pins(void);
 
 void board_timer_create(uint32_t ms, void *cb);
 
-/* Initialize enet pins */
 hpm_stat_t board_init_enet_pins(ENET_Type *ptr);
-
-/* Initialize enet reference clock in RMII mode */
 hpm_stat_t board_init_enet_rmii_reference_clock(ENET_Type *ptr, bool internal);
-
-/* Reset an enet PHY */
-void board_reset_enet_phy(ENET_Type *ptr);
+hpm_stat_t board_reset_enet_phy(ENET_Type *ptr);
+uint8_t    board_enet_get_dma_pbl(ENET_Type *ptr);
 
 #if defined(__cplusplus)
 }

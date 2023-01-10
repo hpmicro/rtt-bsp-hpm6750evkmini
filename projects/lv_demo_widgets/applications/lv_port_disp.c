@@ -72,6 +72,7 @@ void lv_port_disp_init(void)
     /*-------------------------
      * Initialize your display
      * -----------------------*/
+    board_init_lcd();
     init_lcd();
 
     static lv_disp_draw_buf_t draw_buf_dsc;
