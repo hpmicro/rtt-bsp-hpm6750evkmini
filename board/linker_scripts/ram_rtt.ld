@@ -29,7 +29,7 @@ SECTIONS
         . = ALIGN(8);
         KEEP(*(.start))
     } > AXI_SRAM
-    
+
     .vectors : {
         . = ALIGN(8);
         KEEP(*(.isr_vector))
@@ -135,10 +135,12 @@ SECTIONS
         PROVIDE(__finit_array_end = .);
 
         . = ALIGN(8);
+        PROVIDE(__ctors_start__ = .);
         KEEP(*crtbegin*.o(.ctors))
         KEEP(*(EXCLUDE_FILE (*crtend*.o) .ctors))
         KEEP(*(SORT(.ctors.*)))
         KEEP(*(.ctors))
+        PROVIDE(__ctors_end__ = .);
 
         . = ALIGN(8);
         KEEP(*crtbegin*.o(.dtors))
@@ -160,7 +162,7 @@ SECTIONS
         . = ALIGN(8);
         PROVIDE(__ramfunc_end__ = .);
     } > AXI_SRAM
-    
+
     .noncacheable : AT(etext + __data_end__ - __data_start__ + __ramfunc_end__ - __ramfunc_start__){
         . = ALIGN(8);
         __noncacheable_init_start__ = .;

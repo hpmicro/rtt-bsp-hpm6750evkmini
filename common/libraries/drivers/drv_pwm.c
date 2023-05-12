@@ -1,11 +1,8 @@
 /*
- * Copyright (c) 2022 hpm
+ * Copyright (c) 2022 - 2023 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * Change Logs:
- * Date         Author      Notes
- * 2022-01-11   will     First version
  */
 
 #include <rtthread.h>
@@ -23,7 +20,6 @@ static const clock_name_t pwm_clock_tbl[4] = {clock_mot0, clock_mot1, clock_mot2
 
 rt_err_t hpm_generate_central_aligned_waveform(uint8_t pwm_index, uint8_t channel, uint32_t period, uint32_t pulse)
 {
-    uint8_t cmp_index = 0;
     uint32_t duty;
     pwm_cmp_config_t cmp_config[4] = {0};
     pwm_config_t pwm_config = {0};
@@ -74,8 +70,7 @@ rt_err_t hpm_generate_central_aligned_waveform(uint8_t pwm_index, uint8_t channe
     if (status_success != pwm_setup_waveform(pwm_name_index, channel, &pwm_config, channel * 2, cmp_config, 2)) {
         return RT_FALSE;
     }
-    pwm_load_cmp_shadow_on_capture(pwm_name_index, cmp_index + 17, 0);
-    pwm_config_cmp(pwm_name_index, cmp_index + 17, &cmp_config[3]);
+    pwm_load_cmp_shadow_on_match(pwm_name_index, 17,  &cmp_config[3]);
     pwm_start_counter(pwm_name_index);
     pwm_issue_shadow_register_lock_event(pwm_name_index);
     duty = (uint64_t)freq * pulse / 1000000000;
@@ -88,7 +83,6 @@ rt_err_t hpm_generate_central_aligned_waveform(uint8_t pwm_index, uint8_t channe
 
 rt_err_t hpm_set_central_aligned_waveform(uint8_t pwm_index, uint8_t channel, uint32_t period, uint32_t pulse)
 {
-    uint8_t cmp_index = 0;
     uint32_t duty;
     pwm_cmp_config_t cmp_config[4] = {0};
     pwm_config_t pwm_config = {0};
@@ -107,23 +101,16 @@ rt_err_t hpm_set_central_aligned_waveform(uint8_t pwm_index, uint8_t channel, ui
     }
 
     pwm_get_default_pwm_config(pwm_name_index, &pwm_config);
-
     pwm_set_reload(pwm_name_index, 0, reload);
-
     cmp_config[3].mode = pwm_cmp_mode_output_compare;
     cmp_config[3].cmp = reload;
     cmp_config[3].update_trigger = pwm_shadow_register_update_on_modify;
-
-//    pwm_load_cmp_shadow_on_capture(pwm_name_index, cmp_index + 4, 0);
-    pwm_config_cmp(pwm_name_index, cmp_index + 4, &cmp_config[3]);
-
+    pwm_config_cmp(pwm_name_index, 17, &cmp_config[3]);
     pwm_issue_shadow_register_lock_event(pwm_name_index);
     duty = (uint64_t)freq * pulse / 1000000000;
-
     pwm_update_raw_cmp_central_aligned(pwm_name_index, channel * 2, channel * 2 + 1, (reload - duty) >> 1, (reload + duty) >> 1);
 
     return RT_TRUE;
-
 }
 
 rt_err_t hpm_disable_pwm(uint8_t pwm_index, uint8_t channel)
@@ -274,5 +261,5 @@ int rt_hw_pwm_init(void)
 
 INIT_BOARD_EXPORT(rt_hw_pwm_init);
 
-#endif /* BSP_USING_GPIO */
+#endif /* BSP_USING_PWM */
 

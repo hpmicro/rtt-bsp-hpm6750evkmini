@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
  * Change Logs:
  * Date           Author        Notes
- * 2011-07-25     weety     first version
+ * 2011-07-25     weety         first version
+ * 2023-05-06     hpmicro       avoid null dereference issue in rt_mmcsd_blk_remove
  */
 
 #include <rtthread.h>
@@ -505,22 +506,25 @@ void rt_mmcsd_blk_remove(struct rt_mmcsd_card *card)
     rt_list_t *l, *n;
     struct mmcsd_blk_device *blk_dev;
 
-    for (l = (&card->blk_devices)->next, n = l->next; l != &card->blk_devices; l = n, n=n->next)
+    if (card->blk_devices.next != RT_NULL)
     {
-        blk_dev = (struct mmcsd_blk_device *)rt_list_entry(l, struct mmcsd_blk_device, list);
-        if (blk_dev->card == card)
+        for (l = (&card->blk_devices)->next, n = l->next; l != &card->blk_devices; l = n, n=n->next)
         {
-            /* unmount file system */
-            const char * mounted_path = dfs_filesystem_get_mounted_path(&(blk_dev->dev));
-            if (mounted_path)
+            blk_dev = (struct mmcsd_blk_device *)rt_list_entry(l, struct mmcsd_blk_device, list);
+            if (blk_dev->card == card)
             {
-                  dfs_unmount(mounted_path);
-                  LOG_D("unmount file system %s for device %s.\r\n", mounted_path, blk_dev->dev.parent.name);
+                /* unmount file system */
+                const char * mounted_path = dfs_filesystem_get_mounted_path(&(blk_dev->dev));
+                if (mounted_path)
+                {
+                      dfs_unmount(mounted_path);
+                      LOG_D("unmount file system %s for device %s.\r\n", mounted_path, blk_dev->dev.parent.name);
+                }
+                rt_sem_delete(blk_dev->part.lock);
+                rt_device_unregister(&blk_dev->dev);
+                rt_list_remove(&blk_dev->list);
+                rt_free(blk_dev);
             }
-            rt_sem_delete(blk_dev->part.lock);
-            rt_device_unregister(&blk_dev->dev);
-            rt_list_remove(&blk_dev->list);
-            rt_free(blk_dev);
         }
     }
 }

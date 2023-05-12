@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 HPMicro
+ * Copyright (c) 2021-2023 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -35,10 +35,10 @@
 #define BOARD_APP_UART_CLK_NAME clock_uart0
 
 #ifndef BOARD_CONSOLE_TYPE
-#define BOARD_CONSOLE_TYPE console_type_uart
+#define BOARD_CONSOLE_TYPE CONSOLE_TYPE_UART
 #endif
 
-#if BOARD_CONSOLE_TYPE == console_type_uart
+#if BOARD_CONSOLE_TYPE == CONSOLE_TYPE_UART
 #define BOARD_CONSOLE_BASE HPM_UART0
 #define BOARD_CONSOLE_CLK_NAME clock_uart0
 #define BOARD_CONSOLE_BAUDRATE (115200UL)
@@ -343,6 +343,7 @@ uint32_t board_init_gptmr_clock(GPTMR_Type *ptr);
 void board_init_sd_pins(SDXC_Type *ptr);
 uint32_t board_sd_configure_clock(SDXC_Type *ptr, uint32_t freq);
 void board_sd_switch_pins_to_1v8(SDXC_Type *ptr);
+void board_sd_power_switch(SDXC_Type *ptr, bool on_off);
 bool board_sd_detect_card(SDXC_Type *ptr);
 
 void board_init_usb_pins(void);
@@ -365,6 +366,7 @@ hpm_stat_t board_init_enet_pins(ENET_Type *ptr);
 hpm_stat_t board_init_enet_rmii_reference_clock(ENET_Type *ptr, bool internal);
 hpm_stat_t board_reset_enet_phy(ENET_Type *ptr);
 uint8_t    board_enet_get_dma_pbl(ENET_Type *ptr);
+hpm_stat_t board_init_enet_ptp_clock(ENET_Type *ptr);
 
 #if defined(__cplusplus)
 }

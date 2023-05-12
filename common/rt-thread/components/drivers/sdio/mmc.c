@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
  * Change Logs:
  * Date           Author       Notes
  * 2015-06-15     hichard      first version
+ * 2023-05-23     hpmicro      Correct the bus_width setting issue
  */
 
 #include <drivers/mmcsd_core.h>
@@ -294,6 +295,13 @@ static int mmc_select_bus_width(struct rt_mmcsd_card *card, rt_uint8_t *ext_csd)
     EXT_CSD_BUS_WIDTH_4,
     EXT_CSD_BUS_WIDTH_1
   };
+
+  rt_uint32_t bus_widths[] = {
+    MMCSD_BUS_WIDTH_8,
+    MMCSD_BUS_WIDTH_4,
+    MMCSD_BUS_WIDTH_1
+  };
+
   struct rt_mmcsd_host *host = card->host;
   unsigned idx, trys, bus_width = 0;
   int err = 0;
@@ -330,6 +338,7 @@ static int mmc_select_bus_width(struct rt_mmcsd_card *card, rt_uint8_t *ext_csd)
     if (err)
       continue;
 
+    bus_width = bus_widths[idx];
     for(trys = 0; trys < 5; trys++){
         mmcsd_set_bus_width(host, bus_width);
         mmcsd_delay_ms(10);

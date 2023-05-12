@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 hpmicro
+ * Copyright (c) 2022 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -391,7 +391,7 @@ static rt_err_t hpm_i2s_configure(struct rt_audio_device* audio, struct rt_audio
 
     //i2s dma方式仅支持采样位宽为：16bit, 32bit
     assert(hpm_audio->audio_config.samplebits == 16 || hpm_audio->audio_config.samplebits == 32);
-    hpm_audio->transfer.audio_depth = (hpm_audio->audio_config.samplebits - 16) >> 3;
+    hpm_audio->transfer.audio_depth = hpm_audio->audio_config.samplebits;
 
     if (status_success != i2s_config_transfer(hpm_audio->base, clock_get_frequency(hpm_audio->clk_name), &hpm_audio->transfer))
     {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 - 2022 hpmicro
+ * Copyright (c) 2021-2023 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -13,9 +13,15 @@
 #include "hpm_soc.h"
 #include "hpm_soc_feature.h"
 #include "pinmux.h"
+#include "hpm_lcdc_drv.h"
+#if !defined(CONFIG_NDEBUG_CONSOLE) || !CONFIG_NDEBUG_CONSOLE
+#include "hpm_debug_console.h"
+#endif
 
 #define BOARD_NAME "hpm6750evk"
 #define BOARD_UF2_SIGNATURE (0x0A4D5048UL)
+
+#define SEC_CORE_IMG_START ILM_LOCAL_BASE
 
 /* uart section */
 #ifndef BOARD_RUNNING_CORE
@@ -48,12 +54,14 @@
 
 #define BOARD_APP_UART_BAUDRATE (115200UL)
 #define BOARD_APP_UART_CLK_NAME clock_uart0
+#define BOARD_APP_UART_RX_DMA_REQ HPM_DMA_SRC_UART0_RX
+#define BOARD_APP_UART_TX_DMA_REQ HPM_DMA_SRC_UART0_TX
 
 #ifndef BOARD_CONSOLE_TYPE
-#define BOARD_CONSOLE_TYPE console_type_uart
+#define BOARD_CONSOLE_TYPE CONSOLE_TYPE_UART
 #endif
 
-#if BOARD_CONSOLE_TYPE == console_type_uart
+#if BOARD_CONSOLE_TYPE == CONSOLE_TYPE_UART
 #ifndef BOARD_CONSOLE_BASE
 #if BOARD_RUNNING_CORE == HPM_CORE0
 #define BOARD_CONSOLE_BASE HPM_UART0
@@ -74,8 +82,8 @@
 /* sdram section */
 #define BOARD_SDRAM_ADDRESS  (0x40000000UL)
 #define BOARD_SDRAM_SIZE     (32*SIZE_1MB)
-#define BOARD_SDRAM_CS       DRAM_SDRAM_CS0
-#define BOARD_SDRAM_PORT_SIZE DRAM_SDRAM_PORT_SIZE_32_BITS
+#define BOARD_SDRAM_CS       FEMC_SDRAM_CS0
+#define BOARD_SDRAM_PORT_SIZE FEMC_SDRAM_PORT_SIZE_32_BITS
 #define BOARD_SDRAM_REFRESH_COUNT (8192UL)
 #define BOARD_SDRAM_REFRESH_IN_MS (64UL)
 #define BOARD_SDRAM_DATA_WIDTH_IN_BYTE (4UL)
@@ -95,11 +103,11 @@
 
 /* i2c section */
 #define BOARD_APP_I2C_BASE HPM_I2C0
+#define BOARD_APP_I2C_IRQ IRQn_I2C0
 #define BOARD_APP_I2C_CLK_NAME clock_i2c0
 #define BOARD_APP_I2C_DMA HPM_HDMA
 #define BOARD_APP_I2C_DMAMUX HPM_DMAMUX
 #define BOARD_APP_I2C_DMA_SRC HPM_DMA_SRC_I2C0
-#define BOARD_APP_I2C_DMAMUX_CH DMAMUX_MUXCFG_HDMA_MUX0
 
 #define BOARD_CAM_I2C_BASE HPM_I2C0
 #define BOARD_CAM_I2C_CLK_NAME clock_i2c0
@@ -143,6 +151,7 @@
 #define BOARD_GPTMR_CHANNEL 1
 #define BOARD_GPTMR_PWM HPM_GPTMR3
 #define BOARD_GPTMR_PWM_CHANNEL 1
+#define BOARD_GPTMR_CLK_NAME clock_gptmr4
 
 /* gpio section */
 #define BOARD_R_GPIO_CTRL HPM_GPIO0
@@ -184,14 +193,13 @@
 
 /* spi section */
 #define BOARD_APP_SPI_BASE HPM_SPI2
-#define BOARD_APP_SPI_CLK_SRC_FREQ      (24000000UL)
-#define BOARD_APP_SPI_SCLK_FREQ         (1562500UL)
+#define BOARD_APP_SPI_CLK_NAME          clock_spi2
+#define BOARD_APP_SPI_IRQ               IRQn_SPI2
+#define BOARD_APP_SPI_SCLK_FREQ         (20000000UL)
 #define BOARD_APP_SPI_ADDR_LEN_IN_BYTES (1U)
 #define BOARD_APP_SPI_DATA_LEN_IN_BITS  (8U)
 #define BOARD_APP_SPI_RX_DMA HPM_DMA_SRC_SPI2_RX
-#define BOARD_APP_SPI_RX_DMAMUX_CH DMAMUX_MUXCFG_HDMA_MUX0
 #define BOARD_APP_SPI_TX_DMA HPM_DMA_SRC_SPI2_TX
-#define BOARD_APP_SPI_TX_DMAMUX_CH DMAMUX_MUXCFG_HDMA_MUX1
 #define BOARD_SPI_CS_GPIO_CTRL           HPM_GPIO0
 #define BOARD_SPI_CS_PIN                 IOC_PAD_PE31
 #define BOARD_SPI_CS_ACTIVE_LEVEL        (0U)
@@ -203,11 +211,58 @@
 #define BOARD_APP_XPI_NOR_CFG_OPT_OPT1        (0x00001000U)
 
 /* lcd section */
+
+/*
+ * BOARD_PANEL_TIMING_PARA {HSPW, HBP, HFP, VSPW, VBP, VFP, HSSP, VSSP, DESP, PDSP, PCSP}
+ *
+ * HSPW: Horizontal Synchronization Pulse width
+ * HBP: Horizontal Back Porch
+ * HFP: Horizontal Front Porch
+ * VSPW: Vertical Synchronization Pulse width
+ * VBP: Vertical Back Porch
+ * VFP: Vertical Front Porch
+ * HSSP: Horizontal Synchronization Signal Polarity, 0: High Active, 1: Low Active
+ * VSSP: Vertical Synchronization Signal Polarity, 0: High Active, 1: Low Active
+ * DESP: Data Enable Signal Polarity, 0: High Active, 1: Low Active
+ * PDSP: Pixel Data Signal Polarity, 0: High Active, 1: Low Active
+ * PCSP: Pixel Clock Signal Polarity, 0: High Active, 1: Low Active
+ */
+#define BOARD_PANEL_TIMEING_PARA_HSPW_INDEX 0
+#define BOARD_PANEL_TIMEING_PARA_HBP_INDEX 1
+#define BOARD_PANEL_TIMEING_PARA_HFP_INDEX 2
+#define BOARD_PANEL_TIMEING_PARA_VSPW_INDEX 3
+#define BOARD_PANEL_TIMEING_PARA_VBP_INDEX 4
+#define BOARD_PANEL_TIMEING_PARA_VFP_INDEX 5
+#define BOARD_PANEL_TIMEING_PARA_HSSP_INDEX 6
+#define BOARD_PANEL_TIMEING_PARA_VSSP_INDEX 7
+#define BOARD_PANEL_TIMEING_PARA_DESP_INDEX 8
+#define BOARD_PANEL_TIMEING_PARA_PDSP_INDEX 9
+#define BOARD_PANEL_TIMEING_PARA_PCSP_INDEX 10
+
+#if defined(PANEL_TM070RDH13)
+
 #ifndef BOARD_LCD_WIDTH
-#define BOARD_LCD_WIDTH (800)
+#define BOARD_LCD_WIDTH 800
 #endif
 #ifndef BOARD_LCD_HEIGHT
-#define BOARD_LCD_HEIGHT (480)
+#define BOARD_LCD_HEIGHT 480
+#endif
+#ifndef BOARD_PANEL_TIMING_PARA
+#define BOARD_PANEL_TIMING_PARA {10, 46, 50, 3, 23, 10, 0, 0, 0, 0, 0}
+#endif
+
+#else
+
+#ifndef BOARD_LCD_WIDTH
+#define BOARD_LCD_WIDTH 800
+#endif
+#ifndef BOARD_LCD_HEIGHT
+#define BOARD_LCD_HEIGHT 480
+#endif
+#ifndef BOARD_PANEL_TIMING_PARA
+#define BOARD_PANEL_TIMING_PARA {10, 46, 50, 3, 23, 10, 0, 0, 0, 0, 0}
+#endif
+
 #endif
 
 /* pdma section */
@@ -221,23 +276,24 @@
 #define BOARD_APP_AUDIO_CLK_SRC_NAME clk_pll3clk0
 
 /* enet section */
+#define BOARD_ENET_PPS                  HPM_ENET0
+#define BOARD_ENET_PPS_IDX              enet_pps_0
+#define BOARD_ENET_PPS_PTP_CLOCK        clock_ptp0
+
 #define BOARD_ENET_RGMII_RST_GPIO       HPM_GPIO0
 #define BOARD_ENET_RGMII_RST_GPIO_INDEX GPIO_DO_GPIOF
 #define BOARD_ENET_RGMII_RST_GPIO_PIN   (0U)
 #define BOARD_ENET_RGMII                HPM_ENET0
 #define BOARD_ENET_RGMII_TX_DLY         (22U)
 #define BOARD_ENET_RGMII_RX_DLY         (19U)
-
-#define BOARD_ENET_RGMII_PTP_CLOCK      (clock_ptp0)
-
+#define BOARD_ENET_RGMII_PTP_CLOCK      clock_ptp0
 
 #define BOARD_ENET_RMII_RST_GPIO        HPM_GPIO0
 #define BOARD_ENET_RMII_RST_GPIO_INDEX  GPIO_DO_GPIOE
 #define BOARD_ENET_RMII_RST_GPIO_PIN    (26U)
 #define BOARD_ENET_RMII                 HPM_ENET1
 #define BOARD_ENET_RMII_INT_REF_CLK     (1U)
-
-#define BOARD_ENET_RMII_PTP_CLOCK       (clock_ptp1)
+#define BOARD_ENET_RMII_PTP_CLOCK       clock_ptp1
 
 /* ADC section */
 #define BOARD_APP_ADC12_NAME "ADC0"
@@ -323,6 +379,7 @@
 #define BOARD_BLDCPWM_CMP_INDEX_3         (3U)
 #define BOARD_BLDCPWM_CMP_INDEX_4         (4U)
 #define BOARD_BLDCPWM_CMP_INDEX_5         (5U)
+#define BOARD_BLDCPWM_CMP_TRIG_CMP        (20U)
 
 /*HALL define*/
 
@@ -386,6 +443,7 @@
 #define BOARD_APP_PWM_OUT1 0
 #define BOARD_APP_PWM_OUT2 1
 #define BOARD_APP_TRGM HPM_TRGM2
+#define BOARD_APP_PWM_IRQ IRQn_PWM2
 
 /* RGB LED Section */
 #define BOARD_RED_PWM_IRQ IRQn_PWM1
@@ -436,10 +494,10 @@ void board_init_console(void);
 void board_init_uart(UART_Type *ptr);
 void board_init_i2c(I2C_Type *ptr);
 void board_init_lcd(void);
-
+void board_panel_para_to_lcdc(lcdc_config_t *config);
 void board_init_can(CAN_Type *ptr);
 
-uint32_t board_init_dram_clock(void);
+uint32_t board_init_femc_clock(void);
 
 void board_init_sdram_pins(void);
 void board_init_gpio_pins(void);
@@ -479,6 +537,9 @@ uint32_t board_init_adc16_clock(ADC16_Type *ptr);
 
 uint32_t board_init_can_clock(CAN_Type *ptr);
 
+hpm_stat_t board_set_audio_pll_clock(uint32_t freq);
+
+void board_init_i2s_pins(I2S_Type *ptr);
 uint32_t board_init_i2s_clock(I2S_Type *ptr);
 uint32_t board_init_pdm_clock(void);
 uint32_t board_init_dao_clock(void);
@@ -488,16 +549,23 @@ uint32_t board_sd_configure_clock(SDXC_Type *ptr, uint32_t freq);
 void board_sd_switch_pins_to_1v8(SDXC_Type *ptr);
 bool board_sd_detect_card(SDXC_Type *ptr);
 
+void board_init_dao_pins(void);
+
 void board_init_adc12_pins(void);
 void board_init_adc16_pins(void);
 
 void board_init_usb_pins(void);
 void board_usb_vbus_ctrl(uint8_t usb_index, uint8_t level);
 
+void       board_init_enet_pps_pins(ENET_Type *ptr);
+uint8_t    board_get_enet_dma_pbl(ENET_Type *ptr);
+hpm_stat_t board_reset_enet_phy(ENET_Type *ptr);
 hpm_stat_t board_init_enet_pins(ENET_Type *ptr);
 hpm_stat_t board_init_enet_rmii_reference_clock(ENET_Type *ptr, bool internal);
 hpm_stat_t board_init_enet_rgmii_clock_delay(ENET_Type *ptr);
 hpm_stat_t board_init_enet_ptp_clock(ENET_Type *ptr);
+hpm_stat_t board_enable_enet_irq(ENET_Type *ptr);
+hpm_stat_t board_disable_enet_irq(ENET_Type *ptr);
 
 /*
  * @brief Initialize PMP and PMA for but not limited to the following purposes:
@@ -506,6 +574,7 @@ hpm_stat_t board_init_enet_ptp_clock(ENET_Type *ptr);
 void board_init_pmp(void);
 
 void board_delay_ms(uint32_t ms);
+void board_delay_us(uint32_t us);
 
 void board_timer_create(uint32_t ms, board_timer_cb cb);
 
@@ -518,6 +587,15 @@ void board_disable_output_rgb_led(uint8_t color);
  */
 void board_ungate_mchtmr_at_lp_mode(void);
 
+/*
+ * Get PWM output level of onboard LED
+ */
+uint8_t board_get_led_pwm_off_level(void);
+
+/*
+ * Get GPIO pin level of onboard LED
+ */
+uint8_t board_get_led_gpio_off_level(void);
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus */

@@ -1,11 +1,7 @@
 /*
- * Copyright (c) 2021 - 2022 hpmicro
+ * Copyright (c) 2021-2023 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
- *
- * Change Logs:
- * Date           Author       Notes
- * 2022-05-08     hpmicro      the first version
  */
 #include <rtthread.h>
 
@@ -111,6 +107,7 @@ static rt_err_t init_adc_config(hpm_rtt_adc *adc)
     cfg.conv_mode      = adc16_conv_mode_oneshot;
     cfg.adc_clk_div    = 3;
     cfg.sel_sync_ahb   = true;
+    cfg.wait_dis = 0;
     ret = adc16_init(adc->adc_base, &cfg);
     if (ret != status_success) {
        return RT_ERROR;
@@ -158,14 +155,16 @@ static rt_err_t hpm_adc_enabled(struct rt_adc_device *device, rt_uint32_t channe
 
     RT_ASSERT(device != RT_NULL);
     hpm_adc_handler = (hpm_rtt_adc *)device->parent.user_data;
-    ret = init_adc_config(hpm_adc_handler);
-    if (ret != RT_EOK) {
-        return RT_ERROR;
-    }
-    hpm_adc_handler->channel = channel;
-    ret = init_channel_config(hpm_adc_handler);
-    if (ret != RT_EOK) {
-        return RT_ERROR;
+    if (enabled == RT_TRUE) {
+        ret = init_adc_config(hpm_adc_handler);
+        if (ret != RT_EOK) {
+            return RT_ERROR;
+        }
+        hpm_adc_handler->channel = channel;
+        ret = init_channel_config(hpm_adc_handler);
+        if (ret != RT_EOK) {
+            return RT_ERROR;
+        }
     }
 
     return RT_EOK;
@@ -184,7 +183,7 @@ static rt_err_t hpm_get_adc_value(struct rt_adc_device *device, rt_uint32_t chan
     hpm_adc_handler.channel = channel;
 #ifdef BSP_USING_ADC12
     adc12_get_oneshot_result(hpm_adc_handler.adc_base, hpm_adc_handler.channel, &val);
-    *value = (val >> 4);
+    *value = val;
 #endif
 
 #ifdef BSP_USING_ADC16
@@ -216,4 +215,4 @@ int rt_hw_adc_init(void)
 }
 INIT_BOARD_EXPORT(rt_hw_adc_init);
 
-#endif
+#endif /* BSP_USING_ADC */

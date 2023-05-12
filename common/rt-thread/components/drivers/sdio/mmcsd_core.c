@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
  * Change Logs:
  * Date           Author        Notes
  * 2011-07-25     weety         first version
+ * 2023-05-06     hpmicro       Correct the logic of SPI CS control in mmcsd_go_idle
  */
 
 #include <rtthread.h>
@@ -107,7 +108,7 @@ rt_int32_t mmcsd_go_idle(struct rt_mmcsd_host *host)
     rt_int32_t err;
     struct rt_mmcsd_cmd cmd;
 
-    if (!controller_is_spi(host))
+    if (controller_is_spi(host))
     {
         mmcsd_set_chip_select(host, MMCSD_CS_HIGH);
         mmcsd_delay_ms(1);
@@ -123,7 +124,7 @@ rt_int32_t mmcsd_go_idle(struct rt_mmcsd_host *host)
 
     mmcsd_delay_ms(1);
 
-    if (!controller_is_spi(host))
+    if (controller_is_spi(host))
     {
         mmcsd_set_chip_select(host, MMCSD_CS_IGNORE);
         mmcsd_delay_ms(1);
@@ -751,4 +752,3 @@ int rt_mmcsd_core_init(void)
     return 0;
 }
 INIT_PREV_EXPORT(rt_mmcsd_core_init);
-

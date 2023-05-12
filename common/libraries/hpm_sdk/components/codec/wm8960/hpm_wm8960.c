@@ -52,9 +52,9 @@ hpm_stat_t wm8960_init(wm8960_control_t *control, wm8960_config_t *config)
     HPM_CHECK_RET(wm8960_write_reg(control, WM8960_ADDCTL1, 0xC0));
     HPM_CHECK_RET(wm8960_write_reg(control, WM8960_ADDCTL4, 0x40));
 
-    /* ADC volume, 0dB */
-    HPM_CHECK_RET(wm8960_write_reg(control, WM8960_LADC, 0x1C3));
-    HPM_CHECK_RET(wm8960_write_reg(control, WM8960_RADC, 0x1C3));
+    /* ADC volume, 8dB */
+    HPM_CHECK_RET(wm8960_write_reg(control, WM8960_LADC, 0x1D3));
+    HPM_CHECK_RET(wm8960_write_reg(control, WM8960_RADC, 0x1D3));
 
     /* Digital DAC volume, 0dB */
     HPM_CHECK_RET(wm8960_write_reg(control, WM8960_LDAC, 0x1E0));

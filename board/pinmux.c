@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 HPMicro
+ * Copyright (c) 2021-2023 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -366,15 +366,27 @@ void init_sdxc_pins(SDXC_Type *ptr, bool use_1v8)
         /* SDXC1.DATA3 */
         HPM_IOC->PAD[IOC_PAD_PD26].FUNC_CTL = func_ctl;
         HPM_IOC->PAD[IOC_PAD_PD26].PAD_CTL = pad_ctl;
-
-        /* SDXC1.CDN */
-        HPM_IOC->PAD[IOC_PAD_PD28].FUNC_CTL = IOC_PD28_FUNC_CTL_SDC1_CDN;
-        HPM_IOC->PAD[IOC_PAD_PD28].PAD_CTL = pad_ctl;
-
-        /* SDXC1.VSEL */
-        HPM_IOC->PAD[IOC_PAD_PD29].FUNC_CTL = IOC_PD29_FUNC_CTL_SDC1_VSEL;
-        HPM_IOC->PAD[IOC_PAD_PD28].PAD_CTL = pad_ctl;
     }
+}
+
+void init_sdxc_power_pin(SDXC_Type *ptr)
+{
+
+}
+void init_sdxc_vsel_pin(SDXC_Type *ptr)
+{
+    /* SDXC1.VSEL */
+    HPM_IOC->PAD[IOC_PAD_PD29].FUNC_CTL = IOC_PD29_FUNC_CTL_SDC1_VSEL;
+    HPM_IOC->PAD[IOC_PAD_PD28].PAD_CTL = IOC_PAD_PAD_CTL_DS_SET(6) | IOC_PAD_PAD_CTL_PE_SET(1) |
+                       IOC_PAD_PAD_CTL_PS_SET(1);
+}
+
+void init_sdxc_card_detection_pin(SDXC_Type *ptr)
+{
+    /* SDXC1.CDN */
+    HPM_IOC->PAD[IOC_PAD_PD28].FUNC_CTL = IOC_PD28_FUNC_CTL_SDC1_CDN;
+    HPM_IOC->PAD[IOC_PAD_PD28].PAD_CTL = IOC_PAD_PAD_CTL_DS_SET(6) | IOC_PAD_PAD_CTL_PE_SET(1) |
+                       IOC_PAD_PAD_CTL_PS_SET(1);
 }
 
 void init_clk_obs_pins(void)
@@ -419,5 +431,3 @@ void init_led_pins_as_gpio(void)
     HPM_IOC->PAD[IOC_PAD_PB20].FUNC_CTL = IOC_PB20_FUNC_CTL_GPIO_B_20;
     HPM_IOC->PAD[IOC_PAD_PB20].PAD_CTL = pad_ctl;
 }
-
-

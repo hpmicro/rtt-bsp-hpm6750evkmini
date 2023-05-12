@@ -54,12 +54,27 @@ typedef struct _hpm_enet
 #endif
 } hpm_enet_t;
 
+#define IS_UUID_INVALID(UUID)  (UUID[0] == 0 && \
+                                UUID[1] == 0 && \
+                                UUID[2] == 0 && \
+                                UUID[3] == 0)
+
+#if ENET_SOC_RGMII_EN
+#ifndef ENET0_TX_BUFF_COUNT
+#define ENET0_TX_BUFF_COUNT  (50U)
+#endif
+
+#ifndef ENET0_RX_BUFF_COUNT
+#define ENET0_RX_BUFF_COUNT  (60U)
+#endif
+#else
 #ifndef ENET0_TX_BUFF_COUNT
 #define ENET0_TX_BUFF_COUNT  (10U)
 #endif
 
 #ifndef ENET0_RX_BUFF_COUNT
 #define ENET0_RX_BUFF_COUNT  (20U)
+#endif
 #endif
 
 #ifndef ENET0_RX_BUFF_SIZE

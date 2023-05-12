@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2022 hpmicro
+ *Copyright (c) 2022 HPMicro
  *
  *SPDX-License-Identifier: BSD-3-Clause
  *
@@ -14,6 +14,7 @@ extern "C" {
 void init_uart_pins(UART_Type *ptr);
 void init_i2c_pins(I2C_Type *ptr);
 void init_sdram_pins(void);
+void init_sram_pins(void);
 void init_gpio_pins(void);
 void init_spi_pins(SPI_Type *ptr);
 void init_spi_pins_with_gpio_as_cs(SPI_Type *ptr);
@@ -35,6 +36,7 @@ void init_rgb_pwm_pins(void);
 void init_i2c_pins_as_gpio(I2C_Type *ptr);
 void init_led_pins(void);
 void init_trgmux_pins(uint32_t pin);
+void init_enet_pps_pins(void);
 #ifdef __cplusplus
 }
 #endif

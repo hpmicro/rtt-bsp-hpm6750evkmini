@@ -276,7 +276,7 @@
 #define MEM_ALIGNMENT               4
 #endif
 
-#define MEMP_OVERFLOW_CHECK         1
+#define MEMP_OVERFLOW_CHECK         0
 #define LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT 1
 
 //#define MEM_LIBC_MALLOC             1

@@ -51,7 +51,7 @@ if PLATFORM == 'gcc':
     CFLAGS = DEVICE + ARCH_ABI + ' -ffunction-sections -fdata-sections -fno-common'
     AFLAGS = CFLAGS
     LFLAGS  = ARCH_ABI + '  --specs=nano.specs --specs=nosys.specs  -u _printf_float -u _scanf_float -nostartfiles -Wl,--gc-sections '
-  
+
     CPATH = ''
     LPATH = ''
 
@@ -86,8 +86,4 @@ if PLATFORM == 'gcc':
     POST_ACTION = OBJCPY + ' -O binary $TARGET rtthread.bin\n' + SIZE + ' $TARGET \n'
 
     # module setting
-    CXXFLAGS = ' -Woverloaded-virtual -fno-exceptions -fno-rtti '
-    M_CFLAGS = CFLAGS + ' -mlong-calls -fPIC '
-    M_CXXFLAGS = CXXFLAGS + ' -mlong-calls -fPIC'
-    M_LFLAGS = DEVICE + CXXFLAGS + ' -Wl,--gc-sections,-z,max-page-size=0x4' +\
-                                    ' -shared -fPIC -nostartfiles -static-libgcc'
+    CXXFLAGS = CFLAGS + ' -Woverloaded-virtual -fno-exceptions -fno-rtti '

@@ -1,18 +1,35 @@
 # Change Log
 
+## v1.1.0
+
+- Integrated hpm_sdk v1.1.0
+  - Note:
+    - the docs, middleware, scripts, samples folder in SDK root directory were removed
+- Fixed:
+  - typos in the drv_i2c.c
+  - hw_timer cannot work due to SDK driver update
+  - RT-Thread Studio project compiling error after enabling C++ support
+  - iperf performance is low if working as client mode
+  - adc driver may return incorrect value
+  - pwm channel may not work as expected
+  - uart_dma_demo doesn't work
+  - eMMC to TF card doesn't work
+
 ## v1.0.0
+
 - Integrated hpm_sdk v1.0.0
   - Note:
     - the docs, middleware, scripts, samples folder in SDK root directory were removed
- - Updated:
-   - Improved drv_uart_v2 implementation
-   - Implemented audio driver
-   - Migrated to rt-thread v4.1.0
-   - Added support for JLink Probe
- - Added examples:
-   - audio_pdm_dao_demo
+- Updated:
+  - Improved drv_uart_v2 implementation
+  - Implemented audio driver
+  - Migrated to rt-thread v4.1.0
+  - Added support for JLink Probe
+- Added examples:
+  - audio_pdm_dao_demo
 
 ## v0.7.0
+
 - Integrated the SDK v0.12.1 release
   - Note:
     - The docs,middleware folder in SDK root directory were removed
@@ -27,6 +44,7 @@
   - usb_host_msc_udisk
 
 ## v0.5.0
+
 - Integrated the SDK v0.10.0 release
   - Note:
     - The docs folder in SDK root directory were removed
@@ -38,37 +56,42 @@
   - ethernet_ptp_slave_demo
 
 ## v0.4.1
+
 - Updated
-    - Added ram_debug for each demo
-    - Switched default UART driver to serial_v2
+  - Added ram_debug for each demo
+  - Switched default UART driver to serial_v2
 - Fixed
-    - serial_v2 crashes if POSIX interface is not enabled
-    - FPU context switch is not supported
-    - rw007_wifi demo may crash in certain cases
+  - serial_v2 crashes if POSIX interface is not enabled
+  - FPU context switch is not supported
+  - rw007_wifi demo may crash in certain cases
 
 ## v0.4.0
+
 - Integrated the SDK v0.9.0 release
   - Note:
-      - The docs folder in SDK root directory were removed
+    - The docs folder in SDK root directory were removed
 - Added examples:
-    - timer_demo
+  - timer_demo
 - Updated
-    - Optimized ethernet phy interface
+  - Optimized ethernet phy interface
 
 ## v0.3.0
+
 - Integrated the SDK v0.8.0 release
   - Note:
-      - The docs folder in SDK root directory were removed
-      - There are small changes in uart and dma driver
+    - The docs folder in SDK root directory were removed
+    - There are small changes in uart and dma driver
 - Added examples:
-    - flashdb_demo
-    - sdcard_demo
-    - pwmbeep_demo
-    - usb_device_generic_hid
-    - uart_dma_demo
+  - flashdb_demo
+  - sdcard_demo
+  - pwmbeep_demo
+  - usb_device_generic_hid
+  - uart_dma_demo
 
 ## v0.2.1
-### Update:
+
+### Update
+
 - Added examples:
   - blink_led
   - lv_demo_widgets
@@ -76,14 +99,18 @@
   - ethernet_demo
 - Switched default target to FLASH XIP
 - Integrated the SDK v0.7.1 release
-    - Note: the yaml files in SDK were removed, the doxygen files were removed
+  - Note: the yaml files in SDK were removed, the doxygen files were removed
 
 ## V0.2.0
-### Update:
+
+### Update
+
 - Added support for RW007 WIFI module
 - Integrated the SDK v0.7.0 release
 
 ## V0.1.0
-### Update:
+
+### Update
+
 - First RT-Thread BSP package for HPM6750EVKMINI board
 - Integrated the SDK v0.6.0 release

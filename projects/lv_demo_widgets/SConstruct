@@ -30,7 +30,7 @@ env = Environment(tools = ['mingw'],
     CC = rtconfig.CC, CCFLAGS = rtconfig.CFLAGS,
     AR = rtconfig.AR, ARFLAGS = '-rc',
     LINK = rtconfig.LINK, LINKFLAGS = rtconfig.LFLAGS,
-    CXXCOM = '$CXX -o $TARGET -c $CXXFLAGS $_CCCOMCOM $SOURCES')
+    CXX = rtconfig.CXX, CXXFLAGS = rtconfig.CXXFLAGS)
 
 env.PrependENVPath('PATH', rtconfig.EXEC_PATH)
 env['ASCOM'] = env['ASPPCOM']

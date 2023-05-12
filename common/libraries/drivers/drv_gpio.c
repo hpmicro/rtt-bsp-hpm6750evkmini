@@ -5,8 +5,8 @@
  *
  * Change Logs:
  * Date         Author      Notes
- * 2022-01-11   hpmicro     First version
- * 2022-07-28   hpmicro     Fixed compiling warnings
+ * 2022-01-11   HPMicro     First version
+ * 2022-07-28   HPMicro     Fixed compiling warnings
  */
 
 #include <rtthread.h>
@@ -19,6 +19,7 @@
 #include "hpm_gpio_drv.h"
 #include "hpm_gpiom_drv.h"
 #include "hpm_clock_drv.h"
+#include "hpm_soc_feature.h"
 
 typedef struct
 {
@@ -56,7 +57,7 @@ static const gpio_irq_map_t hpm_gpio_irq_map[] = {
 #endif
         };
 
-static struct rt_pin_irq_hdr hpm_gpio_pin_hdr_tbl[IOC_PAD_PZ11];
+static struct rt_pin_irq_hdr hpm_gpio_pin_hdr_tbl[IOC_SOC_PAD_MAX];
 
 static int hpm_get_gpi_irq_num(uint32_t gpio_idx)
 {

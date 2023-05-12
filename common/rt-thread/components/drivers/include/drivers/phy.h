@@ -23,7 +23,8 @@ extern "C"
 enum phy_speed
 {
     PHY_SPEED_10M = 0U, /* PHY 10M speed. */
-    PHY_SPEED_100M      /* PHY 100M speed. */
+    PHY_SPEED_100M,     /* PHY 100M speed. */
+    PHY_SPEED_1000M     /* PHY 1000M speed. */
 };
 
 /* Defines the PHY link duplex. */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 HPMicro
+ * Copyright (c) 2021-2023 HPMicro
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
@@ -83,7 +83,7 @@ __attribute__ ((section(".nor_cfg_option"))) const uint32_t option[4] = {0xfcf90
 
 void board_init_console(void)
 {
-#if BOARD_CONSOLE_TYPE == console_type_uart
+#if BOARD_CONSOLE_TYPE == CONSOLE_TYPE_UART
     console_config_t cfg;
 
     /* Configure the UART clock to 24MHz */
@@ -129,6 +129,7 @@ void board_print_clock_freq(void)
 void board_init_uart(UART_Type *ptr)
 {
     init_uart_pins(ptr);
+    board_init_uart_clock(ptr);
 }
 
 void board_init_ahb(void)
@@ -313,73 +314,49 @@ void board_init_i2c(I2C_Type *ptr)
 uint32_t board_init_uart_clock(UART_Type *ptr)
 {
     uint32_t freq = 0;
-
+    clock_name_t clock_name = clock_uart0;
+    bool need_init_clock = true;
     if (ptr == HPM_UART0) {
-        clock_set_source_divider(clock_uart0, clk_src_osc24m, 1);
-        freq = clock_get_frequency(clock_uart0);
-    }
-    else if (ptr == HPM_UART1) {
-        clock_set_source_divider(clock_uart1, clk_src_osc24m, 1);
-        freq = clock_get_frequency(clock_uart1);
-    }
-    else if (ptr == HPM_UART2) {
-        clock_set_source_divider(clock_uart2, clk_src_osc24m, 1);
-        freq = clock_get_frequency(clock_uart2);
-    }
- else if (ptr == HPM_UART3) {
-        clock_set_source_divider(clock_uart3, clk_src_osc24m, 1);
-        freq = clock_get_frequency(clock_uart3);
-    }
-    else if (ptr == HPM_UART4) {
-        clock_set_source_divider(clock_uart4, clk_src_osc24m, 1);
-        freq = clock_get_frequency(clock_uart4);
-    }
-    else if (ptr == HPM_UART5) {
-        clock_set_source_divider(clock_uart5, clk_src_osc24m, 1);
-        freq = clock_get_frequency(clock_uart5);
-    }
-    else if (ptr == HPM_UART6) {
-        clock_set_source_divider(clock_uart6, clk_src_osc24m, 1);
-        freq = clock_get_frequency(clock_uart6);
-    }
-    else if (ptr == HPM_UART7) {
-        clock_set_source_divider(clock_uart7, clk_src_osc24m, 1);
-        freq = clock_get_frequency(clock_uart7);
-    }
-    else if (ptr == HPM_UART8) {
-        clock_set_source_divider(clock_uart8, clk_src_osc24m, 1);
-        freq = clock_get_frequency(clock_uart8);
-    }
-    else if (ptr == HPM_UART9) {
-        clock_set_source_divider(clock_uart9, clk_src_osc24m, 1);
-        freq = clock_get_frequency(clock_uart9);
-    }
-    else if (ptr == HPM_UART10) {
-        clock_set_source_divider(clock_uart10, clk_src_osc24m, 1);
-        freq = clock_get_frequency(clock_uart10);
-    }
-    else if (ptr == HPM_UART11) {
-        clock_set_source_divider(clock_uart11, clk_src_osc24m, 1);
-        freq = clock_get_frequency(clock_uart11);
-    }
-    else if (ptr == HPM_UART12) {
-        clock_set_source_divider(clock_uart12, clk_src_osc24m, 1);
-        freq = clock_get_frequency(clock_uart12);
-    }
-    else if (ptr == HPM_UART13) {
-        clock_set_source_divider(clock_uart13, clk_src_osc24m, 1);
-        freq = clock_get_frequency(clock_uart13);
-    }
-    else if (ptr == HPM_UART14) {
-        clock_set_source_divider(clock_uart14, clk_src_osc24m, 1);
-        freq = clock_get_frequency(clock_uart14);
-    }
-    else if (ptr == HPM_UART15) {
-        clock_set_source_divider(clock_uart15, clk_src_osc24m, 1);
-        freq = clock_get_frequency(clock_uart15);
-    }
-    else {
+        clock_name = clock_uart0;
+    } else if (ptr == HPM_UART1) {
+        clock_name = clock_uart1;
+    } else if (ptr == HPM_UART2) {
+        clock_name = clock_uart2;
+    } else if (ptr == HPM_UART3) {
+        clock_name = clock_uart3;
+    } else if (ptr == HPM_UART4) {
+        clock_name = clock_uart4;
+    } else if (ptr == HPM_UART5) {
+        clock_name = clock_uart5;
+    } else if (ptr == HPM_UART6) {
+        clock_name = clock_uart6;
+    } else if (ptr == HPM_UART7) {
+        clock_name = clock_uart7;
+    } else if (ptr == HPM_UART8) {
+        clock_name = clock_uart8;
+    } else if (ptr == HPM_UART9) {
+        clock_name = clock_uart9;
+    } else if (ptr == HPM_UART10) {
+        clock_name = clock_uart10;
+    } else if (ptr == HPM_UART11) {
+        clock_name = clock_uart11;
+    } else if (ptr == HPM_UART12) {
+        clock_name = clock_uart12;
+    } else if (ptr == HPM_UART13) {
+        clock_name = clock_uart13;
+    } else if (ptr == HPM_UART14) {
+        clock_name = clock_uart14;
+    } else if (ptr == HPM_UART15) {
+        clock_name = clock_uart15;
+    } else {
         /* Unsupported instance */
+        need_init_clock = false;
+    }
+
+    if (need_init_clock) {
+        clock_set_source_divider(clock_name, clk_src_osc24m, 1);
+        clock_add_to_group(clock_name, 0);
+        freq = clock_get_frequency(clock_name);
     }
 
     return freq;
@@ -544,13 +521,6 @@ void board_init_clock(void)
     clock_add_to_group(clock_gptmr5, 0);
     clock_add_to_group(clock_gptmr6, 0);
     clock_add_to_group(clock_gptmr7, 0);
-    clock_add_to_group(clock_uart0, 0);
-    clock_add_to_group(clock_uart1, 0);
-    clock_add_to_group(clock_uart2, 0);
-    clock_add_to_group(clock_uart3, 0);
-    clock_add_to_group(clock_uart6, 0);
-    clock_add_to_group(clock_uart13, 0);
-    clock_add_to_group(clock_uart14, 0);
     clock_add_to_group(clock_i2c0, 0);
     clock_add_to_group(clock_i2c1, 0);
     clock_add_to_group(clock_i2c2, 0);
@@ -866,12 +836,32 @@ void board_init_sd_pins(SDXC_Type *ptr)
 {
     if (ptr == HPM_SDXC1) {
         init_sdxc_pins(ptr, false);
+        init_sdxc_card_detection_pin(ptr);
+        init_sdxc_vsel_pin(ptr);
     } else {
         while (1) {
 
         }
     }
 }
+
+void board_sd_power_switch(SDXC_Type *ptr, bool on_off)
+{
+    /* This feature is not supported by current board*/
+}
+
+void board_sd_switch_pins_to_1v8(SDXC_Type *ptr)
+{
+    sdxc_switch_to_1v8_signal(ptr, true);
+    init_sdxc_pins(ptr, true);
+}
+
+bool board_sd_detect_card(SDXC_Type *ptr)
+{
+    return sdxc_is_card_inserted(ptr);
+}
+
+
 
 uint32_t board_sd_configure_clock(SDXC_Type *ptr, uint32_t freq)
 {
@@ -915,6 +905,22 @@ uint32_t board_sd_configure_clock(SDXC_Type *ptr, uint32_t freq)
     return actual_freq;
 }
 
+hpm_stat_t board_init_enet_ptp_clock(ENET_Type *ptr)
+{
+    /* set clock source */
+    if (ptr == HPM_ENET0) {
+        /* make sure pll0_clk0 output clock at 400MHz to get a clock at 100MHz for the enet0 ptp function */
+        clock_set_source_divider(clock_ptp0, clk_src_pll1_clk1, 4); /* 100MHz */
+    } else if (ptr == HPM_ENET1) {
+        /* make sure pll0_clk0 output clock at 400MHz to get a clock at 100MHz for the enet1 ptp function */
+        clock_set_source_divider(clock_ptp1, clk_src_pll1_clk1, 4); /* 100MHz */
+    } else {
+        return status_invalid_argument;
+    }
+
+    return status_success;
+}
+
 hpm_stat_t board_init_enet_rmii_reference_clock(ENET_Type *ptr, bool internal)
 {
     if (internal == false) {
@@ -932,17 +938,6 @@ hpm_stat_t board_init_enet_rmii_reference_clock(ENET_Type *ptr, bool internal)
         return status_invalid_argument;
     }
     return status_success;
-}
-
-void board_sd_switch_pins_to_1v8(SDXC_Type *ptr)
-{
-    sdxc_switch_to_1v8_signal(ptr, true);
-    init_sdxc_pins(ptr, true);
-}
-
-bool board_sd_detect_card(SDXC_Type *ptr)
-{
-    return sdxc_is_card_inserted(ptr);
 }
 
 void board_init_rgb_pwm_pins(void)

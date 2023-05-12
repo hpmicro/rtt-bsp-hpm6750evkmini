@@ -84,7 +84,13 @@ SECTIONS
         . = ALIGN(8);
         __ramfunc_end__ = .;
     } > AXI_SRAM
-
+	
+    .fast_ram (NOLOAD) : {
+      . = ALIGN(8);
+        KEEP(*(.fast_ram))
+      . = ALIGN(8);
+    } > DLM
+    	
     .text (__vector_load_addr__ + __vector_ram_end__ - __vector_ram_start__) : {
         . = ALIGN(8);
         *(.text)
@@ -182,10 +188,12 @@ SECTIONS
         PROVIDE(__finit_array_end = .);
 
         . = ALIGN(8);
+        PROVIDE(__ctors_start__ = .);
         KEEP(*crtbegin*.o(.ctors))
         KEEP(*(EXCLUDE_FILE (*crtend*.o) .ctors))
         KEEP(*(SORT(.ctors.*)))
         KEEP(*(.ctors))
+        PROVIDE(__ctors_end__ = .);
 
         . = ALIGN(8);
         KEEP(*crtbegin*.o(.dtors))

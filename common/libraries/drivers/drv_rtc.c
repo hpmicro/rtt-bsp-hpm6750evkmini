@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -18,9 +18,9 @@
 #ifdef RT_USING_RTC
 
 /*******************************************************************************************
- * 
+ *
  *  Prototypes
- * 
+ *
  ******************************************************************************************/
 static rt_err_t hpm_rtc_init(rt_device_t dev);
 static rt_err_t hpm_rtc_open(rt_device_t dev, rt_uint16_t oflag);
@@ -33,9 +33,9 @@ static time_t get_timestamp(void);
 static int set_timestamp(time_t timestamp);
 
 /*******************************************************************************************
- * 
+ *
  *  Variables
- * 
+ *
  ******************************************************************************************/
 static struct rt_device hpm_rtc= {
     .type = RT_Device_Class_RTC,
@@ -48,9 +48,9 @@ static struct rt_device hpm_rtc= {
 };
 
 /*******************************************************************************************
- * 
+ *
  *  Codes
- * 
+ *
  ******************************************************************************************/
 static rt_err_t hpm_rtc_init(rt_device_t dev)
 {

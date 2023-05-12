@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2021 - 2022 hpmicro
+ * Copyright (c) 2021 - 2022 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Change Logs:
  * Date           Author       Notes
- * 2022-05-08     hpmicro      the first version
+ * 2022-05-08     HPMicro      the first version
  */
 
 #include <rtthread.h>

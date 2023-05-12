@@ -1,7 +1,7 @@
 [
  {
   "path": "/packages/system/TinyUSB", 
-  "ver": "v0.13.0", 
+  "ver": "v0.13.1", 
   "name": "TINYUSB"
  }
 ]

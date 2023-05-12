@@ -183,10 +183,6 @@
 /* u8g2: a monochrome graphic library */
 
 /* end of u8g2: a monochrome graphic library */
-
-/* PainterEngine: A cross-platform graphics application framework written in C language */
-
-/* end of PainterEngine: A cross-platform graphics application framework written in C language */
 /* end of multimedia packages */
 
 /* tools packages */
@@ -239,6 +235,13 @@
 
 /* peripheral libraries and drivers */
 
+/* sensors drivers */
+
+/* end of sensors drivers */
+
+/* touch drivers */
+
+/* end of touch drivers */
 
 /* Kendryte SDK */
 
@@ -248,6 +251,10 @@
 /* AI packages */
 
 /* end of AI packages */
+
+/* Signal Processing and Control Algorithm Packages */
+
+/* end of Signal Processing and Control Algorithm Packages */
 
 /* miscellaneous packages */
 

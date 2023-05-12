@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2022 hpmicro
+ * Copyright (c) 2022-2023 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Change Logs:
  * Date         Author      Notes
- * 2022-02-23   hpmicro     First version
- * 2022-07-19   hpmicro     Fixed the multi-block read/write issue
+ * 2022-02-23   HPMicro     First version
+ * 2022-07-19   HPMicro     Fixed the multi-block read/write issue
  */
 #include <rtthread.h>
 
@@ -277,29 +277,49 @@ static void hpm_sdmmc_set_iocfg(struct rt_mmcsd_host *host, struct rt_mmcsd_io_c
 
     vdd = io_cfg->vdd;
 
-    static bool has_init = false;
+    switch(io_cfg->power_mode)
+    {
+    case MMCSD_POWER_OFF:
+        board_sd_power_switch(mmcsd->sdxc_base, false);
+        break;
+    case MMCSD_POWER_ON:
+        board_sd_power_switch(mmcsd->sdxc_base, true);
+        break;
+    case MMCSD_POWER_UP:
+        board_sd_power_switch(mmcsd->sdxc_base, false);
+        rt_thread_mdelay(10);
+        board_sd_power_switch(mmcsd->sdxc_base, true);
+        break;
+    default:
+        /* Do nothing */
+        break;
+    }
 
-    init_sdxc_pins(mmcsd->sdxc_base, false);
+    switch (io_cfg->bus_width)
+    {
+    case MMCSD_BUS_WIDTH_4:
+        sdxc_set_data_bus_width(mmcsd->sdxc_base, sdxc_bus_width_4bit);
+        break;
+    case MMCSD_BUS_WIDTH_8:
+        sdxc_set_data_bus_width(mmcsd->sdxc_base, sdxc_bus_width_8bit);
+        break;
+    default:
+        sdxc_set_data_bus_width(mmcsd->sdxc_base, sdxc_bus_width_1bit);
+        break;
+    }
+
+
+    static bool has_init = false;
+    if (!has_init) {
+        board_init_sd_pins(mmcsd->sdxc_base);
+        has_init = true;
+    }
 
     uint32_t sdxc_clock = io_cfg->clock;
-
     if (sdxc_clock != 0U)
     {
-        switch (io_cfg->bus_width)
-        {
-        case MMCSD_BUS_WIDTH_4:
-            sdxc_set_data_bus_width(mmcsd->sdxc_base, sdxc_bus_width_4bit);
-            break;
-        case MMCSD_BUS_WIDTH_8:
-            sdxc_set_data_bus_width(mmcsd->sdxc_base, sdxc_bus_width_8bit);
-            break;
-        default:
-            sdxc_set_data_bus_width(mmcsd->sdxc_base, sdxc_bus_width_1bit);
-            break;
-        }
         board_sd_configure_clock(mmcsd->sdxc_base, sdxc_clk);
     }
-    rt_thread_mdelay(5);
 }
 
 static void hpm_sdmmc_enable_sdio_irq(struct rt_mmcsd_host *host, rt_int32_t en)

@@ -181,10 +181,12 @@ SECTIONS
         PROVIDE(__finit_array_end = .);
 
         . = ALIGN(8);
+        PROVIDE(__ctors_start__ = .);
         KEEP(*crtbegin*.o(.ctors))
         KEEP(*(EXCLUDE_FILE (*crtend*.o) .ctors))
         KEEP(*(SORT(.ctors.*)))
         KEEP(*(.ctors))
+        PROVIDE(__ctors_end__ = .);
 
         . = ALIGN(8);
         KEEP(*crtbegin*.o(.dtors))
