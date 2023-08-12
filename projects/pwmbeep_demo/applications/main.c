@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 hpmicro
+ * Copyright (c) 2022-2023 HPMicro
  *
  * Change Logs:
  * Date         Author          Notes
@@ -12,8 +12,8 @@
 #include "rtt_board.h"
 #include "board.h"
 
-#define PWM_DEV_NAME        "pwm3"  /* PWM 设备名称 */
-struct rt_device_pwm *pwm_dev;      /* PWM 设备句柄 */
+#define PWM_DEV_NAME        "pwm3"  /* PWM name */
+struct rt_device_pwm *pwm_dev;      /* PWM device */
 #define BEEP_VOL_RANGE      (1000)
 #define FULL_NOTE_TIME  (1600)
 #define NORAML_NOTE_SPACE ((float)4/5)
@@ -103,25 +103,19 @@ static void hpm_play(uint8_t * music, uint16_t length, uint16_t vol)
         rt_thread_mdelay(no_beep_times);
         pos += 2;
     } while (pos < length);
-
 }
 
 int main(void)
 {
-    static uint32_t beep_thread_arg = 0;
     init_beep_pwm_pins();
-    rt_thread_t beep_thread = rt_thread_create("beep_play", thread_entry, &beep_thread_arg, 1024, 1, 10);
-    rt_thread_startup(beep_thread);
 
     return 0;
 }
 
-/* 查找设备 */
-void thread_entry(void *arg)
+void play_music(void)
 {
-    uint8_t i;
     beep_on();
-    while(1){
-        hpm_play((uint8_t *)&the_star_song, sizeof(the_star_song), MUSIC_VOICE);
-    }
+    hpm_play((uint8_t *)&the_star_song, sizeof(the_star_song), MUSIC_VOICE);
+    beep_off();
 }
+MSH_CMD_EXPORT(play_music, play music via pwm-driven beeper)

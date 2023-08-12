@@ -14,6 +14,7 @@
 #include "hpm_clock_drv.h"
 #include "hpm_enet_drv.h"
 #include "hpm_otp_drv.h"
+#include "hpm_lcdc_drv.h"
 #include "pinmux.h"
 
 #define BOARD_NAME "hpm6750evkmini"
@@ -58,14 +59,58 @@
 #define BOARD_SDRAM_DATA_WIDTH_IN_BYTE (2UL)
 
 /* lcd section */
-#define BOARD_LCD_BASE HPM_LCDC
-#define BOARD_LCD_IRQ  IRQn_LCDC_D0
-#define BOARD_LCD_POWER_GPIO_BASE HPM_GPIO0
-#define BOARD_LCD_POWER_GPIO_INDEX GPIO_DO_GPIOB
-#define BOARD_LCD_POWER_GPIO_PIN 12
-#define BOARD_LCD_BACKLIGHT_GPIO_BASE HPM_GPIO0
-#define BOARD_LCD_BACKLIGHT_GPIO_INDEX GPIO_DO_GPIOB
-#define BOARD_LCD_BACKLIGHT_GPIO_PIN 23
+/*
+ * BOARD_PANEL_TIMING_PARA {HSPW, HBP, HFP, VSPW, VBP, VFP, HSSP, VSSP, DESP, PDSP, PCSP}
+ *
+ * HSPW: Horizontal Synchronization Pulse width
+ * HBP: Horizontal Back Porch
+ * HFP: Horizontal Front Porch
+ * VSPW: Vertical Synchronization Pulse width
+ * VBP: Vertical Back Porch
+ * VFP: Vertical Front Porch
+ * HSSP: Horizontal Synchronization Signal Polarity, 0: High Active, 1: Low Active
+ * VSSP: Vertical Synchronization Signal Polarity, 0: High Active, 1: Low Active
+ * DESP: Data Enable Signal Polarity, 0: High Active, 1: Low Active
+ * PDSP: Pixel Data Signal Polarity, 0: High Active, 1: Low Active
+ * PCSP: Pixel Clock Signal Polarity, 0: High Active, 1: Low Active
+ */
+#define BOARD_PANEL_TIMEING_PARA_HSPW_INDEX 0
+#define BOARD_PANEL_TIMEING_PARA_HBP_INDEX 1
+#define BOARD_PANEL_TIMEING_PARA_HFP_INDEX 2
+#define BOARD_PANEL_TIMEING_PARA_VSPW_INDEX 3
+#define BOARD_PANEL_TIMEING_PARA_VBP_INDEX 4
+#define BOARD_PANEL_TIMEING_PARA_VFP_INDEX 5
+#define BOARD_PANEL_TIMEING_PARA_HSSP_INDEX 6
+#define BOARD_PANEL_TIMEING_PARA_VSSP_INDEX 7
+#define BOARD_PANEL_TIMEING_PARA_DESP_INDEX 8
+#define BOARD_PANEL_TIMEING_PARA_PDSP_INDEX 9
+#define BOARD_PANEL_TIMEING_PARA_PCSP_INDEX 10
+
+#if defined(PANEL_TM070RDH13)
+
+#ifndef BOARD_LCD_WIDTH
+#define BOARD_LCD_WIDTH 800
+#endif
+#ifndef BOARD_LCD_HEIGHT
+#define BOARD_LCD_HEIGHT 480
+#endif
+#ifndef BOARD_PANEL_TIMING_PARA
+#define BOARD_PANEL_TIMING_PARA {10, 46, 50, 3, 23, 10, 0, 0, 0, 0, 0}
+#endif
+
+#else
+
+#ifndef BOARD_LCD_WIDTH
+#define BOARD_LCD_WIDTH 800
+#endif
+#ifndef BOARD_LCD_HEIGHT
+#define BOARD_LCD_HEIGHT 480
+#endif
+#ifndef BOARD_PANEL_TIMING_PARA
+#define BOARD_PANEL_TIMING_PARA {10, 46, 50, 3, 23, 10, 0, 0, 0, 0, 0}
+#endif
+
+#endif
 
 /* i2c section */
 #define BOARD_APP_I2C_BASE HPM_I2C0
@@ -148,6 +193,15 @@
 #define BOARD_APP_XPI_NOR_CFG_OPT_OPT1        (0x00000000U)
 
 /* lcd section */
+#define BOARD_LCD_BASE HPM_LCDC
+#define BOARD_LCD_IRQ  IRQn_LCDC_D0
+#define BOARD_LCD_POWER_GPIO_BASE HPM_GPIO0
+#define BOARD_LCD_POWER_GPIO_INDEX GPIO_DO_GPIOB
+#define BOARD_LCD_POWER_GPIO_PIN 12
+#define BOARD_LCD_BACKLIGHT_GPIO_BASE HPM_GPIO0
+#define BOARD_LCD_BACKLIGHT_GPIO_INDEX GPIO_DO_GPIOB
+#define BOARD_LCD_BACKLIGHT_GPIO_PIN 23
+
 #ifndef BOARD_LCD_WIDTH
 #define BOARD_LCD_WIDTH (800)
 #endif
@@ -295,6 +349,7 @@ void board_init_console(void);
 void board_init_uart(UART_Type *ptr);
 void board_init_i2c(I2C_Type *ptr);
 void board_init_lcd(void);
+void board_panel_para_to_lcdc(lcdc_config_t *config);
 
 void board_init_can(CAN_Type *ptr);
 

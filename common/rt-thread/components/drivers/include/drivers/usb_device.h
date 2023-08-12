@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -61,6 +61,8 @@ extern "C" {
                                                 func->ops->disable(func);           \
                                         }                                           \
                                     }while(0)
+
+#define RT_USBD_CLASS_CTRL_CONNECTED (RT_DEVICE_CTRL_BASE(USBDevice) + 0)
 
 struct ufunction;
 struct udevice;

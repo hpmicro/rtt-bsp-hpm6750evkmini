@@ -12,6 +12,7 @@
 #include "board.h"
 #include "hpm_touch.h"
 #include "lv_port_indev.h"
+#include <rtthread.h>
 
 /*********************
  *      DEFINES
@@ -91,6 +92,7 @@ static void touchpad_init(void)
     if (stat != status_success) {
         while(1);
     }
+    rt_kprintf("touchpad initialization completed\n");
 }
 
 /* Will be called by the library to read the touchpad */
@@ -106,6 +108,7 @@ static void touchpad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
     } else {
         data->state = LV_INDEV_STATE_REL;
     }
+
     data->point.x = last_x;
     data->point.y = last_y;
 }

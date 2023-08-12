@@ -90,7 +90,7 @@ typedef struct _hpm_enet
 #endif
 
 #ifndef ENET1_RX_BUFF_COUNT
-#define ENET1_RX_BUFF_COUNT  (20U)
+#define ENET1_RX_BUFF_COUNT  (30U)
 #endif
 
 #ifndef ENET1_RX_BUFF_SIZE

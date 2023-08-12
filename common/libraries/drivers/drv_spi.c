@@ -7,7 +7,7 @@
  * Date         Author      Notes
  * 2022-02-01   HPMicro     First version
  * 2023-02-15   HPMicro     Add DMA support
- *
+ * 2023-07-14   HPMicro     Manage the DMA buffer alignment in driver
  */
 #include <rtthread.h>
 
@@ -39,7 +39,7 @@ struct hpm_spi
 };
 
 static rt_err_t hpm_spi_configure(struct rt_spi_device *device, struct rt_spi_configuration *cfg);
-static rt_uint32_t hpm_spi_xfer(struct rt_spi_device *device, struct rt_spi_message *msg);
+static rt_ssize_t hpm_spi_xfer(struct rt_spi_device *device, struct rt_spi_message *msg);
 
 static struct hpm_spi hpm_spis[] =
 {
@@ -236,12 +236,15 @@ static hpm_stat_t hpm_spi_wait_idle(SPI_Type *ptr)
     }
     return status;
 }
+
 static rt_uint32_t hpm_spi_xfer_dma(struct rt_spi_device *device, struct rt_spi_message *msg)
 {
     struct hpm_spi *spi = (struct hpm_spi *) (device->bus->parent.user_data);
     hpm_stat_t spi_stat = status_success;
     uint32_t remaining_size = msg->length;
     uint32_t transfer_len;
+    uint8_t *raw_alloc_tx_buf = RT_NULL;
+    uint8_t *raw_alloc_rx_buf = RT_NULL;
     uint8_t *aligned_tx_buf = RT_NULL;
     uint8_t *aligned_rx_buf = RT_NULL;
     uint32_t aligned_len = 0;
@@ -252,8 +255,10 @@ static rt_uint32_t hpm_spi_xfer_dma(struct rt_spi_device *device, struct rt_spi_
         {
             if (l1c_dc_is_enabled())
             {
-                aligned_tx_buf = (uint8_t*) rt_malloc_align(aligned_len, HPM_L1C_CACHELINE_SIZE);
-                RT_ASSERT(aligned_tx_buf != RT_NULL);
+                /* The allocated pointer is always RT_ALIGN_SIZE aligned */
+                raw_alloc_tx_buf = (uint8_t*)rt_malloc(aligned_len + HPM_L1C_CACHELINE_SIZE - RT_ALIGN_SIZE);
+                RT_ASSERT(raw_alloc_tx_buf != RT_NULL);
+                aligned_tx_buf = (uint8_t*)HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)raw_alloc_tx_buf);
                 rt_memcpy(aligned_tx_buf, msg->send_buf, msg->length);
                 l1c_dc_flush((uint32_t) aligned_tx_buf, aligned_len);
             }
@@ -266,8 +271,10 @@ static rt_uint32_t hpm_spi_xfer_dma(struct rt_spi_device *device, struct rt_spi_
         {
             if (l1c_dc_is_enabled())
             {
-                aligned_rx_buf = (uint8_t*) rt_malloc_align(aligned_len, HPM_L1C_CACHELINE_SIZE);
-                RT_ASSERT(aligned_rx_buf != RT_NULL);
+                /* The allocated pointer is always RT_ALIGN_SIZE aligned */
+                raw_alloc_rx_buf = (uint8_t*)rt_malloc(aligned_len + HPM_L1C_CACHELINE_SIZE - RT_ALIGN_SIZE);
+                RT_ASSERT(raw_alloc_rx_buf != RT_NULL);
+                aligned_rx_buf = (uint8_t*)HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)raw_alloc_rx_buf);
             }
             else
             {
@@ -375,7 +382,8 @@ static rt_uint32_t hpm_spi_xfer_dma(struct rt_spi_device *device, struct rt_spi_
         /* cache invalidate for receive buff */
         if (aligned_tx_buf != RT_NULL)
         {
-            rt_free_align(aligned_tx_buf);
+            rt_free(raw_alloc_tx_buf);
+            raw_alloc_tx_buf = RT_NULL;
             aligned_tx_buf = RT_NULL;
         }
 
@@ -383,7 +391,8 @@ static rt_uint32_t hpm_spi_xfer_dma(struct rt_spi_device *device, struct rt_spi_
         {
             l1c_dc_invalidate((uint32_t) aligned_rx_buf, aligned_len);
             rt_memcpy(msg->recv_buf, aligned_rx_buf, msg->length);
-            rt_free_align(aligned_rx_buf);
+            rt_free(raw_alloc_rx_buf);
+            raw_alloc_rx_buf = RT_NULL;
             aligned_rx_buf = RT_NULL;
         }
     }
@@ -392,8 +401,7 @@ static rt_uint32_t hpm_spi_xfer_dma(struct rt_spi_device *device, struct rt_spi_
 }
 
 
-
-static rt_uint32_t hpm_spi_xfer(struct rt_spi_device *device, struct rt_spi_message *msg)
+static rt_ssize_t hpm_spi_xfer(struct rt_spi_device *device, struct rt_spi_message *msg)
 {
     RT_ASSERT(device != RT_NULL);
     RT_ASSERT(msg != RT_NULL);

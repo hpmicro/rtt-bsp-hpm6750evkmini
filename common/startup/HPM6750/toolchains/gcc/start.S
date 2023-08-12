@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2023 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -16,7 +16,14 @@ _start:
     .option push
     .option norelax
     la gp, __global_pointer$
+    la tp, __thread_pointer
     .option pop
+
+    /* Enable LMM1 clock */
+    la t0, 0xF4000800
+    lw t1, 0(t0)
+    ori t1, t1, 0x80
+    sw t1, 0(t0)
 
 #ifdef INIT_EXT_RAM_FOR_DATA
     la t0, _stack_in_dlm
@@ -45,7 +52,7 @@ _start:
     /* Disable Vector mode */
     csrci CSR_MMISC_CTL, 2
     /* Initialize trap_entry base */
-    la t0, irq_handler_trap
+    la t0, SW_handler
     csrw mtvec, t0
 
 

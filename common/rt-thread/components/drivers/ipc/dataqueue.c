@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -36,7 +36,7 @@ struct rt_data_item
  * @param    evt_notify is the notification callback function.
  *
  * @return   Return the operation status. When the return value is RT_EOK, the initialization is successful.
- *           When the return value is RT_ENOMEM, it means insufficient memory allocation failed.
+ *           When the return value is -RT_ENOMEM, it means insufficient memory allocation failed.
  */
 rt_err_t
 rt_data_queue_init(struct rt_data_queue *queue,
@@ -84,14 +84,14 @@ RTM_EXPORT(rt_data_queue_init);
  * @param    timeout is the waiting time.
  *
  * @return   Return the operation status. When the return value is RT_EOK, the operation is successful.
- *           When the return value is RT_ETIMEOUT, it means the specified time out.
+ *           When the return value is -RT_ETIMEOUT, it means the specified time out.
  */
 rt_err_t rt_data_queue_push(struct rt_data_queue *queue,
                             const void *data_ptr,
                             rt_size_t data_size,
                             rt_int32_t timeout)
 {
-    rt_ubase_t  level;
+    rt_base_t level;
     rt_thread_t thread;
     rt_err_t    result;
 
@@ -119,7 +119,7 @@ rt_err_t rt_data_queue_push(struct rt_data_queue *queue,
         thread->error = RT_EOK;
 
         /* suspend thread on the push list */
-        rt_thread_suspend(thread);
+        rt_thread_suspend_with_flag(thread, RT_UNINTERRUPTIBLE);
         rt_list_insert_before(&(queue->suspended_push_list), &(thread->tlist));
         /* start timer */
         if (timeout > 0)
@@ -201,14 +201,14 @@ RTM_EXPORT(rt_data_queue_push);
  * @param    timeout is the waiting time.
  *
  * @return   Return the operation status. When the return value is RT_EOK, the operation is successful.
- *           When the return value is RT_ETIMEOUT, it means the specified time out.
+ *           When the return value is -RT_ETIMEOUT, it means the specified time out.
  */
 rt_err_t rt_data_queue_pop(struct rt_data_queue *queue,
-                           const void** data_ptr,
+                           const void **data_ptr,
                            rt_size_t *size,
                            rt_int32_t timeout)
 {
-    rt_ubase_t  level;
+    rt_base_t level;
     rt_thread_t thread;
     rt_err_t    result;
 
@@ -237,7 +237,7 @@ rt_err_t rt_data_queue_pop(struct rt_data_queue *queue,
         thread->error = RT_EOK;
 
         /* suspend thread on the pop list */
-        rt_thread_suspend(thread);
+        rt_thread_suspend_with_flag(thread, RT_UNINTERRUPTIBLE);
         rt_list_insert_before(&(queue->suspended_pop_list), &(thread->tlist));
         /* start timer */
         if (timeout > 0)
@@ -327,10 +327,10 @@ RTM_EXPORT(rt_data_queue_pop);
  *           When the return value is -RT_EEMPTY, it means the data queue is empty.
  */
 rt_err_t rt_data_queue_peek(struct rt_data_queue *queue,
-                            const void** data_ptr,
+                            const void **data_ptr,
                             rt_size_t *size)
 {
-    rt_ubase_t  level;
+    rt_base_t level;
 
     RT_ASSERT(queue != RT_NULL);
     RT_ASSERT(queue->magic == DATAQUEUE_MAGIC);
@@ -361,7 +361,7 @@ RTM_EXPORT(rt_data_queue_peek);
  */
 void rt_data_queue_reset(struct rt_data_queue *queue)
 {
-    rt_ubase_t  level;
+    rt_base_t level;
     struct rt_thread *thread;
 
     RT_ASSERT(queue != RT_NULL);
@@ -389,7 +389,7 @@ void rt_data_queue_reset(struct rt_data_queue *queue)
         thread = rt_list_entry(queue->suspended_pop_list.next,
                                struct rt_thread,
                                tlist);
-        /* set error code to RT_ERROR */
+        /* set error code to -RT_ERROR */
         thread->error = -RT_ERROR;
 
         /*
@@ -413,7 +413,7 @@ void rt_data_queue_reset(struct rt_data_queue *queue)
         thread = rt_list_entry(queue->suspended_push_list.next,
                                struct rt_thread,
                                tlist);
-        /* set error code to RT_ERROR */
+        /* set error code to -RT_ERROR */
         thread->error = -RT_ERROR;
 
         /*
@@ -441,7 +441,7 @@ RTM_EXPORT(rt_data_queue_reset);
  */
 rt_err_t rt_data_queue_deinit(struct rt_data_queue *queue)
 {
-    rt_ubase_t level;
+    rt_base_t level;
 
     RT_ASSERT(queue != RT_NULL);
     RT_ASSERT(queue->magic == DATAQUEUE_MAGIC);
@@ -468,7 +468,7 @@ RTM_EXPORT(rt_data_queue_deinit);
  */
 rt_uint16_t rt_data_queue_len(struct rt_data_queue *queue)
 {
-    rt_ubase_t level;
+    rt_base_t level;
     rt_int16_t len;
 
     RT_ASSERT(queue != RT_NULL);

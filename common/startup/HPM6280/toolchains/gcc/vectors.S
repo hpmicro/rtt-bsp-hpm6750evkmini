@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 hpmicro
+ * Copyright (c) 2021-2023 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -11,7 +11,7 @@
 
 __vector_table:
     .weak default_isr_trap
-    .set default_isr_trap, irq_handler_trap
+    .set default_isr_trap, SW_handler
     .long default_isr_trap
     IRQ_HANDLER 1 /* GPIO0_A IRQ handler */
     IRQ_HANDLER 2 /* GPIO0_B IRQ handler */
@@ -106,4 +106,3 @@ __vector_table:
     IRQ_HANDLER 91 /* LIN1 IRQ handler */
     IRQ_HANDLER 92 /* LIN2 IRQ handler */
     IRQ_HANDLER 93 /* LIN3 IRQ handler */
-    

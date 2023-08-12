@@ -8,90 +8,296 @@
  * 2020-08-10     SummerGift   support clang compiler
  */
 
+#include "rtconfig.h"
 .section ".text.entrypoint","ax"
+.global __start
 
-.globl _start
-_start:
-    /* Read cpu id */
-    mrs     x1, mpidr_el1
-    and     x1, x1, #3
-    cbz     x1, cpu_setup           /* If cpu id > 0, stop slave cores */
+__start:
+#ifdef ARCH_ARM_BOOTWITH_FLUSH_CACHE
+    bl      __asm_flush_dcache_all
+#endif
+    bl      rt_hw_cpu_id_set
+    /* read cpu id, stop slave cores */
+    mrs     x0, tpidr_el1
+    cbz     x0, .L__cpu_0           /* .L prefix is the local label in ELF */
 
-cpu_idle:
+#ifndef RT_AMP_SLAVE
+    /* cpu id > 0, stop */
+    /* cpu id == 0 will also goto here after returned from entry() if possible */
+.L__current_cpu_idle:
     wfe
-    b       cpu_idle
+    b       .L__current_cpu_idle
+#endif
 
-cpu_setup:
-    ldr     x1, =_start
+.L__cpu_0:
+    /* set stack before our code, Define stack pointer for current exception level */
+    adr     x1, .el_stack_top
 
+    /* set up EL1 */
     mrs     x0, CurrentEL           /* CurrentEL Register. bit 2, 3. Others reserved */
-    and     x0, x0, #12             /* Clear reserved bits */
+    and     x0, x0, #12             /* clear reserved bits */
 
-    /* Running at EL3? */
-    cmp     x0, #12                 /* EL3 value is 0b1100 */
-    bne     cpu_not_in_el3
+    /* running at EL3? */
+    cmp     x0, #12                 /* 1100b. So, EL3 */
+    bne     .L__not_in_el3          /* 11?  !EL3 -> 5: */
 
-    /* Should never be executed, just for completeness. (EL3) */
-    mov     x0, #(1 << 0)           /* EL0 and EL1 are in Non-Secure state */
-    orr     x0, x0, #(1 << 4)       /* RES1 */
-    orr     x0, x0, #(1 << 5)       /* RES1 */
-    orr     x0, x0, #(1 << 7)       /* SMC instructions are undefined at EL1 and above */
-    orr     x0, x0, #(1 << 8)       /* HVC instructions are enabled at EL1 and above */
-    orr     x0, x0, #(1 << 10)      /* The next lower level is AArch64 */
-    msr     scr_el3, x2
-
+    /* should never be executed, just for completeness. (EL3) */
+    mov     x2, #0x5b1
+    msr     scr_el3, x2             /* SCR_ELn  Secure Configuration Register */
     mov     x2, #0x3c9
-    msr     spsr_el3, x2            /* 0b1111001001 */
-    adr     x2, cpu_not_in_el3
+    msr     spsr_el3, x2            /* SPSR_ELn. Saved Program Status Register. 1111001001 */
+    adr     x2, .L__not_in_el3
     msr     elr_el3, x2
-    eret                            /* Exception Return: from EL3, continue from cpu_not_in_el3 */
+    eret                            /* Exception Return: from EL3, continue from .L__not_in_el3 */
 
-cpu_not_in_el3:                     /* Running at EL2 or EL1 */
-    cmp     x0, #4                  /* EL1 = 0100  */
-    beq     cpu_in_el1              /* Halt this core if running in El1 */
+.L__not_in_el3:                     /* running at EL2 or EL1 */
+    cmp     x0, #4                  /* 0x04  0100 EL1 */
+    beq     .L__in_el1              /* EL1 -> 5: */
 
-cpu_in_el2:
-    msr     sp_el1, x1
+    mrs     x0, hcr_el2
+    bic     x0, x0, #0xff
+    msr     hcr_el2, x0
 
-    /* Enable CNTP for EL1 */
+    msr     sp_el1, x1              /* in EL2, set sp of EL1 to _start */
+
+    /* enable CNTP for EL1 */
     mrs     x0, cnthctl_el2         /* Counter-timer Hypervisor Control register */
     orr     x0, x0, #3
     msr     cnthctl_el2, x0
     msr     cntvoff_el2, xzr
 
-    mov     x0, #(1 << 31)          /* Enable AArch64 in EL1 */
+    /* enable AArch64 in EL1 */
+    mov     x0, #(1 << 31)          /* AArch64 */
     orr     x0, x0, #(1 << 1)       /* SWIO hardwired on Pi3 */
     msr     hcr_el2, x0
+    mrs     x0, hcr_el2
 
-    /* Change execution level to EL1 */
+    /* change execution level to EL1 */
     mov     x2, #0x3c4
-    msr     spsr_el2, x2            /* 0b1111000100 */
-    adr     x2, cpu_in_el1
+    msr     spsr_el2, x2            /* 1111000100 */
+    adr     x2, .L__in_el1
     msr     elr_el2, x2
-    eret
 
-cpu_in_el1:
-    mov     sp, x1                  /* Set sp in el1 */
+    eret                            /* exception return. from EL2. continue from .L__in_el1 */
 
-    /* Avoid trap from SIMD or float point instruction */
+.macro GET_PHY reg, symbol
+    adrp    \reg, \symbol
+    add     \reg, \reg, #:lo12:\symbol
+.endm
+
+.L__in_el1:
+    mov     sp, x1                  /* in EL1. Set sp to _start */
+
+    /* Set CPACR_EL1 (Architecture Feature Access Control Register) to avoid trap from SIMD or float point instruction */
+    mov     x1, #0x00300000         /* Don't trap any SIMD/FP instructions in both EL0 and EL1 */
+    msr     cpacr_el1, x1
+    /* applying context change */
+    dsb     ish
+    isb
+
+    /* clear bss */
+    GET_PHY x1, __bss_start
+    GET_PHY x2, __bss_end
+    sub     x2, x2, x1              /* get bss size */
+
+    and     x3, x2, #7              /* x3 is < 7 */
+    ldr     x4, =~0x7
+    and     x2, x2, x4              /* mask ~7 */
+
+.L__clean_bss_loop:
+    cbz     x2, .L__clean_bss_loop_1
+    str     xzr, [x1], #8
+    sub     x2, x2, #8
+    b       .L__clean_bss_loop
+
+.L__clean_bss_loop_1:
+    cbz     x3, .L__jump_to_entry
+    strb    wzr, [x1], #1
+    sub     x3, x3, #1
+    b       .L__clean_bss_loop_1
+
+.L__jump_to_entry:          /* jump to C code, should not return */
+    bl mmu_tcr_init
+
+    adr x0, .early_mmu_table         /* install early page table */
+    add x1, x0, #0x1000
+
+    msr ttbr0_el1, x0
+    msr ttbr1_el1, x1
+    dsb sy
+
+#ifdef RT_USING_SMART
+    ldr     x2, =__start
+    GET_PHY x3, __start
+    sub     x3, x3, x2
+#else
+    mov     x3,0
+#endif
+
+    ldr x2, =0x10000000     /* map 256M memory for kernel space */
+    bl rt_hw_mem_setup_early
+
+    ldr x30, =after_mmu_enable  /* set LR to after_mmu_enable function, it's a v_addr */
+
+    mrs x1, sctlr_el1
+    bic x1, x1, #(3 << 3)    /* dis SA, SA0 */
+    bic x1, x1, #(1 << 1)    /* dis A */
+    orr x1, x1, #(1 << 12)   /* I */
+    orr x1, x1, #(1 << 2)    /* C */
+    orr x1, x1, #(1 << 0)    /* M */
+    msr sctlr_el1, x1        /* enable MMU */
+
+    dsb ish
+    isb
+    ic ialluis               /* Invalidate all instruction caches in Inner Shareable domain to Point of Unification */
+    dsb ish
+    isb
+    tlbi vmalle1             /* Invalidate all stage 1 translations used at EL1 with the current VMID */
+    dsb ish
+    isb
+    ret
+
+after_mmu_enable:
+#ifdef RT_USING_SMART
+    mrs x0, tcr_el1          /* disable ttbr0, only using kernel space */
+    orr x0, x0, #(1 << 7)
+    msr tcr_el1, x0
+    msr ttbr0_el1, xzr
+    dsb sy
+#endif
+
+    mov     x0, #1
+    msr     spsel, x0
+    adr     x1, .el_stack_top
+    mov     sp, x1           /* sp_el1 set to _start */
+
+    b  rtthread_startup
+
+#ifdef RT_USING_SMP
+/**
+ *  secondary cpu
+ */
+
+.global _secondary_cpu_entry
+_secondary_cpu_entry:
+    bl      rt_hw_cpu_id_set
+    adr     x1, .el_stack_top
+
+    /* set up EL1 */
+    mrs     x0, CurrentEL           /* CurrentEL Register. bit 2, 3. Others reserved */
+    and     x0, x0, #12             /* clear reserved bits */
+
+    /* running at EL3? */
+    cmp     x0, #12                 /* 1100b. So, EL3 */
+    bne     .L__not_in_el3_cpux          /* 11?  !EL3 -> 5: */
+
+    /* should never be executed, just for completeness. (EL3) */
+    mov     x2, #0x5b1
+    msr     scr_el3, x2             /* SCR_ELn  Secure Configuration Register */
+    mov     x2, #0x3c9
+    msr     spsr_el3, x2            /* SPSR_ELn. Saved Program Status Register. 1111001001 */
+    adr     x2, .L__not_in_el3_cpux
+    msr     elr_el3, x2
+    eret                            /* Exception Return: from EL3, continue from .L__not_in_el3 */
+
+.L__not_in_el3_cpux:                     /* running at EL2 or EL1 */
+    cmp     x0, #4                  /* 0x04  0100 EL1 */
+    beq     .L__in_el1_cpux              /* EL1 -> 5: */
+
+    mrs     x0, hcr_el2
+    bic     x0, x0, #0xff
+    msr     hcr_el2, x0
+
+    msr     sp_el1, x1              /* in EL2, set sp of EL1 to _start */
+
+    /* enable CNTP for EL1 */
+    mrs     x0, cnthctl_el2         /* Counter-timer Hypervisor Control register */
+    orr     x0, x0, #3
+    msr     cnthctl_el2, x0
+    msr     cntvoff_el2, xzr
+
+    /* enable AArch64 in EL1 */
+    mov     x0, #(1 << 31)          /* AArch64 */
+    orr     x0, x0, #(1 << 1)       /* SWIO hardwired on Pi3 */
+    msr     hcr_el2, x0
+    mrs     x0, hcr_el2
+
+    /* change execution level to EL1 */
+    mov     x2, #0x3c4
+    msr     spsr_el2, x2            /* 1111000100 */
+    adr     x2, .L__in_el1_cpux
+    msr     elr_el2, x2
+
+    eret                            /* exception return. from EL2. continue from .L__in_el1 */
+
+.L__in_el1_cpux:
+    mrs     x0, tpidr_el1
+    /* each cpu init stack is 8k */
+    sub     x1, x1, x0, lsl #13
+    mov     sp, x1                  /* in EL1. Set sp to _start */
+
+    /* Set CPACR_EL1 (Architecture Feature Access Control Register) to avoid trap from SIMD or float point instruction */
     mov     x1, #0x00300000         /* Don't trap any SIMD/FP instructions in both EL0 and EL1 */
     msr     cpacr_el1, x1
 
-    mrs     x1, sctlr_el1
-    orr     x1, x1, #(1 << 12)      /* Enable Instruction */
-    bic     x1, x1, #(3 << 3)       /* Disable SP Alignment check */
-    bic     x1, x1, #(1 << 1)       /* Disable Alignment check */
-    msr     sctlr_el1, x1
+.L__jump_to_entry_cpux:                   /* jump to C code, should not return */
 
-    ldr     x1, =__bss_start
-    ldr     w2, =__bss_size
+    /* init mmu early */
 
-clean_bss_loop:
-    cbz     w2, jump_to_entry
-    str     xzr, [x1], #8
-    sub     w2, w2, #1
-    cbnz    w2, clean_bss_loop
+    bl mmu_tcr_init
 
-jump_to_entry:
-    b       rtthread_startup
-    b       cpu_idle                /* For failsafe, halt this core too */
+    adr x0, .early_mmu_table             /* GET & setup early page table */
+    add x1, x0, #0x1000
+
+    msr ttbr0_el1, x0
+    msr ttbr1_el1, x1
+    dsb sy
+
+    ldr x30, =after_mmu_enable_cpux  /* set LR to after_mmu_enable function, it's a v_addr */
+
+    mrs x1, sctlr_el1
+    bic x1, x1, #(3 << 3)    /* dis SA, SA0 */
+    bic x1, x1, #(1 << 1)    /* dis A */
+    orr x1, x1, #(1 << 12)   /* I */
+    orr x1, x1, #(1 << 2)    /* C */
+    orr x1, x1, #(1 << 0)    /* M */
+    msr sctlr_el1, x1        /* enable MMU */
+
+    dsb sy
+    isb sy
+    ic ialluis               /* Invalidate all instruction caches in Inner Shareable domain to Point of Unification */
+    dsb sy
+    isb sy
+    tlbi vmalle1             /* Invalidate all stage 1 translations used at EL1 with the current VMID */
+    dsb sy
+    isb sy
+    ret
+
+after_mmu_enable_cpux:
+#ifdef RT_USING_SMART
+    mrs x0, tcr_el1          /* disable ttbr0, only using kernel space */
+    orr x0, x0, #(1 << 7)
+    msr tcr_el1, x0
+    msr ttbr0_el1, xzr
+    dsb sy
+#endif
+
+    mov     x0, #1
+    msr     spsel, x0
+    mrs     x0, tpidr_el1
+    /* each cpu init stack is 8k */
+    adr     x1, .el_stack_top
+    sub     x1, x1, x0, lsl #13
+    mov     sp, x1                  /* in EL1. Set sp to _start */
+
+    b rt_hw_secondary_cpu_bsp_start
+#endif
+
+.align 12
+.early_mmu_table:
+.space (4096 * 2)
+
+.align 12
+.el_stack:
+.space (8192)
+.el_stack_top:

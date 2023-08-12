@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -31,7 +31,7 @@ typedef struct {
 } phy_info_t;
 
 typedef struct {
-    rt_uint32_t phy_link; 
+    rt_uint32_t phy_link;
     rt_phy_t phy;
     phy_info_t phy_info;
 } phy_device_t;

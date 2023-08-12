@@ -127,7 +127,59 @@ __asm_flush_dcache_range:
     /* x2 <- minimal cache line size in cache system */
     sub    x3, x2, #1
     bic    x0, x0, x3
-1:    dc    civac, x0    /* clean & invalidate data or unified cache */
+
+1:  dc    civac, x0    /* clean & invalidate data or unified cache */
+    add    x0, x0, x2
+    cmp    x0, x1
+    b.lo    1b
+    dsb    sy
+    ret
+
+/* void __asm_invalidate_dcache_range(start, end)
+ *
+ * invalidate data cache in the range
+ *
+ * x0: start address
+ * x1: end address
+ */
+.globl __asm_invalidate_dcache_range
+__asm_invalidate_dcache_range:
+    mrs    x3, ctr_el0
+    lsr    x3, x3, #16
+    and    x3, x3, #0xf
+    mov    x2, #4
+    lsl    x2, x2, x3        /* cache line size */
+
+    /* x2 <- minimal cache line size in cache system */
+    sub    x3, x2, #1
+    bic    x0, x0, x3
+
+1:  dc   ivac, x0    /* invalidate data or unified cache */
+    add    x0, x0, x2
+    cmp    x0, x1
+    b.lo    1b
+    dsb    sy
+    ret
+
+/* void __asm_invalidate_icache_range(start, end)
+ *
+ * invalidate icache in the range
+ *
+ * x0: start address
+ * x1: end address
+ */
+.globl __asm_invalidate_icache_range
+__asm_invalidate_icache_range:
+    mrs    x3, ctr_el0
+    and    x3, x3, #0xf
+    mov    x2, #4
+    lsl    x2, x2, x3        /* cache line size */
+
+    /* x2 <- minimal cache line size in cache system */
+    sub    x3, x2, #1
+    bic    x0, x0, x3
+
+1:  ic   ivau, x0    /* invalidate instruction or unified cache */
     add    x0, x0, x2
     cmp    x0, x1
     b.lo    1b
@@ -141,8 +193,9 @@ __asm_flush_dcache_range:
  */
 .globl __asm_invalidate_icache_all
 __asm_invalidate_icache_all:
-    ic    ialluis
-    isb    sy
+    dsb     sy
+    ic      ialluis
+    isb     sy
     ret
 
 .globl __asm_flush_l3_cache

@@ -10,16 +10,10 @@
 #ifndef __RISCV_IO_H__
 #define __RISCV_IO_H__
 
-// which hart (core) is this?
-static inline uint32_t  r_mhartid()
+static inline uint32_t  __raw_hartid(void)
 {
-#ifndef RISCV_S_MODE
-    uint32_t x;
-    asm volatile("csrr %0, mhartid" : "=r" (x) );
-    return x;
-#else
-    return 0;
-#endif
+    extern int boot_hartid;
+    return boot_hartid;
 }
 
 static inline void __raw_writeb(rt_uint8_t val, volatile void *addr)

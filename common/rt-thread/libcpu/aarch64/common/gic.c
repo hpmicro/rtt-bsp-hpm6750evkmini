@@ -14,8 +14,10 @@
 #include <rthw.h>
 #include <rtthread.h>
 
-#include <gic.h>
-#include <cp15.h>
+#if defined(BSP_USING_GIC) && defined(BSP_USING_GICV2)
+
+#include "gic.h"
+#include "cp15.h"
 
 struct arm_gic
 {
@@ -193,7 +195,7 @@ void arm_gic_set_configuration(rt_uint64_t index, int irq, uint32_t config)
     shift = (irq % 16U) << 1U;
 
     icfgr &= (~(3U << shift));
-    icfgr |= (config << shift);
+    icfgr |= (config << (shift + 1));
 
     GIC_DIST_CONFIG(_gic_table[index].dist_hw_base, irq) = icfgr;
 }
@@ -427,6 +429,12 @@ int arm_gic_dist_init(rt_uint64_t index, rt_uint64_t dist_base, int irq_start)
     }
 
     /* All interrupts defaults to IGROUP1(IRQ). */
+    /*
+    for (i = 0; i < _gic_max_irq; i += 32)
+    {
+        GIC_DIST_IGROUP(dist_base, i) = 0xffffffffU;
+    }
+    */
     for (i = 0U; i < _gic_max_irq; i += 32U)
     {
         GIC_DIST_IGROUP(dist_base, i) = 0U;
@@ -478,17 +486,23 @@ void arm_gic_dump(rt_uint64_t index)
     rt_kprintf("--- hw mask ---\n");
     for (i = 0U; i < _gic_max_irq / 32U; i++)
     {
-        rt_kprintf("0x%08x, ", GIC_DIST_ENABLE_SET(_gic_table[index].dist_hw_base, i * 32U));
+        rt_kprintf("0x%08x, ",
+                   GIC_DIST_ENABLE_SET(_gic_table[index].dist_hw_base,
+                                       i * 32U));
     }
     rt_kprintf("\n--- hw pending ---\n");
     for (i = 0U; i < _gic_max_irq / 32U; i++)
     {
-        rt_kprintf("0x%08x, ", GIC_DIST_PENDING_SET(_gic_table[index].dist_hw_base, i * 32U));
+        rt_kprintf("0x%08x, ",
+                   GIC_DIST_PENDING_SET(_gic_table[index].dist_hw_base,
+                                        i * 32U));
     }
     rt_kprintf("\n--- hw active ---\n");
     for (i = 0U; i < _gic_max_irq / 32U; i++)
     {
-        rt_kprintf("0x%08x, ", GIC_DIST_ACTIVE_SET(_gic_table[index].dist_hw_base, i * 32U));
+        rt_kprintf("0x%08x, ",
+                   GIC_DIST_ACTIVE_SET(_gic_table[index].dist_hw_base,
+                                       i * 32U));
     }
     rt_kprintf("\n");
 }
@@ -502,3 +516,4 @@ long gic_dump(void)
 }
 MSH_CMD_EXPORT(gic_dump, show gic status);
 
+#endif /* defined(BSP_USING_GIC) && defined(BSP_USING_GICV2) */

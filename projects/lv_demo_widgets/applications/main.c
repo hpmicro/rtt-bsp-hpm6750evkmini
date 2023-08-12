@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2022 hpmicro
+ * Copyright (c) 2023 HPMicro
  *
  * Change Logs:
  * Date         Author          Notes
  * 2022-02-14   hpmicro         first version
+ * 2023-06-29   hpmicro         Adapt LVGL 8.3.5, optimize performance
  *
  */
 
@@ -26,23 +27,14 @@ extern void lv_demo_music(void);
 #define LV_THREAD_PRIO (RT_THREAD_PRIORITY_MAX * 2 / 3)
 #endif
 
-void thread_entry(void *parameter)
+void lv_user_gui_init(void)
 {
     lv_demo_music();
-
-    /* handle the tasks of LVGL */
-    while(1)
-    {
-        lv_task_handler();
-        rt_thread_mdelay(5);
-    }
 }
+
 
 
 int main(void)
 {
-    rt_thread_t t = rt_thread_create("lvgl", thread_entry, RT_NULL, LV_THREAD_STACK_SIZE, LV_THREAD_PRIO, 10);
-    rt_thread_startup(t);
-
     return 0;
 }

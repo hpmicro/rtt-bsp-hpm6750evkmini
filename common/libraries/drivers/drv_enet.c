@@ -19,10 +19,10 @@
 #ifdef BSP_USING_ETH0
 
 ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(ENET_SOC_DESC_ADDR_ALIGNMENT)
-__RW enet_rx_desc_t enet0_dma_rx_desc_tab[ENET0_RX_BUFF_COUNT] ; /* Ethernet0 Rx DMA Descriptor */
+__RW enet_rx_desc_t enet0_dma_rx_desc_tab[ENET0_RX_BUFF_COUNT]; /* Ethernet0 Rx DMA Descriptor */
 
 ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(ENET_SOC_DESC_ADDR_ALIGNMENT)
-__RW enet_tx_desc_t enet0_dma_tx_desc_tab[ENET0_TX_BUFF_COUNT] ; /* Ethernet0 Tx DMA Descriptor */
+__RW enet_tx_desc_t enet0_dma_tx_desc_tab[ENET0_TX_BUFF_COUNT]; /* Ethernet0 Tx DMA Descriptor */
 
 ATTR_PLACE_AT_WITH_ALIGNMENT(".fast_ram", ENET_SOC_BUFF_ADDR_ALIGNMENT)
 __RW uint8_t enet0_rx_buff[ENET0_RX_BUFF_COUNT][ENET0_RX_BUFF_SIZE]; /* Ethernet0 Receive Buffer */
@@ -83,10 +83,10 @@ __RW enet_rx_desc_t enet1_dma_rx_desc_tab[ENET1_RX_BUFF_COUNT]; /* Ethernet1 Rx 
 ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(ENET_SOC_DESC_ADDR_ALIGNMENT)
 __RW enet_tx_desc_t enet1_dma_tx_desc_tab[ENET1_TX_BUFF_COUNT]; /* Ethernet1 Tx DMA Descriptor */
 
-ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(ENET_SOC_BUFF_ADDR_ALIGNMENT)
+ATTR_PLACE_AT_WITH_ALIGNMENT(".fast_ram", ENET_SOC_BUFF_ADDR_ALIGNMENT)
 __RW uint8_t enet1_rx_buff[ENET1_RX_BUFF_COUNT][ENET1_RX_BUFF_SIZE]; /* Ethernet1 Receive Buffer */
 
-ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(ENET_SOC_BUFF_ADDR_ALIGNMENT)
+ATTR_PLACE_AT_WITH_ALIGNMENT(".fast_ram", ENET_SOC_BUFF_ADDR_ALIGNMENT)
 __RW uint8_t enet1_tx_buff[ENET1_TX_BUFF_COUNT][ENET1_TX_BUFF_SIZE]; /* Ethernet1 Transmit Buffer */
 
 struct eth_device eth1_dev;
@@ -148,21 +148,21 @@ ATTR_WEAK void enet_get_mac_address(uint8_t *mac)
 {
     uint32_t uuid[OTP_SOC_UUID_LEN / sizeof(uint32_t)];
 
-    for (int i = 0; i < ARRAY_SIZE(uuid); i++) {
-        uuid[i] = otp_read_from_shadow(OTP_SOC_UUID_IDX + i);
-    }
+       for (int i = 0; i < ARRAY_SIZE(uuid); i++) {
+           uuid[i] = otp_read_from_shadow(OTP_SOC_UUID_IDX + i);
+       }
 
        if (!IS_UUID_INVALID(uuid)) {
            uuid[0] &= 0xfc;
-        memcpy(mac, &uuid, ENET_MAC);
-    } else {
-        mac[0] = MAC_ADDR0;
-        mac[1] = MAC_ADDR1;
-        mac[2] = MAC_ADDR2;
-        mac[3] = MAC_ADDR3;
-        mac[4] = MAC_ADDR4;
-        mac[5] = MAC_ADDR5;
-    }
+           memcpy(mac, &uuid, ENET_MAC);
+       } else {
+           mac[0] = MAC_ADDR0;
+           mac[1] = MAC_ADDR1;
+           mac[2] = MAC_ADDR2;
+           mac[3] = MAC_ADDR3;
+           mac[4] = MAC_ADDR4;
+           mac[5] = MAC_ADDR5;
+       }
 }
 
 static rt_err_t hpm_enet_init(enet_device *init)
@@ -247,12 +247,12 @@ static rt_err_t rt_hpm_eth_close(rt_device_t dev)
     return RT_EOK;
 }
 
-static rt_size_t rt_hpm_eth_read(rt_device_t dev, rt_off_t pos, void * buffer, rt_size_t size)
+static rt_ssize_t rt_hpm_eth_read(rt_device_t dev, rt_off_t pos, void * buffer, rt_size_t size)
 {
     return 0;
 }
 
-static rt_size_t rt_hpm_eth_write(rt_device_t dev, rt_off_t pos, const void * buffer, rt_size_t size)
+static rt_ssize_t rt_hpm_eth_write(rt_device_t dev, rt_off_t pos, const void * buffer, rt_size_t size)
 {
     return 0;
 }

@@ -128,14 +128,18 @@ int wifi_spi_device_init(void)
 {
     char sn_version[32];
 
+    rw007_gpio_init();
+
+#if (RT_VER_NUM >= 0x50000)
+    rt_hw_spi_device_attach(RW007_SPI_BUS_NAME, "wspi", RW007_CS_PIN);
+#else
     GPIO_TypeDef *cs_gpiox;
     uint16_t cs_pin;
-
     cs_gpiox = (GPIO_TypeDef *)((rt_base_t)GPIOA + (rt_base_t)(RW007_CS_PIN / 16) * 0x0400UL);
     cs_pin = (uint16_t)(1 << RW007_CS_PIN % 16);
-
-    rw007_gpio_init();
     rt_hw_spi_device_attach(RW007_SPI_BUS_NAME, "wspi", cs_gpiox, cs_pin);
+#endif
+
     rt_hw_wifi_init("wspi");
 
     rt_wlan_set_mode(RT_WLAN_DEVICE_STA_NAME, RT_WLAN_STATION);

@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2021 HPMicro
+ * Copyright (c) 2021-2023 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Change Logs:
  * Date         Author      Notes
- * 2021-09-19   HPMICRO     First version
+ * 2021-09-19   HPMicro     First version
+ * 2023-05-08   HPMicro     Adapt RT-Thread V5.0.0
  */
 #include "board.h"
 #include "drv_rtc.h"
@@ -25,26 +26,40 @@
 static rt_err_t hpm_rtc_init(rt_device_t dev);
 static rt_err_t hpm_rtc_open(rt_device_t dev, rt_uint16_t oflag);
 static rt_err_t hpm_rtc_close(rt_device_t dev);
-static rt_size_t hpm_rtc_read(rt_device_t dev, rt_off_t pos, void *buf, rt_size_t size);
-static rt_size_t hpm_rtc_write(rt_device_t dev, rt_off_t pos, const void *buf, rt_size_t size);
+static rt_ssize_t hpm_rtc_read(rt_device_t dev, rt_off_t pos, void *buf, rt_size_t size);
+static rt_ssize_t hpm_rtc_write(rt_device_t dev, rt_off_t pos, const void *buf, rt_size_t size);
 static rt_err_t hpm_rtc_control(rt_device_t dev, int cmd, void *args);
 
-static time_t get_timestamp(void);
-static int set_timestamp(time_t timestamp);
+static time_t hpm_rtc_get_timestamp(void);
+static int hpm_rtc_set_timestamp(time_t timestamp);
 
 /*******************************************************************************************
  *
  *  Variables
  *
  ******************************************************************************************/
-static struct rt_device hpm_rtc= {
-    .type = RT_Device_Class_RTC,
+#ifdef RT_USING_DEVICE_OPS
+const struct rt_device_ops hpm_rtc_ops = {
     .init = hpm_rtc_init,
     .open = hpm_rtc_open,
     .close = hpm_rtc_close,
     .read = hpm_rtc_read,
     .write = hpm_rtc_write,
     .control = hpm_rtc_control,
+};
+#endif
+static struct rt_device hpm_rtc= {
+    .type = RT_Device_Class_RTC,
+#ifdef RT_USING_DEVICE_OPS
+    .ops = &hpm_rtc_ops,
+#else
+    .init = hpm_rtc_init,
+    .open = hpm_rtc_open,
+    .close = hpm_rtc_close,
+    .read = hpm_rtc_read,
+    .write = hpm_rtc_write,
+    .control = hpm_rtc_control,
+#endif
 };
 
 /*******************************************************************************************
@@ -64,11 +79,11 @@ static rt_err_t hpm_rtc_close(rt_device_t dev)
 {
     return RT_EOK;
 }
-static rt_size_t hpm_rtc_read(rt_device_t dev, rt_off_t pos, void *buf, rt_size_t size)
+static rt_ssize_t hpm_rtc_read(rt_device_t dev, rt_off_t pos, void *buf, rt_size_t size)
 {
     return 0;
 }
-static rt_size_t hpm_rtc_write(rt_device_t dev, rt_off_t pos, const void *buf, rt_size_t size)
+static rt_ssize_t hpm_rtc_write(rt_device_t dev, rt_off_t pos, const void *buf, rt_size_t size)
 {
     return 0;
 }
@@ -80,10 +95,10 @@ static rt_err_t hpm_rtc_control(rt_device_t dev, int cmd, void *args)
 
     switch(cmd) {
         case RT_DEVICE_CTRL_RTC_GET_TIME:
-            *(uint32_t *)args = get_timestamp();
+            *(uint32_t *)args = hpm_rtc_get_timestamp();
             break;
         case RT_DEVICE_CTRL_RTC_SET_TIME:
-            set_timestamp(*(time_t *)args);
+            hpm_rtc_set_timestamp(*(time_t *)args);
             break;
         default:
             err = RT_EINVAL;
@@ -93,14 +108,14 @@ static rt_err_t hpm_rtc_control(rt_device_t dev, int cmd, void *args)
     return err;
 }
 
-static time_t get_timestamp(void)
+static time_t hpm_rtc_get_timestamp(void)
 {
     time_t time = rtc_get_time(HPM_RTC);
 
     return time;
 }
 
-static int set_timestamp(time_t timestamp)
+static int hpm_rtc_set_timestamp(time_t timestamp)
 {
     (void)rtc_config_time(HPM_RTC, timestamp);
 

@@ -178,6 +178,13 @@ config RT_USING_ULOG
             help
                 The low level output using rt_kprintf().
 
+        config ULOG_BACKEND_USING_FILE
+            bool "Enable file backend."
+            select RT_USING_DFS
+            default n
+            help
+                The file backend of ulog.
+
         config ULOG_USING_FILTER
             bool "Enable runtime log filter."
             default n
@@ -207,6 +214,11 @@ config RT_USING_UTEST
 
 config RT_USING_VAR_EXPORT
     bool "Enable Var Export"
+    default n
+
+config RT_USING_ADT
+    bool "Enable ADT(abstract data type), such as AVL tree"
+    default y if ARCH_MM_MMU
     default n
 
 source "$RTT_DIR/components/utilities/rt-link/Kconfig"

@@ -6,6 +6,7 @@
  * Change Logs:
  * Date           Author       Notes
  * 2018-04-14     chenyong     first version
+ * 2023-06-09     CX           optimize at_vprintfln interface
  */
 
 #include <at.h>
@@ -36,7 +37,7 @@ void at_print_raw_cmd(const char *name, const char *buf, rt_size_t size)
         {
             if (i + j < size)
             {
-                rt_kprintf("%02X ", buf[i + j]);
+                rt_kprintf("%02X ", (unsigned char)buf[i + j]);
             }
             else
             {
@@ -65,7 +66,7 @@ const char *at_get_last_cmd(rt_size_t *cmd_size)
     return send_buf;
 }
 
-RT_WEAK rt_size_t at_utils_send(rt_device_t dev,
+rt_weak rt_size_t at_utils_send(rt_device_t dev,
                                 rt_off_t    pos,
                                 const void *buffer,
                                 rt_size_t   size)
@@ -91,8 +92,16 @@ rt_size_t at_vprintfln(rt_device_t device, const char *format, va_list args)
     rt_size_t len;
 
     last_cmd_len = vsnprintf(send_buf, sizeof(send_buf) - 2, format, args);
+
+    if(last_cmd_len == 0)
+    {
+        return 0;
+    }
+
     if(last_cmd_len > sizeof(send_buf) - 2)
+    {
         last_cmd_len = sizeof(send_buf) - 2;
+    }
     rt_memcpy(send_buf + last_cmd_len, "\r\n", 2);
 
     len = last_cmd_len + 2;

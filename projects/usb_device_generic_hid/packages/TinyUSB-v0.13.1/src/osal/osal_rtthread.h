@@ -111,7 +111,7 @@ static inline osal_queue_t osal_queue_create(osal_queue_def_t *qdef) {
 }
 
 static inline bool osal_queue_receive(osal_queue_t qhdl, void *data) {
-    return rt_mq_recv(qhdl, data, qhdl->msg_size, RT_WAITING_FOREVER) == RT_EOK;
+    return rt_mq_recv(qhdl, data, qhdl->msg_size, RT_WAITING_FOREVER) >= 0;
 }
 
 static inline bool osal_queue_send(osal_queue_t qhdl, void const *data, bool in_isr) {

@@ -1,15 +1,17 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2023 HPMicro
  *
  * Change Logs:
  * Date         Author          Notes
- * 2021-08-13   Fan YANG        first version
+ * 2021-08-13   hpmicro         first version
+ * 2023-08-01   hpmicro         Optimize logic for rt-thread v5.0.1
  *
  */
 
 #include <rtthread.h>
 #include <rtdevice.h>
 #include "rtt_board.h"
+#include <drv_gpio.h>
 #include "hpm_romapi.h"
 #ifdef PKG_USING_FAL
 #include "fal.h"
@@ -19,6 +21,8 @@
 #include "flashdb.h"
 #endif
 
+
+void flashdb_init(void);
 
 void thread_entry(void *arg);
 
@@ -31,7 +35,34 @@ extern void kvdb_basic_sample(fdb_kvdb_t kvdb);
 
 int main(void)
 {
-#ifdef PKG_USING_FAL
+    rt_thread_t led_thread = rt_thread_create("led_th", thread_entry, NULL, 1024, 1, 10);
+    rt_thread_startup(led_thread);
+
+    flashdb_init();
+
+    return 0;
+}
+
+
+void thread_entry(void *arg)
+{
+    app_init_led_pins();
+
+    while(1){
+        app_led_write(0, APP_LED_ON);
+        app_led_write(1, APP_LED_ON);
+        app_led_write(2, APP_LED_ON);
+        rt_thread_mdelay(200);
+        app_led_write(0, APP_LED_OFF);
+        app_led_write(1, APP_LED_OFF);
+        app_led_write(2, APP_LED_OFF);
+        rt_thread_mdelay(200);
+    }
+}
+
+void flashdb_init(void)
+{
+#ifdef RT_USING_FAL
     fal_init();
 #endif
 
@@ -41,10 +72,9 @@ int main(void)
     default_kv.kvs = default_kv_table;
     default_kv.num = sizeof(default_kv_table) / sizeof(default_kv_table[0]);
 
-    fdb_err = fdb_kvdb_init(&s_kvdb, "env", "download", &default_kv, NULL);
+    fdb_err = fdb_kvdb_init(&s_kvdb, "env", "flashdb", &default_kv, NULL);
     if (fdb_err != FDB_NO_ERR) {
         rt_kprintf("FlashDB initialization failed, error_code=%d\n", fdb_err);
-        return -fdb_err;
     }
     else
     {
@@ -52,29 +82,4 @@ int main(void)
     }
 
 #endif
-
-    app_init_led_pins();
-    rt_thread_t led_thread = rt_thread_create("led_th", thread_entry, NULL, 1024, 1, 10);
-    rt_thread_startup(led_thread);
-
-    return 0;
-}
-
-
-void thread_entry(void *arg)
-{
-    while(1){
-        app_led_write(0, APP_LED_ON);
-        rt_thread_mdelay(500);
-        app_led_write(0, APP_LED_OFF);
-        rt_thread_mdelay(500);
-        app_led_write(1, APP_LED_ON);
-        rt_thread_mdelay(500);
-        app_led_write(1, APP_LED_OFF);
-        rt_thread_mdelay(500);
-        app_led_write(2, APP_LED_ON);
-        rt_thread_mdelay(500);
-        app_led_write(2, APP_LED_OFF);
-        rt_thread_mdelay(500);
-    }
 }

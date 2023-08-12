@@ -181,7 +181,7 @@ hpm_stat_t i2c_master_address_read(I2C_Type *ptr, const uint16_t device_address,
     }
 
     /* W1C, clear CMPL bit to avoid blocking the transmission */
-    ptr->STATUS |= I2C_STATUS_CMPL_MASK;
+    ptr->STATUS = I2C_STATUS_CMPL_MASK;
 
     ptr->CMD = I2C_CMD_CLEAR_FIFO;
     ptr->CTRL = I2C_CTRL_PHASE_START_MASK
@@ -210,7 +210,7 @@ hpm_stat_t i2c_master_address_read(I2C_Type *ptr, const uint16_t device_address,
         return status_timeout;
     }
     /* W1C, clear CMPL bit to avoid blocking the transmission */
-    ptr->STATUS |= I2C_STATUS_CMPL_MASK;
+    ptr->STATUS = I2C_STATUS_CMPL_MASK;
 
     ptr->CMD = I2C_CMD_CLEAR_FIFO;
     ptr->CTRL = I2C_CTRL_PHASE_START_MASK
@@ -277,7 +277,7 @@ hpm_stat_t i2c_master_address_write(I2C_Type *ptr, const uint16_t device_address
     }
 
     /* W1C, clear CMPL bit to avoid blocking the transmission */
-    ptr->STATUS |= I2C_STATUS_CMPL_MASK;
+    ptr->STATUS = I2C_STATUS_CMPL_MASK;
 
     ptr->CMD = I2C_CMD_CLEAR_FIFO;
     ptr->ADDR = I2C_ADDR_ADDR_SET(device_address);
@@ -350,7 +350,7 @@ hpm_stat_t i2c_master_read(I2C_Type *ptr, const uint16_t device_address,
     }
 
     /* W1C, clear CMPL bit to avoid blocking the transmission */
-    ptr->STATUS |= I2C_STATUS_CMPL_MASK;
+    ptr->STATUS = I2C_STATUS_CMPL_MASK;
 
     ptr->CMD = I2C_CMD_CLEAR_FIFO;
     ptr->ADDR = I2C_ADDR_ADDR_SET(device_address);
@@ -368,9 +368,6 @@ hpm_stat_t i2c_master_read(I2C_Type *ptr, const uint16_t device_address,
         if (!(ptr->STATUS & I2C_STATUS_FIFOEMPTY_MASK)) {
             *(buf++) = ptr->DATA;
             left--;
-            if (left) {
-                ptr->CMD = I2C_CMD_ISSUE_DATA_TRANSMISSION;
-            }
             retry = 0;
         } else {
             if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
@@ -427,7 +424,7 @@ hpm_stat_t i2c_master_write(I2C_Type *ptr, const uint16_t device_address,
     }
 
     /* W1C, clear CMPL bit to avoid blocking the transmission */
-    ptr->STATUS |= I2C_STATUS_CMPL_MASK;
+    ptr->STATUS = I2C_STATUS_CMPL_MASK;
 
     ptr->CMD = I2C_CMD_CLEAR_FIFO;
     ptr->ADDR = I2C_ADDR_ADDR_SET(device_address);
@@ -511,19 +508,21 @@ hpm_stat_t i2c_slave_write(I2C_Type *ptr, uint8_t *buf, const uint32_t size)
 
     assert(size > 0 && size <= I2C_SOC_TRANSFER_COUNT_MAX);
 
+    /* wait for address hit */
     retry = 0;
-    while (ptr->STATUS & I2C_STATUS_BUSBUSY_MASK) {
+    while (!(ptr->STATUS & I2C_STATUS_ADDRHIT_MASK)) {
         if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
             break;
         }
         retry++;
     }
     if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
-        return status_timeout;
+        return status_fail;
     }
 
-    /* W1C, clear CMPL bit to avoid blocking the transmission */
-    ptr->STATUS |= I2C_STATUS_CMPL_MASK;
+    /* W1C, clear CMPL bit and clear ADDRHIT bit to avoid blocking the transmission */
+    ptr->STATUS = I2C_STATUS_CMPL_MASK | I2C_STATUS_ADDRHIT_MASK;
+    ptr->CMD = I2C_CMD_CLEAR_FIFO;
 
     retry = 0;
     left = size;
@@ -554,6 +553,8 @@ hpm_stat_t i2c_slave_write(I2C_Type *ptr, uint8_t *buf, const uint32_t size)
     if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
         return status_timeout;
     }
+    /* clear status, CMPL must to be cleared at slave mode before next transaction */
+    ptr->STATUS = I2C_STATUS_CMPL_MASK;
 
     if (i2c_get_data_count(ptr) != size) {
         return status_i2c_transmit_not_completed;
@@ -572,19 +573,21 @@ hpm_stat_t i2c_slave_read(I2C_Type *ptr,
 
     assert(size > 0 && size <= I2C_SOC_TRANSFER_COUNT_MAX);
 
+    /* wait for address hit */
     retry = 0;
-    while (ptr->STATUS & I2C_STATUS_BUSBUSY_MASK) {
+    while (!(ptr->STATUS & I2C_STATUS_ADDRHIT_MASK)) {
         if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
             break;
         }
         retry++;
     }
     if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
-        return status_timeout;
+        return status_fail;
     }
 
-    /* W1C, clear CMPL bit to avoid blocking the transmission */
-    ptr->STATUS |= I2C_STATUS_CMPL_MASK;
+    /* W1C, clear CMPL bit and clear ADDRHIT bit to avoid blocking the transmission */
+    ptr->STATUS = I2C_STATUS_CMPL_MASK | I2C_STATUS_ADDRHIT_MASK;
+    ptr->CMD = I2C_CMD_CLEAR_FIFO;
 
     retry = 0;
     left = size;
@@ -615,6 +618,8 @@ hpm_stat_t i2c_slave_read(I2C_Type *ptr,
     if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
         return status_timeout;
     }
+    /* clear status, CMPL must to be cleared at slave mode before next transaction */
+    ptr->STATUS = I2C_STATUS_CMPL_MASK;
 
     if (i2c_get_data_count(ptr) != size) {
         return status_i2c_transmit_not_completed;
@@ -639,7 +644,7 @@ hpm_stat_t i2c_master_start_dma_write(I2C_Type *i2c_ptr, const uint16_t device_a
     }
 
     /* W1C, clear CMPL bit to avoid blocking the transmission */
-    i2c_ptr->STATUS |= I2C_STATUS_CMPL_MASK;
+    i2c_ptr->STATUS = I2C_STATUS_CMPL_MASK;
 
     i2c_ptr->ADDR = I2C_ADDR_ADDR_SET(device_address);
     i2c_ptr->CTRL = I2C_CTRL_PHASE_START_MASK
@@ -671,7 +676,7 @@ hpm_stat_t i2c_master_start_dma_read(I2C_Type *i2c_ptr, const uint16_t device_ad
         return status_timeout;
     }
     /* W1C, clear CMPL bit to avoid blocking the transmission */
-    i2c_ptr->STATUS |= I2C_STATUS_CMPL_MASK;
+    i2c_ptr->STATUS = I2C_STATUS_CMPL_MASK;
 
     i2c_ptr->ADDR = I2C_ADDR_ADDR_SET(device_address);
     i2c_ptr->CTRL = I2C_CTRL_PHASE_START_MASK
@@ -690,20 +695,10 @@ hpm_stat_t i2c_master_start_dma_read(I2C_Type *i2c_ptr, const uint16_t device_ad
 
 hpm_stat_t i2c_slave_dma_transfer(I2C_Type *i2c_ptr, uint32_t size)
 {
-    uint32_t retry = 0;
     assert(size > 0 && size <= I2C_SOC_TRANSFER_COUNT_MAX);
 
-    while (i2c_ptr->STATUS & I2C_STATUS_BUSBUSY_MASK) {
-        if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
-            break;
-        }
-        retry++;
-    }
-    if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
-        return status_timeout;
-    }
     /* W1C, clear CMPL bit to avoid blocking the transmission */
-    i2c_ptr->STATUS |= I2C_STATUS_CMPL_MASK;
+    i2c_ptr->STATUS = I2C_STATUS_CMPL_MASK;
 
     i2c_ptr->CTRL |= I2C_CTRL_DATACNT_SET(I2C_DATACNT_MAP(size));
 
@@ -727,7 +722,7 @@ hpm_stat_t i2c_master_configure_transfer(I2C_Type *i2c_ptr, const uint16_t devic
         return status_timeout;
     }
     /* W1C, clear CMPL bit to avoid blocking the transmission */
-    i2c_ptr->STATUS |= I2C_STATUS_CMPL_MASK;
+    i2c_ptr->STATUS = I2C_STATUS_CMPL_MASK;
     i2c_ptr->CMD = I2C_CMD_CLEAR_FIFO;
     i2c_ptr->ADDR = I2C_ADDR_ADDR_SET(device_address);
     i2c_ptr->CTRL = I2C_CTRL_PHASE_START_MASK
@@ -741,3 +736,163 @@ hpm_stat_t i2c_master_configure_transfer(I2C_Type *i2c_ptr, const uint16_t devic
 
     return status_success;
 }
+
+hpm_stat_t i2c_master_seq_transmit(I2C_Type *ptr, const uint16_t device_address,
+                                    uint8_t *buf, const uint32_t size, i2c_seq_transfer_opt_t opt)
+{
+    uint32_t ctrl;
+    uint32_t retry = 0;
+    uint32_t left = 0;
+
+    assert(size > 0 && size <= I2C_SOC_TRANSFER_COUNT_MAX);
+
+    /* W1C, clear CMPL bit to avoid blocking the transmission */
+    ptr->STATUS = I2C_STATUS_CMPL_MASK;
+    ptr->CMD = I2C_CMD_CLEAR_FIFO;
+    ptr->ADDR = I2C_ADDR_ADDR_SET(device_address);
+
+    switch (opt) {
+    case i2c_frist_frame:
+        ctrl = I2C_CTRL_PHASE_START_SET(true) | I2C_CTRL_PHASE_STOP_SET(false) \
+               | I2C_CTRL_PHASE_ADDR_SET(true);
+        break;
+    case i2c_next_frame:
+        ctrl = I2C_CTRL_PHASE_START_SET(false) | I2C_CTRL_PHASE_STOP_SET(false) \
+               | I2C_CTRL_PHASE_ADDR_SET(false);
+        break;
+    case i2c_last_frame:
+        ctrl = I2C_CTRL_PHASE_START_SET(false) | I2C_CTRL_PHASE_STOP_SET(true) \
+               | I2C_CTRL_PHASE_ADDR_SET(false);
+        break;
+    default:
+        return status_invalid_argument;
+    }
+
+    ptr->CTRL = ctrl | I2C_CTRL_PHASE_DATA_SET(true) \
+                | I2C_CTRL_DIR_SET(I2C_DIR_MASTER_WRITE) \
+                | I2C_CTRL_DATACNT_SET(I2C_DATACNT_MAP(size));
+    /* enable auto ack */
+    ptr->INTEN &= ~I2C_EVENT_BYTE_RECEIVED;
+
+    retry = 0;
+    left = size;
+    while (left) {
+        if (!(ptr->STATUS & I2C_STATUS_FIFOFULL_MASK)) {
+            ptr->DATA = *(buf++);
+            left--;
+            ptr->CMD = I2C_CMD_ISSUE_DATA_TRANSMISSION;
+            retry = 0;
+        } else {
+            if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
+                break;
+            }
+            retry++;
+        }
+    }
+    if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
+        return status_timeout;
+    }
+
+    if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
+        return status_timeout;
+    }
+    retry = 0;
+    while (!(ptr->STATUS & I2C_STATUS_CMPL_MASK)) {
+        if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
+            break;
+        }
+        retry++;
+    }
+    if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
+        return status_timeout;
+    }
+    /* clear status, CMPL must to be cleared at slave mode before next transaction */
+    ptr->STATUS = I2C_STATUS_CMPL_MASK;
+    return status_success;
+}
+
+hpm_stat_t i2c_master_seq_receive(I2C_Type *ptr, const uint16_t device_address,
+                                    uint8_t *buf, const uint32_t size, i2c_seq_transfer_opt_t opt)
+{
+   uint32_t ctrl;
+    uint32_t retry = 0;
+    uint32_t left = 0;
+
+    assert(size > 0 && size <= I2C_SOC_TRANSFER_COUNT_MAX);
+
+    /* W1C, clear CMPL bit to avoid blocking the transmission */
+    ptr->STATUS = I2C_STATUS_CMPL_MASK;
+    ptr->CMD = I2C_CMD_CLEAR_FIFO;
+    ptr->ADDR = I2C_ADDR_ADDR_SET(device_address);
+
+    switch (opt) {
+    case i2c_frist_frame:
+        ctrl = I2C_CTRL_PHASE_START_SET(true) | I2C_CTRL_PHASE_STOP_SET(false) \
+               | I2C_CTRL_PHASE_ADDR_SET(true);
+        break;
+    case i2c_next_frame:
+        ctrl = I2C_CTRL_PHASE_START_SET(false) | I2C_CTRL_PHASE_STOP_SET(false) \
+               | I2C_CTRL_PHASE_ADDR_SET(false);
+        break;
+    case i2c_last_frame:
+        ctrl = I2C_CTRL_PHASE_START_SET(false) | I2C_CTRL_PHASE_STOP_SET(true) \
+               | I2C_CTRL_PHASE_ADDR_SET(false);
+        break;
+    default:
+        return status_invalid_argument;
+    }
+
+    ptr->CTRL = ctrl | I2C_CTRL_PHASE_DATA_SET(true) \
+                | I2C_CTRL_DIR_SET(I2C_DIR_MASTER_READ) \
+                | I2C_CTRL_DATACNT_SET(I2C_DATACNT_MAP(size));
+
+    /* disable auto ack */
+    ptr->INTEN |= I2C_EVENT_BYTE_RECEIVED;
+    ptr->CMD = I2C_CMD_ISSUE_DATA_TRANSMISSION;
+
+    retry = 0;
+    left = size;
+    while (left) {
+        if (!(ptr->STATUS & I2C_STATUS_FIFOEMPTY_MASK)) {
+            *(buf++) = ptr->DATA;
+            left--;
+            if ((left == 0) && (opt == i2c_last_frame)) {
+                ptr->CMD = I2C_CMD_NACK;
+            } else {
+                ptr->CMD = I2C_CMD_ACK;
+            }
+            retry = 0;
+        } else {
+            if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
+                break;
+            }
+            retry++;
+        }
+    }
+    if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
+        return status_timeout;
+    }
+
+    if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
+        return status_timeout;
+    }
+    if (opt  == i2c_last_frame) {
+        retry = 0;
+        while (!(ptr->STATUS & I2C_STATUS_CMPL_MASK)) {
+            if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
+                break;
+            }
+            retry++;
+        }
+        if (retry > HPM_I2C_DRV_DEFAULT_RETRY_COUNT) {
+            return status_timeout;
+        }
+    }
+    /* clear status, CMPL must to be cleared at slave mode before next transaction */
+    ptr->STATUS = I2C_STATUS_CMPL_MASK;
+    /* default auto ack */
+    ptr->INTEN &= ~I2C_EVENT_BYTE_RECEIVED;
+
+    return status_success;
+}
+

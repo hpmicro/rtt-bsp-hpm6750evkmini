@@ -214,11 +214,29 @@ void board_init_lcd(void)
 {
     board_init_lcd_clock();
     init_lcd_pins(BOARD_LCD_BASE);
-
     board_power_cycle_lcd();
+}
 
-    board_delay_ms(10);
-    board_power_cycle_lcd();
+void board_panel_para_to_lcdc(lcdc_config_t *config)
+{
+    const uint16_t panel_timing_para[] = BOARD_PANEL_TIMING_PARA;
+
+    config->resolution_x = BOARD_LCD_WIDTH;
+    config->resolution_y = BOARD_LCD_HEIGHT;
+
+    config->hsync.pulse_width = panel_timing_para[BOARD_PANEL_TIMEING_PARA_HSPW_INDEX];
+    config->hsync.back_porch_pulse = panel_timing_para[BOARD_PANEL_TIMEING_PARA_HBP_INDEX];
+    config->hsync.front_porch_pulse = panel_timing_para[BOARD_PANEL_TIMEING_PARA_HFP_INDEX];
+
+    config->vsync.pulse_width = panel_timing_para[BOARD_PANEL_TIMEING_PARA_VSPW_INDEX];
+    config->vsync.back_porch_pulse = panel_timing_para[BOARD_PANEL_TIMEING_PARA_VBP_INDEX];
+    config->vsync.front_porch_pulse = panel_timing_para[BOARD_PANEL_TIMEING_PARA_VFP_INDEX];
+
+    config->control.invert_hsync = panel_timing_para[BOARD_PANEL_TIMEING_PARA_HSSP_INDEX];
+    config->control.invert_vsync = panel_timing_para[BOARD_PANEL_TIMEING_PARA_VSSP_INDEX];
+    config->control.invert_href = panel_timing_para[BOARD_PANEL_TIMEING_PARA_DESP_INDEX];
+    config->control.invert_pixel_data = panel_timing_para[BOARD_PANEL_TIMEING_PARA_PDSP_INDEX];
+    config->control.invert_pixel_clock = panel_timing_para[BOARD_PANEL_TIMEING_PARA_PCSP_INDEX];
 }
 
 void board_delay_ms(uint32_t ms)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2022, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -29,6 +29,7 @@
  * 2018-12-27     Jesven       Fix the problem that disable interrupt too long in list_thread
  *                             Provide protection for the "first layer of objects" when list_*
  * 2020-04-07     chenhui      add clear
+ * 2022-07-02     Stanley Lwin add list command
  */
 
 #include <rthw.h>
@@ -89,7 +90,7 @@ static void list_find_init(list_get_next_t *p, rt_uint8_t type, rt_list_t **arra
 static rt_list_t *list_get_next(rt_list_t *current, list_get_next_t *arg)
 {
     int first_flag = 0;
-    rt_ubase_t level;
+    rt_base_t level;
     rt_list_t *node, *list;
     rt_list_t **array;
     int nr;
@@ -153,7 +154,7 @@ static rt_list_t *list_get_next(rt_list_t *current, list_get_next_t *arg)
 
 long list_thread(void)
 {
-    rt_ubase_t level;
+    rt_base_t level;
     list_get_next_t find_arg;
     rt_list_t *obj_list[LIST_FIND_OBJ_NR];
     rt_list_t *next = (rt_list_t *)RT_NULL;
@@ -165,11 +166,11 @@ long list_thread(void)
     maxlen = RT_NAME_MAX;
 
 #ifdef RT_USING_SMP
-    rt_kprintf("%-*.s cpu bind pri  status      sp     stack size max used left tick  error\n", maxlen, item_title);
+    rt_kprintf("%-*.*s cpu bind pri  status      sp     stack size max used left tick  error\n", maxlen, maxlen, item_title);
     object_split(maxlen);
     rt_kprintf(" --- ---- ---  ------- ---------- ----------  ------  ---------- ---\n");
 #else
-    rt_kprintf("%-*.s pri  status      sp     stack size max used left tick  error\n", maxlen, item_title);
+    rt_kprintf("%-*.*s pri  status      sp     stack size max used left tick  error\n", maxlen, maxlen, item_title);
     object_split(maxlen);
     rt_kprintf(" ---  ------- ---------- ----------  ------  ---------- ---\n");
 #endif /*RT_USING_SMP*/
@@ -203,16 +204,16 @@ long list_thread(void)
 
 #ifdef RT_USING_SMP
                     if (thread->oncpu != RT_CPU_DETACHED)
-                        rt_kprintf("%-*.*s %3d %3d %4d ", maxlen, RT_NAME_MAX, thread->name, thread->oncpu, thread->bind_cpu, thread->current_priority);
+                        rt_kprintf("%-*.*s %3d %3d %4d ", maxlen, RT_NAME_MAX, thread->parent.name, thread->oncpu, thread->bind_cpu, thread->current_priority);
                     else
-                        rt_kprintf("%-*.*s N/A %3d %4d ", maxlen, RT_NAME_MAX, thread->name, thread->bind_cpu, thread->current_priority);
+                        rt_kprintf("%-*.*s N/A %3d %4d ", maxlen, RT_NAME_MAX, thread->parent.name, thread->bind_cpu, thread->current_priority);
 
 #else
-                    rt_kprintf("%-*.*s %3d ", maxlen, RT_NAME_MAX, thread->name, thread->current_priority);
+                    rt_kprintf("%-*.*s %3d ", maxlen, RT_NAME_MAX, thread->parent.name, thread->current_priority);
 #endif /*RT_USING_SMP*/
                     stat = (thread->stat & RT_THREAD_STAT_MASK);
                     if (stat == RT_THREAD_READY)        rt_kprintf(" ready  ");
-                    else if (stat == RT_THREAD_SUSPEND) rt_kprintf(" suspend");
+                    else if ((stat & RT_THREAD_SUSPEND_MASK) == RT_THREAD_SUSPEND_MASK) rt_kprintf(" suspend");
                     else if (stat == RT_THREAD_INIT)    rt_kprintf(" init   ");
                     else if (stat == RT_THREAD_CLOSE)   rt_kprintf(" close  ");
                     else if (stat == RT_THREAD_RUNNING) rt_kprintf(" running");
@@ -229,15 +230,14 @@ long list_thread(void)
                                thread->error);
 #else
                     ptr = (rt_uint8_t *)thread->stack_addr;
-                    while (*ptr == '#')ptr ++;
-
-                    rt_kprintf(" 0x%08x 0x%08x    %02d%%   0x%08x %03d\n",
+                    while (*ptr == '#') ptr ++;
+                    rt_kprintf(" 0x%08x 0x%08x    %02d%%   0x%08x %s\n",
                                thread->stack_size + ((rt_ubase_t)thread->stack_addr - (rt_ubase_t)thread->sp),
                                thread->stack_size,
                                (thread->stack_size - ((rt_ubase_t) ptr - (rt_ubase_t) thread->stack_addr)) * 100
                                / thread->stack_size,
                                thread->remaining_tick,
-                               thread->error);
+                               rt_strerror(thread->error));
 #endif
                 }
             }
@@ -247,7 +247,6 @@ long list_thread(void)
 
     return 0;
 }
-MSH_CMD_EXPORT(list_thread, list thread);
 
 static void show_wait_queue(struct rt_list_node *list)
 {
@@ -257,7 +256,7 @@ static void show_wait_queue(struct rt_list_node *list)
     for (node = list->next; node != list; node = node->next)
     {
         thread = rt_list_entry(node, struct rt_thread, tlist);
-        rt_kprintf("%.*s", RT_NAME_MAX, thread->name);
+        rt_kprintf("%.*s", RT_NAME_MAX, thread->parent.name);
 
         if (node->next != list)
             rt_kprintf("/");
@@ -267,7 +266,7 @@ static void show_wait_queue(struct rt_list_node *list)
 #ifdef RT_USING_SEMAPHORE
 long list_sem(void)
 {
-    rt_ubase_t level;
+    rt_base_t level;
     list_get_next_t find_arg;
     rt_list_t *obj_list[LIST_FIND_OBJ_NR];
     rt_list_t *next = (rt_list_t *)RT_NULL;
@@ -279,7 +278,7 @@ long list_sem(void)
 
     maxlen = RT_NAME_MAX;
 
-    rt_kprintf("%-*.s v   suspend thread\n", maxlen, item_title);
+    rt_kprintf("%-*.*s v   suspend thread\n", maxlen, maxlen, item_title);
     object_split(maxlen);
     rt_kprintf(" --- --------------\n");
 
@@ -328,13 +327,12 @@ long list_sem(void)
 
     return 0;
 }
-MSH_CMD_EXPORT(list_sem, list semaphore in system);
-#endif
+#endif /* RT_USING_SEMAPHORE */
 
 #ifdef RT_USING_EVENT
 long list_event(void)
 {
-    rt_ubase_t level;
+    rt_base_t level;
     list_get_next_t find_arg;
     rt_list_t *obj_list[LIST_FIND_OBJ_NR];
     rt_list_t *next = (rt_list_t *)RT_NULL;
@@ -346,7 +344,7 @@ long list_event(void)
 
     maxlen = RT_NAME_MAX;
 
-    rt_kprintf("%-*.s      set    suspend thread\n", maxlen, item_title);
+    rt_kprintf("%-*.*s      set    suspend thread\n", maxlen, maxlen, item_title);
     object_split(maxlen);
     rt_kprintf("  ---------- --------------\n");
 
@@ -393,13 +391,12 @@ long list_event(void)
 
     return 0;
 }
-MSH_CMD_EXPORT(list_event, list event in system);
-#endif
+#endif /* RT_USING_EVENT */
 
 #ifdef RT_USING_MUTEX
 long list_mutex(void)
 {
-    rt_ubase_t level;
+    rt_base_t level;
     list_get_next_t find_arg;
     rt_list_t *obj_list[LIST_FIND_OBJ_NR];
     rt_list_t *next = (rt_list_t *)RT_NULL;
@@ -411,9 +408,9 @@ long list_mutex(void)
 
     maxlen = RT_NAME_MAX;
 
-    rt_kprintf("%-*.s   owner  hold suspend thread\n", maxlen, item_title);
+    rt_kprintf("%-*.*s   owner  hold priority suspend thread \n", maxlen, maxlen, item_title);
     object_split(maxlen);
-    rt_kprintf(" -------- ---- --------------\n");
+    rt_kprintf(" -------- ---- -------- --------------\n");
 
     do
     {
@@ -436,14 +433,30 @@ long list_mutex(void)
                 rt_hw_interrupt_enable(level);
 
                 m = (struct rt_mutex *)obj;
-                rt_kprintf("%-*.*s %-8.*s %04d %d\n",
+                if (!rt_list_isempty(&m->parent.suspend_thread))
+                {
+                    rt_kprintf("%-*.*s %-8.*s %04d %8d  %04d ",
                            maxlen, RT_NAME_MAX,
                            m->parent.parent.name,
                            RT_NAME_MAX,
-                           m->owner->name,
+                           m->owner->parent.name,
                            m->hold,
+                           m->priority,
                            rt_list_len(&m->parent.suspend_thread));
-
+                    show_wait_queue(&(m->parent.suspend_thread));
+                    rt_kprintf("\n");
+                }
+                else
+                {
+                    rt_kprintf("%-*.*s %-8.*s %04d %8d  %04d\n",
+                           maxlen, RT_NAME_MAX,
+                           m->parent.parent.name,
+                           RT_NAME_MAX,
+                           m->owner->parent.name,
+                           m->hold,
+                           m->priority,
+                           rt_list_len(&m->parent.suspend_thread));
+                }
             }
         }
     }
@@ -451,13 +464,12 @@ long list_mutex(void)
 
     return 0;
 }
-MSH_CMD_EXPORT(list_mutex, list mutex in system);
-#endif
+#endif /* RT_USING_MUTEX */
 
 #ifdef RT_USING_MAILBOX
 long list_mailbox(void)
 {
-    rt_ubase_t level;
+    rt_base_t level;
     list_get_next_t find_arg;
     rt_list_t *obj_list[LIST_FIND_OBJ_NR];
     rt_list_t *next = (rt_list_t *)RT_NULL;
@@ -469,7 +481,7 @@ long list_mailbox(void)
 
     maxlen = RT_NAME_MAX;
 
-    rt_kprintf("%-*.s entry size suspend thread\n", maxlen, item_title);
+    rt_kprintf("%-*.*s entry size suspend thread\n", maxlen, maxlen, item_title);
     object_split(maxlen);
     rt_kprintf(" ----  ---- --------------\n");
 
@@ -522,13 +534,12 @@ long list_mailbox(void)
 
     return 0;
 }
-MSH_CMD_EXPORT(list_mailbox, list mail box in system);
-#endif
+#endif /* RT_USING_MAILBOX */
 
 #ifdef RT_USING_MESSAGEQUEUE
 long list_msgqueue(void)
 {
-    rt_ubase_t level;
+    rt_base_t level;
     list_get_next_t find_arg;
     rt_list_t *obj_list[LIST_FIND_OBJ_NR];
     rt_list_t *next = (rt_list_t *)RT_NULL;
@@ -540,7 +551,7 @@ long list_msgqueue(void)
 
     maxlen = RT_NAME_MAX;
 
-    rt_kprintf("%-*.s entry suspend thread\n", maxlen, item_title);
+    rt_kprintf("%-*.*s entry suspend thread\n", maxlen, maxlen, item_title);
     object_split(maxlen);
     rt_kprintf(" ----  --------------\n");
     do
@@ -589,13 +600,12 @@ long list_msgqueue(void)
 
     return 0;
 }
-MSH_CMD_EXPORT(list_msgqueue, list message queue in system);
-#endif
+#endif /* RT_USING_MESSAGEQUEUE */
 
 #ifdef RT_USING_MEMHEAP
 long list_memheap(void)
 {
-    rt_ubase_t level;
+    rt_base_t level;
     list_get_next_t find_arg;
     rt_list_t *obj_list[LIST_FIND_OBJ_NR];
     rt_list_t *next = (rt_list_t *)RT_NULL;
@@ -607,7 +617,7 @@ long list_memheap(void)
 
     maxlen = RT_NAME_MAX;
 
-    rt_kprintf("%-*.s  pool size  max used size available size\n", maxlen, item_title);
+    rt_kprintf("%-*.*s  pool size  max used size available size\n", maxlen, maxlen, item_title);
     object_split(maxlen);
     rt_kprintf(" ---------- ------------- --------------\n");
     do
@@ -646,13 +656,12 @@ long list_memheap(void)
 
     return 0;
 }
-MSH_CMD_EXPORT(list_memheap, list memory heap in system);
-#endif
+#endif /* RT_USING_MEMHEAP */
 
 #ifdef RT_USING_MEMPOOL
 long list_mempool(void)
 {
-    rt_ubase_t level;
+    rt_base_t level;
     list_get_next_t find_arg;
     rt_list_t *obj_list[LIST_FIND_OBJ_NR];
     rt_list_t *next = (rt_list_t *)RT_NULL;
@@ -664,7 +673,7 @@ long list_mempool(void)
 
     maxlen = RT_NAME_MAX;
 
-    rt_kprintf("%-*.s block total free suspend thread\n", maxlen, item_title);
+    rt_kprintf("%-*.*s block total free suspend thread\n", maxlen, maxlen, item_title);
     object_split(maxlen);
     rt_kprintf(" ----  ----  ---- --------------\n");
     do
@@ -726,12 +735,11 @@ long list_mempool(void)
 
     return 0;
 }
-MSH_CMD_EXPORT(list_mempool, list memory pool in system);
-#endif
+#endif /* RT_USING_MEMPOOL */
 
 long list_timer(void)
 {
-    rt_ubase_t level;
+    rt_base_t level;
     list_get_next_t find_arg;
     rt_list_t *obj_list[LIST_FIND_OBJ_NR];
     rt_list_t *next = (rt_list_t *)RT_NULL;
@@ -743,7 +751,7 @@ long list_timer(void)
 
     maxlen = RT_NAME_MAX;
 
-    rt_kprintf("%-*.s  periodic   timeout    activated     mode\n", maxlen, item_title);
+    rt_kprintf("%-*.*s  periodic   timeout    activated     mode\n", maxlen, maxlen, item_title);
     object_split(maxlen);
     rt_kprintf(" ---------- ---------- ----------- ---------\n");
     do
@@ -790,10 +798,9 @@ long list_timer(void)
 
     return 0;
 }
-MSH_CMD_EXPORT(list_timer, list timer in system);
 
 #ifdef RT_USING_DEVICE
-static char *const device_type_str[] =
+static char *const device_type_str[RT_Device_Class_Unknown] =
 {
     "Character Device",
     "Block Device",
@@ -819,15 +826,22 @@ static char *const device_type_str[] =
     "Touch Device",
     "Phy Device",
     "Security Device",
-    "Unknown"
+    "WLAN Device",
+    "Pin Device",
+    "ADC Device",
+    "DAC Device",
+    "WDT Device",
+    "PWM Device",
+    "Bus Device",
 };
 
 long list_device(void)
 {
-    rt_ubase_t level;
+    rt_base_t level;
     list_get_next_t find_arg;
     rt_list_t *obj_list[LIST_FIND_OBJ_NR];
     rt_list_t *next = (rt_list_t *)RT_NULL;
+    const char *device_type;
 
     int maxlen;
     const char *item_title = "device";
@@ -836,7 +850,7 @@ long list_device(void)
 
     maxlen = RT_NAME_MAX;
 
-    rt_kprintf("%-*.s         type         ref count\n", maxlen, item_title);
+    rt_kprintf("%-*.*s         type         ref count\n", maxlen, maxlen, item_title);
     object_split(maxlen);
     rt_kprintf(" -------------------- ----------\n");
     do
@@ -860,12 +874,16 @@ long list_device(void)
                 rt_hw_interrupt_enable(level);
 
                 device = (struct rt_device *)obj;
+                device_type = "Unknown";
+                if (device->type < RT_Device_Class_Unknown &&
+                    device_type_str[device->type] != RT_NULL)
+                {
+                    device_type = device_type_str[device->type];
+                }
                 rt_kprintf("%-*.*s %-20s %-8d\n",
                            maxlen, RT_NAME_MAX,
                            device->parent.name,
-                           (device->type <= RT_Device_Class_Unknown) ?
-                           device_type_str[device->type] :
-                           device_type_str[RT_Device_Class_Unknown],
+                           device_type,
                            device->ref_count);
 
             }
@@ -875,7 +893,118 @@ long list_device(void)
 
     return 0;
 }
-MSH_CMD_EXPORT(list_device, list device in system);
-#endif
+#endif /* RT_USING_DEVICE */
+
+int cmd_list(int argc, char **argv)
+{
+    if(argc == 2)
+    {
+        if(strcmp(argv[1], "thread") == 0)
+        {
+            list_thread();
+        }
+        else if(strcmp(argv[1], "timer") == 0)
+        {
+            list_timer();
+        }
+#ifdef RT_USING_SEMAPHORE
+        else if(strcmp(argv[1], "sem") == 0)
+        {
+            list_sem();
+        }
+#endif /* RT_USING_SEMAPHORE */
+#ifdef RT_USING_EVENT
+        else if(strcmp(argv[1], "event") == 0)
+        {
+            list_event();
+        }
+#endif /* RT_USING_EVENT */
+#ifdef RT_USING_MUTEX
+        else if(strcmp(argv[1], "mutex") == 0)
+        {
+            list_mutex();
+        }
+#endif /* RT_USING_MUTEX */
+#ifdef RT_USING_MAILBOX
+        else if(strcmp(argv[1], "mailbox") == 0)
+        {
+            list_mailbox();
+        }
+#endif  /* RT_USING_MAILBOX */
+#ifdef RT_USING_MESSAGEQUEUE
+        else if(strcmp(argv[1], "msgqueue") == 0)
+        {
+            list_msgqueue();
+        }
+#endif /* RT_USING_MESSAGEQUEUE */
+#ifdef RT_USING_MEMHEAP
+        else if(strcmp(argv[1], "memheap") == 0)
+        {
+            list_memheap();
+        }
+#endif /* RT_USING_MEMHEAP */
+#ifdef RT_USING_MEMPOOL
+        else if(strcmp(argv[1], "mempool") == 0)
+        {
+            list_mempool();
+        }
+#endif /* RT_USING_MEMPOOL */
+#ifdef RT_USING_DEVICE
+        else if(strcmp(argv[1], "device") == 0)
+        {
+            list_device();
+        }
+#endif /* RT_USING_DEVICE */
+#ifdef RT_USING_DFS
+        else if(strcmp(argv[1], "fd") == 0)
+        {
+            extern int list_fd(void);
+            list_fd();
+        }
+#endif /* RT_USING_DFS */
+        else
+        {
+            goto _usage;
+        }
+
+        return 0;
+    }
+
+_usage:
+    rt_kprintf("Usage: list [options]\n");
+    rt_kprintf("[options]:\n");
+    rt_kprintf("    %-12s - list threads\n", "thread");
+    rt_kprintf("    %-12s - list timers\n", "timer");
+#ifdef RT_USING_SEMAPHORE
+    rt_kprintf("    %-12s - list semaphores\n", "sem");
+#endif /* RT_USING_SEMAPHORE */
+#ifdef RT_USING_MUTEX
+    rt_kprintf("    %-12s - list mutexs\n", "mutex");
+#endif /* RT_USING_MUTEX */
+#ifdef RT_USING_EVENT
+    rt_kprintf("    %-12s - list events\n", "event");
+#endif /* RT_USING_EVENT */
+#ifdef RT_USING_MAILBOX
+    rt_kprintf("    %-12s - list mailboxs\n", "mailbox");
+#endif /* RT_USING_MAILBOX */
+#ifdef RT_USING_MESSAGEQUEUE
+    rt_kprintf("    %-12s - list message queues\n", "msgqueue");
+#endif /* RT_USING_MESSAGEQUEUE */
+#ifdef RT_USING_MEMHEAP
+    rt_kprintf("    %-12s - list memory heaps\n", "memheap");
+#endif /* RT_USING_MEMHEAP */
+#ifdef RT_USING_MEMPOOL
+    rt_kprintf("    %-12s - list memory pools\n", "mempool");
+#endif /* RT_USING_MEMPOOL */
+#ifdef RT_USING_DEVICE
+    rt_kprintf("    %-12s - list devices\n", "device");
+#endif /* RT_USING_DEVICE */
+#ifdef RT_USING_DFS
+    rt_kprintf("    %-12s - list file descriptors\n", "fd");
+#endif /* RT_USING_DFS */
+
+    return 0;
+}
+MSH_CMD_EXPORT_ALIAS(cmd_list, list, list objects);
 
 #endif /* RT_USING_FINSH */

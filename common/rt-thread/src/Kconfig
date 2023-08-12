@@ -1,8 +1,9 @@
+#include "rtconfig.h"
 menu "RT-Thread Kernel"
 
 config RT_NAME_MAX
     int "The maximal size of kernel object name"
-    range 2 32
+    range 1 64
     default 8
     help
         Each kernel object, such as thread, timer, semaphore etc, has a name,
@@ -17,6 +18,42 @@ config RT_USING_ARCH_DATA_TYPE
 
         Please re-define these data types in rtconfig_project.h file.
 
+config RT_USING_SMART
+    bool "Enable RT-Thread Smart (microkernel on kernel/userland)"
+    default n
+    select RT_USING_LWP
+    select RT_USING_DFS
+    select RT_USING_LIBC
+    select RT_USING_POSIX_CLOCKTIME
+    select RT_USING_TTY
+    select RT_USING_NULL
+    select RT_USING_ZERO
+    select RT_USING_RANDOM
+    select RT_USING_RTC
+    select RT_USING_POSIX_TIMER
+    select RT_USING_POSIX_CLOCK
+    select RT_USING_POSIX_FS
+    select RT_USING_POSIX_TERMIOS
+    depends on ARCH_ARM_CORTEX_M || ARCH_ARM_ARM9 || ARCH_ARM_CORTEX_A || ARCH_ARMV8 || ARCH_RISCV64
+    help
+        RT-Thread Smart is a microkernel based operating system on RT-Thread.
+
+config RT_USING_AMP
+    bool "Enable AMP(Asymmetric Multi-Processing)"
+    default n
+    if RT_USING_AMP
+        choice
+            prompt "Select the AMP role"
+            default RT_AMP_SLAVE
+
+            config RT_AMP_MASTER
+            bool "amp role MASTER"
+
+            config RT_AMP_SLAVE
+            bool "amp role SLAVE"
+        endchoice
+    endif
+
 config RT_USING_SMP
     bool "Enable SMP(Symmetric multiprocessing)"
     default n
@@ -29,13 +66,13 @@ config RT_USING_SMP
 config RT_CPUS_NR
     int "Number of CPUs"
     default 2
-    depends on RT_USING_SMP
+    depends on RT_USING_SMP || RT_USING_AMP
     help
         Number of CPUs in the system
 
 config RT_ALIGN_SIZE
     int "Alignment size for CPU architecture data access"
-    default 4
+    default 8
     help
         Alignment size for CPU architecture data access
 
@@ -62,7 +99,7 @@ config RT_THREAD_PRIORITY_MAX
 config RT_TICK_PER_SECOND
     int "Tick frequency, Hz"
     range 10 1000
-    default 100
+    default 1000
     help
         System's tick frequency, Hz.
 
@@ -80,10 +117,11 @@ config RT_USING_HOOK
     help
         Enable the hook function when system running, such as idle thread hook,
         thread context switch etc.
+
     if RT_USING_HOOK
         config RT_HOOK_USING_FUNC_PTR
-        bool "Using function pointers as system hook"
-        default y
+            bool "Using function pointers as system hook"
+            default y
     endif
 
 config RT_USING_IDLE_HOOK
@@ -91,16 +129,17 @@ config RT_USING_IDLE_HOOK
     default y if RT_USING_HOOK
 
     if RT_USING_IDLE_HOOK
-    config RT_IDLE_HOOK_LIST_SIZE
-        int "The max size of idle hook list"
-        default 4
-        range 1 16
-        help
-            The system has a hook list. This is the hook list size.
+        config RT_IDLE_HOOK_LIST_SIZE
+            int "The max size of idle hook list"
+            default 4
+            range 1 16
+            help
+                The system has a hook list. This is the hook list size.
     endif
 
 config IDLE_THREAD_STACK_SIZE
     int "The stack size of idle thread"
+    default 1024 if ARCH_CPU_64BIT
     default 256
 
 config SYSTEM_THREAD_STACK_SIZE
@@ -122,6 +161,7 @@ if RT_USING_TIMER_SOFT
 
     config RT_TIMER_THREAD_STACK_SIZE
         int "The stack size of timer thread"
+        default 2048 if ARCH_CPU_64BIT
         default 512
 endif
 
@@ -129,16 +169,14 @@ menu "kservice optimization"
 
     config RT_KSERVICE_USING_STDLIB
         bool "Enable kservice to use standard C library"
-        default n
+        default y
 
     if RT_KSERVICE_USING_STDLIB
-        config RT_KSERVICE_USING_STDLIB_MEMCPY
-            bool "Use memcpy to replace rt_memcpy (faster, but not safe)"
+        config RT_KSERVICE_USING_STDLIB_MEMORY
+            bool "Use stdlib memory functions to replace (faster, but not safe)"
             default n
-
-        config RT_KSERVICE_USING_STDLIB_MEMSET
-            bool "Use memset to replace rt_memset (faster, but not safe)"
-            default n
+            help
+                e.g. use memcpy to replace rt_memcpy
     endif
 
     config RT_KSERVICE_USING_TINY_SIZE
@@ -149,9 +187,13 @@ menu "kservice optimization"
         bool "Enable kservice to use tiny finding first bit set method"
         default n
 
-    config RT_PRINTF_LONGLONG
-        bool "Enable rt_printf-family functions to support long long format"
+    config RT_KPRINTF_USING_LONGLONG
+        bool "Enable rt_printf-family functions to support long-long format"
+        default y if ARCH_CPU_64BIT
         default n
+        help
+            Enable rt_printf()/rt_snprintf()/rt_sprintf()/rt_vsnprintf()/rt_vsprintf()
+            functions to support long-long format
 
 endmenu
 
@@ -237,6 +279,12 @@ if RT_DEBUG
         int
         default 1 if RT_DEBUG_MEMHEAP_CONFIG
 
+    if ARCH_MM_MMU
+        config RT_DEBUG_PAGE_LEAK
+            bool "Enable page leaking tracer"
+            default n
+    endif
+
     config RT_DEBUG_MODULE_CONFIG
         bool "Enable debugging of Application Module"
         default n
@@ -281,6 +329,18 @@ endmenu
 
 menu "Memory Management"
 
+    if ARCH_MM_MMU
+        config RT_PAGE_MAX_ORDER
+            int "Max order of pages allocatable by page allocator"
+            default 11
+            help
+                For example, A value of 11 means the maximum chunk of contiguous memory
+                allocatable by page system is 2^(11 + ARCH_PAGE_BITS - 1) Bytes.
+                Large memory requirement can consume all system resource, and should
+                consider reserved memory instead to enhance system endurance.
+                Max order should at least satisfied usage by huge page.
+    endif
+
     config RT_USING_MEMPOOL
         bool "Using memory pool"
         default y
@@ -319,7 +379,7 @@ menu "Memory Management"
                         Speed priority mode.
                         As long as the memory block size meets the requirements, the search ends immediately.
 
-                config RT_MEMHEAP_BSET_MODE
+                config RT_MEMHEAP_BEST_MODE
                     bool "best mode"
                     help
                         Best size first.
@@ -402,6 +462,21 @@ menu "Kernel Device Object"
         bool "Using ops for each device object"
         default n
 
+    config RT_USING_DM
+        bool "Enable device driver model with device tree"
+        default n
+        help
+            Enable device driver model with device tree (FDT). It will use more memory
+            to parse and support device tree feature.
+
+    config RT_USING_DM_FDT
+        bool "Enablie builtin libfdt"
+        depends on RT_USING_DM
+        default y
+        help
+            libfdt - Flat Device Tree manipulation. If your code already contains the
+            libfdt, you can cancel this built-in libfdt to avoid link issue.
+
     config RT_USING_INTERRUPT_INFO
         bool "Enable additional interrupt trace information"
         default n
@@ -426,8 +501,12 @@ endmenu
 
 config RT_VER_NUM
     hex
-    default 0x40100
+    default 0x50001
     help
         RT-Thread version number
+
+config RT_USING_STDC_ATOMIC
+    bool "Use atomic implemented in stdatomic.h"
+    default n
 
 endmenu

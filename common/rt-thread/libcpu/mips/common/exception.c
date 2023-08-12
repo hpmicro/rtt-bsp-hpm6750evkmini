@@ -61,7 +61,7 @@ const char *exception_name[] = {
 
 rt_base_t rt_hw_interrupt_disable(void)
 {
-    rt_base_t status = read_c0_status();
+    register rt_base_t status = read_c0_status();
     clear_c0_status(ST0_IE);
     return status;
 }
@@ -82,13 +82,14 @@ exception_func_t sys_exception_handlers[RT_EXCEPTION_MAX];
  */
 exception_func_t rt_set_except_vector(int n, exception_func_t func)
 {
-    exception_func_t old_handler = sys_exception_handlers[n];
+    exception_func_t old_handler;
 
-    if ((n == 0) || (n > RT_EXCEPTION_MAX) || (!func))
+    if ((n < 0) || (n >= RT_EXCEPTION_MAX) || (!func))
     {
         return 0;
     }
 
+    old_handler = sys_exception_handlers[n];
     sys_exception_handlers[n] = func;
 
     return old_handler;

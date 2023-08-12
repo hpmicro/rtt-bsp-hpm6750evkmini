@@ -1,0 +1,61 @@
+# Copyright (c) 2021-2023 HPMicro
+# SPDX-License-Identifier: BSD-3-Clause
+
+board:
+    name: hpm6750evkmini
+    soc: HPM6750
+    device: HPM6750xVMx
+    openocd-soc: hpm6750-dual-core
+    openocd-probe: ft2232
+    on-board-ram:
+      type: sdram
+      size: 16M
+      width: 16bit
+    on-board-flash:
+      type: qspi-nor-flash
+      size: 8M
+    feature:
+      - butn
+      - rtc
+      - wdg
+      - adc
+      - sdcard
+      - usb-otg
+      - dao
+      - pdm
+      - vad
+      - cam
+      - lcd
+      - spi
+      - uart
+      - can
+      - i2c
+      - femc
+      - pwm
+      - pwm-rgb-led
+      - pwm-beep
+      - gpio
+      - gpio-led
+      - gpio-key
+      - wifi-rt007-spi
+      - tflm
+      - multicore
+      - drv_pllctl
+      - drv_sysctl
+      - dual-i2c
+      - sdxc
+      - i2s
+      - uart_software_rx_idle
+      - uart_rx_timeout
+      - uart_software_lin
+      - ptp
+      - gpiom
+      - adc12
+      - adc16
+      - adc_tempsns
+      - motor-control
+      - enet
+      - enet_pps_pinout
+      - sw_gm_api
+      - i2s_pinout
+      - hall-qei

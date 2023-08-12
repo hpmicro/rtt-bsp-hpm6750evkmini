@@ -12,7 +12,6 @@
 #define __GIC_H__
 
 #include <rthw.h>
-#include <stdint.h>
 #include <board.h>
 
 int arm_gic_get_active_irq(rt_uint64_t index);

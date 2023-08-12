@@ -208,7 +208,11 @@ u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout)
  */
 int sys_sem_valid(sys_sem_t *sem)
 {
-    return (int)(*sem);
+    int ret = 0;
+
+    if (*sem) ret = 1;
+
+    return ret;
 }
 #endif
 
@@ -283,7 +287,11 @@ void sys_mutex_free(sys_mutex_t *mutex)
  */
 int sys_mutex_valid(sys_mutex_t *mutex)
 {
-    return (int)(*mutex);
+    int ret = 0;
+
+    if (*mutex) ret = 1;
+
+    return ret;
 }
 #endif
 
@@ -458,7 +466,11 @@ u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg)
  */
 int sys_mbox_valid(sys_mbox_t *mbox)
 {
-    return (int)(*mbox);
+    int ret = 0;
+
+    if (*mbox) ret = 1;
+
+    return ret;
 }
 #endif
 
@@ -489,7 +501,7 @@ sys_thread_t sys_thread_new(const char    *name,
     RT_DEBUG_NOT_IN_INTERRUPT;
 
     /* create thread */
-    t = rt_thread_create(name, thread, arg, stacksize, prio, 20);
+    t = rt_thread_create(name, thread, arg, stacksize, prio, 100); 
     RT_ASSERT(t != RT_NULL);
 
     /* startup thread */
@@ -513,7 +525,7 @@ void sys_arch_unprotect(sys_prot_t pval)
 void sys_arch_assert(const char *file, int line)
 {
     rt_kprintf("\nAssertion: %d in %s, thread %s\n",
-               line, file, rt_thread_self()->name);
+               line, file, rt_thread_self()->parent.name);
     RT_ASSERT(0);
 }
 
@@ -527,7 +539,7 @@ u32_t sys_now(void)
     return rt_tick_get_millisecond();
 }
 
-RT_WEAK void mem_init(void)
+rt_weak void mem_init(void)
 {
 }
 
@@ -663,24 +675,24 @@ struct netif *lwip_ip4_route_src(const ip4_addr_t *dest, const ip4_addr_t *src)
 {
     struct netif *netif;
 
+    if (src == NULL)
+        return NULL;
+
     /* iterate through netifs */
     for (netif = netif_list; netif != NULL; netif = netif->next)
     {
         /* is the netif up, does it have a link and a valid address? */
         if (netif_is_up(netif) && netif_is_link_up(netif) && !ip4_addr_isany_val(*netif_ip4_addr(netif)))
         {
-            /* gateway matches on a non broadcast interface? (i.e. peer in a point to point interface) */
-            if (src != NULL)
+            /* source ip address equals netif's ip address? */
+            if (ip4_addr_cmp(src, netif_ip4_addr(netif)))
             {
-                if (ip4_addr_cmp(src, netif_ip4_addr(netif)))
-                {
-                    return netif;
-                }
+                return netif;
             }
         }
     }
-    netif = netif_default;
-    return netif;
+
+    return NULL;
 }
 #endif /* LWIP_HOOK_IP4_ROUTE_SRC */
 #endif /*LWIP_VERSION_MAJOR >= 2 */

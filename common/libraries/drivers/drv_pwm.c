@@ -1,8 +1,13 @@
 /*
- * Copyright (c) 2022 - 2023 HPMicro
+ * Copyright (c) 2022-2023 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
+ * Change Logs:
+ * Date         Author      Notes
+ * 2022-05-09   HPMicro     First version
+ * 2023-04-12   HPMicro     Adapt hpm_sdk v1.0.0
+ * 2023-05-13   HPMicro     Fix compiling error on HPM6360/HPM6200
  */
 
 #include <rtthread.h>
@@ -15,8 +20,40 @@
 #include "hpm_pwm_drv.h"
 #include "hpm_clock_drv.h"
 
-static PWM_Type * pwm_base_tbl[4] = {HPM_PWM0, HPM_PWM1, HPM_PWM2, HPM_PWM3};
-static const clock_name_t pwm_clock_tbl[4] = {clock_mot0, clock_mot1, clock_mot2, clock_mot3};
+#ifdef HPM_PWM3
+#define PWM_INSTANCE_NUM 4
+#elif defined(HPM_PWM2)
+#define PWM_INSTANCE_NUM 3
+#elif defined(HPM_PWM1)
+#define PWM_INSTANCE_NUM 2
+#else
+#define PWM_INSTANCE_NUM 1
+#endif
+
+
+static PWM_Type * pwm_base_tbl[PWM_INSTANCE_NUM] = {
+    HPM_PWM0,
+#ifdef HPM_PWM1
+    HPM_PWM1,
+#endif
+#ifdef HPM_PWM2
+    HPM_PWM2,
+#endif
+#ifdef HPM_PWM3
+    HPM_PWM3
+#endif
+    };
+static const clock_name_t pwm_clock_tbl[4] = {clock_mot0,
+#if (PWM_INSTANCE_NUM > 1)
+clock_mot1,
+#endif
+#if (PWM_INSTANCE_NUM > 2)
+clock_mot2,
+#endif
+#if (PWM_INSTANCE_NUM > 3)
+clock_mot3
+#endif
+};
 
 rt_err_t hpm_generate_central_aligned_waveform(uint8_t pwm_index, uint8_t channel, uint32_t period, uint32_t pulse)
 {
@@ -227,34 +264,52 @@ static struct rt_device hpm_pwm_parent = {
         .control = hpm_pwm_dev_control
 };
 
+#ifdef HPM_PWM0
 static struct rt_device_pwm hpm_dev_pwm0 = {
         .ops = &hpm_pwm_ops,
 };
+#endif
 
+#ifdef HPM_PWM1
 static struct rt_device_pwm hpm_dev_pwm1 = {
         .ops = &hpm_pwm_ops,
 };
+#endif
 
+#ifdef HPM_PWM2
 static struct rt_device_pwm hpm_dev_pwm2 = {
         .ops = &hpm_pwm_ops,
 };
+#endif
 
+#ifdef HPM_PWM3
 static struct rt_device_pwm hpm_dev_pwm3 = {
         .ops = &hpm_pwm_ops,
 };
+#endif
 
 
 int rt_hw_pwm_init(void)
 {
     int ret = RT_EOK;
+
+#ifdef HPM_PWM0
     hpm_dev_pwm0.parent = hpm_pwm_parent;
-    hpm_dev_pwm1.parent = hpm_pwm_parent;
-    hpm_dev_pwm2.parent = hpm_pwm_parent;
-    hpm_dev_pwm3.parent = hpm_pwm_parent;
     ret = rt_device_pwm_register(&hpm_dev_pwm0, "pwm0", &hpm_pwm_ops, RT_NULL);
+#endif
+
+#ifdef HPM_PWM1
+    hpm_dev_pwm1.parent = hpm_pwm_parent;
     ret = rt_device_pwm_register(&hpm_dev_pwm1, "pwm1", &hpm_pwm_ops, RT_NULL);
+#endif
+#ifdef HPM_PWM2
+    hpm_dev_pwm2.parent = hpm_pwm_parent;
     ret = rt_device_pwm_register(&hpm_dev_pwm2, "pwm2", &hpm_pwm_ops, RT_NULL);
+#endif
+#ifdef HPM_PWM3
+    hpm_dev_pwm3.parent = hpm_pwm_parent;
     ret = rt_device_pwm_register(&hpm_dev_pwm3, "pwm3", &hpm_pwm_ops, RT_NULL);
+#endif
 
     return ret;
 }
@@ -262,4 +317,3 @@ int rt_hw_pwm_init(void)
 INIT_BOARD_EXPORT(rt_hw_pwm_init);
 
 #endif /* BSP_USING_PWM */
-

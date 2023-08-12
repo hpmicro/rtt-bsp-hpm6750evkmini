@@ -277,14 +277,22 @@ struct rw007_spi
 
     /* Tx mempool and mailbox */
     struct rt_mempool spi_tx_mp;
+    #ifdef rt_align
+    rt_align(RT_ALIGN_SIZE)
+    #else
     ALIGN(RT_ALIGN_SIZE)
+    #endif
     rt_uint8_t spi_tx_mempool[(sizeof(struct spi_data_packet) + 4) * SPI_TX_POOL_SIZE];
     struct rt_mailbox spi_tx_mb;
     rt_ubase_t spi_tx_mb_pool[SPI_TX_POOL_SIZE + 1];
 
     /* Rx mempool and mailbox */
     struct rt_mempool spi_rx_mp;
+    #ifdef rt_align
+    rt_align(RT_ALIGN_SIZE)
+    #else
     ALIGN(RT_ALIGN_SIZE)
+    #endif
     rt_uint8_t spi_rx_mempool[(sizeof(struct spi_data_packet) + 4) * SPI_RX_POOL_SIZE];
     struct rt_mailbox spi_rx_mb;
     rt_ubase_t spi_rx_mb_pool[SPI_RX_POOL_SIZE + 1];

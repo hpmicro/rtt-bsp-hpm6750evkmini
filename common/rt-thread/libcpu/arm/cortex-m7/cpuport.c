@@ -20,7 +20,7 @@
 #include <rtthread.h>
 
 #if               /* ARMCC */ (  (defined ( __CC_ARM ) && defined ( __TARGET_FPU_VFP ))    \
-                  /* Clang */ || (defined ( __CLANG_ARM ) && defined ( __VFP_FP__ ) && !defined(__SOFTFP__)) \
+                  /* Clang */ || (defined ( __clang__ ) && defined ( __VFP_FP__ ) && !defined(__SOFTFP__)) \
                   /* IAR */   || (defined ( __ICCARM__ ) && defined ( __ARMVFP__ ))        \
                   /* GNU */   || (defined ( __GNUC__ ) && defined ( __VFP_FP__ ) && !defined(__SOFTFP__)) )
 #define USE_FPU   1
@@ -404,7 +404,7 @@ void rt_hw_hard_fault_exception(struct exception_info *exception_info)
 
     if (exception_info->exc_return & (1 << 2))
     {
-        rt_kprintf("hard fault on thread: %s\r\n\r\n", rt_thread_self()->name);
+        rt_kprintf("hard fault on thread: %s\r\n\r\n", rt_thread_self()->parent.name);
 
 #if defined(RT_USING_FINSH) && defined(MSH_USING_BUILT_IN_COMMANDS)
         list_thread();
@@ -430,7 +430,7 @@ void rt_hw_hard_fault_exception(struct exception_info *exception_info)
 /**
  * shutdown CPU
  */
-RT_WEAK void rt_hw_cpu_shutdown(void)
+rt_weak void rt_hw_cpu_shutdown(void)
 {
     rt_kprintf("shutdown...\n");
 
@@ -440,7 +440,7 @@ RT_WEAK void rt_hw_cpu_shutdown(void)
 /**
  * reset CPU
  */
-RT_WEAK void rt_hw_cpu_reset(void)
+rt_weak void rt_hw_cpu_reset(void)
 {
     SCB_AIRCR = SCB_RESET_VALUE;
 }
@@ -469,16 +469,16 @@ __asm int __rt_ffs(int value)
 exit
     BX      lr
 }
-#elif defined(__CLANG_ARM)
+#elif defined(__clang__)
 int __rt_ffs(int value)
 {
     __asm volatile(
-        "CMP     r0, #0x00            \n"
+        "CMP     %1, #0x00            \n"
         "BEQ     1f                   \n"
 
-        "RBIT    r0, r0               \n"
-        "CLZ     r0, r0               \n"
-        "ADDS    r0, r0, #0x01        \n"
+        "RBIT    %1, %1               \n"
+        "CLZ     %0, %1               \n"
+        "ADDS    %0, %0, #0x01        \n"
 
         "1:                           \n"
 

@@ -1,5 +1,19 @@
 # Change Log
 
+## v1.2.0
+- Integrated hpm_sdk v1.2.0
+  - Note:
+    - the docs, middleware, scripts, samples folder in SDK root directory were removed
+- Updated:
+    - Upgraded rt-thread to v5.0.1
+    - Optimized the performance of LVGL demo
+    - Added `README.md` for all samples
+    - Added UART RXFIFO timeout interrupt support
+    - Added `flash_release` build and `ram_release` build
+  - Fixed:
+    - SD card performance is slow
+    - Uart lost data when working in low baudrate
+
 ## v1.1.0
 
 - Integrated hpm_sdk v1.1.0

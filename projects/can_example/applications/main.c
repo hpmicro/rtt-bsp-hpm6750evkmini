@@ -1,21 +1,22 @@
 /*
- * Copyright (c) 2022 hpmicro
+ * Copyright (c) 2022-2023 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Change Logs:
  * Date           Author       Notes
  * 2022-05-08     hpmicro      the first version
+ * 2023-05-08     hpmicro      Adapt the RT-Thread V5.0.0
  */
 
 /*****************************************************************************************
  *
  *  CAN Example
  *
- *  Theis demo works in internal loopback mode. It demonstrates following functions:
+ *  This demo works in internal loopback mode. It demonstrates following functions:
  *
  *   1. CAN transmission and reception with standard ID
- *   2. CAN transmission and reception with externd ID
+ *   2. CAN transmission and reception with extended ID
  *   3. CAN transmission and reception with CAN filter enabled
  *   4. CANFD transmission and reception
  *
@@ -90,9 +91,6 @@ static void can_rx_thread(void *parameter)
 
     while (1)
     {
-        /* Get data from uselist linked list when hdr == -1 */
-        rxmsg.hdr = -1;
-
         rt_sem_take(&rx_sem, RT_WAITING_FOREVER);
         /* Get one CAN frame */
         rt_device_read(can_dev, 0, &rxmsg, sizeof(rxmsg));
@@ -222,6 +220,9 @@ int can_sample(int argc, char *argv[])
      ****************************************************************************/
     struct rt_can_filter_item items[5] =
     {
+    #ifdef RT_CAN_USING_HDR
+        #error This feature is not supported yet
+    #else
         /* std, match ID:0x100~0x1ff, default filter list */
         RT_CAN_FILTER_ITEM_INIT(0x100, 0, 0, CAN_FILTERMODE_IDMASK, 0x700),
         /* std, match ID:0x300~0x3ff*/
@@ -232,6 +233,7 @@ int can_sample(int argc, char *argv[])
         RT_CAN_FILTER_STD_INIT(0x486),
         /* std, match ID: 0x55, specify the filter number : 7 */
         {0x555, 0, 0, CAN_FILTERMODE_IDMASK, 0x7ff, 7,}
+    #endif
     };
 
     struct rt_can_filter_config cfg = {5, 1, items};

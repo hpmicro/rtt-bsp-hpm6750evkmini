@@ -22,7 +22,6 @@
 
 /* kservice optimization */
 
-#define RT_PRINTF_LONGLONG
 /* end of kservice optimization */
 
 /* Inter-Thread communication */
@@ -36,6 +35,7 @@
 
 /* Memory Management */
 
+#define RT_PAGE_MAX_ORDER 11
 #define RT_USING_MEMPOOL
 #define RT_USING_SMALL_MEM
 #define RT_USING_SMALL_MEM_AS_HEAP
@@ -49,7 +49,7 @@
 #define RT_CONSOLEBUF_SIZE 128
 #define RT_CONSOLE_DEVICE_NAME "uart0"
 /* end of Kernel Device Object */
-#define RT_VER_NUM 0x40100
+#define RT_VER_NUM 0x50000
 /* end of RT-Thread Kernel */
 
 /* RT-Thread Components */
@@ -58,6 +58,7 @@
 #define RT_USING_USER_MAIN
 #define RT_MAIN_THREAD_STACK_SIZE 2048
 #define RT_MAIN_THREAD_PRIORITY 10
+#define RT_USING_LEGACY
 #define RT_USING_MSH
 #define RT_USING_FINSH
 #define FINSH_USING_MSH
@@ -82,6 +83,7 @@
 /* Device Drivers */
 
 #define RT_USING_DEVICE_IPC
+#define RT_UNAMED_PIPE_NUMBER 64
 #define RT_USING_SYSTEM_WORKQUEUE
 #define RT_SYSTEM_WORKQUEUE_STACKSIZE 2048
 #define RT_SYSTEM_WORKQUEUE_PRIORITY 23
@@ -146,10 +148,10 @@
 #define RT_USING_SAL
 #define SAL_INTERNET_CHECK
 
-/* protocol stack implement */
+/* Docking with protocol stacks */
 
 #define SAL_USING_LWIP
-/* end of protocol stack implement */
+/* end of Docking with protocol stacks */
 #define SAL_USING_POSIX
 #define RT_USING_NETDEV
 #define NETDEV_USING_IFCONFIG
@@ -327,6 +329,21 @@
 #define PKG_USING_OPTPARSE
 #define PKG_USING_OPTPARSE_LATEST_VERSION
 /* end of miscellaneous packages */
+
+/* Arduino libraries */
+
+
+/* Sensor libraries */
+
+/* end of Sensor libraries */
+
+/* Display libraries */
+
+/* end of Display libraries */
+
+/* Project libraries */
+
+/* end of Arduino libraries */
 /* end of RT-Thread online packages */
 
 /* Hardware Drivers Config */

@@ -11,3 +11,8 @@
     .section ".start", "ax"
 Reset_Handler:
     nop
+
+.text
+.weak SVC_Handler
+SVC_Handler:
+    ret

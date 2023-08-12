@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2022, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -12,6 +12,10 @@
 #define WORKQUEUE_H__
 
 #include <rtthread.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 enum
 {
@@ -70,7 +74,9 @@ rt_err_t rt_work_urgent(struct rt_work *work);
 rt_err_t rt_work_cancel(struct rt_work *work);
 #endif /* RT_USING_SYSTEM_WORKQUEUE */
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* RT_USING_HEAP */
 

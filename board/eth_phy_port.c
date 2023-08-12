@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 - 2022 hpmicro
+ * Copyright (c) 2021-2023 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -149,7 +149,7 @@ static void phy_poll_status(void *parameter)
 {
     int ret;
     phy_info_t phy_info;
-    rt_uint32_t status;
+    rt_bool_t status;
     rt_device_t dev;
     rt_phy_msg_t msg;
     rt_uint32_t speed, duplex;
@@ -254,7 +254,7 @@ static void phy_monitor_thread_entry(void *args)
 
 int phy_device_register(void)
 {
-    rt_err_t err = RT_ERROR;
+    rt_err_t err = -RT_ERROR;
     rt_thread_t thread_phy_monitor;
 
     /* Set ops for PHY */
@@ -290,7 +290,7 @@ int phy_device_register(void)
     }
     else
     {
-        err = RT_ERROR;
+        err = -RT_ERROR;
     }
 
     return err;
