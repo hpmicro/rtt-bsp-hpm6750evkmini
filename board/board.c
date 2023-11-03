@@ -709,13 +709,20 @@ uint32_t board_init_i2s_clock(I2S_Type *ptr)
     }
 }
 
-uint32_t board_init_adc16_clock(ADC16_Type *ptr)
+uint32_t board_init_adc16_clock(ADC16_Type *ptr, bool clk_src_ahb)
 {
     uint32_t freq = 0;
+
     if (ptr == HPM_ADC3) {
-        /* Configure the ADC clock to 200MHz */
-        clock_set_adc_source(clock_adc3, clk_adc_src_ana1);
-        clock_set_source_divider(clock_ana1, clk_src_pll1_clk1, 2U);
+        if (clk_src_ahb) {
+            /* Configure the ADC clock from AHB (@200MHz by default)*/
+            clock_set_adc_source(clock_adc3, clk_adc_src_ahb0);
+        } else {
+            /* Configure the ADC clock from pll1_clk1 divided by 2 (@200MHz by default) */
+            clock_set_adc_source(clock_adc3, clk_adc_src_ana2);
+            clock_set_source_divider(clock_ana2, clk_src_pll1_clk1, 2U);
+        }
+
         freq = clock_get_frequency(clock_adc3);
     }
 
@@ -941,20 +948,25 @@ hpm_stat_t board_init_enet_ptp_clock(ENET_Type *ptr)
 
 hpm_stat_t board_init_enet_rmii_reference_clock(ENET_Type *ptr, bool internal)
 {
-    if (internal == false) {
-        return status_success;
-    }
-
     /* Configure Enet clock to output reference clock */
-    if (ptr == HPM_ENET0) {
-        /* make sure pll2_clk1 output clock at 250MHz then set 50MHz for enet0 */
-        clock_set_source_divider(clock_eth0, clk_src_pll2_clk1, 5);
-    } else if (ptr == HPM_ENET1) {
-        /* make sure pll2_clk1 output clock at 250MHz then set 50MHz for enet1 */
-        clock_set_source_divider(clock_eth1, clk_src_pll2_clk1, 5); /* set 50MHz for enet1 */
+    if (ptr == HPM_ENET1) {
+        if (internal) {
+            /* set pll output frequency at 1GHz */
+            if (pllctl_init_int_pll_with_freq(HPM_PLLCTL, PLLCTL_PLL_PLL2, 1000000000UL) == status_success) {
+                /* set pll2_clk1 output frequence at 250MHz from PLL2 divided by 4 */
+                pllctl_set_div(HPM_PLLCTL, PLLCTL_PLL_PLL2, 1, 4);
+                /* set eth clock frequency at 50MHz for enet0 */
+                clock_set_source_divider(ptr == HPM_ENET0 ? clock_eth0 : clock_eth1, clk_src_pll2_clk1, 5);
+            } else {
+                return status_fail;
+            }
+        }
     } else {
         return status_invalid_argument;
     }
+
+    enet_rmii_enable_clock(ptr, internal);
+
     return status_success;
 }
 

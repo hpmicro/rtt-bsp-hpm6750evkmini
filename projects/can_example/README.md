@@ -31,6 +31,5 @@ can_sample       - can device sample
 ## 注意
 
 - 该例程中的CAN工作在loopback模式
-- 当前的驱动和示例实现不支持开启`CAN硬件过滤器`
 
 

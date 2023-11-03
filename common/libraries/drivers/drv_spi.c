@@ -17,7 +17,7 @@
 #include "drv_spi.h"
 #include "hpm_spi_drv.h"
 #include "hpm_sysctl_drv.h"
-#include "hpm_dma_manager.h"
+#include "hpm_dma_mgr.h"
 #include "hpm_dmamux_drv.h"
 
 #include "hpm_l1c_drv.h"
@@ -34,8 +34,8 @@ struct hpm_spi
     rt_bool_t enable_dma;
     rt_uint8_t tx_dmamux;
     rt_uint8_t rx_dmamux;
-    hpm_dma_resource_t tx_dma;
-    hpm_dma_resource_t rx_dma;
+    dma_resource_t tx_dma;
+    dma_resource_t rx_dma;
 };
 
 static rt_err_t hpm_spi_configure(struct rt_spi_device *device, struct rt_spi_configuration *cfg);
@@ -474,13 +474,13 @@ int rt_hw_spi_init(void)
         spi->spi_bus.parent.user_data = spi;
         if (spi->enable_dma)
         {
-            stat = dma_manager_request_resource(&spi->tx_dma);
+            stat = dma_mgr_request_resource(&spi->tx_dma);
             if (stat != status_success)
             {
                 return -RT_ERROR;
             }
 
-            stat = dma_manager_request_resource(&spi->rx_dma);
+            stat = dma_mgr_request_resource(&spi->rx_dma);
             if (stat != status_success)
             {
                 return -RT_ERROR;

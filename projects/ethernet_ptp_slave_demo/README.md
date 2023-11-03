@@ -7,11 +7,12 @@
 - Master与Slave通过PTP协议通讯，从而实现Slave端的时钟同步
 
 ## 硬件设置
+
 * 使用USB Type-C线缆连接PC USB端口和PWR DEBUG端口
-* 使用以太网线缆连接PC以太网端口和开发板RGMII或RMII端口
 * 使用以太网线缆连接开发板RGMII或者RMII端口和另一个块开发板的RGMII或RMII端口
 
 ## 运行示例
+
 * 编译下载程序
 * 串口终端显示
 
@@ -118,5 +119,3 @@ msh />[2118] I/NO_TAG: PHY Status: Link up
 (D 30.096192050) offset from master:      0s       2808ns
 
 ```
-
-

@@ -8,13 +8,13 @@ cwd = GetCurrentDir()
 CPPDEFINES=[]
 
 # Update include path
-path = [ os.path.join(cwd, 'debug_console'), os.path.join(cwd, 'touch'), os.path.join(cwd, 'usb'), os.path.join(cwd, 'dma_manager')]
+path = [ os.path.join(cwd, 'debug_console'), os.path.join(cwd, 'touch'), os.path.join(cwd, 'usb'), os.path.join(cwd, 'dma_mgr')]
 
 # The set of source files associated with this SConscript file.
 src = []
 
 src += [ os.path.join(cwd, 'debug_console', 'hpm_debug_console.c') ]
-src += [ os.path.join(cwd, 'dma_manager', 'hpm_dma_manager.c') ]
+src += [ os.path.join(cwd, 'dma_mgr', 'hpm_dma_mgr.c') ]
 
 if GetDepend(['BSP_USING_TOUCH_GT911']):
 	src += [os.path.join(cwd, 'touch', 'gt911', 'hpm_touch_gt911.c') ]

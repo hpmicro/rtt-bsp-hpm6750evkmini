@@ -15,7 +15,7 @@
 #include "hpm_sysctl_drv.h"
 #include <rthw.h>
 #include <rtthread.h>
-#include "hpm_dma_manager.h"
+#include "hpm_dma_mgr.h"
 
 void os_tick_config(void);
 
@@ -27,7 +27,7 @@ void rtt_board_init(void)
     board_init_console();
     board_init_pmp();
 
-    dma_manager_init();
+    dma_mgr_init();
 
     /* initialize memory system */
     rt_system_heap_init(RT_HW_HEAP_BEGIN, RT_HW_HEAP_END);

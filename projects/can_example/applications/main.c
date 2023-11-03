@@ -221,7 +221,16 @@ int can_sample(int argc, char *argv[])
     struct rt_can_filter_item items[5] =
     {
     #ifdef RT_CAN_USING_HDR
-        #error This feature is not supported yet
+        /* std, match ID:0x100~0x1ff, default filter list */
+        RT_CAN_FILTER_ITEM_INIT(0x100, 0, 0, CAN_FILTERMODE_IDMASK, 0x700, RT_NULL, RT_NULL),
+        /* std, match ID:0x300~0x3ff*/
+        RT_CAN_FILTER_ITEM_INIT(0x300, 0, 0, CAN_FILTERMODE_IDMASK, 0x700, RT_NULL, RT_NULL),
+        /* std,match ID:0x211*/
+        RT_CAN_FILTER_ITEM_INIT(0x211, 0, 0, CAN_FILTERMODE_IDMASK, 0x7FF, RT_NULL, RT_NULL),
+        /* std,match ID:0x486*/
+        RT_CAN_FILTER_STD_INIT(0x486, RT_NULL, RT_NULL),
+        /* std, match ID: 0x55, specify the filter number : 7 */
+        {0x555, 0, 0, CAN_FILTERMODE_IDMASK, 0x7ff, 7,}
     #else
         /* std, match ID:0x100~0x1ff, default filter list */
         RT_CAN_FILTER_ITEM_INIT(0x100, 0, 0, CAN_FILTERMODE_IDMASK, 0x700),

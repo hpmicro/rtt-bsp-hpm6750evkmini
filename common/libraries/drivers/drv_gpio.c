@@ -8,6 +8,7 @@
  * 2022-01-11   HPMicro     First version
  * 2022-07-28   HPMicro     Fixed compiling warnings
  * 2023-05-08   HPMicro     Adapt RT-Thread V5.0.0
+ * 2023-08-15   HPMicro     Enable pad loopback feature
  */
 
 #include <rtthread.h>
@@ -21,6 +22,10 @@
 #include "hpm_gpiom_drv.h"
 #include "hpm_clock_drv.h"
 #include "hpm_soc_feature.h"
+
+#ifndef IOC_SOC_PAD_MAX
+#define IOC_SOC_PAD_MAX   (56U)
+#endif
 
 typedef struct
 {
@@ -38,7 +43,7 @@ static const gpio_irq_map_t hpm_gpio_irq_map[] = {
 #ifdef IRQn_GPIO0_C
         { GPIO_IE_GPIOC, IRQn_GPIO0_C },
 #endif
-#ifdef GPIO_IE_GPIOD
+#ifdef IRQn_GPIO0_D
         { GPIO_IE_GPIOD, IRQn_GPIO0_D },
 #endif
 #ifdef IRQn_GPIO0_E
@@ -181,7 +186,9 @@ static void hpm_pin_mode(rt_device_t dev, rt_base_t pin, rt_uint8_t mode)
         HPM_PIOC->PAD[pin].FUNC_CTL = 3;
         break;
     case GPIO_DI_GPIOZ :
+#ifdef HPM_BIOC
         HPM_BIOC->PAD[pin].FUNC_CTL = 3;
+#endif
         break;
     default :
         break;
@@ -213,6 +220,7 @@ static void hpm_pin_mode(rt_device_t dev, rt_base_t pin, rt_uint8_t mode)
         /* Invalid mode */
         break;
     }
+    HPM_IOC->PAD[pin].FUNC_CTL = IOC_PAD_FUNC_CTL_LOOP_BACK_MASK;
 }
 
 static rt_int8_t hpm_pin_read(rt_device_t dev, rt_base_t pin)

@@ -13,9 +13,12 @@ src = []
 src += ['drivers/src/hpm_pmp_drv.c']
 src += ['drivers/src/hpm_pllctl_drv.c']
 src += ['drivers/src/hpm_pllctlv2_drv.c']
-src += ['drivers/src/hpm_dma_drv.c']
 src += ['drivers/src/hpm_pcfg_drv.c']
 
+if rtconfig.CHIP_NAME == "HPM6750" or rtconfig.CHIP_NAME == "HPM6360" or rtconfig.CHIP_NAME == "HPM6280":
+    src += ['drivers/src/hpm_dma_drv.c']
+else:
+    src += ['drivers/src/hpm_dmav2_drv.c']
 
 if GetDepend(['BSP_USING_GPIO']):
     src += ['drivers/src/hpm_gpio_drv.c']
@@ -34,6 +37,9 @@ if GetDepend(['BSP_USING_RTC']):
 
 if GetDepend(['BSP_USING_WDG']):
     src += ['drivers/src/hpm_wdg_drv.c']
+
+if GetDepend(['BSP_USING_EWDG']):
+    src += ['drivers/src/hpm_ewdg_drv.c']
 
 if GetDepend(['BSP_USING_ADC']):
     if GetDepend(['BSP_USING_ADC12']):

@@ -174,7 +174,6 @@ static rt_err_t hpm_enet_init(enet_device *init)
     {
         /* Initialize reference clock */
         board_init_enet_rmii_reference_clock(init->instance, init->int_refclk);
-        enet_rmii_enable_clock(init->instance, init->int_refclk);
     }
 
 #if ENET_SOC_RGMII_EN
@@ -406,54 +405,57 @@ static struct pbuf *rt_hpm_eth_rx(rt_device_t dev)
     {
         /* allocate a pbuf chain of pbufs from the Lwip buffer pool */
         p = pbuf_alloc(PBUF_RAW, len, PBUF_POOL);
-    }
 
-    if (p != NULL)
-    {
-        dma_rx_desc = frame.rx_desc;
-        buffer_offset = 0;
-        for (q = p; q != NULL; q = q->next)
+        if (p != NULL)
         {
-            bytes_left_to_copy = q->len;
-            payload_offset = 0;
-
-            /* Check if the length of bytes to copy in current pbuf is bigger than Rx buffer size*/
-            while ((bytes_left_to_copy + buffer_offset) > rx_buff_size)
+            dma_rx_desc = frame.rx_desc;
+            buffer_offset = 0;
+            for (q = p; q != NULL; q = q->next)
             {
-                /* Copy data to pbuf */
-                SMEMCPY((uint8_t *)((uint8_t *)q->payload + payload_offset), (uint8_t *)((uint8_t *)buffer + buffer_offset), (rx_buff_size - buffer_offset));
+                bytes_left_to_copy = q->len;
+                payload_offset = 0;
 
-                /* Point to next descriptor */
-                dma_rx_desc = (enet_rx_desc_t *)(dma_rx_desc->rdes3_bm.next_desc);
-                buffer = (uint8_t *)(dma_rx_desc->rdes2_bm.buffer1);
+                /* Check if the length of bytes to copy in current pbuf is bigger than Rx buffer size*/
+                while ((bytes_left_to_copy + buffer_offset) > rx_buff_size)
+                {
+                    /* Copy data to pbuf */
+                    SMEMCPY((uint8_t *)((uint8_t *)q->payload + payload_offset), (uint8_t *)((uint8_t *)buffer + buffer_offset), (rx_buff_size - buffer_offset));
 
-                bytes_left_to_copy = bytes_left_to_copy - (rx_buff_size - buffer_offset);
-                payload_offset = payload_offset + (rx_buff_size - buffer_offset);
-                buffer_offset = 0;
+                    /* Point to next descriptor */
+                    dma_rx_desc = (enet_rx_desc_t *)(dma_rx_desc->rdes3_bm.next_desc);
+                    buffer = (uint8_t *)(dma_rx_desc->rdes2_bm.buffer1);
+
+                    bytes_left_to_copy = bytes_left_to_copy - (rx_buff_size - buffer_offset);
+                    payload_offset = payload_offset + (rx_buff_size - buffer_offset);
+                    buffer_offset = 0;
+                }
+                /* Copy remaining data in pbuf */
+                q->payload = (void *)sys_address_to_core_local_mem(0, (uint32_t)buffer);
+                buffer_offset = buffer_offset + bytes_left_to_copy;
             }
-            /* Copy remaining data in pbuf */
-            q->payload = (void *)sys_address_to_core_local_mem(0, (uint32_t)buffer);
-            buffer_offset = buffer_offset + bytes_left_to_copy;
         }
+
+        /* Release descriptors to DMA */
+        /* Point to first descriptor */
+        dma_rx_desc = frame.rx_desc;
+
+        /* Set Own bit in Rx descriptors: gives the buffers back to DMA */
+        for (i = 0; i < enet_dev->desc.rx_frame_info.seg_count; i++)
+        {
+            dma_rx_desc->rdes0_bm.own = 1;
+            dma_rx_desc = (enet_rx_desc_t*)(dma_rx_desc->rdes3_bm.next_desc);
+        }
+
+        /* Clear Segment_Count */
+        enet_dev->desc.rx_frame_info.seg_count = 0;
     }
-    else
+
+    /* Resume Rx Process */
+    if (ENET_DMA_STATUS_RU_GET(enet_dev->instance->DMA_STATUS))
     {
-        return NULL;
+        enet_dev->instance->DMA_STATUS = ENET_DMA_STATUS_RU_MASK;
+        enet_dev->instance->DMA_RX_POLL_DEMAND = 1;
     }
-
-    /* Release descriptors to DMA */
-    /* Point to first descriptor */
-    dma_rx_desc = frame.rx_desc;
-
-    /* Set Own bit in Rx descriptors: gives the buffers back to DMA */
-    for (i = 0; i < enet_dev->desc.rx_frame_info.seg_count; i++)
-    {
-        dma_rx_desc->rdes0_bm.own = 1;
-        dma_rx_desc = (enet_rx_desc_t*)(dma_rx_desc->rdes3_bm.next_desc);
-    }
-
-    /* Clear Segment_Count */
-    enet_dev->desc.rx_frame_info.seg_count = 0;
 
     return p;
 }

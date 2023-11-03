@@ -100,7 +100,7 @@ rt_err_t hpm_generate_central_aligned_waveform(uint8_t pwm_index, uint8_t channe
 
     pwm_config.enable_output = true;
     pwm_config.dead_zone_in_half_cycle = 0;
-    pwm_config.invert_output = true;
+    pwm_config.invert_output = false;
     /*
      * config pwm
      */

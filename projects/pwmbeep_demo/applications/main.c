@@ -96,6 +96,9 @@ static void hpm_play(uint8_t * music, uint16_t length, uint16_t vol)
             default:
                 break;
         }
+        if (freq == 0) {
+            vol = 0;
+        }
         no_beep_times -= beep_times;
         beep_set(vol, freq);
         rt_thread_mdelay(beep_times);

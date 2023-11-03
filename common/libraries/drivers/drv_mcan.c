@@ -339,6 +339,7 @@ static rt_err_t hpm_mcan_configure(struct rt_can_device *can, struct can_configu
     drv_can->can_config.all_filters_config.ext_id_filter_list.filter_elem_list                        = &drv_can->ext_can_filters[0];
     drv_can->can_config.all_filters_config.ext_id_filter_list.mcan_filter_elem_count                  = drv_can->ext_filter_num;
     drv_can->can_config.all_filters_config.ext_id_mask                                                = (1UL << 30) - 1UL;
+    drv_can->can_config.txbuf_trans_interrupt_mask                                                    = ~0UL;
 
     hpm_stat_t status = mcan_init(drv_can->can_base, &drv_can->can_config, can_clk);
     if (status != status_success)
@@ -360,6 +361,7 @@ static rt_err_t hpm_mcan_control(struct rt_can_device *can, int cmd, void *arg)
     rt_err_t err = RT_EOK;
 
     uint32_t temp;
+    uint32_t irq_txrx_mask;
 
     switch (cmd)
     {
@@ -368,19 +370,22 @@ static rt_err_t hpm_mcan_control(struct rt_can_device *can, int cmd, void *arg)
         intc_m_disable_irq(drv_can->irq_num);
         if (arg_val == RT_DEVICE_FLAG_INT_RX)
         {
-            uint32_t irq_txrx_mask = MCAN_EVENT_RECEIVE;
+            irq_txrx_mask = MCAN_EVENT_RECEIVE;
             drv_can->irq_txrx_err_enable_mask &= ~irq_txrx_mask;
+            drv_can->can_config.interrupt_mask &= ~irq_txrx_mask;
             mcan_disable_interrupts(drv_can->can_base, drv_can->irq_txrx_err_enable_mask);
         }
         else if (arg_val == RT_DEVICE_FLAG_INT_TX)
         {
-            uint32_t irq_txrx_mask = MCAN_EVENT_TRANSMIT;
+            irq_txrx_mask = MCAN_EVENT_TRANSMIT;
             drv_can->irq_txrx_err_enable_mask &= ~irq_txrx_mask;
+            drv_can->can_config.interrupt_mask &= ~irq_txrx_mask;
             mcan_disable_interrupts(drv_can->can_base, drv_can->irq_txrx_err_enable_mask);
             mcan_disable_txbuf_interrupt(drv_can->can_base, ~0UL);
         } else if (arg_val == RT_DEVICE_CAN_INT_ERR) {
-            uint32_t irq_txrx_mask = MCAN_EVENT_ERROR;
+            irq_txrx_mask = MCAN_EVENT_ERROR;
             drv_can->irq_txrx_err_enable_mask &= ~irq_txrx_mask;
+            drv_can->can_config.interrupt_mask &= ~irq_txrx_mask;
             mcan_disable_interrupts(drv_can->can_base, drv_can->irq_txrx_err_enable_mask);
         } else {
             err = -RT_ERROR;
@@ -390,23 +395,26 @@ static rt_err_t hpm_mcan_control(struct rt_can_device *can, int cmd, void *arg)
         arg_val = (uint32_t) arg;
         if (arg_val == RT_DEVICE_FLAG_INT_RX)
         {
-            uint32_t irq_txrx_mask = MCAN_EVENT_RECEIVE;
+            irq_txrx_mask = MCAN_EVENT_RECEIVE;
             drv_can->irq_txrx_err_enable_mask |= irq_txrx_mask;
+            drv_can->can_config.interrupt_mask |= irq_txrx_mask;
             mcan_enable_interrupts(drv_can->can_base, drv_can->irq_txrx_err_enable_mask);
             intc_m_enable_irq_with_priority(drv_can->irq_num, 1);
         }
         else if (arg_val == RT_DEVICE_FLAG_INT_TX)
         {
-            uint32_t irq_txrx_mask = MCAN_EVENT_TRANSMIT;
+            irq_txrx_mask = MCAN_EVENT_TRANSMIT;
             drv_can->irq_txrx_err_enable_mask |= irq_txrx_mask;
+            drv_can->can_config.interrupt_mask |= irq_txrx_mask;
             mcan_enable_interrupts(drv_can->can_base, drv_can->irq_txrx_err_enable_mask);
             mcan_enable_txbuf_interrupt(drv_can->can_base, ~0UL);
             intc_m_enable_irq_with_priority(drv_can->irq_num, 1);
         }
         else if (arg_val == RT_DEVICE_CAN_INT_ERR)
         {
-            uint32_t irq_txrx_mask = MCAN_EVENT_ERROR;
+            irq_txrx_mask = MCAN_EVENT_ERROR;
             drv_can->irq_txrx_err_enable_mask |= irq_txrx_mask;
+            drv_can->can_config.interrupt_mask |= irq_txrx_mask;
             mcan_enable_interrupts(drv_can->can_base, drv_can->irq_txrx_err_enable_mask);
             intc_m_enable_irq_with_priority(drv_can->irq_num, 1);
         }
@@ -491,6 +499,12 @@ static rt_err_t hpm_mcan_control(struct rt_can_device *can, int cmd, void *arg)
                 drv_can->can_config.all_filters_config.ext_id_filter_list.mcan_filter_elem_count                      = 1;
             }
             err = hpm_mcan_configure(can, &drv_can->can_dev.config);
+#ifdef RT_CAN_USING_HDR
+            if (filter == RT_NULL) {
+                /*if use RT_CAN_USING_HDR, but if want to receive everything without filtering, use default filter, need to return NO-RT-OK status*/
+                err = -RT_ETRAP;
+            }
+#endif
         }
         break;
     case RT_CAN_CMD_SET_MODE:
@@ -587,6 +601,7 @@ static rt_err_t hpm_mcan_control(struct rt_can_device *can, int cmd, void *arg)
         rt_memcpy(arg, &drv_can->can_dev.status, sizeof(drv_can->can_dev.status));
         break;
     }
+    return err;
 }
 
 static int hpm_mcan_sendmsg(struct rt_can_device *can, const void *buf, rt_uint32_t boxno)
@@ -694,7 +709,11 @@ static int hpm_mcan_recvmsg(struct rt_can_device *can, void *buf, rt_uint32_t bo
         for(uint32_t i = 0; i < msg_len; i++) {
             can_msg->data[i] = rx_buf.data_8[i];
         }
-       
+#ifdef RT_CAN_USING_HDR
+        /* Hardware filter messages are valid */
+        can_msg->hdr_index = boxno;
+        can->hdr[can_msg->hdr_index].connected = 1;
+#endif
     } 
     else 
     {
@@ -710,7 +729,9 @@ int rt_hw_mcan_init(void)
     config.privmode = RT_CAN_MODE_NOPRIV;
     config.sndboxnumber = CAN_SENDBOX_NUM;
     config.ticks = 50;
-
+#ifdef RT_CAN_USING_HDR
+    config.maxhdr = 32;
+#endif
     for (uint32_t i = 0; i < ARRAY_SIZE(hpm_cans); i++)
     {
         hpm_cans[i]->can_dev.config = config;

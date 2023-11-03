@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 HPMicro
+ * Copyright (c) 2022-2023 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -14,6 +14,8 @@
 #include "board.h"
 
 #ifdef RT_USING_I2C
+
+#define HPM_RTT_DRV_RETRY_TIMEOUT (1000000)
 
 struct hpm_i2c
 {
@@ -65,6 +67,48 @@ struct rt_i2c_bus_device_ops hpm_i2c_ops =
     RT_NULL
 };
 
+static hpm_stat_t hpm_i2c_probe(I2C_Type *ptr, uint16_t addr)
+{
+    hpm_stat_t stat = status_success;
+    uint32_t retry;
+
+    /* W1C, clear CMPL bit to avoid blocking the transmission */
+    ptr->STATUS = I2C_STATUS_CMPL_MASK;
+
+    ptr->CMD = I2C_CMD_CLEAR_FIFO;
+    ptr->ADDR = I2C_ADDR_ADDR_SET(addr);
+    ptr->CTRL = I2C_CTRL_PHASE_START_MASK | I2C_CTRL_PHASE_STOP_MASK | I2C_CTRL_PHASE_ADDR_MASK
+            | I2C_CTRL_DIR_SET(I2C_DIR_MASTER_WRITE);
+
+    ptr->CMD = I2C_CMD_ISSUE_DATA_TRANSMISSION;
+
+    retry = 0;
+    while (!(ptr->STATUS & I2C_STATUS_CMPL_MASK))
+    {
+        if (retry > HPM_RTT_DRV_RETRY_TIMEOUT)
+        {
+            break;
+        }
+        retry++;
+    }
+    if (retry > HPM_RTT_DRV_RETRY_TIMEOUT)
+    {
+        return status_timeout;
+    }
+
+    /* Check whether ACK was received*/
+    if ((ptr->STATUS & I2C_STATUS_ACK_MASK) != 0)
+    {
+        stat = status_success;
+    }
+    else
+    {
+        stat = status_i2c_no_ack;
+    }
+
+    return stat;
+}
+
 static rt_ssize_t hpm_i2c_master_transfer(struct rt_i2c_bus_device *bus, struct rt_i2c_msg msgs[], rt_uint32_t num)
 {
     RT_ASSERT(bus != RT_NULL);
@@ -96,7 +140,14 @@ static rt_ssize_t hpm_i2c_master_transfer(struct rt_i2c_bus_device *bus, struct 
         }
         else
         {
-            i2c_stat = i2c_master_write(i2c_info->base, msg->addr, msg->buf, msg->len);
+            if (msg->len > 0)
+            {
+                i2c_stat = i2c_master_write(i2c_info->base, msg->addr, msg->buf, msg->len);
+            }
+            else
+            {
+                i2c_stat = hpm_i2c_probe(i2c_info->base, msg->addr);
+            }
         }
 
         if (i2c_stat != status_success)

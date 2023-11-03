@@ -56,3 +56,9 @@ dkms.conf
 
 # Scons cache
 *.dbsqlite
+
+# Vim cache
+*.swp
+
+#dir
+.vscode

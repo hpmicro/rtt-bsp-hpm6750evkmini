@@ -26,16 +26,18 @@ RTT_EXEC_PATH = os.getenv('RTT_EXEC_PATH')
 if RTT_EXEC_PATH != None:
     folders = RTT_EXEC_PATH.split(os.sep)
     # If the RT-Thread Env is from the RT-Thread Studio, generate the RTT_EXEC_PATH using `FALLBACK_TOOLCHAIN_INFO`
-    if 'arm_gcc' in folders and 'platform' in folders:
-        RTT_EXEC_PATH = ''
-        for path in folders:
-            if path != 'platform':
-                RTT_EXEC_PATH = RTT_EXEC_PATH + path + os.sep
-            else:
-                break
-        RTT_EXEC_PATH = os.path.join(RTT_EXEC_PATH, 'repo', 'Extract', 'ToolChain_Support_Packages', FALLBACK_TOOLCHAIN_VENDOR, FALLBACK_TOOLCHAIN_PKG, FALLBACK_TOOLCHAIN_VER, 'bin')
-
-    os.environ['RTT_RISCV_TOOLCHAIN'] = RTT_EXEC_PATH
+    if 'arm_gcc' in folders:
+        if 'platform' in folders:
+            RTT_EXEC_PATH = ''
+            for path in folders:
+                if path != 'platform':
+                    RTT_EXEC_PATH = RTT_EXEC_PATH + path + os.sep
+                else:
+                    break
+            RTT_EXEC_PATH = os.path.join(RTT_EXEC_PATH, 'repo', 'Extract', 'ToolChain_Support_Packages', FALLBACK_TOOLCHAIN_VENDOR, FALLBACK_TOOLCHAIN_PKG, FALLBACK_TOOLCHAIN_VER, 'bin')
+            os.environ['RTT_RISCV_TOOLCHAIN'] = RTT_EXEC_PATH
+    else:
+        os.environ['RTT_RISCV_TOOLCHAIN'] = RTT_EXEC_PATH
 
 # cross_tool provides the cross compiler
 # EXEC_PATH is the compiler path, for example, GNU RISC-V toolchain, IAR

@@ -168,10 +168,10 @@ SDK_DECLARE_EXT_ISR_M(IRQn_GPTMR7, gptmr7_isr);
 static void hpm_hwtmr_isr(hpm_gptimer_t *timer)
 {
     uint32_t hwtmr_stat = gptmr_get_status(timer->base);
-    if ((hwtmr_stat & GPTMR_CH_CMP_STAT_MASK(0, 0)) != 0U)
+    if ((hwtmr_stat & GPTMR_CH_RLD_STAT_MASK(timer->channel)) != 0U)
     {
         rt_device_hwtimer_isr(&timer->timer);
-        gptmr_clear_status(timer->base, GPTMR_CH_CMP_STAT_MASK(0, 0));
+        gptmr_clear_status(timer->base, GPTMR_CH_RLD_STAT_MASK(timer->channel));
     }
 }
 
