@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2022-2023 HPMicro
+ * Copyright (c) 2022 hpmicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Change Logs:
  * Date           Author       Notes
  * 2022-05-08     hpmicro      the first version
- * 2023-05-08     hpmicro      Adapt the RT-Thread V5.0.0
  */
 
 /*****************************************************************************************

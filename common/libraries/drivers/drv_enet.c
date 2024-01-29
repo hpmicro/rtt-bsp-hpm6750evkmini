@@ -528,7 +528,7 @@ int rt_hw_eth_init(void)
         s_geths[i]->enet_dev->desc.rx_buff_cfg.size = s_geths[i]->rx_buff_cfg->size;
 
         /* Set DMA PBL */
-        s_geths[i]->enet_dev->mac_config.dma_pbl = board_enet_get_dma_pbl(s_geths[i]->base);
+        s_geths[i]->enet_dev->mac_config.dma_pbl = board_get_enet_dma_pbl(s_geths[i]->base);
 
         /* Set instance */
         s_geths[i]->enet_dev->instance = s_geths[i]->base;

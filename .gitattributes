@@ -1,8 +1,17 @@
-.gitattributes export-ignore
-.gitignore export-ignore
-.gitmodules export-ignore
-
-common/.gitattributes export-ignore
-common/.gitignore export-ignore
-common/README.md export-ignore
-common/README_zh.md export-ignore
+# Declare files that will always have LF line endings on checkout.
+*.cpp text eol=lf
+*.h text eol=lf
+*.c text eol=lf
+*.hpp text eol=lf
+*.S text eol=lf
+*.s text eol=lf
+*.cmake text eol=lf
+SConcript text eol=lf
+SConstruct text eol=lf
+*.ld text eol=lf
+*.icf text eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+Kconfig text eol=lf
+*.template text eol=lf
+*.yaml text eol=lf

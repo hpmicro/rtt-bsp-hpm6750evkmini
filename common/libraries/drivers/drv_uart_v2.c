@@ -18,7 +18,7 @@
 #include "hpm_uart_drv.h"
 #include "hpm_sysctl_drv.h"
 #include "hpm_l1c_drv.h"
-#ifdef CONFIG_HAS_HPMSDK_DMAV2
+#ifdef HPMSOC_HAS_HPMSDK_DMAV2
 #include "hpm_dmav2_drv.h"
 #else
 #include "hpm_dma_drv.h"
@@ -504,7 +504,7 @@ enum
 #endif
 
 #if defined(BSP_USING_UART5)
-    HPM_UART15_INDEX,
+    HPM_UART5_INDEX,
 #endif
 
 #if defined(BSP_USING_UART6)
@@ -520,7 +520,7 @@ enum
 #endif
 
 #if defined(BSP_USING_UART9)
-    HPM_UART10_INDEX,
+    HPM_UART9_INDEX,
 #endif
 
 #if defined(BSP_USING_UART10)

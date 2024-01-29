@@ -1,4 +1,4 @@
-# Copyright 2021-2023 HPMicro
+# Copyright 2021-2024 HPMicro
 # SPDX-License-Identifier: BSD-3-Clause
 
 import os
@@ -50,8 +50,10 @@ if  CROSS_TOOL == 'gcc':
 else:
     print("CROSS_TOOL = {} not yet supported" % CROSS_TOOL)
 
-
-BUILD = 'flash_debug'
+if os.getenv('RTT_BUILD_TYPE'):
+    BUILD = os.getenv('RTT_BUILD_TYPE')
+else:
+    BUILD = 'flash_debug'
 
 if PLATFORM == 'gcc':
     PREFIX = 'riscv32-unknown-elf-'
@@ -68,18 +70,17 @@ if PLATFORM == 'gcc':
     STRIP = PREFIX + 'strip'
 
     ARCH_ABI = ' -mcmodel=medlow '
-    CFLAGS = ARCH_ABI  + ' -DUSE_NONVECTOR_MODE=1 -DUSB_HOST_MCU_CORE=HPM_CORE0 -DCONFIG_NOT_ENABLE_DCACHE -DRT_DFS_ELM_USE_EXFAT=1 -D__USE_EXT_DISKIO -DUSB_FATFS_ENABLE=1 ' + ' -ffunction-sections -fdata-sections -fno-common '
+    CFLAGS = ARCH_ABI  + ' -DUSE_NONVECTOR_MODE=1  -DUSB_HOST_MCU_CORE=HPM_CORE0 -DCONFIG_NOT_ENABLE_DCACHE -DRT_DFS_ELM_USE_EXFAT=1 -D__USE_EXT_DISKIO -DUSB_FATFS_ENABLE=1 ' + ' -ffunction-sections -fdata-sections -fno-common '
     AFLAGS = CFLAGS
     LFLAGS  = ARCH_ABI + '  --specs=nano.specs --specs=nosys.specs  -u _printf_float -u _scanf_float -nostartfiles -Wl,--gc-sections '
 
     CPATH = ''
     LPATH = ''
-
     if BUILD == 'ram_debug':
         CFLAGS += ' -gdwarf-2'
         AFLAGS += ' -gdwarf-2'
-        CFLAGS += ' -O0'
-        LFLAGS += ' -O0'
+        CFLAGS += ' -Og'
+        LFLAGS += ' -Og'
         LINKER_FILE = 'board/linker_scripts/ram_rtt.ld'
     elif BUILD == 'ram_release':
         CFLAGS += ' -O2 -Os'
@@ -88,8 +89,8 @@ if PLATFORM == 'gcc':
     elif BUILD == 'flash_debug':
         CFLAGS += ' -gdwarf-2'
         AFLAGS += ' -gdwarf-2'
-        CFLAGS += ' -O0'
-        LFLAGS += ' -O0'
+        CFLAGS += ' -Og'
+        LFLAGS += ' -Og'
         CFLAGS += ' -DFLASH_XIP=1'
         LINKER_FILE = 'board/linker_scripts/flash_rtt.ld'
     elif BUILD == 'flash_release':

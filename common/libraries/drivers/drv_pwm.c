@@ -43,16 +43,13 @@ static PWM_Type * pwm_base_tbl[PWM_INSTANCE_NUM] = {
     HPM_PWM3
 #endif
     };
-static const clock_name_t pwm_clock_tbl[4] = {clock_mot0,
-#if (PWM_INSTANCE_NUM > 1)
-clock_mot1,
-#endif
-#if (PWM_INSTANCE_NUM > 2)
-clock_mot2,
-#endif
-#if (PWM_INSTANCE_NUM > 3)
-clock_mot3
-#endif
+
+/**
+ * @brief The motor system is connected to the same clock bus, using the clock of motor0 to represent all clocks
+ *
+ */
+static const clock_name_t pwm_clock_tbl[1] = {
+    clock_mot0
 };
 
 rt_err_t hpm_generate_central_aligned_waveform(uint8_t pwm_index, uint8_t channel, uint32_t period, uint32_t pulse)
@@ -64,7 +61,7 @@ rt_err_t hpm_generate_central_aligned_waveform(uint8_t pwm_index, uint8_t channe
     uint32_t freq;
     PWM_Type * pwm_name_index;
     clock_name_t pwm_clock;
-    pwm_clock = pwm_clock_tbl[pwm_index];
+    pwm_clock = pwm_clock_tbl[0];
     pwm_name_index = pwm_base_tbl[pwm_index];
 
     freq = clock_get_frequency(pwm_clock);
@@ -105,7 +102,7 @@ rt_err_t hpm_generate_central_aligned_waveform(uint8_t pwm_index, uint8_t channe
      * config pwm
      */
     if (status_success != pwm_setup_waveform(pwm_name_index, channel, &pwm_config, channel * 2, cmp_config, 2)) {
-        return RT_FALSE;
+        return -RT_ERROR;
     }
     pwm_load_cmp_shadow_on_match(pwm_name_index, 17,  &cmp_config[3]);
     pwm_start_counter(pwm_name_index);
@@ -114,7 +111,7 @@ rt_err_t hpm_generate_central_aligned_waveform(uint8_t pwm_index, uint8_t channe
 
     pwm_update_raw_cmp_central_aligned(pwm_name_index, channel * 2, channel * 2 + 1, (reload - duty) >> 1, (reload + duty) >> 1);
 
-    return RT_TRUE;
+    return RT_EOK;
 
 }
 
@@ -127,7 +124,7 @@ rt_err_t hpm_set_central_aligned_waveform(uint8_t pwm_index, uint8_t channel, ui
     uint32_t freq;
     PWM_Type * pwm_name_index;
     clock_name_t pwm_clock;
-    pwm_clock = pwm_clock_tbl[pwm_index];
+    pwm_clock = pwm_clock_tbl[0];
     pwm_name_index = pwm_base_tbl[pwm_index];
 
     freq = clock_get_frequency(pwm_clock);
@@ -147,14 +144,14 @@ rt_err_t hpm_set_central_aligned_waveform(uint8_t pwm_index, uint8_t channel, ui
     duty = (uint64_t)freq * pulse / 1000000000;
     pwm_update_raw_cmp_central_aligned(pwm_name_index, channel * 2, channel * 2 + 1, (reload - duty) >> 1, (reload + duty) >> 1);
 
-    return RT_TRUE;
+    return RT_EOK;
 }
 
 rt_err_t hpm_disable_pwm(uint8_t pwm_index, uint8_t channel)
 {
 
     pwm_disable_output(pwm_base_tbl[pwm_index], channel);
-    return RT_TRUE;
+    return RT_EOK;
 
 }
 
@@ -163,7 +160,7 @@ rt_err_t hpm_pwm_control(struct rt_device_pwm * device, int cmd, void *arg)
     uint8_t channel;
     uint32_t period;
     uint32_t pulse;
-    rt_err_t sta = RT_TRUE;
+    rt_err_t sta = RT_EOK;
     unsigned char pwm_name;
     struct rt_pwm_configuration * configuration;
     configuration = (struct rt_pwm_configuration * )arg;
@@ -179,7 +176,7 @@ rt_err_t hpm_pwm_control(struct rt_device_pwm * device, int cmd, void *arg)
     } else if (strcmp("pwm3", device->parent.parent.name) == 0) {
         pwm_name = 3;
     } else {
-        return RT_FALSE;
+        return -RT_ERROR;
     }
 
     switch(cmd) {
@@ -196,11 +193,11 @@ rt_err_t hpm_pwm_control(struct rt_device_pwm * device, int cmd, void *arg)
             break;
         }
         case PWM_CMD_GET: {
-            sta = RT_TRUE;
+            sta = RT_EOK;
             break;
         }
         default: {
-            sta = RT_FALSE;
+            sta = -RT_ERROR;
             break;
         }
     }
@@ -212,7 +209,7 @@ rt_err_t hpm_pwm_dev_control(rt_device_t device, int cmd, void *arg)
     uint8_t channel;
     uint32_t period;
     uint32_t pulse;
-    rt_err_t sta = RT_TRUE;
+    rt_err_t sta = RT_EOK;
     uint8_t pwm_name;
     struct rt_pwm_configuration * configuration;
     configuration = (struct rt_pwm_configuration * )arg;
@@ -228,7 +225,7 @@ rt_err_t hpm_pwm_dev_control(rt_device_t device, int cmd, void *arg)
     } else if (strcmp("pwm3", device->parent.name) == 0) {
         pwm_name = 3;
     } else {
-        return RT_FALSE;
+        return -RT_ERROR;
     }
 
     switch(cmd) {
@@ -245,11 +242,11 @@ rt_err_t hpm_pwm_dev_control(rt_device_t device, int cmd, void *arg)
             break;
         }
         case PWM_CMD_GET: {
-            sta = RT_TRUE;
+            sta = RT_EOK;
             break;
         }
         default: {
-            sta = RT_FALSE;
+            sta = -RT_ERROR;
             break;
         }
     }

@@ -58,6 +58,10 @@
 #define BOARD_SDRAM_REFRESH_IN_MS (64UL)
 #define BOARD_SDRAM_DATA_WIDTH_IN_BYTE (2UL)
 
+/* i2s section */
+#define BOARD_PDM_SINGLE_CHANNEL_MASK (1U)
+#define BOARD_PDM_DUAL_CHANNEL_MASK   (0x11U)
+
 /* lcd section */
 /*
  * BOARD_PANEL_TIMING_PARA {HSPW, HBP, HFP, VSPW, VBP, VFP, HSSP, VSSP, DESP, PDSP, PCSP}
@@ -383,7 +387,7 @@ uint32_t board_init_uart_clock(UART_Type *ptr);
 
 uint32_t board_init_spi_clock(SPI_Type *ptr);
 
-uint32_t board_init_adc12_clock(ADC12_Type *ptr);
+uint32_t board_init_adc12_clock(ADC12_Type *ptr, bool clk_src_ahb);
 
 uint32_t board_init_adc16_clock(ADC16_Type *ptr, bool clk_src_ahb);
 
@@ -392,14 +396,12 @@ uint32_t board_init_can_clock(CAN_Type *ptr);
 uint32_t board_init_i2s_clock(I2S_Type *ptr);
 uint32_t board_init_pdm_clock(void);
 uint32_t board_init_dao_clock(void);
+uint32_t board_config_i2s_clock(I2S_Type *ptr, uint32_t sample_rate);
 
 uint32_t board_init_gptmr_clock(GPTMR_Type *ptr);
 
-void board_init_sd_pins(SDXC_Type *ptr);
-uint32_t board_sd_configure_clock(SDXC_Type *ptr, uint32_t freq);
-void board_sd_switch_pins_to_1v8(SDXC_Type *ptr);
+uint32_t board_sd_configure_clock(SDXC_Type *ptr, uint32_t freq, bool need_inverse);
 void board_sd_power_switch(SDXC_Type *ptr, bool on_off);
-bool board_sd_detect_card(SDXC_Type *ptr);
 
 void board_init_usb_pins(void);
 void board_usb_vbus_ctrl(uint8_t usb_index, uint8_t level);
@@ -420,7 +422,7 @@ void board_timer_create(uint32_t ms, void *cb);
 hpm_stat_t board_init_enet_pins(ENET_Type *ptr);
 hpm_stat_t board_init_enet_rmii_reference_clock(ENET_Type *ptr, bool internal);
 hpm_stat_t board_reset_enet_phy(ENET_Type *ptr);
-uint8_t    board_enet_get_dma_pbl(ENET_Type *ptr);
+uint8_t    board_get_enet_dma_pbl(ENET_Type *ptr);
 hpm_stat_t board_init_enet_ptp_clock(ENET_Type *ptr);
 
 #if defined(__cplusplus)

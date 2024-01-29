@@ -507,15 +507,13 @@ int dfs_elm_close(struct dfs_file *file)
     else if (file->vnode->type == FT_REGULAR)
     {
         FIL *fd = RT_NULL;
+
         fd = (FIL *)(file->vnode->data);
         RT_ASSERT(fd != RT_NULL);
 
-        result = f_close(fd);
-        if (result == FR_OK)
-        {
-            /* release memory */
-            rt_free(fd);
-        }
+        f_close(fd);
+        /* release memory */
+        rt_free(fd);
     }
 
     return elm_result_to_dfs(result);
@@ -557,7 +555,7 @@ int dfs_elm_ioctl(struct dfs_file *file, int cmd, void *args)
     return -ENOSYS;
 }
 
-int dfs_elm_read(struct dfs_file *file, void *buf, size_t len, off_t *pos)
+ssize_t dfs_elm_read(struct dfs_file *file, void *buf, size_t len, off_t *pos)
 {
     FIL *fd;
     FRESULT result;
@@ -573,15 +571,14 @@ int dfs_elm_read(struct dfs_file *file, void *buf, size_t len, off_t *pos)
 
     result = f_read(fd, buf, len, &byte_read);
     /* update position */
-    file->fpos  = fd->fptr;
-    *pos = file->fpos;
+    *pos = fd->fptr;
     if (result == FR_OK)
         return byte_read;
 
     return elm_result_to_dfs(result);
 }
 
-int dfs_elm_write(struct dfs_file *file, const void *buf, size_t len, off_t *pos)
+ssize_t dfs_elm_write(struct dfs_file *file, const void *buf, size_t len, off_t *pos)
 {
     FIL *fd;
     FRESULT result;
@@ -597,8 +594,7 @@ int dfs_elm_write(struct dfs_file *file, const void *buf, size_t len, off_t *pos
 
     result = f_write(fd, buf, len, &byte_write);
     /* update position and file size */
-    file->fpos  = fd->fptr;
-    *pos = file->fpos;
+    *pos = fd->fptr;
     file->vnode->size = f_size(fd);
     if (result == FR_OK)
         return byte_write;
@@ -618,9 +614,27 @@ int dfs_elm_flush(struct dfs_file *file)
     return elm_result_to_dfs(result);
 }
 
-int dfs_elm_lseek(struct dfs_file *file, off_t offset, int wherece)
+off_t dfs_elm_lseek(struct dfs_file *file, off_t offset, int wherece)
 {
     FRESULT result = FR_OK;
+
+    switch (wherece)
+    {
+    case SEEK_SET:
+        break;
+
+    case SEEK_CUR:
+        offset += file->fpos;
+        break;
+
+    case SEEK_END:
+        offset += file->vnode->size;
+        break;
+
+    default:
+        return -EINVAL;
+    }
+
     if (file->vnode->type == FT_REGULAR)
     {
         FIL *fd;
@@ -633,7 +647,6 @@ int dfs_elm_lseek(struct dfs_file *file, off_t offset, int wherece)
         if (result == FR_OK)
         {
             /* return current position */
-            file->fpos = fd->fptr;
             return fd->fptr;
         }
     }
@@ -649,8 +662,7 @@ int dfs_elm_lseek(struct dfs_file *file, off_t offset, int wherece)
         if (result == FR_OK)
         {
             /* update file position */
-            file->fpos = offset;
-            return file->fpos;
+            return offset;
         }
     }
 
@@ -829,7 +841,7 @@ int dfs_elm_stat(struct dfs_dentry *dentry, struct stat *st)
         st->st_blksize = fat->csize * SS(fat);
         if (file_info.fattrib & AM_ARC)
         {
-            st->st_blocks = file_info.fsize ? ((file_info.fsize - 1) / SS(f) / fat->csize + 1) : 0;
+            st->st_blocks = file_info.fsize ? ((file_info.fsize - 1) / SS(fat) / fat->csize + 1) : 0;
             st->st_blocks *= (st->st_blksize / 512);  // man say st_blocks is number of 512B blocks allocated
         }
         else

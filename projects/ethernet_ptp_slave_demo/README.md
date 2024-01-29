@@ -28,8 +28,6 @@ lwIP-2.1.2 initialized!
 (D 0.011833750) state PTP_INITIALIZING
 (D 0.013588990) manufacturerIdentity: PTPd;1.0.1
 (D 0.015774790) netShutdown
-igmp_leavegroup: attempt to leave non-multicast address
-Assertion: 554 in ../rt-thread/components/net/lwip/lwip-2.1.2/src/core/ipv4/igmp.c, thread ptp_th
 (D 0.023853030) netInit
 (D 0.025080450) initData
 (D 0.026240430) initTimer

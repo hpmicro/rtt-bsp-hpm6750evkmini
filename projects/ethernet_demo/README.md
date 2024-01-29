@@ -35,10 +35,10 @@ network interface device: ET (Default)
 MTU: 1500
 MAC: 98 2c bc b1 9f 17
 FLAGS: UP LINK_UP INTERNET_DOWN DHCP_ENABLE ETHARP BROADCAST
-ip address: 10.10.10.6
-gw address: 10.10.10.1
+ip address: 192.168.100.6
+gw address: 192.168.100.1
 net mask  : 255.255.255.0
-dns server #0: 10.10.10.1
+dns server #0: 192.168.100.1
 dns server #1: 0.0.0.0
 
 ```
@@ -46,15 +46,15 @@ dns server #1: 0.0.0.0
   （1）Windows系统中，打开cmd, 运行ping
 
 ```console
-C:\Users>ping 10.10.10.6
+C:\Users>ping 192.168.100.6
 
-正在 Ping 10.10.10.6 具有 32 字节的数据:
-来自 10.10.10.6 的回复: 字节=32 时间<1ms TTL=255
-来自 10.10.10.6 的回复: 字节=32 时间<1ms TTL=255
-来自 10.10.10.6 的回复: 字节=32 时间<1ms TTL=255
-来自 10.10.10.6 的回复: 字节=32 时间<1ms TTL=255
+正在 Ping 192.168.100.6 具有 32 字节的数据:
+来自 192.168.100.6 的回复: 字节=32 时间<1ms TTL=255
+来自 192.168.100.6 的回复: 字节=32 时间<1ms TTL=255
+来自 192.168.100.6 的回复: 字节=32 时间<1ms TTL=255
+来自 192.168.100.6 的回复: 字节=32 时间<1ms TTL=255
 
-10.10.10.6 的 Ping 统计信息:
+192.168.100.6 的 Ping 统计信息:
     数据包: 已发送 = 4，已接收 = 4，丢失 = 0 (0% 丢失)，
 往返行程的估计时间(以毫秒为单位):
     最短 = 0ms，最长 = 0ms，平均 = 0ms
@@ -63,12 +63,12 @@ C:\Users>ping 10.10.10.6
   （2）开发板Ping PC
 
 ```console
-msh />ping 10.10.10.8
+msh />ping 192.168.100.8
 ping: not found specified netif, using default netdev ET.
-60 bytes from 10.10.10.8 icmp_seq=0 ttl=64 time=0 ms
-60 bytes from 10.10.10.8 icmp_seq=1 ttl=64 time=0 ms
-60 bytes from 10.10.10.8 icmp_seq=2 ttl=64 time=0 ms
-60 bytes from 10.10.10.8 icmp_seq=3 ttl=64 time=0 ms
+60 bytes from 192.168.100.8 icmp_seq=0 ttl=64 time=0 ms
+60 bytes from 192.168.100.8 icmp_seq=1 ttl=64 time=0 ms
+60 bytes from 192.168.100.8 icmp_seq=2 ttl=64 time=0 ms
+60 bytes from 192.168.100.8 icmp_seq=3 ttl=64 time=0 ms
 
 ```
 

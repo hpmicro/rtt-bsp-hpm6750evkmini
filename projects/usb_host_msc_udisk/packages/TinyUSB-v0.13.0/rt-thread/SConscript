@@ -15,7 +15,11 @@ path = [cwd, cwd + "/../src"]
 # BSP
 if GetDepend(["SOC_HPM6000"]):
     src +=  ["bsp/hpmicro/drv_tinyusb.c",
-    		 "../src/portable/hpm/hcd_hpm.c"]            
+    		 "../src/portable/hpm/hcd_hpm.c"]   
+
+if GetDepend(["SOC_HPM5000"]):
+    src +=  ["bsp/hpmicro/drv_tinyusb.c",
+    		 "../src/portable/hpm/hcd_hpm.c"]           
 
 src += ["../src/class/msc/msc_host.c"]
   

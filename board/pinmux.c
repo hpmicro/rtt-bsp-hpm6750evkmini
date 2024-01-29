@@ -338,11 +338,47 @@ void init_can_pins(CAN_Type *ptr)
     }
 }
 
-void init_sdxc_pins(SDXC_Type *ptr, bool use_1v8)
+void init_sdxc_cmd_pin(SDXC_Type *ptr, bool open_drain, bool is_1v8)
 {
     uint32_t cmd_func_ctl = IOC_PAD_FUNC_CTL_ALT_SELECT_SET(17) | IOC_PAD_FUNC_CTL_LOOP_BACK_SET(1);
+    uint32_t cmd_pad_ctl = IOC_PAD_PAD_CTL_MS_SET(is_1v8) | IOC_PAD_PAD_CTL_DS_SET(6) | IOC_PAD_PAD_CTL_PE_SET(1) |
+                           IOC_PAD_PAD_CTL_PS_SET(1);
+    if (open_drain) {
+        cmd_pad_ctl |= IOC_PAD_PAD_CTL_OD_MASK;
+    }
+
+    if (ptr == HPM_SDXC1) {
+        /* SDXC1.CMD */
+        HPM_IOC->PAD[IOC_PAD_PD21].FUNC_CTL = cmd_func_ctl;
+        HPM_IOC->PAD[IOC_PAD_PD21].PAD_CTL = cmd_pad_ctl;
+    }
+}
+
+void init_sdxc_cd_pin(SDXC_Type *ptr, bool as_gpio)
+{
+    uint32_t cd_pad_ctl = IOC_PAD_PAD_CTL_DS_SET(6) | IOC_PAD_PAD_CTL_PE_SET(1) | IOC_PAD_PAD_CTL_PS_SET(1);
+    if (ptr == HPM_SDXC1) {
+        /* SDXC1.CDN */
+        uint32_t cd_func_alt = as_gpio ? IOC_PD28_FUNC_CTL_GPIO_D_28 : IOC_PD28_FUNC_CTL_SDC1_CDN;
+        HPM_IOC->PAD[IOC_PAD_PD28].FUNC_CTL = cd_func_alt;
+        HPM_IOC->PAD[IOC_PAD_PD28].PAD_CTL = cd_pad_ctl;
+    }
+}
+
+void init_sdxc_vsel_pin(SDXC_Type *ptr, bool as_gpio)
+{
+    uint32_t vsel_pad_ctl = IOC_PAD_PAD_CTL_DS_SET(6) | IOC_PAD_PAD_CTL_PE_SET(1) | IOC_PAD_PAD_CTL_PS_SET(1);
+    if (ptr == HPM_SDXC1) {
+        uint32_t vsel_func_alt = as_gpio ? IOC_PD29_FUNC_CTL_GPIO_D_29 : IOC_PD29_FUNC_CTL_SDC1_VSEL;
+        HPM_IOC->PAD[IOC_PAD_PD29].FUNC_CTL = vsel_func_alt;
+        HPM_IOC->PAD[IOC_PAD_PD29].PAD_CTL = vsel_pad_ctl;
+    }
+}
+
+void init_sdxc_clk_data_pins(SDXC_Type *ptr, uint32_t width, bool is_1v8)
+{
     uint32_t func_ctl = IOC_PAD_FUNC_CTL_ALT_SELECT_SET(17);
-    uint32_t pad_ctl = IOC_PAD_PAD_CTL_MS_SET(use_1v8) | IOC_PAD_PAD_CTL_DS_SET(6) | IOC_PAD_PAD_CTL_PE_SET(1) |
+    uint32_t pad_ctl = IOC_PAD_PAD_CTL_MS_SET(is_1v8) | IOC_PAD_PAD_CTL_DS_SET(6) | IOC_PAD_PAD_CTL_PE_SET(1) |
                        IOC_PAD_PAD_CTL_PS_SET(1);
 
     if (ptr == HPM_SDXC1) {
@@ -350,43 +386,21 @@ void init_sdxc_pins(SDXC_Type *ptr, bool use_1v8)
         HPM_IOC->PAD[IOC_PAD_PD22].FUNC_CTL = func_ctl;
         HPM_IOC->PAD[IOC_PAD_PD22].PAD_CTL = pad_ctl;
 
-        /* SDXC1.CMD */
-        HPM_IOC->PAD[IOC_PAD_PD21].FUNC_CTL = cmd_func_ctl;
-        HPM_IOC->PAD[IOC_PAD_PD21].PAD_CTL = pad_ctl;
-
         /* SDXC1.DATA0 */
         HPM_IOC->PAD[IOC_PAD_PD18].FUNC_CTL = func_ctl;
         HPM_IOC->PAD[IOC_PAD_PD18].PAD_CTL = pad_ctl;
-        /* SDXC1.DATA1 */
-        HPM_IOC->PAD[IOC_PAD_PD17].FUNC_CTL = func_ctl;
-        HPM_IOC->PAD[IOC_PAD_PD17].PAD_CTL = pad_ctl;
-        /* SDXC1.DATA2 */
-        HPM_IOC->PAD[IOC_PAD_PD27].FUNC_CTL = func_ctl;
-        HPM_IOC->PAD[IOC_PAD_PD27].PAD_CTL = pad_ctl;
-        /* SDXC1.DATA3 */
-        HPM_IOC->PAD[IOC_PAD_PD26].FUNC_CTL = func_ctl;
-        HPM_IOC->PAD[IOC_PAD_PD26].PAD_CTL = pad_ctl;
+        if ((width == 4)) {
+            /* SDXC1.DATA1 */
+            HPM_IOC->PAD[IOC_PAD_PD17].FUNC_CTL = func_ctl;
+            HPM_IOC->PAD[IOC_PAD_PD17].PAD_CTL = pad_ctl;
+            /* SDXC1.DATA2 */
+            HPM_IOC->PAD[IOC_PAD_PD27].FUNC_CTL = func_ctl;
+            HPM_IOC->PAD[IOC_PAD_PD27].PAD_CTL = pad_ctl;
+            /* SDXC1.DATA3 */
+            HPM_IOC->PAD[IOC_PAD_PD26].FUNC_CTL = func_ctl;
+            HPM_IOC->PAD[IOC_PAD_PD26].PAD_CTL = pad_ctl;
+        }
     }
-}
-
-void init_sdxc_power_pin(SDXC_Type *ptr)
-{
-
-}
-void init_sdxc_vsel_pin(SDXC_Type *ptr)
-{
-    /* SDXC1.VSEL */
-    HPM_IOC->PAD[IOC_PAD_PD29].FUNC_CTL = IOC_PD29_FUNC_CTL_SDC1_VSEL;
-    HPM_IOC->PAD[IOC_PAD_PD28].PAD_CTL = IOC_PAD_PAD_CTL_DS_SET(6) | IOC_PAD_PAD_CTL_PE_SET(1) |
-                       IOC_PAD_PAD_CTL_PS_SET(1);
-}
-
-void init_sdxc_card_detection_pin(SDXC_Type *ptr)
-{
-    /* SDXC1.CDN */
-    HPM_IOC->PAD[IOC_PAD_PD28].FUNC_CTL = IOC_PD28_FUNC_CTL_SDC1_CDN;
-    HPM_IOC->PAD[IOC_PAD_PD28].PAD_CTL = IOC_PAD_PAD_CTL_DS_SET(6) | IOC_PAD_PAD_CTL_PE_SET(1) |
-                       IOC_PAD_PAD_CTL_PS_SET(1);
 }
 
 void init_clk_obs_pins(void)

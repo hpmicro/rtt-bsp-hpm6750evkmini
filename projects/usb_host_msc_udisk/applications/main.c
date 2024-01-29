@@ -45,6 +45,15 @@ uint64_t board_millis(void)
 }
 
 /*---------------------------------------------------------------------*
+ * tusb board init
+ *---------------------------------------------------------------------*/
+int tusb_board_init(void)
+{
+    rt_thread_delay(200);
+    return 0;
+}
+
+/*---------------------------------------------------------------------*
  * Main
  *---------------------------------------------------------------------*/
 int main(void)
@@ -55,7 +64,7 @@ int main(void)
 
     app_init_led_pins();
 
-    rt_thread_t led_thread = rt_thread_create("tled", tled_thread_entry, &tled_thread_arg, 16 * 1024, 25, 10);
+    rt_thread_t led_thread = rt_thread_create("tled", tled_thread_entry, &tled_thread_arg, 1024, 25, 10);
     rt_thread_startup(led_thread);
 
     result = rt_mb_init(&tfs_thread_mb, "tfsmb",
@@ -64,7 +73,7 @@ int main(void)
 
     RT_ASSERT(result == RT_EOK);
 
-    rt_thread_t fs_thread = rt_thread_create("tfs", tfs_thread_entry, &tfs_thread_arg, 20 * 1024, 20, 10);
+    rt_thread_t fs_thread = rt_thread_create("tfs", tfs_thread_entry, &tfs_thread_arg, 8 * 1024, 20, 10);
     rt_thread_startup(fs_thread);
 
     return 0;

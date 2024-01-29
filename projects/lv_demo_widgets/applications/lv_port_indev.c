@@ -9,11 +9,12 @@
 /*********************
  *      INCLUDES
  *********************/
-#include "board.h"
-#include "hpm_touch.h"
-#include "lv_port_indev.h"
 #include <rtthread.h>
-
+#include "board.h"
+#include "lv_port_indev.h"
+#if defined(BSP_USING_TOUCH)
+#include "hpm_touch.h"
+#endif
 /*********************
  *      DEFINES
  *********************/
@@ -25,7 +26,7 @@
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-
+#if defined(BSP_USING_TOUCH)
 static void touchpad_init(void);
 static void touchpad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
 static bool touchpad_is_pressed(void);
@@ -35,7 +36,10 @@ static void touchpad_get_xy(lv_coord_t *x, lv_coord_t *y);
  *  STATIC VARIABLES
  **********************/
 static lv_indev_t * indev_touchpad;
+
+
 static touch_point_t touch_points[HPM_TOUCH_MAX_POINTS];
+#endif
 
 /**********************
  *      MACROS
@@ -58,6 +62,7 @@ void lv_port_indev_init(void)
      *  You should shape them according to your hardware
      */
 
+#if defined(BSP_USING_TOUCH)
     static lv_indev_drv_t indev_drv;
 
     /*------------------
@@ -73,9 +78,11 @@ void lv_port_indev_init(void)
     indev_drv.type = LV_INDEV_TYPE_POINTER;
     indev_drv.read_cb = touchpad_read;
     indev_touchpad = lv_indev_drv_register(&indev_drv);
+#endif
 
 }
 
+#if defined(BSP_USING_TOUCH)
 /**********************
  *   STATIC FUNCTIONS
  **********************/
@@ -90,6 +97,7 @@ static void touchpad_init(void)
     hpm_stat_t stat;
     stat = touch_init(BOARD_CAP_I2C_BASE);
     if (stat != status_success) {
+        rt_kprintf("touchpad initialization failed, the lvgl demo aborted\n");
         while(1);
     }
     rt_kprintf("touchpad initialization completed\n");
@@ -140,3 +148,4 @@ static bool touchpad_is_pressed(void)
     }
     return false;
 }
+#endif

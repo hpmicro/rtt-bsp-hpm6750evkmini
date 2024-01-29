@@ -33,6 +33,8 @@ extern "C" {
 #define CFG_TUSB_MCU    OPT_MCU_NRF5X
 #elif defined(SOC_HPM6000)
 #define CFG_TUSB_MCU    OPT_MCU_HPM
+#elif defined(SOC_HPM5000)
+#define CFG_TUSB_MCU    OPT_MCU_HPM
 #else
 #error "Not support for current MCU"
 #endif

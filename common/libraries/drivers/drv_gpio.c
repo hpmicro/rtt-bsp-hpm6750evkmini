@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 HPMicro
+ * Copyright (c) 2021-2024 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -9,6 +9,7 @@
  * 2022-07-28   HPMicro     Fixed compiling warnings
  * 2023-05-08   HPMicro     Adapt RT-Thread V5.0.0
  * 2023-08-15   HPMicro     Enable pad loopback feature
+ * 2024-01-08   HPMicro     Implemented pin_get
  */
 
 #include <rtthread.h>
@@ -169,6 +170,29 @@ void gpioz_isr(void)
 SDK_DECLARE_EXT_ISR_M(IRQn_GPIO0_Z, gpioz_isr)
 #endif
 
+/**
+ * @brief Get Pin index from name
+ *
+ * Name rule is : <GPIO NAME><Index>
+ *  for example: PA00, PZ03
+ *
+ **/
+static rt_base_t hpm_pin_get(const char *name)
+{
+    if (!(  (rt_strlen(name) == 4) &&
+            (name[0] == 'P') &&
+            ((('A' <= name[1]) && (name[1] <= 'F')) || (('X' <= name[1]) && (name[1] <= 'Z'))) &&
+            (('0' <= name[2]) && (name[2] <= '9')) &&
+            (('0' <= name[3]) && (name[3] <= '9'))
+        ))
+    {
+        return -RT_EINVAL;
+    }
+
+    uint32_t gpio_index = (name[1] <= 'F') ? (name[1] - 'A') : (13 + name[1] - 'X');
+    uint32_t pin_index = (uint32_t)(name[2] - '0') * 10 + (name[3] - '0');
+    return (gpio_index * 32 + pin_index);
+}
 
 static void hpm_pin_mode(rt_device_t dev, rt_base_t pin, rt_uint8_t mode)
 {
@@ -322,7 +346,9 @@ const static struct rt_pin_ops hpm_pin_ops = {
         .pin_read = hpm_pin_read,
         .pin_attach_irq = hpm_pin_attach_irq,
         .pin_detach_irq = hpm_pin_detach_irq,
-        .pin_irq_enable = hpm_pin_irq_enable};
+        .pin_irq_enable = hpm_pin_irq_enable,
+        .pin_get = hpm_pin_get,
+};
 
 int rt_hw_pin_init(void)
 {

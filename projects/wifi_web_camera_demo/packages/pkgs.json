@@ -1,0 +1,17 @@
+[
+ {
+  "path": "/packages/iot/WiFi/rw007", 
+  "ver": "latest", 
+  "name": "RW007"
+ }, 
+ {
+  "path": "/packages/iot/netutils", 
+  "ver": "latest", 
+  "name": "NETUTILS"
+ }, 
+ {
+  "path": "/packages/misc/optparse", 
+  "ver": "latest", 
+  "name": "OPTPARSE"
+ }
+]

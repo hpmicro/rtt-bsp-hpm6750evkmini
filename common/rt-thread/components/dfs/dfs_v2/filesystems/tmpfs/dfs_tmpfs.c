@@ -7,6 +7,7 @@
  * Date           Author       Notes
  * 2022-10-24     flybreak     the first version
  * 2023-02-01     xqyjlj       fix cannot open the same file repeatedly in 'w' mode
+ * 2023-09-20     zmq810150896 adds truncate functionality and standardized unlink adaptations
  */
 
 #include <rthw.h>
@@ -86,8 +87,7 @@ static int _free_subdir(struct tmpfs_file *dfile)
 {
     struct tmpfs_file *file;
     rt_list_t *list, *temp_list;
-
-    RT_DEFINE_SPINLOCK(lock);
+    struct tmpfs_sb *superblock;
 
     RT_ASSERT(dfile->type == TMPFS_TYPE_DIR);
 
@@ -103,9 +103,14 @@ static int _free_subdir(struct tmpfs_file *dfile)
             /* TODO: fix for rt-smart */
             rt_free(file->data);
         }
-        rt_hw_spin_lock(&lock);
+
+        superblock = file->sb;
+        RT_ASSERT(superblock != NULL);
+
+        rt_spin_lock(&superblock->lock);
         rt_list_remove(&(file->sibling));
-        rt_hw_spin_unlock(&lock);
+        rt_spin_unlock(&superblock->lock);
+
         rt_free(file);
     }
     return 0;
@@ -130,6 +135,8 @@ static int dfs_tmpfs_mount(struct dfs_mnt *mnt,
         rt_list_init(&superblock->root.sibling);
         rt_list_init(&superblock->root.subdirs);
 
+        rt_spin_lock_init(&superblock->lock);
+
         mnt->data = superblock;
     }
     else
@@ -137,20 +144,20 @@ static int dfs_tmpfs_mount(struct dfs_mnt *mnt,
         return -1;
     }
 
-    return 0;
+    return RT_EOK;
 }
 
 static int dfs_tmpfs_unmount(struct dfs_mnt *mnt)
 {
     struct tmpfs_sb *superblock;
 
+    /* FIXME: don't unmount on busy. */
     superblock = (struct tmpfs_sb *)mnt->data;
     RT_ASSERT(superblock != NULL);
 
+    mnt->data = NULL;
     _free_subdir(&(superblock->root));
     rt_free(superblock);
-
-    mnt->data = NULL;
 
     return RT_EOK;
 }
@@ -217,8 +224,6 @@ struct tmpfs_file *dfs_tmpfs_lookup(struct tmpfs_sb  *superblock,
     struct tmpfs_file *file, *curfile;
     rt_list_t *list;
 
-    RT_DEFINE_SPINLOCK(lock);
-
     subpath = path;
     while (*subpath == '/' && *subpath)
         subpath ++;
@@ -243,7 +248,7 @@ find_subpath:
     memset(subdir_name, 0, TMPFS_NAME_MAX);
     _get_subdir(curpath, subdir_name);
 
-    rt_hw_spin_lock(&lock);
+    rt_spin_lock(&superblock->lock);
 
     rt_list_for_each(list, &curfile->subdirs)
     {
@@ -254,7 +259,7 @@ find_subpath:
             {
                 *size = file->size;
 
-                rt_hw_spin_unlock(&lock);
+                rt_spin_unlock(&superblock->lock);
                 return file;
             }
         }
@@ -263,16 +268,16 @@ find_subpath:
             *size = file->size;
             curpath = subpath;
             curfile = file;
-            rt_hw_spin_unlock(&lock);
+            rt_spin_unlock(&superblock->lock);
             goto find_subpath;
         }
     }
-    rt_hw_spin_unlock(&lock);
+    rt_spin_unlock(&superblock->lock);
     /* not found */
     return NULL;
 }
 
-static int dfs_tmpfs_read(struct dfs_file *file, void *buf, size_t count, off_t *pos)
+static ssize_t dfs_tmpfs_read(struct dfs_file *file, void *buf, size_t count, off_t *pos)
 {
     rt_size_t length;
     struct tmpfs_file *d_file;
@@ -280,22 +285,21 @@ static int dfs_tmpfs_read(struct dfs_file *file, void *buf, size_t count, off_t 
     d_file = (struct tmpfs_file *)file->vnode->data;
     RT_ASSERT(d_file != NULL);
 
-    if (count < file->vnode->size - file->fpos)
+    if (count < file->vnode->size - *pos)
         length = count;
     else
-        length = file->vnode->size - file->fpos;
+        length = file->vnode->size - *pos;
 
     if (length > 0)
-        memcpy(buf, &(d_file->data[file->fpos]), length);
+        memcpy(buf, &(d_file->data[*pos]), length);
 
     /* update file current position */
-    file->fpos += length;
-    *pos = file->fpos;
+    *pos += length;
 
     return length;
 }
 
-static int dfs_tmpfs_write(struct dfs_file *file, const void *buf, size_t count, off_t *pos)
+static ssize_t dfs_tmpfs_write(struct dfs_file *file, const void *buf, size_t count, off_t *pos)
 {
     struct tmpfs_file *d_file;
     struct tmpfs_sb *superblock;
@@ -306,41 +310,57 @@ static int dfs_tmpfs_write(struct dfs_file *file, const void *buf, size_t count,
     superblock = d_file->sb;
     RT_ASSERT(superblock != NULL);
 
-    if (count + file->fpos > file->vnode->size)
+    if (count + *pos > file->vnode->size)
     {
         rt_uint8_t *ptr;
-        ptr = rt_realloc(d_file->data, file->fpos + count);
+        ptr = rt_realloc(d_file->data, *pos + count);
         if (ptr == NULL)
         {
             rt_set_errno(-ENOMEM);
             return 0;
         }
 
-        superblock->df_size += (file->fpos - d_file->size + count);
+        rt_spin_lock(&superblock->lock);
+        superblock->df_size += (*pos - d_file->size + count);
+        rt_spin_unlock(&superblock->lock);
         /* update d_file and file size */
         d_file->data = ptr;
-        d_file->size = file->fpos + count;
+        d_file->size = *pos + count;
         file->vnode->size = d_file->size;
         LOG_D("tmpfile ptr:%x, size:%d", ptr, d_file->size);
     }
 
     if (count > 0)
-        memcpy(d_file->data + file->fpos, buf, count);
+        memcpy(d_file->data + *pos, buf, count);
 
     /* update file current position */
-    file->fpos += count;
-    *pos = file->fpos;
+    *pos += count;
 
     return count;
 }
 
-static int dfs_tmpfs_lseek(struct dfs_file *file, off_t offset, int wherece)
+static off_t dfs_tmpfs_lseek(struct dfs_file *file, off_t offset, int wherece)
 {
+    switch (wherece)
+    {
+    case SEEK_SET:
+        break;
+
+    case SEEK_CUR:
+        offset += file->fpos;
+        break;
+
+    case SEEK_END:
+        offset += file->vnode->size;
+        break;
+
+    default:
+        return -EINVAL;
+    }
+
     if (offset <= (off_t)file->vnode->size)
     {
-        file->fpos = offset;
-
-        return file->fpos;
+        return offset;
     }
 
     return -EIO;
@@ -348,7 +368,28 @@ static int dfs_tmpfs_lseek(struct dfs_file *file, off_t offset, int wherece)
 
 static int dfs_tmpfs_close(struct dfs_file *file)
 {
+    struct tmpfs_file *d_file;
+
     RT_ASSERT(file->vnode->ref_count > 0);
+    if (file->vnode->ref_count != 1)
+        return 0;
+
+    d_file = (struct tmpfs_file *)file->vnode->data;
+
+    if (d_file == NULL)
+        return -ENOENT;
+
+    if (d_file->fre_memory == RT_TRUE)
+    {
+        if (d_file->data != NULL)
+        {
+            rt_free(d_file->data);
+            d_file->data = RT_NULL;
+        }
+
+        rt_free(d_file);
+    }
+
     return RT_EOK;
 }
 
@@ -476,8 +517,6 @@ static int dfs_tmpfs_unlink(struct dfs_dentry *dentry)
     struct tmpfs_sb *superblock;
     struct tmpfs_file *d_file;
 
-    RT_DEFINE_SPINLOCK(lock);
-
     superblock = (struct tmpfs_sb *)dentry->mnt->data;
     RT_ASSERT(superblock != NULL);
 
@@ -485,13 +524,24 @@ static int dfs_tmpfs_unlink(struct dfs_dentry *dentry)
     if (d_file == NULL)
         return -ENOENT;
 
-    rt_hw_spin_lock(&lock);
+    rt_spin_lock(&superblock->lock);
     rt_list_remove(&(d_file->sibling));
-    rt_hw_spin_unlock(&lock);
+    rt_spin_unlock(&superblock->lock);
 
-    if (d_file->data != NULL)
-        rt_free(d_file->data);
-    rt_free(d_file);
+    if (rt_atomic_load(&(dentry->ref_count)) == 1)
+    {
+        if (d_file->data != NULL)
+        {
+            rt_free(d_file->data);
+            d_file->data = RT_NULL;
+        }
+
+        rt_free(d_file);
+    }
+    else
+    {
+        d_file->fre_memory = RT_TRUE;
+    }
 
     return RT_EOK;
 }
@@ -502,8 +552,6 @@ static int dfs_tmpfs_rename(struct dfs_dentry *old_dentry, struct dfs_dentry *ne
     struct tmpfs_sb *superblock;
     rt_size_t size;
     char parent_path[DFS_PATH_MAX], file_name[TMPFS_NAME_MAX];
-
-    RT_DEFINE_SPINLOCK(lock);
 
     superblock = (struct tmpfs_sb *)old_dentry->mnt->data;
     RT_ASSERT(superblock != NULL);
@@ -524,15 +572,15 @@ static int dfs_tmpfs_rename(struct dfs_dentry *old_dentry, struct dfs_dentry *ne
     p_file = dfs_tmpfs_lookup(superblock, parent_path, &size);
     RT_ASSERT(p_file != NULL);
 
-    rt_hw_spin_lock(&lock);
+    rt_spin_lock(&superblock->lock);
     rt_list_remove(&(d_file->sibling));
-    rt_hw_spin_unlock(&lock);
+    rt_spin_unlock(&superblock->lock);
 
     strncpy(d_file->name, file_name, TMPFS_NAME_MAX);
 
-    rt_hw_spin_lock(&lock);
+    rt_spin_lock(&superblock->lock);
     rt_list_insert_after(&(p_file->subdirs), &(d_file->sibling));
-    rt_hw_spin_unlock(&lock);
+    rt_spin_unlock(&superblock->lock);
 
     return RT_EOK;
 }
@@ -585,14 +633,13 @@ static struct dfs_vnode *dfs_tmpfs_create_vnode(struct dfs_dentry *dentry, int t
     struct tmpfs_file *d_file, *p_file;
     char parent_path[DFS_PATH_MAX], file_name[TMPFS_NAME_MAX];
 
-    RT_DEFINE_SPINLOCK(lock);
-
     if (dentry == NULL || dentry->mnt == NULL || dentry->mnt->data == NULL)
     {
         return NULL;
     }
 
     superblock = (struct tmpfs_sb *)dentry->mnt->data;
+    RT_ASSERT(superblock != NULL);
 
     vnode = dfs_vnode_create();
     if (vnode)
@@ -630,6 +677,7 @@ static struct dfs_vnode *dfs_tmpfs_create_vnode(struct dfs_dentry *dentry, int t
         d_file->data = NULL;
         d_file->size = 0;
         d_file->sb = superblock;
+        d_file->fre_memory = RT_FALSE;
         if (type == FT_DIRECTORY)
         {
             d_file->type = TMPFS_TYPE_DIR;
@@ -642,9 +690,9 @@ static struct dfs_vnode *dfs_tmpfs_create_vnode(struct dfs_dentry *dentry, int t
             vnode->mode = S_IFREG | mode;
             vnode->type = FT_REGULAR;
         }
-        rt_hw_spin_lock(&lock);
+        rt_spin_lock(&superblock->lock);
         rt_list_insert_after(&(p_file->subdirs), &(d_file->sibling));
-        rt_hw_spin_unlock(&lock);
+        rt_spin_unlock(&superblock->lock);
 
         vnode->mnt = dentry->mnt;
         vnode->data = d_file;
@@ -665,6 +713,38 @@ static int dfs_tmpfs_free_vnode(struct dfs_vnode *vnode)
     return 0;
 }
 
+static int dfs_tmpfs_truncate(struct dfs_file *file, off_t offset)
+{
+    struct tmpfs_file *d_file = RT_NULL;
+    struct tmpfs_sb *superblock = RT_NULL;
+    rt_uint8_t *ptr = RT_NULL;
+
+    d_file = (struct tmpfs_file *)file->vnode->data;
+    RT_ASSERT(d_file != RT_NULL);
+
+    superblock = d_file->sb;
+    RT_ASSERT(superblock != RT_NULL);
+
+    ptr = rt_realloc(d_file->data, offset);
+    if (ptr == RT_NULL)
+    {
+        rt_set_errno(-ENOMEM);
+        return 0;
+    }
+
+    rt_spin_lock(&superblock->lock);
+    superblock->df_size = offset;
+    rt_spin_unlock(&superblock->lock);
+
+    /* update d_file and file size */
+    d_file->data = ptr;
+    d_file->size = offset;
+    file->vnode->size = d_file->size;
+    LOG_D("tmpfile ptr:%x, size:%d", ptr, d_file->size);
+
+    return 0;
+}
+
 static const struct dfs_file_ops _tmp_fops =
 {
     .open = dfs_tmpfs_open,
@@ -674,6 +754,7 @@ static const struct dfs_file_ops _tmp_fops =
     .write = dfs_tmpfs_write,
     .lseek = dfs_tmpfs_lseek,
     .getdents = dfs_tmpfs_getdents,
+    .truncate = dfs_tmpfs_truncate,
 };
 
 static const struct dfs_filesystem_ops _tmpfs_ops =

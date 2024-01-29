@@ -1,9 +1,4 @@
-[
- {
-  "path": "/packages/system/fal", 
-  "ver": "v1.0.0", 
-  "name": "FAL"
- }, 
+[ 
  {
   "path": "/packages/system/FlashDB", 
   "ver": "v1.1.1", 

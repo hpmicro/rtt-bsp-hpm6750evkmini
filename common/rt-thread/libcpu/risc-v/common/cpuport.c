@@ -8,7 +8,6 @@
  * 2018/10/28     Bernard      The unify RISC-V porting code.
  * 2020/11/20     BalanceTWK   Add FPU support
  * 2023/01/04     WangShun     Adapt to CH32
- * 2023/06/27     HPMicro      Add Thread Pointer support
  */
 
 #include <rthw.h>
@@ -22,8 +21,6 @@ volatile rt_ubase_t  rt_interrupt_from_thread = 0;
 volatile rt_ubase_t  rt_interrupt_to_thread   = 0;
 volatile rt_uint32_t rt_thread_switch_interrupt_flag = 0;
 #endif
-
-extern rt_uint8_t __thread_pointer[];
 
 /**
  * This function will initialize thread stack
@@ -58,7 +55,6 @@ rt_uint8_t *rt_hw_stack_init(void       *tentry,
     frame->ra      = (rt_ubase_t)texit;
     frame->a0      = (rt_ubase_t)parameter;
     frame->epc     = (rt_ubase_t)tentry;
-    frame->tp      = (rt_ubase_t)__thread_pointer;
 
     /* force to machine mode(MPP=11) and set MPIE to 1 */
 #ifdef ARCH_RISCV_FPU
@@ -101,16 +97,3 @@ rt_weak void rt_hw_context_switch_interrupt(rt_ubase_t from, rt_ubase_t to, rt_t
     return ;
 }
 #endif /* end of RT_USING_SMP */
-
-/** shutdown CPU */
-rt_weak void rt_hw_cpu_shutdown()
-{
-    rt_base_t level;
-    rt_kprintf("shutdown...\n");
-
-    level = rt_hw_interrupt_disable();
-    while (level)
-    {
-        RT_ASSERT(0);
-    }
-}

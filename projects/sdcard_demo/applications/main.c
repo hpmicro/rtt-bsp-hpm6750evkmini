@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021-2024 HPMicro
  *
  * Change Logs:
  * Date         Author          Notes
- * 2021-08-13   Fan YANG        first version
+ * 2021-08-13   HPMicro         first version
+ * 2024-01-03   HPMicro         change the SD card name
  *
  */
 
@@ -13,7 +14,6 @@
 #include "rtt_board.h"
 
 void thread_entry(void *arg);
-
 
 
 int main(void)
@@ -27,13 +27,13 @@ int main(void)
 
     rt_thread_mdelay(2000);
 
-    if (dfs_mount("sd", "/", "elm", 0, NULL) == 0)
+    if (dfs_mount(BOARD_SD_NAME, "/", "elm", 0, NULL) == 0)
     {
-        rt_kprintf("sd0 mounted to /\n");
+        rt_kprintf("%s mounted to /\n", BOARD_SD_NAME);
     }
     else
     {
-        rt_kprintf("sd0 mount to / failed\n");
+        rt_kprintf("%s mount to / failed\n", BOARD_SD_NAME);
     }
 
     return 0;

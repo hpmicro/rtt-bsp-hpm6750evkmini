@@ -13,14 +13,13 @@
 
 void thread_entry(void *arg);
 
-
-
 int main(void)
 {
+
     app_init_led_pins();
 
     static uint32_t led_thread_arg = 0;
-    rt_thread_t led_thread = rt_thread_create("led_th", thread_entry, &led_thread_arg, 1024, 1, 10);
+    rt_thread_t led_thread = rt_thread_create("led_th", thread_entry, &led_thread_arg, 1024, 25, 10);
     rt_thread_startup(led_thread);
 
     return 0;

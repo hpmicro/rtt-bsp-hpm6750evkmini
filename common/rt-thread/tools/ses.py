@@ -2,7 +2,6 @@
 
 import os
 import sys
-import rtconfig
 
 import xml.etree.ElementTree as etree
 from xml.etree.ElementTree import SubElement
@@ -50,7 +49,7 @@ def SESProject(env) :
     CPPPATH = []
     CPPDEFINES = []
     LINKFLAGS = ''
-    CFLAGS = rtconfig.CFLAGS
+    CFLAGS = ''
 
     project_node = tree.find('project')
 
@@ -78,19 +77,10 @@ def SESProject(env) :
     path = path.replace('\\', '/')
     defines = ';'.join(set(project['CPPDEFINES']))
 
-    # Get the definition macros passed through the rtconfig.py and append them to the c_preprecessor_defintions string
-    cflags_list = str.split(CFLAGS)
-    global_cflags = ''
-    for cflag in cflags_list:
-        if cflag.startswith('-D'):
-           global_cflags +=";" + cflag[2:]
-    print(global_cflags)
-    all_defines = defines + global_cflags
-
     node = tree.findall('project/configuration')
     for item in node:
         if item.get('c_preprocessor_definitions'):
-            item.set('c_preprocessor_definitions', all_defines)
+            item.set('c_preprocessor_definitions', defines)
 
         if item.get('c_user_include_directories'):
             item.set('c_user_include_directories', path)

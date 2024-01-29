@@ -8,7 +8,7 @@
  * 2018-10-03     Bernard      The first version
  * 2020/11/20     BalanceTWK   Add FPU support
  * 2023/01/04     WangShun     Adapt to CH32
- * 2023/08/11     HPMicro      Fix FPU support issue
+ * 2023/08/11     HPMicro      Define ARCH_RISCV_FPU if FPU is enabled
  */
 
 #ifndef CPUPORT_H__

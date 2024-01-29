@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 HPMicro
+ * Copyright (c) 2021 hpmicro
  *
  * Change Logs:
  * Date         Author          Notes
@@ -22,8 +22,6 @@ void thread_entry(void *arg);
 
 #include <rtthread.h>
 #include <rtdevice.h>
-
-#define SAMPLE_UART_NAME       "uart13"      /* 串口设备名称 */
 
 /* 串口接收消息结构 */
 struct rx_msg
@@ -60,7 +58,7 @@ static void serial_thread_entry(void *parameter)
     struct rx_msg msg;
     rt_err_t result;
     rt_uint32_t rx_length;
-    __attribute__((section(".noncacheable"), aligned(4))) static char rx_buffer[BSP_UART13_RX_BUFSIZE];
+    __attribute__((section(".noncacheable"), aligned(4))) static char rx_buffer[BOARD_UART_RX_BUFFER_SIZE];
 
     while (1)
     {
@@ -98,7 +96,7 @@ static int uart_dma_sample(int argc, char *argv[])
     }
     else
     {
-        rt_strncpy(uart_name, SAMPLE_UART_NAME, RT_NAME_MAX);
+        rt_strncpy(uart_name, BOARD_UART_NAME, RT_NAME_MAX);
     }
 
     /* 查找串口设备 */

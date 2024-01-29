@@ -6,13 +6,51 @@
  * Date           Author       Notes
  * 2020-01-15     bigmagic     the first version
  * 2020-08-10     SummerGift   support clang compiler
+ * 2023-04-29     GuEe-GUI     support kernel's ARM64 boot header
  */
 
 #include "rtconfig.h"
-.section ".text.entrypoint","ax"
-.global __start
 
-__start:
+    .section ".text.entrypoint","ax"
+
+#ifdef RT_USING_OFW
+/*
+ * Our goal is to boot the rt-thread as possible without modifying the
+ * bootloader's config, so we use the kernel's boot header for ARM64:
+ *   https://www.kernel.org/doc/html/latest/arm64/booting.html#call-the-kernel-image
+ */
+_head:
+    b       _start          /* Executable code */
+    .long   0               /* Executable code */
+    .quad   _text_offset    /* Image load offset from start of RAM, little endian */
+    .quad   _end - _head    /* Effective Image size, little endian (_end defined in link.lds) */
+    .quad   0xa             /* Kernel flags, little endian */
+    .quad   0               /* Reserved */
+    .quad   0               /* Reserved */
+    .quad   0               /* Reserved */
+    .ascii  "ARM\x64"       /* Magic number */
+    .long   0               /* Reserved (used for PE COFF offset) */
+#endif
+/* Variable registers: x21~x28 */
+dtb_paddr .req x21
+boot_arg0 .req x22
+boot_arg1 .req x23
+boot_arg2 .req x24
+stack_top .req x25
+
+    .global _start
+_start:
+/*
+ * Boot CPU general-purpose register settings:
+ *   x0 = physical address of device tree blob (dtb) in system RAM.
+ *   x1 = 0 (reserved for future use)
+ *   x2 = 0 (reserved for future use)
+ *   x3 = 0 (reserved for future use)
+ */
+    mov     dtb_paddr, x0
+    mov     boot_arg0, x1
+    mov     boot_arg1, x2
+    mov     boot_arg2, x3
 #ifdef ARCH_ARM_BOOTWITH_FLUSH_CACHE
     bl      __asm_flush_dcache_all
 #endif
@@ -119,7 +157,7 @@ __start:
 .L__jump_to_entry:          /* jump to C code, should not return */
     bl mmu_tcr_init
 
-    adr x0, .early_mmu_table         /* install early page table */
+    bl get_ttbrn_base
     add x1, x0, #0x1000
 
     msr ttbr0_el1, x0
@@ -127,8 +165,8 @@ __start:
     dsb sy
 
 #ifdef RT_USING_SMART
-    ldr     x2, =__start
-    GET_PHY x3, __start
+    ldr     x2, =_start
+    GET_PHY x3, _start
     sub     x3, x3, x2
 #else
     mov     x3,0
@@ -246,7 +284,7 @@ _secondary_cpu_entry:
 
     bl mmu_tcr_init
 
-    adr x0, .early_mmu_table             /* GET & setup early page table */
+    bl get_ttbrn_base
     add x1, x0, #0x1000
 
     msr ttbr0_el1, x0
@@ -293,11 +331,11 @@ after_mmu_enable_cpux:
     b rt_hw_secondary_cpu_bsp_start
 #endif
 
-.align 12
-.early_mmu_table:
-.space (4096 * 2)
+#ifndef RT_CPUS_NR
+#define RT_CPUS_NR 1
+#endif
 
 .align 12
 .el_stack:
-.space (8192)
+.space (8192 * RT_CPUS_NR)
 .el_stack_top:

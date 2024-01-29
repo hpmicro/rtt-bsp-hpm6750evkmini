@@ -13,7 +13,7 @@
 #include "rtt_board.h"
 #include <drv_gpio.h>
 #include "hpm_romapi.h"
-#ifdef PKG_USING_FAL
+#ifdef RT_USING_FAL
 #include "fal.h"
 #endif
 

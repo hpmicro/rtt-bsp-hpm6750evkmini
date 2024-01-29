@@ -18,7 +18,7 @@
 #include "hpm_dao_drv.h"
 #include "board.h"
 #include "drv_dao.h"
-#ifdef CONFIG_HAS_HPMSDK_DMAV2
+#ifdef HPMSOC_HAS_HPMSDK_DMAV2
 #include "hpm_dmav2_drv.h"
 #else
 #include "hpm_dma_drv.h"
@@ -108,7 +108,9 @@ static rt_err_t hpm_dao_set_samplerate(uint32_t samplerate)
     i2s_get_default_transfer_config_for_dao(&transfer);
     transfer.sample_rate = samplerate;
     bool is_enabled = i2s_is_enabled(DAO_I2S);
-    dma_abort_channel(dma_resource.base, dma_resource.channel);
+    if (is_enabled) {
+        dma_abort_channel(dma_resource.base, dma_resource.channel);
+    }
     if (status_success != i2s_config_tx(DAO_I2S, mclk_hz, &transfer))
     {
         LOG_E("dao_i2s configure transfer failed\n");
@@ -198,7 +200,9 @@ static rt_err_t hpm_dao_start(struct rt_audio_device* audio, int stream)
 {
     RT_ASSERT(audio != RT_NULL);
 
-    i2s_reset_tx_rx(DAO_I2S);
+    i2s_disable(DAO_I2S);
+    i2s_disable_tx_dma_request(DAO_I2S);
+    dao_stop(HPM_DAO);
     dao_software_reset(HPM_DAO);
 
     if (dma_mgr_request_resource(&dma_resource) == status_success) {
@@ -212,9 +216,14 @@ static rt_err_t hpm_dao_start(struct rt_audio_device* audio, int stream)
         return -RT_ERROR;
     }
 
+    /* fill 2 dummy data, it is suitable for 1/2 channel of audio */
+    i2s_reset_tx(DAO_I2S);
+    if (i2s_fill_tx_dummy_data(DAO_I2S, DAO_I2S_DATA_LINE, 2) != status_success) {
+        return -RT_ERROR;
+    }
     rt_audio_tx_complete(audio);
-
-    i2s_start(DAO_I2S);
+    i2s_enable(DAO_I2S);
+    i2s_enable_tx_dma_request(DAO_I2S);
     dao_start(HPM_DAO);
 
     return RT_EOK;
@@ -227,6 +236,7 @@ static rt_err_t hpm_dao_stop(struct rt_audio_device* audio, int stream)
     dao_stop(HPM_DAO);
     i2s_stop(DAO_I2S);
 
+    dma_abort_channel(dma_resource.base, dma_resource.channel);
     dma_mgr_release_resource(&dma_resource);
 
     return RT_EOK;

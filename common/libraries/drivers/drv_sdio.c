@@ -9,6 +9,7 @@
  * 2022-07-19   HPMicro     Fixed the multi-block read/write issue
  * 2023-07-27   HPMicro     Fixed clock setting issue
  * 2023-08-02   HPMicro     Add speed mode setting
+ * 2024-01-03   HPMicro     Add multiple instance support
  */
 #include <rtthread.h>
 
@@ -37,11 +38,15 @@ struct hpm_mmcsd
     struct rt_mmcsd_req *req;
     struct rt_mmcsd_cmd *cmd;
     struct rt_timer *timer;
+
+    char name[RT_NAME_MAX];
     rt_uint32_t *buf;
     SDXC_Type *sdxc_base;
     int32_t irq_num;
     uint32_t *sdxc_adma2_table;
-
+    bool support_8bit;
+    bool support_4bit;
+    uint8_t padding[2];
     uint8_t power_mode;
     uint8_t bus_width;
     uint8_t timing;
@@ -65,8 +70,58 @@ static const struct rt_mmcsd_host_ops hpm_mmcsd_host_ops =
     .enable_sdio_irq = NULL, // Do not use the interrupt mode, use DMA instead
 };
 
+#if defined(BSP_USING_SDXC0)
 /* Place the ADMA2 table to non-cacheable region */
-ATTR_PLACE_AT_NONCACHEABLE static uint32_t s_sdxc_adma2_table[SDXC_ADMA_TABLE_WORDS];
+ATTR_PLACE_AT_NONCACHEABLE static uint32_t s_sdxc0_adma2_table[SDXC_ADMA_TABLE_WORDS];
+/* SDXC0 */
+static struct hpm_mmcsd s_hpm_sdxc0 =
+{
+    .name = "sd0",
+    .sdxc_base = HPM_SDXC0,
+    .sdxc_adma2_table = s_sdxc0_adma2_table,
+    .irq_num = IRQn_SDXC0,
+#if defined(BSP_SDXC0_BUS_WIDTH_8BIT)
+    .support_8bit = true,
+    .support_4bit = true,
+#elif defined(BSP_SDXC0_BUS_WIDTH_4BIT)
+    .support_8bit = true,
+#elif defined(BSP_SDXC0_BUS_WIDTH_1BIT)
+#else
+    .support_4bit = true,
+#endif
+};
+#endif
+
+#if defined(BSP_USING_SDXC1)
+/* Place the ADMA2 table to non-cacheable region */
+ATTR_PLACE_AT_NONCACHEABLE static uint32_t s_sdxc1_adma2_table[SDXC_ADMA_TABLE_WORDS];
+static struct hpm_mmcsd s_hpm_sdxc1 =
+{
+    .name = "sd1",
+    .sdxc_base = HPM_SDXC1,
+    .sdxc_adma2_table = s_sdxc1_adma2_table,
+    .irq_num = IRQn_SDXC1,
+#if defined(BSP_SDXC1_BUS_WIDTH_8BIT)
+    .support_8bit = true,
+    .support_4bit = true,
+#elif defined(BSP_SDXC1_BUS_WIDTH_4BIT)
+    .support_4bit = true,
+#elif defined(BSP_SDXC1_BUS_WIDTH_1BIT)
+#else
+    .support_4bit = true,
+#endif
+};
+#endif
+
+static struct hpm_mmcsd *hpm_sdxcs[] =
+{
+#if defined(BSP_USING_SDXC0)
+    &s_hpm_sdxc0,
+#endif
+#if defined(BSP_USING_SDXC1)
+    &s_hpm_sdxc1,
+#endif
+};
 
 
 static int hpm_sdmmc_transfer(SDXC_Type *base, sdxc_adma_config_t *dma_config, sdxc_xfer_t *xfer)
@@ -303,6 +358,8 @@ static void hpm_sdmmc_set_iocfg(struct rt_mmcsd_host *host, struct rt_mmcsd_io_c
     RT_ASSERT(io_cfg != RT_NULL);
 
     struct hpm_mmcsd *mmcsd = (struct hpm_mmcsd *) host->private_data;
+
+    /* Power control */
     uint32_t vdd = io_cfg->vdd;
     if (io_cfg->power_mode != mmcsd->power_mode)
     {
@@ -326,6 +383,7 @@ static void hpm_sdmmc_set_iocfg(struct rt_mmcsd_host *host, struct rt_mmcsd_io_c
         mmcsd->power_mode = io_cfg->power_mode;
     }
 
+    /* Set bus width */
     if (mmcsd->bus_width != io_cfg->bus_width)
     {
         switch (io_cfg->bus_width)
@@ -343,6 +401,8 @@ static void hpm_sdmmc_set_iocfg(struct rt_mmcsd_host *host, struct rt_mmcsd_io_c
         mmcsd->bus_width = io_cfg->bus_width;
     }
 
+    /* Set timing mode */
+    bool need_reverse = true;
     if (mmcsd->timing != io_cfg->timing)
     {
         switch (io_cfg->timing)
@@ -368,21 +428,31 @@ static void hpm_sdmmc_set_iocfg(struct rt_mmcsd_host *host, struct rt_mmcsd_io_c
             break;
         case MMCSD_TIMING_UHS_DDR50:
             sdxc_set_speed_mode(mmcsd->sdxc_base, sdxc_sd_speed_ddr50);
+            need_reverse = false;
             break;
         case MMCSD_TIMING_MMC_DDR52:
             sdxc_set_speed_mode(mmcsd->sdxc_base, sdxc_emmc_speed_high_speed_ddr);
+            need_reverse = false;
             break;
         case MMCSD_TIMING_MMC_HS200:
             sdxc_set_speed_mode(mmcsd->sdxc_base, sdxc_emmc_speed_hs200);
             break;
         case MMCSD_TIMING_MMC_HS400:
             sdxc_set_speed_mode(mmcsd->sdxc_base, sdxc_emmc_speed_hs400);
+            need_reverse = false;
             break;
         }
         mmcsd->timing = io_cfg->timing;
     }
 
-    board_init_sd_pins(mmcsd->sdxc_base);
+    /* Initialize SDXC Pins */
+    bool open_drain = io_cfg->bus_mode == MMCSD_BUSMODE_OPENDRAIN;
+    bool is_1v8 = io_cfg->signal_voltage == MMCSD_SIGNAL_VOLTAGE_180;
+    uint32_t width = (io_cfg->bus_width == MMCSD_BUS_WIDTH_8) ? 8 : ((io_cfg->bus_width == MMCSD_BUS_WIDTH_4) ? 4 : 1);
+    init_sdxc_cmd_pin(mmcsd->sdxc_base, open_drain, is_1v8);
+    init_sdxc_clk_data_pins(mmcsd->sdxc_base, width, is_1v8);
+
+    /* Initialize SDXC clock */
     uint32_t sdxc_clock = io_cfg->clock;
     if (sdxc_clock != 0U)
     {
@@ -390,7 +460,7 @@ static void hpm_sdmmc_set_iocfg(struct rt_mmcsd_host *host, struct rt_mmcsd_io_c
         {
             /* Ensure request frequency from mmcsd stack level doesn't exceed maximum supported frequency by host */
             uint32_t clock_freq = MIN(mmcsd->host->freq_max, sdxc_clock);
-            board_sd_configure_clock(mmcsd->sdxc_base, clock_freq);
+            board_sd_configure_clock(mmcsd->sdxc_base, clock_freq, need_reverse);
             mmcsd->freq = sdxc_clock;
         }
     }
@@ -465,41 +535,38 @@ int rt_hw_sdio_init(void)
 
     struct rt_mmcsd_host *host = NULL;
     struct hpm_mmcsd *mmcsd = NULL;
-    do
-    {
+
+    for (uint32_t i = 0; i < ARRAY_SIZE(hpm_sdxcs); i++) {
         host = mmcsd_alloc_host();
         if (host == NULL)
         {
             err = -RT_ERROR;
             break;
         }
-        mmcsd = rt_malloc(sizeof(struct hpm_mmcsd));
-        if (mmcsd == NULL)
-        {
-            LOG_E("allocate hpm_mmcsd failed\n");
-            err = -RT_ERROR;
-            break;
-        }
-
-        rt_memset(mmcsd, 0, sizeof(struct hpm_mmcsd));
-        mmcsd->sdxc_base = BOARD_APP_SDCARD_SDXC_BASE;
-        mmcsd->sdxc_adma2_table = s_sdxc_adma2_table;
-
+        mmcsd = hpm_sdxcs[i];
         host->ops = &hpm_mmcsd_host_ops;
         host->freq_min = 375000;
         host->freq_max = 50000000;
         host->valid_ocr = VDD_30_31 | VDD_31_32 | VDD_32_33 | VDD_33_34;
-        host->flags = MMCSD_MUTBLKWRITE | MMCSD_BUSWIDTH_4 | MMCSD_SUP_HIGHSPEED | MMCSD_SUP_SDIO_IRQ;
+        host->flags = MMCSD_MUTBLKWRITE | MMCSD_SUP_HIGHSPEED | MMCSD_SUP_SDIO_IRQ;
+        if (mmcsd->support_4bit)
+        {
+            host->flags |=  MMCSD_BUSWIDTH_4;
+        }
+        if (mmcsd->support_8bit) {
+            host->flags |=  MMCSD_BUSWIDTH_8;
+        }
+        rt_strncpy(host->name, mmcsd->name, RT_NAME_MAX);
 
-        host->max_seg_size = 65535;
-        host->max_dma_segs = 2;
+        host->max_seg_size = 0x80000;
+        host->max_dma_segs = 1;
         host->max_blk_size = 512;
-        host->max_blk_count = 4096;
+        host->max_blk_count = 1024;
 
         mmcsd->host = host;
 
         /* Perform necessary initialization */
-        board_sd_configure_clock(mmcsd->sdxc_base, 375000);
+        board_sd_configure_clock(mmcsd->sdxc_base, 375000, true);
 
         sdxc_config_t sdxc_config = { 0 };
         sdxc_config.data_timeout = SDXC_DATA_TIMEOUT;
@@ -508,8 +575,7 @@ int rt_hw_sdio_init(void)
         host->private_data = mmcsd;
 
         mmcsd_change(host);
-
-    } while (false);
+    };
 
     if (err != RT_EOK)
     {

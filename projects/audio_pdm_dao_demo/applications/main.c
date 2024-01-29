@@ -8,6 +8,7 @@
 #include <rtthread.h>
 #include <rtdevice.h>
 #include "rtt_board.h"
+#include "board.h"
 
 #include "wav_header.h"
 #include <dfs_fs.h>
@@ -39,7 +40,7 @@ static void wavheader_init(wav_header_t *header, uint32_t sample_rate, uint8_t c
     header->data_chunk.datasize = datasize;
 }
 
-/* PDM与I2S0紧密耦合， PDM与I2S0共享时钟， 使用I2S0 RX0 FIFO接收数据 */
+/* PDM share clock with I2S0, using I2S0 RX0 FIFO to receive data */
 static int pdm_recordwav(int argc, char *argv[])
 {
     int fd = -1;
@@ -55,28 +56,30 @@ static int pdm_recordwav(int argc, char *argv[])
     {
         rt_kprintf("Usage:\n");
         rt_kprintf("pdm_recordwav /test.wav\n");
-        return -RT_ERROR;
+        goto __exit;
     }
 
     fd = open(argv[1], O_WRONLY | O_CREAT);
     if (fd < 0)
     {
         rt_kprintf("open file failed!\n");
-        return -RT_ERROR;
+        goto __exit;
     }
 
     write(fd, &header, sizeof(wav_header_t));
 
-    //获取i2s device, 用于codec传输音频数据
+    /* get pdm device */
     pdm_dev = rt_device_find(PDM_DEV_NAME);
     if (!pdm_dev)
     {
         rt_kprintf("find %s failed!\n", PDM_DEV_NAME);
+        goto __exit;
     }
 
     if (RT_EOK != rt_device_open(pdm_dev, RT_DEVICE_OFLAG_RDONLY))
     {
         rt_kprintf("open %s failed!\n", PDM_DEV_NAME);
+        goto __exit;
     }
 
     /* get pdm_dev capability */
@@ -84,7 +87,7 @@ static int pdm_recordwav(int argc, char *argv[])
     pdm_caps.sub_type                = AUDIO_DSP_PARAM;
     rt_device_control(pdm_dev, AUDIO_CTL_GETCAPS, &pdm_caps);
 
-    //输出wave文件属性
+    /* print record wav parameter */
     rt_kprintf("record %ds audio data to wav file:\n", RECORD_TIME_MS/1000);
     rt_kprintf("samplerate: %d\n", pdm_caps.udata.config.samplerate);
     rt_kprintf("samplebits: %d\n", pdm_caps.udata.config.samplebits);
@@ -97,7 +100,7 @@ static int pdm_recordwav(int argc, char *argv[])
     {
         int length;
 
-        /* 从audio设置读取音频数据  */
+        /* get audio data from device */
         length = rt_device_read(pdm_dev, 0, data_buff, BUFF_SIZE);
 
         if (length)
@@ -110,13 +113,12 @@ static int pdm_recordwav(int argc, char *argv[])
             break;
     }
 
-    /* 重新写入 wav 文件的头 */
+    /* rewrite wav header */
     wavheader_init(&header, pdm_caps.udata.config.samplerate, pdm_caps.udata.config.channels, pdm_caps.udata.config.samplebits, data_size);
     lseek(fd, 0, SEEK_SET);
     write(fd, &header, sizeof(wav_header_t));
     close(fd);
 
-    //关闭设备
     rt_device_close(pdm_dev);
 
     __exit:
@@ -128,7 +130,7 @@ static int pdm_recordwav(int argc, char *argv[])
 }
 MSH_CMD_EXPORT(pdm_recordwav, pdm record sound to wav file);
 
-/* DAO与I2S1紧密耦合， DAO与I2S1共享时钟， 使用I2S1 TX0 FIFO发送数据 */
+/* DAO share clock with I2S1, using I2S1 TX0 FIFO to send data */
 static int dao_playwav(int argc, char *argv[])
 {
     int fd = -1;
@@ -144,7 +146,7 @@ static int dao_playwav(int argc, char *argv[])
     {
         rt_kprintf("Usage:\n");
         rt_kprintf("dao_playwav /test.wav\n");
-        return -RT_ERROR;
+        goto __exit;
     }
 
     fd = open(argv[1], O_RDONLY);
@@ -164,7 +166,7 @@ static int dao_playwav(int argc, char *argv[])
     if (read(fd, &(info->data_chunk), sizeof(data_chunk_t)) <= 0)
         goto __exit;
 
-    //输出wave文件属性
+    /* print wave parameter */
     time = info->data_chunk.datasize / (info->fmt_chunk.sample_rate * (info->fmt_chunk.bit_per_sample / 8U) * info->fmt_chunk.channels);
     rt_kprintf("wav information:\n");
     rt_kprintf("time: %ds\n", time);
@@ -176,12 +178,17 @@ static int dao_playwav(int argc, char *argv[])
     if (!dao_dev)
     {
         rt_kprintf("find %s failed!\n", DAO_DEV_NAME);
+        goto __exit;
     }
 
     if (RT_EOK != rt_device_open(dao_dev, RT_DEVICE_OFLAG_WRONLY))
     {
         rt_kprintf("open %s failed!\n", DAO_DEV_NAME);
+        goto __exit;
     }
+
+    /* adjust I2S MCLK according to sample rate */
+    board_config_i2s_clock(DAO_I2S, info->fmt_chunk.sample_rate);
 
     /* only support configure samplerate */
     dao_caps.main_type               = AUDIO_TYPE_OUTPUT;
@@ -250,14 +257,13 @@ int main(void)
 {
     rt_thread_mdelay(2000);
 
-    //挂载文件系统
-    if (dfs_mount("sd", "/", "elm", 0, NULL) == 0)
+    if (dfs_mount(BOARD_SD_NAME, "/", "elm", 0, NULL) == 0)
     {
-        rt_kprintf("sd0 mounted to /\n");
+        rt_kprintf("%s mounted to /\n", BOARD_SD_NAME);
     }
     else
     {
-        rt_kprintf("sd0 mount to / failed\n");
+        rt_kprintf("%s mount to / failed\n", BOARD_SD_NAME);
     }
     return 0;
 }

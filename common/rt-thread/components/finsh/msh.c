@@ -11,6 +11,7 @@
  */
 #include <rtthread.h>
 #include <string.h>
+#include <errno.h>
 
 #ifdef RT_USING_FINSH
 
@@ -483,7 +484,7 @@ found_program:
 
 int msh_exec(char *cmd, rt_size_t length)
 {
-    int cmd_ret;
+    int cmd_ret = 0;
 
     /* strim the beginning of command */
     while ((length > 0) && (*cmd  == ' ' || *cmd == '\t'))
@@ -521,7 +522,8 @@ int msh_exec(char *cmd, rt_size_t length)
 #ifdef RT_USING_SMART
     /* exec from msh_exec , debug = 0*/
     /* _msh_exec_lwp return is pid , <= 0 means failed */
-    if (_msh_exec_lwp(0, cmd, length) > 0)
+    cmd_ret = _msh_exec_lwp(0, cmd, length);
+    if (cmd_ret > 0)
     {
         return 0;
     }
@@ -538,7 +540,16 @@ int msh_exec(char *cmd, rt_size_t length)
         }
         *tcmd = '\0';
     }
-    rt_kprintf("%s: command not found.\n", cmd);
+#ifdef RT_USING_SMART
+    if (cmd_ret == -EACCES)
+    {
+        rt_kprintf("%s: Permission denied.\n", cmd);
+    }
+    else
+#endif
+    {
+        rt_kprintf("%s: command not found.\n", cmd);
+    }
     return -1;
 }
 
@@ -778,4 +789,162 @@ void msh_auto_complete(char *prefix)
 
     return ;
 }
+
+#ifdef FINSH_USING_OPTION_COMPLETION
+static msh_cmd_opt_t *msh_get_cmd_opt(char *opt_str)
+{
+    struct finsh_syscall *index;
+    msh_cmd_opt_t *opt = RT_NULL;
+    char *ptr;
+    int len;
+
+    if ((ptr = strchr(opt_str, ' ')))
+    {
+        len = ptr - opt_str;
+    }
+    else
+    {
+        len = strlen(opt_str);
+    }
+
+    for (index = _syscall_table_begin;
+            index < _syscall_table_end;
+            FINSH_NEXT_SYSCALL(index))
+    {
+        if (strncmp(index->name, opt_str, len) == 0 && index->name[len] == '\0')
+        {
+            opt = index->opt;
+            break;
+        }
+    }
+
+    return opt;
+}
+
+static int msh_get_argc(char *prefix, char **last_argv)
+{
+    int argc = 0;
+    char *ch = prefix;
+
+    while (*ch)
+    {
+        if ((*ch == ' ') && *(ch + 1) && (*(ch + 1) != ' '))
+        {
+            *last_argv = ch + 1;
+            argc++;
+        }
+        ch++;
+    }
+
+    return argc;
+}
+
+static void msh_opt_complete(char *opts_str, struct msh_cmd_opt *cmd_opt)
+{
+    struct msh_cmd_opt *opt = cmd_opt;
+    const char *name_ptr = RT_NULL;
+    int min_length = 0, length, opts_str_len;
+
+    opts_str_len = strlen(opts_str);
+
+    for (opt = cmd_opt; opt->id; opt++)
+    {
+        if (!strncmp(opt->name, opts_str, opts_str_len))
+        {
+            if (min_length == 0)
+            {
+                /* set name_ptr */
+                name_ptr = opt->name;
+                /* set initial length */
+                min_length = strlen(name_ptr);
+            }
+
+            length = str_common(name_ptr, opt->name);
+            if (length < min_length)
+            {
+                min_length = length;
+            }
+
+            rt_kprintf("%s\n", opt->name);
+        }
+    }
+    rt_kprintf("\n");
+
+    if (name_ptr != NULL)
+    {
+        strncpy(opts_str, name_ptr, min_length);
+    }
+}
+
+static void msh_opt_help(msh_cmd_opt_t *cmd_opt)
+{
+    msh_cmd_opt_t *opt = cmd_opt;
+
+    for (; opt->id; opt++)
+    {
+        rt_kprintf("%-16s - %s\n", opt->name, opt->des);
+    }
+    rt_kprintf("\n");
+}
+
+void msh_opt_auto_complete(char *prefix)
+{
+    int argc;
+    char *opt_str = RT_NULL;
+    msh_cmd_opt_t *opt = RT_NULL;
+
+    if ((argc = msh_get_argc(prefix, &opt_str)))
+    {
+        opt = msh_get_cmd_opt(prefix);
+    }
+    else if (!msh_get_cmd(prefix, strlen(prefix)) && (' ' == prefix[strlen(prefix) - 1]))
+    {
+        opt = msh_get_cmd_opt(prefix);
+    }
+
+    if (opt && opt->id)
+    {
+        switch (argc)
+        {
+        case 0:
+            msh_opt_help(opt);
+            break;
+
+        case 1:
+            msh_opt_complete(opt_str, opt);
+            break;
+
+        default:
+            break;
+        }
+    }
+}
+
+int msh_cmd_opt_id_get(int argc, char *argv[], void *options)
+{
+    msh_cmd_opt_t *opt = (msh_cmd_opt_t *) options;
+    int opt_id;
+
+    for (opt_id = 0; (argc >= 2) && opt && opt->id; opt++)
+    {
+        if (!strcmp(opt->name, argv[1]))
+        {
+            opt_id = opt->id;
+            break;
+        }
+    }
+
+    return opt_id;
+}
+
+void msh_opt_list_dump(void *options)
+{
+    msh_cmd_opt_t *opt = (msh_cmd_opt_t *) options;
+
+    for (; opt && opt->id; opt++)
+    {
+        rt_kprintf("    %-16s - %s\n", opt->name, opt->des);
+    }
+}
+#endif /* FINSH_USING_OPTION_COMPLETION */
 #endif /* RT_USING_FINSH */

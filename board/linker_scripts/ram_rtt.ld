@@ -225,10 +225,6 @@ SECTIONS
         KEEP(*(.backup_sram))
     } > APB_SRAM
 
-    .fast_ram (NOLOAD) : {
-        KEEP(*(.fast_ram))
-    } > DLM
-
     .stack(NOLOAD) : {
         . = ALIGN(8);
         __stack_base__ = .;

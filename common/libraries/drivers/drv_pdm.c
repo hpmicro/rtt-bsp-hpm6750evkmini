@@ -18,7 +18,7 @@
 #include "hpm_i2s_drv.h"
 #include "hpm_pdm_drv.h"
 #include "drv_pdm.h"
-#ifdef CONFIG_HAS_HPMSDK_DMAV2
+#ifdef HPMSOC_HAS_HPMSDK_DMAV2
 #include "hpm_dmav2_drv.h"
 #else
 #include "hpm_dma_drv.h"
@@ -109,18 +109,20 @@ static rt_err_t hpm_pdm_set_channels(uint32_t channel)
 
     mclk_hz = clock_get_frequency(clock_i2s0);
     i2s_get_default_transfer_config_for_pdm(&transfer);
-    transfer.data_line = I2S_DATA_LINE_0;
+    transfer.data_line = PDM_I2S_DATA_LINE;
     if (channel == 1) {
-        transfer.channel_slot_mask = I2S_CHANNEL_SLOT_MASK(0);
+        transfer.channel_slot_mask = BOARD_PDM_SINGLE_CHANNEL_MASK;
     } else if(channel == 2) {
-        transfer.channel_slot_mask = I2S_CHANNEL_SLOT_MASK(0) | I2S_CHANNEL_SLOT_MASK(1);
+        transfer.channel_slot_mask = BOARD_PDM_DUAL_CHANNEL_MASK;
     } else {
         LOG_E("PDM not support channels number %d.\n", channel);
         return -RT_ERROR;
     }
 
     bool is_enabled = i2s_is_enabled(PDM_I2S);
-    dma_abort_channel(dma_resource.base, dma_resource.channel);
+    if (is_enabled) {
+        dma_abort_channel(dma_resource.base, dma_resource.channel);
+    }
     if (status_success != i2s_config_rx(PDM_I2S, mclk_hz, &transfer))
     {
         LOG_E("pdm_i2s configure transfer failed\n");
@@ -185,8 +187,8 @@ static rt_err_t hpm_pdm_init(struct rt_audio_device* audio)
     i2s_init(PDM_I2S, &i2s_config);
 
     i2s_get_default_transfer_config_for_pdm(&transfer);
-    transfer.data_line = I2S_DATA_LINE_0;
-    transfer.channel_slot_mask = I2S_CHANNEL_SLOT_MASK(0);
+    transfer.data_line = PDM_I2S_DATA_LINE;
+    transfer.channel_slot_mask = BOARD_PDM_SINGLE_CHANNEL_MASK;
     if (status_success != i2s_config_rx(PDM_I2S, clock_get_frequency(clock_i2s0), &transfer))
     {
         LOG_E("pdm_i2s configure receive failed\n");
@@ -195,7 +197,7 @@ static rt_err_t hpm_pdm_init(struct rt_audio_device* audio)
 
     /* init audio configure */
     hpm_pdm_dev.record_config.channels = 1U;
-    hpm_pdm_dev.record_config.samplebits = 32U; /* 数据为32位，实际有效位24bit，高位为0  */
+    hpm_pdm_dev.record_config.samplebits = 32U; /* the actual significant bit is 24 bits, and the low bit is 0  */
     hpm_pdm_dev.record_config.samplerate = PDM_SOC_SAMPLE_RATE_IN_HZ; /* fix 16KHz */
 
     pdm_get_default_config(HPM_PDM, &pdm_config);
@@ -214,7 +216,9 @@ static rt_err_t hpm_pdm_start(struct rt_audio_device* audio, int stream)
 
     if (stream == AUDIO_STREAM_RECORD)
     {
-        i2s_reset_tx_rx(PDM_I2S);
+        i2s_disable(PDM_I2S);
+        i2s_disable_rx_dma_request(PDM_I2S);
+        pdm_stop(HPM_PDM);
         pdm_software_reset(HPM_PDM);
 
         if (dma_mgr_request_resource(&dma_resource) == status_success) {
@@ -228,11 +232,13 @@ static rt_err_t hpm_pdm_start(struct rt_audio_device* audio, int stream)
             return -RT_ERROR;
         }
 
+        i2s_reset_rx(PDM_I2S);
         if (RT_EOK != hpm_pdm_dma_transmit()) {
             return RT_ERROR;
         }
 
         pdm_start(HPM_PDM);
+        i2s_enable_rx_dma_request(PDM_I2S);
         i2s_start(PDM_I2S);
     }
 
@@ -243,13 +249,13 @@ static rt_err_t hpm_pdm_stop(struct rt_audio_device* audio, int stream)
 {
     RT_ASSERT(audio != RT_NULL);
 
-    if (stream == AUDIO_STREAM_RECORD)
-    {
+    if (stream == AUDIO_STREAM_RECORD) {
         pdm_stop(HPM_PDM);
-    }
-    i2s_stop(PDM_I2S);
+        i2s_stop(PDM_I2S);
 
-    dma_mgr_release_resource(&dma_resource);
+        dma_abort_channel(dma_resource.base, dma_resource.channel);
+        dma_mgr_release_resource(&dma_resource);
+    }
 
     return RT_EOK;
 }

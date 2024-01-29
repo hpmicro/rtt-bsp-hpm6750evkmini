@@ -37,3 +37,5 @@ Write the USBHost.txt file successfully!
 
 ```
 
+## 注意
+- 由于当前使用的tinyusb 协议栈版本的限制，该工程不支持通过USB-HUB连接U盘

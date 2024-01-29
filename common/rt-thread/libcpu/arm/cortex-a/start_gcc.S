@@ -408,8 +408,6 @@ vector_fiq:
 .globl vector_irq
 vector_irq:
 #ifdef RT_USING_SMP
-    clrex
-
     stmfd   sp!, {r0, r1}
     cps     #Mode_SVC
     mov     r0, sp          /* svc_sp */
@@ -549,8 +547,8 @@ rt_hw_context_switch_interrupt_do:
     ldr     r6,  [r6]
     ldr     sp,  [r6]       /* get new task's stack pointer */
 
-    bl      rt_thread_self
 #ifdef RT_USING_SMART
+    bl      rt_thread_self
     mov     r4, r0
     bl      lwp_aspace_switch
     mov     r0, r4
@@ -622,8 +620,8 @@ vector_swi:
 vector_undef:
     push_svc_reg
     bl      rt_hw_trap_undef
-    cps     #Mode_UND
 #ifdef RT_USING_FPU
+    cps     #Mode_UND
     sub     sp, sp, #17 * 4
     ldr     lr, [sp, #15*4]
     ldmia   sp, {r0 - r12}
