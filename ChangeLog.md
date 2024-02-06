@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.4.1
+- Fixed:
+  - Transmission error while enabling DMA in I2C driver
+  - Failed to create template project
+
 ## v1.4.0
 
 - Integrated hpm_sdk v1.4.0

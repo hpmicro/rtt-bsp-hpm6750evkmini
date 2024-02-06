@@ -54,16 +54,29 @@ features_zh:
 
 pkg_type: Board_Support_Packages
 pkg_vendor: HPMicro
-pkg_version: 1.4.0
+pkg_version: 1.4.1
 
 template_projects:
-- project_name: 
+- project_name: blink_led
   project_description: create this project if user choose rt-thread project
   project_type: rt-thread|@full|@5.0.2
   builtin_files:
-  - source_path_offset: projects/
+  - source_path_offset: projects/blink_led
     target_path_offset: ''
     files_and_folders:
+    - .config
+    - .config.old
+    - .cproject
+    - .project
+    - .settings
+    - applications
+    - Kconfig
+    - README.md
+    - rtconfig.h
+    - rtconfig.py
+    - rtconfig_preinc.h
+    - SConscript
+    - SConstruct
   - source_path_offset: 'common'
     target_path_offset: ''
     files_and_folders:

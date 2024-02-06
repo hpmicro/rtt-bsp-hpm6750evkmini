@@ -380,6 +380,7 @@ static rt_ssize_t hpm_i2c_master_transfer(struct rt_i2c_bus_device *bus, struct 
                             break;
                         }
                         i2c_info->is_read = true;
+                        i2c_enable_irq(i2c_info->base, I2C_EVENT_TRANSACTION_COMPLETE);
                         dmamux_config(HPM_DMAMUX, i2c_info->dma.channel, i2c_info->dmamux, true);
                         i2c_stat = i2c_rx_trigger_dma(i2c_info->dma.base, i2c_info->dma.channel, i2c_info->base,
                                             core_local_mem_to_sys_address(0, (uint32_t) dummy_buf), transfer_len);
