@@ -68,7 +68,7 @@ if GetDepend(['BSP_USING_SDXC']):
 if GetDepend(['BSP_USING_LCD']):
     src += ['drivers/src/hpm_lcdc_drv.c']
 
-if GetDepend(['BSP_USING_GPTMR']):
+if GetDepend(['BSP_USING_GPTMR']) or GetDepend('HPM_USING_VECTOR_PREEMPTED_MODE'):
     src += ['drivers/src/hpm_gptmr_drv.c']
 
 if GetDepend(['BSP_USING_FEMC']):

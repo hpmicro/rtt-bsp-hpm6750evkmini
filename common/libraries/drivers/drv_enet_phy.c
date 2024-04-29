@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2023 HPMicro
+ * Copyright (c) 2023-2024 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Change Logs:
  * Date         Author      Notes
  * 2023-12-20   Jiading     Optimization for all-in-one version
+ * 2024-04-17   Jiading     Support multiple PHYs
  */
 
 #include "rtthread.h"
@@ -15,6 +16,7 @@
 #include <rtdbg.h>
 #include "hpm_enet_drv.h"
 #include "drv_enet_phy.h"
+#include "hpm_enet_phy.h"
 #include "hpm_soc.h"
 #include "netif/ethernetif.h"
 #include "board.h"
@@ -39,7 +41,6 @@ extern struct eth_device eth0_dev;
 static struct rt_mdio_bus_ops mdio0_bus_ops;
 static struct rt_mdio_bus mdio0_bus = {.ops = &mdio0_bus_ops};
 static phy_device_t phy0_dev;
-static uint8_t phy0_reg_list[]= {PHY0_REG_LIST};
 
 static eth_phy_handle_t eth0_phy_handle =
 {
@@ -56,7 +57,6 @@ extern struct eth_device eth1_dev;
 static struct rt_mdio_bus_ops mdio1_bus_ops;
 static struct rt_mdio_bus mdio1_bus = {.ops = &mdio1_bus_ops};
 static phy_device_t phy1_dev;
-static uint8_t phy1_reg_list[]= {PHY1_REG_LIST};
 
 static eth_phy_handle_t eth1_phy_handle =
 {
@@ -79,17 +79,6 @@ static eth_phy_handle_t *s_gphys[] =
 #endif
 };
 
-static uint8_t *s_gphy_reg_list[] =
-{
-#ifdef BSP_USING_ETH0
-phy0_reg_list,
-#endif
-
-#ifdef BSP_USING_ETH1
-phy1_reg_list,
-#endif
-};
-
 eth_phy_monitor_handle_t phy_monitor_handle =
 {
     .phy_handle_cnt = ARRAY_SIZE(s_gphys),
@@ -100,18 +89,98 @@ static struct rt_phy_ops phy_ops;
 
 static rt_phy_status phy_init(void *object, rt_uint32_t phy_addr, rt_uint32_t src_clock_hz)
 {
-#if defined(BSP_USING_ETH1) && defined(BSP_USING_ENET_PHY_RTL8201)
-    rtl8201_config_t phy_config;
+#if defined(BSP_USING_ETH0) && defined(BSP_USING_ENET_PHY_DP83867)
+    if ((ENET_Type *)object == HPM_ENET0)
+    {
+       dp83867_config_t phy_config;
 
-    rtl8201_reset((ENET_Type *)object);
-    rtl8201_basic_mode_default_config((ENET_Type *)object, &phy_config);
-    if (rtl8201_basic_mode_init((ENET_Type *)object, &phy_config) == true) {
-        return PHY_STATUS_OK;
-    } else {
+       dp83867_reset((ENET_Type *)object);
+       #if defined(__DISABLE_AUTO_NEGO) && __DISABLE_AUTO_NEGO
+       dp83867_set_mdi_crossover_mode((ENET_Type *)object, enet_phy_mdi_crossover_manual_mdix);
+       #endif
+       dp83867_basic_mode_default_config((ENET_Type *)object, &phy_config);
+       if (dp83867_basic_mode_init((ENET_Type *)object, &phy_config) == true) {
+           return PHY_STATUS_OK;
+       } else {
         return PHY_STATUS_FAIL;
+       }
     }
-#else
-    return PHY_STATUS_OK;
+#endif
+
+
+#if defined(BSP_USING_ETH0) && defined(BSP_USING_ENET_PHY_RTL8211)
+    if ((ENET_Type *)object == HPM_ENET0)
+    {
+        rtl8211_config_t phy_config;
+
+        rtl8211_reset((ENET_Type *)object);
+        rtl8211_basic_mode_default_config((ENET_Type *)object, &phy_config);
+        if (rtl8211_basic_mode_init((ENET_Type *)object, &phy_config) == true) {
+            return PHY_STATUS_OK;
+        } else {
+            return PHY_STATUS_FAIL;
+        }
+    }
+#endif
+
+#if defined(BSP_USING_ETH0) && defined(BSP_USING_ENET_PHY_RTL8201) && !defined(BSP_USING_ETH1)
+    if ((ENET_Type *)object == HPM_ENET0)
+    {
+        rtl8201_config_t phy_config;
+
+        rtl8201_reset((ENET_Type *)object);
+        rtl8201_basic_mode_default_config((ENET_Type *)object, &phy_config);
+        if (rtl8201_basic_mode_init((ENET_Type *)object, &phy_config) == true) {
+            return PHY_STATUS_OK;
+        } else {
+            return PHY_STATUS_FAIL;
+        }
+    }
+#endif
+
+#if defined(BSP_USING_ETH1) && defined(BSP_USING_ENET_PHY_DP83848)
+    if ((ENET_Type *)object == HPM_ENET1)
+    {
+        dp83848_config_t phy_config;
+
+        dp83848_reset((ENET_Type *)object);
+        dp83848_basic_mode_default_config((ENET_Type *)object, &phy_config);
+        if (dp83848_basic_mode_init((ENET_Type *)object, &phy_config) == true) {
+            return PHY_STATUS_OK;
+        } else {
+            return PHY_STATUS_FAIL;
+        }
+    }
+#endif
+
+#if defined(BSP_USING_ETH1) && defined(BSP_USING_ENET_PHY_RTL8201)
+    if ((ENET_Type *)object == HPM_ENET1)
+    {
+        rtl8201_config_t phy_config;
+
+        rtl8201_reset((ENET_Type *)object);
+        rtl8201_basic_mode_default_config((ENET_Type *)object, &phy_config);
+        if (rtl8201_basic_mode_init((ENET_Type *)object, &phy_config) == true) {
+            return PHY_STATUS_OK;
+        } else {
+            return PHY_STATUS_FAIL;
+        }
+    }
+#endif
+
+#if defined(BSP_USING_ETH1) && defined(BSP_USING_ENET_PHY_LAN8720)
+    if ((ENET_Type *)object == HPM_ENET1)
+    {
+        lan8720_config_t phy_config;
+
+        lan8720_reset((ENET_Type *)object);
+        lan8720_basic_mode_default_config((ENET_Type *)object, &phy_config);
+        if (lan8720_basic_mode_init((ENET_Type *)object, &phy_config) == true) {
+            return PHY_STATUS_OK;
+        } else {
+            return PHY_STATUS_FAIL;
+        }
+    }
 #endif
 }
 
@@ -131,35 +200,83 @@ static rt_size_t phy_write(void *bus, rt_uint32_t addr, rt_uint32_t reg, void *d
 
 static rt_phy_status phy_get_link_status(rt_phy_t *phy, rt_bool_t *status)
 {
-    uint16_t reg_status;
+    enet_phy_status_t phy_status;
 
-    reg_status = enet_read_phy(phy->bus->hw_obj, phy->addr, phy->reg_list[PHY_BASIC_STATUS_REG_IDX]);
+    if (phy->bus->hw_obj == HPM_ENET0)
+    {
+        #if defined(__USE_DP83867) && __USE_DP83867
+        dp83867_get_phy_status(phy->bus->hw_obj, &phy_status);
+        #endif
 
-    #if PHY_AUTO_NEGO
-        reg_status &= PHY_AUTONEGO_COMPLETE_MASK | PHY_LINKED_STATUS_MASK;
-        *status = reg_status ? RT_TRUE : RT_FALSE;
+        #if defined(__USE_RTL8211) && __USE_RTL8211
+        rtl8211_get_phy_status(phy->bus->hw_obj, &phy_status);
+        #endif
 
-    #else
-        reg_status &= PHY_LINKED_STATUS_MASK;
-        *status = reg_status ? RT_TRUE : RT_FALSE;
-    #endif
+        #if defined(__USE_RTL8201) && __USE_RTL8201 && !defined(BSP_USING_ETH1)
+        rtl8201_get_phy_status(phy->bus->hw_obj, &phy_status);
+        #endif
+    }
+
+#if defined(HPM_ENET1_BASE)
+    if (phy->bus->hw_obj == HPM_ENET1)
+    {
+        #if defined(__USE_DP83848) && __USE_DP83848
+        dp83848_get_phy_status(phy->bus->hw_obj, &phy_status);
+        #endif
+
+        #if defined(__USE_RTL8201) && __USE_RTL8201
+        rtl8201_get_phy_status(phy->bus->hw_obj, &phy_status);
+        #endif
+
+        #if defined(__USE_LAN8720) && __USE_LAN8720
+        lan8720_get_phy_status(phy->bus->hw_obj, &phy_status);
+        #endif
+    }
+#endif
+
+    *status = phy_status.enet_phy_link;
 
     return PHY_STATUS_OK;
 }
 
 static rt_phy_status phy_get_link_speed_duplex(rt_phy_t *phy, rt_uint32_t *speed, rt_uint32_t *duplex)
 {
-    uint16_t reg_status;
+    enet_phy_status_t phy_status;
 
-    reg_status = enet_read_phy(phy->bus->hw_obj, phy->addr, phy->reg_list[PHY_STATUS_REG_IDX]);
+    if (phy->bus->hw_obj == HPM_ENET0)
+    {
+        #if defined(__USE_DP83867) && __USE_DP83867
+        dp83867_get_phy_status(phy->bus->hw_obj, &phy_status);
+        #endif
 
-#if RGMII
-    *speed = PHY_STATUS_SPEED_1000M(reg_status) ? PHY_SPEED_1000M : PHY_STATUS_SPEED_100M(reg_status) ? PHY_SPEED_100M : PHY_SPEED_10M;
-#else
-    *speed = PHY_STATUS_SPEED_100M(reg_status) ? PHY_SPEED_100M : PHY_SPEED_10M;
+        #if defined(__USE_RTL8211) && __USE_RTL8211
+        rtl8211_get_phy_status(phy->bus->hw_obj, &phy_status);
+        #endif
+
+        #if defined(__USE_RTL8201) && __USE_RTL8201 && !defined(BSP_USING_ETH1)
+        rtl8201_get_phy_status(phy->bus->hw_obj, &phy_status);
+        #endif
+    }
+
+#if defined(HPM_ENET1_BASE)
+    if (phy->bus->hw_obj == HPM_ENET1)
+    {
+        #if defined(__USE_DP83848) && __USE_DP83848
+        dp83848_get_phy_status(phy->bus->hw_obj, &phy_status);
+        #endif
+
+        #if defined(__USE_RTL8201) && __USE_RTL8201
+        rtl8201_get_phy_status(phy->bus->hw_obj, &phy_status);
+        #endif
+
+        #if defined(__USE_LAN8720) && __USE_LAN8720
+        lan8720_get_phy_status(phy->bus->hw_obj, &phy_status);
+        #endif
+    }
 #endif
 
-    *duplex = PHY_STATUS_FULL_DUPLEX(reg_status) ? PHY_FULL_DUPLEX: PHY_HALF_DUPLEX;
+    *speed  = phy_status.enet_phy_speed;
+    *duplex = phy_status.enet_phy_duplex;
 
     return PHY_STATUS_OK;
 }
@@ -201,6 +318,7 @@ static void phy_poll_status(void *parameter)
         {
             phy_dev->phy_link = status ? PHY_LINK_UP : PHY_LINK_DOWN;
             eth_device_linkchange(eth_dev, status);
+            LOG_I("%s", phy_dev->phy.bus->hw_obj == HPM_ENET0 ? "ENET0" : "ENET1");
             LOG_I("PHY Status: %s", status ? "Link up" : "Link down\n");
             if (status == PHY_LINK_UP)
             {
@@ -215,38 +333,15 @@ static void phy_poll_status(void *parameter)
 
 static void phy_detection(void *parameter)
 {
-    uint8_t detected_count = 0;
-    struct rt_phy_msg msg = {0, 0};
     phy_device_t *phy_dev = (phy_device_t *)parameter;
-    rt_uint32_t i;
 
-    msg.reg = phy_dev->phy.reg_list[PHY_ID1_REG_IDX];
-    while(phy_dev->phy.addr == 0xffff)
+    if (phy_dev->phy.ops->init(phy_dev->phy.bus->hw_obj, 0, PHY_MDIO_CSR_CLK_FREQ) != PHY_STATUS_OK)
     {
-        /* Search a PHY */
-        for (i = 0; i <= 0x1f; i++)
-        {
-            ((rt_phy_t *)(phy_dev->phy.parent.user_data))->addr = i;
-            phy_dev->phy.parent.read(&(phy_dev->phy.parent), 0, &msg, 1);
-            if (msg.value == PHY_ID1)
-            {
-                phy_dev->phy.addr = i;
-                LOG_D("Found a PHY device[address:0x%02x].\n", phy_dev->phy.addr);
-                phy_dev->phy.ops->init(phy_dev->phy.bus->hw_obj, phy_dev->phy.addr, PHY_MDIO_CSR_CLK_FREQ);
-                return;
-            }
-        }
-
-        phy_dev->phy.addr = 0xffff;
-        detected_count++;
-        rt_thread_mdelay(1000);
-
-        if (detected_count > 3)
-        {
-            LOG_E("No any PHY device is detected! Please check your hardware!\n");
-            return;
-        }
+        LOG_E("No any PHY device is detected! Please check your hardware!\n");
     }
+
+    return;
+
 }
 
 static void phy_monitor_thread_entry(void *args)
@@ -292,10 +387,7 @@ int phy_device_register(void)
         s_gphys[i]->phy_dev->phy.bus     = s_gphys[i]->mdio_bus;
         s_gphys[i]->phy_dev->phy.ops     = &phy_ops;
 
-        /* Set PHY register list */
-        s_gphys[i]->phy_dev->phy.reg_list = s_gphy_reg_list[i];
-
-        rt_hw_phy_register(&s_gphys[i]->phy_dev->phy, PHY_NAME);
+        rt_hw_phy_register(&s_gphys[i]->phy_dev->phy, NULL);
     }
 
     /* Start PHY monitor */

@@ -11,6 +11,7 @@ RT-Thread Studio BSP for HPM6750EVKMINI Board
 - ethernet_ptp_slave_demo
 - flashdb_demo
 - lv_demo_widgets
+- pwm_demo
 - pwmbeep_demo
 - rw007_wifi
 - sdcard_demo

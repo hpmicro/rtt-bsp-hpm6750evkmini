@@ -8,6 +8,7 @@
 #include <string.h>
 #include "hpm_dma_mgr.h"
 #include "hpm_soc.h"
+#include "hpm_rtt_interrupt_util.h"
 
 /*****************************************************************************************************************
  *
@@ -63,11 +64,11 @@ static uint32_t dma_mgr_enter_critical(void);
 static void dma_mgr_exit_critical(uint32_t level);
 
 static void dma0_isr(void);
-SDK_DECLARE_EXT_ISR_M(IRQn_HDMA, dma0_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_HDMA, dma0_isr);
 
 #if defined(DMA_SOC_MAX_COUNT) && (DMA_SOC_MAX_COUNT > 1)
 static void dma1_isr(void);
-SDK_DECLARE_EXT_ISR_M(IRQn_XDMA, dma1_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_XDMA, dma1_isr);
 #endif
 
 /*****************************************************************************************************************
@@ -83,7 +84,7 @@ static dma_mgr_context_t s_dma_mngr_ctx;
  *  Codes
  *
  *****************************************************************************************************************/
-static inline void handle_dma_isr(DMA_Type *ptr, uint32_t instance)
+void dma_mgr_isr_handler(DMA_Type *ptr, uint32_t instance)
 {
     uint32_t int_disable_mask;
     uint32_t chn_int_stat;
@@ -119,13 +120,13 @@ static inline void handle_dma_isr(DMA_Type *ptr, uint32_t instance)
 
 void dma0_isr(void)
 {
-    handle_dma_isr(HPM_HDMA, 0);
+    dma_mgr_isr_handler(HPM_HDMA, 0);
 }
 
 #if defined(DMA_SOC_MAX_COUNT) && (DMA_SOC_MAX_COUNT > 1)
 void dma1_isr(void)
 {
-    handle_dma_isr(HPM_XDMA, 1);
+    dma_mgr_isr_handler(HPM_XDMA, 1);
 }
 #endif
 

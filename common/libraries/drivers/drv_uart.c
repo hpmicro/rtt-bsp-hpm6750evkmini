@@ -15,6 +15,7 @@
 #include "drv_uart.h"
 #include "hpm_uart_drv.h"
 #include "hpm_sysctl_drv.h"
+#include "hpm_rtt_interrupt_util.h"
 
 #ifdef RT_USING_SERIAL
 
@@ -42,7 +43,7 @@ void uart0_isr(void)
 {
     hpm_uart_isr(&serial0);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART0,uart0_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART0,uart0_isr)
 #endif
 
 
@@ -52,7 +53,7 @@ void uart1_isr(void)
 {
     hpm_uart_isr(&serial1);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART1,uart1_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART1,uart1_isr)
 #endif
 
 
@@ -62,7 +63,7 @@ void uart2_isr(void)
 {
     hpm_uart_isr(&serial2);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART2,uart2_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART2,uart2_isr)
 #endif
 
 
@@ -72,7 +73,7 @@ void uart3_isr(void)
 {
     hpm_uart_isr(&serial3);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART3,uart3_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART3,uart3_isr)
 #endif
 
 
@@ -82,7 +83,7 @@ void uart4_isr(void)
 {
     hpm_uart_isr(&serial4);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART4,uart4_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART4,uart4_isr)
 #endif
 
 
@@ -92,7 +93,7 @@ void uart5_isr(void)
 {
     hpm_uart_isr(&serial5);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART5,uart5_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART5,uart5_isr)
 #endif
 
 
@@ -102,7 +103,7 @@ void uart6_isr(void)
 {
     hpm_uart_isr(&serial6);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART6,uart6_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART6,uart6_isr)
 #endif
 
 
@@ -112,7 +113,7 @@ void uart7_isr(void)
 {
     hpm_uart_isr(&serial7);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART7,uart7_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART7,uart7_isr)
 #endif
 
 
@@ -122,7 +123,7 @@ void uart8_isr(void)
 {
     hpm_uart_isr(&serial8);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART8,uart8_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART8,uart8_isr)
 #endif
 
 
@@ -132,7 +133,7 @@ void uart9_isr(void)
 {
     hpm_uart_isr(&serial9);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART9,uart9_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART9,uart9_isr)
 #endif
 
 
@@ -142,7 +143,7 @@ void uart10_isr(void)
 {
     hpm_uart_isr(&serial10);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART10,uart10_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART10,uart10_isr)
 #endif
 
 #if defined(BSP_USING_UART11)
@@ -151,7 +152,7 @@ void uart11_isr(void)
 {
     hpm_uart_isr(&serial11);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART11,uart11_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART11,uart11_isr)
 #endif
 
 #if defined(BSP_USING_UART12)
@@ -160,7 +161,7 @@ void uart12_isr(void)
 {
     hpm_uart_isr(&serial12);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART12,uart12_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART12,uart12_isr)
 #endif
 
 #if defined(BSP_USING_UART13)
@@ -169,7 +170,7 @@ void uart13_isr(void)
 {
     hpm_uart_isr(&serial13);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART13,uart13_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART13,uart13_isr)
 #endif
 
 #if defined(BSP_USING_UART14)
@@ -178,7 +179,7 @@ void uart14_isr(void)
 {
     hpm_uart_isr(&serial14);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART14,uart14_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART14,uart14_isr)
 #endif
 
 #if defined(BSP_USING_UART15)
@@ -187,7 +188,7 @@ void uart15_isr(void)
 {
     hpm_uart_isr(&serial15);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART15,uart15_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART15,uart15_isr)
 #endif
 
 static const struct hpm_uart uarts[] = {
@@ -350,15 +351,8 @@ static void hpm_uart_isr(struct rt_serial_device *serial)
 
     uart = (struct hpm_uart *)serial->parent.user_data;
     RT_ASSERT(uart != RT_NULL);
-
-    /* enter interrupt */
-    rt_interrupt_enter();
-
     /* UART in mode Receiver */
     rt_hw_serial_isr(serial, RT_SERIAL_EVENT_RX_IND);
-
-    /* leave interrupt */
-    rt_interrupt_leave();
 }
 
 

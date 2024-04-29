@@ -8,6 +8,7 @@
 #include "hpm_soc.h"
 #include "hpm_l1c_drv.h"
 #include <rtthread.h>
+#include "hpm_rtt_interrupt_util.h"
 
 void system_init(void);
 
@@ -20,6 +21,9 @@ void system_init(void)
 {
     disable_global_irq(CSR_MSTATUS_MIE_MASK);
     disable_irq_from_intc();
+#ifdef HPM_USING_VECTOR_PREEMPTED_MODE
+    enable_rtt_plic_feature();
+#endif
     enable_irq_from_intc();
     enable_global_irq(CSR_MSTATUS_MIE_MASK);
 #ifndef CONFIG_NOT_ENABLE_ICACHE

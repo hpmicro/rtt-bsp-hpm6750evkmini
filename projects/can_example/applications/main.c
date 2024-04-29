@@ -92,6 +92,10 @@ static void can_rx_thread(void *parameter)
     {
         rt_sem_take(&rx_sem, RT_WAITING_FOREVER);
         /* Get one CAN frame */
+#ifdef RT_CAN_USING_HDR
+        /* when RT_CAN_USING_HDR is turned on, read data from hdr for rtt can driver */
+        rxmsg.hdr_index = BOARD_CAN_HWFILTER_INDEX;
+#endif
         rt_device_read(can_dev, 0, &rxmsg, sizeof(rxmsg));
         /* Display CAN frame content */
         rt_kprintf("ID: %x  ", rxmsg.id);

@@ -38,12 +38,19 @@
 
 /* CAN section */
 #define BOARD_CAN_NAME                        "can1"
+#define BOARD_CAN_HWFILTER_INDEX               (1U)
+
+/* PWM section */
+#define BOARD_PWM_NAME                        "pwm1"
+#define BOARD_PWM_CHANNEL                     (2)
 
 /* UART section */
 #define BOARD_UART_NAME                        "uart13"
 #define BOARD_UART_RX_BUFFER_SIZE              BSP_UART13_RX_BUFSIZE
 
 #define BOARD_SD_NAME                          "sd1"
+
+#define IRQn_PendSV IRQn_DEBUG_0
 
 /***************************************************************
  *
@@ -71,7 +78,7 @@ extern "C" {
 
 void app_init_led_pins(void);
 void app_led_write(uint32_t index, bool state);
-
+void app_init_usb_pins(void);
 
 
 #if defined(__cplusplus)

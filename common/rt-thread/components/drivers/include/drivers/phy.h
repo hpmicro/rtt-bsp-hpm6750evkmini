@@ -48,7 +48,6 @@ typedef struct rt_phy_device
     struct rt_mdio_bus *bus;
     rt_uint32_t addr;
     struct rt_phy_ops *ops;
-    rt_uint8_t *reg_list;
 }rt_phy_t;
 
 typedef rt_int32_t rt_phy_status;

@@ -12,6 +12,8 @@
 #include "hpm_lcdc_drv.h"
 #include "hpm_pdma_drv.h"
 #include "lvgl.h"
+#include "rtthread.h"
+#include "hpm_rtt_interrupt_util.h"
 
 #define LVGL_CONFIG_FLUSH_DIRECT_MODE_ENABLE 1
 #define LVGL_CONFIG_DIRECT_MODE_VSYNC_ENABLE 1
@@ -22,7 +24,7 @@
 
 #define LCD_CONTROLLER BOARD_LCD_BASE
 #define LCD_LAYER_INDEX (0)
-#define LCD_LAYER_DONE_MASK (1U<<LCD_LAYER_INDEX)
+#define LCD_LAYER_DONE_MASK   (1U<<LCD_LAYER_INDEX)
 #define LCD_IRQ_NUM  BOARD_LCD_IRQ
 
 #ifndef HPM_LCD_IRQ_PRIORITY
@@ -92,6 +94,9 @@ struct lv_adapter {
 
 static struct lv_adapter lv_adapter_ctx;
 
+#ifdef BSP_USING_RTT_LCD_DRIVER
+struct rt_device *g_lcd_dev = RT_NULL;
+#endif
 #if LVGL_CONFIG_FLUSH_DIRECT_MODE_ENABLE
 static void lvgl_pdma_init(struct lv_adapter *ctx)
 {
@@ -237,9 +242,17 @@ static void lv_flush_display_direct(lv_disp_drv_t *disp_drv, const lv_area_t *ar
     memcpy(pdma_ctx->inv_area_joined, disp->inv_area_joined, sizeof(disp->inv_area_joined));
     memcpy(pdma_ctx->inv_areas, disp->inv_areas, sizeof(disp->inv_areas));
 #if LVGL_CONFIG_DIRECT_MODE_VSYNC_ENABLE
+#ifndef BSP_USING_RTT_LCD_DRIVER
     while (!ctx->direct_vsync) {
     }
     ctx->direct_vsync = 0;
+#else
+    if (!g_lcd_dev)
+    {
+        return;
+    }
+    g_lcd_dev->control(g_lcd_dev, RTGRAPHIC_CTRL_WAIT_VSYNC, RT_NULL);
+#endif
 #endif
 
     lvgl_pdma_start(ctx);
@@ -252,8 +265,9 @@ static void lvgl_pdma_isr(void)
     lvgl_pdma_done(&lv_adapter_ctx);
 }
 
-SDK_DECLARE_EXT_ISR_M(LVGL_PDMA_IRQ_NUM, lvgl_pdma_isr);
+RTT_DECLARE_EXT_ISR_M(LVGL_PDMA_IRQ_NUM, lvgl_pdma_isr);
 
+#ifndef BSP_USING_RTT_LCD_DRIVER
 static void hpm_lcdc_isr(void)
 {
     volatile uint32_t s = lcdc_get_dma_status(LCD_CONTROLLER);
@@ -263,7 +277,8 @@ static void hpm_lcdc_isr(void)
         lv_adapter_ctx.direct_vsync = 1;
     }
 }
-SDK_DECLARE_EXT_ISR_M(LCD_IRQ_NUM, hpm_lcdc_isr)
+RTT_DECLARE_EXT_ISR_M(LCD_IRQ_NUM, hpm_lcdc_isr)
+#endif
 
 #else
 
@@ -286,10 +301,17 @@ static void lv_flush_display_full(lv_disp_drv_t *disp_drv, const lv_area_t *area
        l1c_dc_writeback(aligned_start, aligned_size);
     }
 #endif
-
     ctx->wait_flush_buffer = wait_flush_buffer;
+#ifdef BSP_USING_RTT_LCD_DRIVER
+    g_lcd_dev->control(g_lcd_dev, RTGRAPHIC_CTRL_WAIT_VSYNC, RT_NULL);
+    g_lcd_dev->control(g_lcd_dev, RTGRAPHIC_CTRL_RECT_UPDATE, (void *)wait_flush_buffer);
+    g_lcd_dev->control(g_lcd_dev, RTGRAPHIC_CTRL_WAIT_VSYNC, RT_NULL);
+    lv_adapter_ctx.wait_flush_buffer = 0;
+    lv_disp_flush_ready(&lv_adapter_ctx.disp_drv);
+#endif
 }
 
+#ifndef BSP_USING_RTT_LCD_DRIVER
 static void hpm_lcdc_isr(void)
 {
     volatile uint32_t s = lcdc_get_dma_status(LCD_CONTROLLER);
@@ -303,10 +325,12 @@ static void hpm_lcdc_isr(void)
         lv_disp_flush_ready(&lv_adapter_ctx.disp_drv);
     }
 }
-SDK_DECLARE_EXT_ISR_M(LCD_IRQ_NUM, hpm_lcdc_isr)
+RTT_DECLARE_EXT_ISR_M(LCD_IRQ_NUM, hpm_lcdc_isr)
+#endif
 
 #endif/*LVGL_CONFIG_FLUSH_DIRECT_MODE_ENABLE*/
 
+#ifndef BSP_USING_RTT_LCD_DRIVER
 static void hpm_lcdc_init(void)
 {
     display_pixel_format_t pixel_format;
@@ -346,15 +370,35 @@ static void hpm_lcdc_init(void)
     intc_m_enable_irq_with_priority(LCD_IRQ_NUM, HPM_LCD_IRQ_PRIORITY);
     lv_adapter_ctx.lcdc_buffer = layer.buffer;
 }
+#endif
 
 static void lv_disp_init(void)
 {
     lv_disp_draw_buf_t *draw_buf = &lv_adapter_ctx.draw_buf;
     lv_disp_drv_t *disp_drv = &lv_adapter_ctx.disp_drv;
-
+#ifndef BSP_USING_RTT_LCD_DRIVER
     board_init_lcd();
 
     hpm_lcdc_init();
+#else
+    struct rt_device_graphic_info info;
+    g_lcd_dev = rt_device_find("lcd0");
+    if (!g_lcd_dev)
+    {
+        return;
+    }
+    info.bits_per_pixel = LV_COLOR_DEPTH;
+    info.height = LV_LCD_HEIGHT;
+    info.width = LV_LCD_WIDTH;
+#if LV_COLOR_DEPTH == 32
+    info.pixel_format  = RTGRAPHIC_PIXEL_FORMAT_ARGB888;
+#else
+    info.pixel_format  = RTGRAPHIC_PIXEL_FORMAT_RGB565;
+#endif
+    // g_lcd_dev->control(g_lcd_dev, RTGRAPHIC_CTRL_SET_MODE, &info);
+    g_lcd_dev->control(g_lcd_dev, RTGRAPHIC_CTRL_GET_INFO, &info);
+    lv_adapter_ctx.lcdc_buffer = (uint32_t)info.framebuffer;
+#endif
     lv_disp_draw_buf_init(draw_buf, lv_framebuffer0, lv_framebuffer1, LV_LCD_WIDTH * LV_LCD_HEIGHT);
     lv_disp_drv_init(disp_drv);
 

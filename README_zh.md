@@ -12,6 +12,7 @@ HPM6750EVKMINI 开发板的 RT-Thread Studio 板级支持包
 - ethernet_ptp_slave_demo
 - flashdb_demo
 - lv_demo_widgets
+- pwm_demo
 - pwmbeep_demo
 - rw007_wifi
 - sdcard_demo

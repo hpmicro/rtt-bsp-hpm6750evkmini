@@ -15,6 +15,7 @@
 #include "hpm_dmamux_drv.h"
 #include "hpm_l1c_drv.h"
 #include "board.h"
+#include "hpm_rtt_interrupt_util.h"
 
 #ifdef RT_USING_I2C
 
@@ -129,7 +130,7 @@ void i2c0_isr(void)
 {
     handle_i2c_isr(HPM_I2C0);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_I2C0, i2c0_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_I2C0, i2c0_isr);
 #endif
 
 #if defined(BSP_USING_I2C1)
@@ -137,7 +138,7 @@ void i2c1_isr(void)
 {
     handle_i2c_isr(HPM_I2C1);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_I2C1, i2c1_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_I2C1, i2c1_isr);
 #endif
 
 #if defined(BSP_USING_I2C2)
@@ -145,7 +146,7 @@ void i2c2_isr(void)
 {
     handle_i2c_isr(HPM_I2C2);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_I2C2, i2c2_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_I2C2, i2c2_isr);
 #endif
 
 #if defined(BSP_USING_I2C3)
@@ -153,7 +154,7 @@ void i2c3_isr(void)
 {
     handle_i2c_isr(HPM_I2C3);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_I2C3, i2c3_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_I2C3, i2c3_isr);
 #endif
 
 static hpm_stat_t i2c_transfer(I2C_Type *ptr, const uint16_t device_address,

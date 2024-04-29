@@ -13,6 +13,7 @@
 #include "drv_hwtimer.h"
 #include "board.h"
 #include "hpm_gptmr_drv.h"
+#include "hpm_rtt_interrupt_util.h"
 
 typedef struct _hpm_gptimer
 {
@@ -106,7 +107,7 @@ void gptmr0_isr(void)
 {
     hpm_hwtmr_isr(&timer0);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_GPTMR0, gptmr0_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_GPTMR0, gptmr0_isr);
 #endif
 
 #ifdef BSP_USING_GPTMR1
@@ -114,7 +115,7 @@ void gptmr1_isr(void)
 {
     hpm_hwtmr_isr(&timer1);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_GPTMR1, gptmr1_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_GPTMR1, gptmr1_isr);
 #endif
 
 #ifdef BSP_USING_GPTMR2
@@ -122,7 +123,7 @@ void gptmr2_isr(void)
 {
     hpm_hwtmr_isr(&timer2);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_GPTMR2, gptmr2_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_GPTMR2, gptmr2_isr);
 #endif
 
 #ifdef BSP_USING_GPTMR3
@@ -130,7 +131,7 @@ void gptmr3_isr(void)
 {
     hpm_hwtmr_isr(&timer3);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_GPTMR3, gptmr3_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_GPTMR3, gptmr3_isr);
 #endif
 
 #ifdef BSP_USING_GPTMR4
@@ -138,7 +139,7 @@ void gptmr4_isr(void)
 {
     hpm_hwtmr_isr(&timer4);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_GPTMR4, gptmr4_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_GPTMR4, gptmr4_isr);
 #endif
 
 #ifdef BSP_USING_GPTMR5
@@ -146,7 +147,7 @@ void gptmr5_isr(void)
 {
     hpm_hwtmr_isr(&timer5);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_GPTMR5, gptmr5_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_GPTMR5, gptmr5_isr);
 #endif
 
 #ifdef BSP_USING_GPTMR6
@@ -154,7 +155,7 @@ void gptmr6_isr(void)
 {
     hpm_hwtmr_isr(&timer6);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_GPTMR6, gptmr6_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_GPTMR6, gptmr6_isr);
 #endif
 
 #ifdef BSP_USING_GPTMR7
@@ -162,7 +163,7 @@ void gptmr7_isr(void)
 {
     hpm_hwtmr_isr(&timer7);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_GPTMR7, gptmr7_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_GPTMR7, gptmr7_isr);
 #endif
 
 static void hpm_hwtmr_isr(hpm_gptimer_t *timer)

@@ -12,6 +12,7 @@
 #include "drv_ewdt.h"
 #include "hpm_ewdg_drv.h"
 #include "hpm_sysctl_drv.h"
+#include "hpm_rtt_interrupt_util.h"
 
 
 #ifdef BSP_USING_EWDG
@@ -42,7 +43,7 @@ void wdog0_isr(void)
 {
     hpm_wdog_isr(&wdog0);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_WDOG0, wdog0_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_EWDG0, wdog0_isr)
 #endif
 
 #if defined(BSP_USING_EWDG1)
@@ -51,7 +52,7 @@ void wdog1_isr(void)
 {
     hpm_wdog_isr(&wdog1);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_WDOG1, wdog1_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_EWDG1, wdog1_isr)
 #endif
 
 #if defined(BSP_USING_EWDG2)
@@ -60,7 +61,7 @@ void wdog2_isr(void)
 {
     hpm_wdog_isr(&wdog2);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_WDOG2, wdog2_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_EWDG2, wdog2_isr)
 #endif
 
 #if defined(BSP_USING_EWDG3)
@@ -69,46 +70,46 @@ void wdog3_isr(void)
 {
     hpm_wdog_isr(&wdog3);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_WDOG3, wdog3_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_EWDG3, wdog3_isr)
 #endif
 
 static hpm_wdog_t wdogs[] = {
 #ifdef BSP_USING_EWDG0
     {
-        .wdog_base = HPM_WDG0,
+        .wdog_base = HPM_EWDG0,
         .device_name = "wdt0",
         .clock_name = clock_watchdog0,
-        .irq_num = IRQn_WDG0,
+        .irq_num = IRQn_EWDG0,
         .wdog = &wdog0,
     },
 #endif
 
 #ifdef BSP_USING_EWDG1
     {
-        .wdog_base = HPM_WDG1,
+        .wdog_base = HPM_EWDG1,
         .device_name = "wdt1",
         .clock_name = clock_watchdog1,
-        .irq_num = IRQn_WDG1,
+        .irq_num = IRQn_EWDG1,
         .wdog = &wdog1,
     },
 #endif
 
 #ifdef BSP_USING_EWDG2
     {
-        .wdog_base = HPM_WDG2,
+        .wdog_base = HPM_EWDG2,
         .device_name = "wdt2",
         .clock_name = clock_watchdog2,
-        .irq_num = IRQn_WDG2,
+        .irq_num = IRQn_EWDG2,
         .wdog = &wdog2,
     },
 #endif
 
 #ifdef BSP_USING_EWDG3
     {
-        .wdog_name = HPM_WDG3,
+        .wdog_name = HPM_EWDG3,
         .device_name = "wdt3",
         .clock_name = clock_watchdog3,
-        .irq_num = IRQn_WDG3,
+        .irq_num = IRQn_EWDG3,
         .wdog = &wdog3,
     },
 #endif

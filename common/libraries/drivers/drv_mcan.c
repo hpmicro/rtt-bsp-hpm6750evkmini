@@ -13,6 +13,7 @@
 #include <rthw.h>
 #include "board.h"
 #include "hpm_mcan_drv.h"
+#include "hpm_rtt_interrupt_util.h"
 
 
 #define CAN_SEND_WAIT_MS_MAX   (1000U)       /* CAN maximum wait time for transmission */
@@ -128,7 +129,7 @@ static hpm_can_t dev_can0 =
 {
     .can_base = HPM_MCAN0,
     .name = "can0",
-    .irq_num = IRQn_CAN0,
+    .irq_num = IRQn_MCAN0,
     .fifo_index = 0,
 };
 
@@ -136,7 +137,7 @@ void can0_isr(void)
 {
     hpm_mcan_isr(&dev_can0);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_CAN0, can0_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_MCAN0, can0_isr);
 
 #endif
 
@@ -145,14 +146,14 @@ static hpm_can_t dev_can1 =
 {
         .can_base = HPM_MCAN1,
         .name = "can1",
-        .irq_num = IRQn_CAN1,
+        .irq_num = IRQn_MCAN1,
         .fifo_index = 1,
 };
 void can1_isr(void)
 {
     hpm_mcan_isr(&dev_can1);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_CAN1, can1_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_MCAN1, can1_isr);
 #endif
 
 #if defined(HPM_MCAN2_BASE) && defined(BSP_USING_MCAN2)
@@ -160,14 +161,14 @@ static hpm_can_t dev_can2 =
 {
         .can_base = HPM_MCAN2,
         .name = "can2",
-        .irq_num = IRQn_CAN2,
+        .irq_num = IRQn_MCAN2,
         .fifo_index = 2,
 };
 void can2_isr(void)
 {
     hpm_mcan_isr(&dev_can2);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_CAN2, can2_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_MCAN2, can2_isr);
 #endif
 
 #if defined(HPM_MCAN3_BASE) && defined(BSP_USING_MCAN3)
@@ -175,14 +176,14 @@ static hpm_can_t dev_can3 =
 {
         .can_base = HPM_MCAN3,
         .name = "can3",
-        .irq_num = IRQn_CAN3,
+        .irq_num = IRQn_MCAN3,
         .fifo_index = 3,
 };
 void can3_isr(void)
 {
     hpm_mcan_isr(&dev_can3);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_CAN3, can3_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_MCAN3, can3_isr);
 #endif
 
 static hpm_can_t *hpm_cans[] = {

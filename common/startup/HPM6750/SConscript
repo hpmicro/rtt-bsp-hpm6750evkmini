@@ -5,10 +5,7 @@ cwd = GetCurrentDir()
 
 # add the startup files
 
-src = Split('''
-   startup.c
-   trap.c
-''')
+src = Glob('*.c')
 
 if rtconfig.PLATFORM == 'gcc':
     src += [os.path.join('toolchains', 'gcc', 'start.S')]

@@ -5,11 +5,12 @@
 本示例演示了基于RT-Thread Enet的网络连通性测试
 
 ## 硬件设置
+
 * 使用USB Type-C线缆连接PC USB端口和PWR DEBUG端口
 * 使用以太网线缆连接PC以太网端口和开发板RGMII或RMII端口
-* 使用以太网线缆连接开发板RGMII或者RMII端口和另一个块开发板的RGMII或RMII端口
 
 ## 运行示例
+
 * 编译下载程序
 * 串口终端显示
 
@@ -29,6 +30,7 @@ msh />[1011] I/NO_TAG: PHY Status: Link up
 ## 功能验证
 
 ### 1. IP分配查询
+
 ```console
 msh />ifconfig
 network interface device: ET (Default)
@@ -42,7 +44,9 @@ dns server #0: 192.168.100.1
 dns server #1: 0.0.0.0
 
 ```
+
 ### 2. PING测试
+
   （1）Windows系统中，打开cmd, 运行ping
 
 ```console
@@ -71,7 +75,3 @@ ping: not found specified netif, using default netdev ET.
 60 bytes from 192.168.100.8 icmp_seq=3 ttl=64 time=0 ms
 
 ```
-
-
-
-

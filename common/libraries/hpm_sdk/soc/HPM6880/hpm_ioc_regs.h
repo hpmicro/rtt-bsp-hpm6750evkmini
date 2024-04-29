@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 HPMicro
+ * Copyright (c) 2021-2024 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -48,7 +48,7 @@ typedef struct {
  * alt select
  * 0: ALT0
  * 1: ALT1
- * …
+ * ...
  * 31:ALT31
  */
 #define IOC_PAD_FUNC_CTL_ALT_SELECT_MASK (0x1FU)

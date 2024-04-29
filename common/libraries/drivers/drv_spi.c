@@ -22,6 +22,7 @@
 #include "hpm_dmamux_drv.h"
 
 #include "hpm_l1c_drv.h"
+#include "hpm_rtt_interrupt_util.h"
 
 
 struct hpm_spi
@@ -131,7 +132,7 @@ void spi0_isr(void)
 {
     handle_spi_isr(HPM_SPI0);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_SPI0, spi0_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_SPI0, spi0_isr);
 #endif
 
 #if defined(BSP_USING_SPI1)
@@ -139,7 +140,7 @@ void spi1_isr(void)
 {
     handle_spi_isr(HPM_SPI1);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_SPI1, spi1_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_SPI1, spi1_isr);
 #endif
 
 #if defined(BSP_USING_SPI2)
@@ -147,7 +148,7 @@ void spi2_isr(void)
 {
     handle_spi_isr(HPM_SPI2);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_SPI2, spi2_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_SPI2, spi2_isr);
 #endif
 
 #if defined(BSP_USING_SPI3)
@@ -155,7 +156,7 @@ void spi3_isr(void)
 {
     handle_spi_isr(HPM_SPI3);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_SPI3, spi3_isr);
+RTT_DECLARE_EXT_ISR_M(IRQn_SPI3, spi3_isr);
 #endif
 
 void spi_dma_channel_tc_callback(DMA_Type *ptr, uint32_t channel, void *user_data)
@@ -196,7 +197,7 @@ static rt_err_t hpm_spi_configure(struct rt_spi_device *device, struct rt_spi_co
     spi_master_get_default_timing_config(&timing_config);
     spi_master_get_default_format_config(&format_config);
 
-    init_spi_pins(spi->spi_base);
+    init_spi_pins_with_gpio_as_cs(spi->spi_base);
 
     timing_config.master_config.clk_src_freq_in_hz = board_init_spi_clock(spi->spi_base);
 

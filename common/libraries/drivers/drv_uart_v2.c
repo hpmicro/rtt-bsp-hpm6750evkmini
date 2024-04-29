@@ -26,6 +26,7 @@
 #include "hpm_dmamux_drv.h"
 #include "hpm_dma_mgr.h"
 #include "hpm_soc.h"
+#include "hpm_rtt_interrupt_util.h"
 
 #ifdef RT_USING_SERIAL_V2
 
@@ -60,7 +61,7 @@ struct hpm_uart {
     hpm_dma_channel_handle_t rx_chn_ctx;
     bool tx_resource_allocated;
     bool rx_resource_allocated;
-#if defined(UART_SOC_HAS_RXLINE_IDLE_DETECTION) && (UART_SOC_HAS_RXLINE_IDLE_DETECTION == 1) && defined(RT_SERIAL_USING_DMA)
+#if defined(HPM_IP_FEATURE_UART_RX_IDLE_DETECT) && (HPM_IP_FEATURE_UART_RX_IDLE_DETECT == 1) && defined(RT_SERIAL_USING_DMA)
     ATTR_ALIGN(HPM_L1C_CACHELINE_SIZE) uint8_t rx_idle_tmp_buffer[1024];
 #endif
 #endif
@@ -105,7 +106,7 @@ void uart0_isr(void)
 {
     hpm_uart_isr(&serial0);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART0,uart0_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART0,uart0_isr)
 #endif
 
 
@@ -115,7 +116,7 @@ void uart1_isr(void)
 {
     hpm_uart_isr(&serial1);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART1,uart1_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART1,uart1_isr)
 #endif
 
 
@@ -125,7 +126,7 @@ void uart2_isr(void)
 {
     hpm_uart_isr(&serial2);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART2,uart2_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART2,uart2_isr)
 #endif
 
 
@@ -135,7 +136,7 @@ void uart3_isr(void)
 {
     hpm_uart_isr(&serial3);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART3,uart3_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART3,uart3_isr)
 #endif
 
 
@@ -145,7 +146,7 @@ void uart4_isr(void)
 {
     hpm_uart_isr(&serial4);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART4,uart4_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART4,uart4_isr)
 #endif
 
 
@@ -155,7 +156,7 @@ void uart5_isr(void)
 {
     hpm_uart_isr(&serial5);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART5,uart5_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART5,uart5_isr)
 #endif
 
 
@@ -165,7 +166,7 @@ void uart6_isr(void)
 {
     hpm_uart_isr(&serial6);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART6,uart6_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART6,uart6_isr)
 #endif
 
 
@@ -175,7 +176,7 @@ void uart7_isr(void)
 {
     hpm_uart_isr(&serial7);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART7,uart7_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART7,uart7_isr)
 #endif
 
 
@@ -185,7 +186,7 @@ void uart8_isr(void)
 {
     hpm_uart_isr(&serial8);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART8,uart8_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART8,uart8_isr)
 #endif
 
 
@@ -195,7 +196,7 @@ void uart9_isr(void)
 {
     hpm_uart_isr(&serial9);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART9,uart9_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART9,uart9_isr)
 #endif
 
 
@@ -205,7 +206,7 @@ void uart10_isr(void)
 {
     hpm_uart_isr(&serial10);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART10,uart10_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART10,uart10_isr)
 #endif
 
 #if defined(BSP_USING_UART11)
@@ -214,7 +215,7 @@ void uart11_isr(void)
 {
     hpm_uart_isr(&serial11);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART11,uart11_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART11,uart11_isr)
 #endif
 
 #if defined(BSP_USING_UART12)
@@ -223,7 +224,7 @@ void uart12_isr(void)
 {
     hpm_uart_isr(&serial12);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART12,uart12_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART12,uart12_isr)
 #endif
 
 #if defined(BSP_USING_UART13)
@@ -232,7 +233,7 @@ void uart13_isr(void)
 {
     hpm_uart_isr(&serial13);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART13,uart13_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART13,uart13_isr)
 #endif
 
 #if defined(BSP_USING_UART14)
@@ -241,7 +242,7 @@ void uart14_isr(void)
 {
     hpm_uart_isr(&serial14);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART14,uart14_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART14,uart14_isr)
 #endif
 
 #if defined(BSP_USING_UART15)
@@ -250,7 +251,7 @@ void uart15_isr(void)
 {
     hpm_uart_isr(&serial15);
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_UART15,uart15_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_UART15,uart15_isr)
 #endif
 
 static struct hpm_uart uarts[] =
@@ -589,7 +590,7 @@ static void uart_rx_done(struct rt_serial_device *serial)
 {
     struct rt_serial_rx_fifo *rx_fifo;
     rx_fifo = (struct rt_serial_rx_fifo *)serial->serial_rx;
- #if defined(UART_SOC_HAS_RXLINE_IDLE_DETECTION) && (UART_SOC_HAS_RXLINE_IDLE_DETECTION == 1) && defined(RT_SERIAL_USING_DMA)
+ #if defined(HPM_IP_FEATURE_UART_RX_IDLE_DETECT) && (HPM_IP_FEATURE_UART_RX_IDLE_DETECT == 1) && defined(RT_SERIAL_USING_DMA)
     uint32_t uart_recv_data_count = 0;
     struct hpm_uart *uart = (struct hpm_uart *)serial->parent.user_data;
     uint32_t rx_idle_tmp_buffer_size = sizeof(uart->rx_idle_tmp_buffer);
@@ -636,8 +637,6 @@ static void hpm_uart_isr(struct rt_serial_device *serial)
 
     struct rt_serial_rx_fifo *rx_fifo;
     rx_fifo = (struct rt_serial_rx_fifo *) serial->serial_rx;
-    /* enter interrupt */
-    rt_interrupt_enter();
     stat = uart_get_status(uart->uart_base);
     irq_id = uart_get_irq_id(uart->uart_base);
 
@@ -682,15 +681,13 @@ static void hpm_uart_isr(struct rt_serial_device *serial)
             uart_enable_irq(uart->uart_base, uart_intr_tx_slot_avail);
         }
     }
- #if defined(UART_SOC_HAS_RXLINE_IDLE_DETECTION) && (UART_SOC_HAS_RXLINE_IDLE_DETECTION == 1) && defined(RT_SERIAL_USING_DMA)
+ #if defined(HPM_IP_FEATURE_UART_RX_IDLE_DETECT) && (HPM_IP_FEATURE_UART_RX_IDLE_DETECT == 1) && defined(RT_SERIAL_USING_DMA)
     if (uart_is_rxline_idle(uart->uart_base)) {
         uart_rx_done(serial);
         uart_clear_rxline_idle_flag(uart->uart_base);
         uart_flush(uart->uart_base);
     }
 #endif
-    /* leave interrupt */
-    rt_interrupt_leave();
 }
 
 
@@ -721,7 +718,7 @@ static rt_err_t hpm_uart_configure(struct rt_serial_device *serial, struct seria
         if (uart->dma_flags & RT_DEVICE_FLAG_DMA_RX) {
             uart_config.rx_fifo_level = uart_rx_fifo_trg_not_empty;
         }
-#if defined(UART_SOC_HAS_RXLINE_IDLE_DETECTION) && (UART_SOC_HAS_RXLINE_IDLE_DETECTION == 1)
+#if defined(HPM_IP_FEATURE_UART_RX_IDLE_DETECT) && (HPM_IP_FEATURE_UART_RX_IDLE_DETECT == 1)
         uart_config.rxidle_config.detect_enable = true;
         uart_config.rxidle_config.detect_irq_enable = true;
         uart_config.rxidle_config.idle_cond = uart_rxline_idle_cond_rxline_logic_one;
@@ -784,7 +781,7 @@ static int hpm_uart_dma_config(struct rt_serial_device *serial, void *arg)
     if (ctrl_arg == RT_DEVICE_FLAG_DMA_RX) {
         rx_fifo = (struct rt_serial_rx_fifo *)serial->serial_rx;
         config.ch_index = uart->rx_chn_ctx.resource.channel;
-#if defined(UART_SOC_HAS_RXLINE_IDLE_DETECTION) && (UART_SOC_HAS_RXLINE_IDLE_DETECTION == 1)
+#if defined(HPM_IP_FEATURE_UART_RX_IDLE_DETECT) && (HPM_IP_FEATURE_UART_RX_IDLE_DETECT == 1)
         config.dst = (uint32_t)uart->rx_idle_tmp_buffer;
 #else
         config.dst = (uint32_t) rx_fifo->rb.buffer_ptr;
@@ -794,7 +791,7 @@ static int hpm_uart_dma_config(struct rt_serial_device *serial, void *arg)
         config.src = (uint32_t)&(uart->uart_base->RBR);
         config.src_fixed = true;
         config.data_width = DMA_TRANSFER_WIDTH_BYTE;
-#if defined(UART_SOC_HAS_RXLINE_IDLE_DETECTION) && (UART_SOC_HAS_RXLINE_IDLE_DETECTION == 1)
+#if defined(HPM_IP_FEATURE_UART_RX_IDLE_DETECT) && (HPM_IP_FEATURE_UART_RX_IDLE_DETECT == 1)
         config.size_in_byte = sizeof(uart->rx_idle_tmp_buffer);
 #else
         config.size_in_byte = serial->config.rx_bufsz;
@@ -804,7 +801,7 @@ static int hpm_uart_dma_config(struct rt_serial_device *serial, void *arg)
         }
         uint32_t mux = DMA_SOC_CHN_TO_DMAMUX_CHN(uart->rx_chn_ctx.resource.base, uart->rx_dma_mux);
         dmamux_config(BOARD_UART_DMAMUX, uart->rx_chn_ctx.resource.channel, mux, true);
- #if !defined(UART_SOC_HAS_RXLINE_IDLE_DETECTION) || (UART_SOC_HAS_RXLINE_IDLE_DETECTION == 0)
+ #if !defined(HPM_IP_FEATURE_UART_RX_IDLE_DETECT) || (HPM_IP_FEATURE_UART_RX_IDLE_DETECT == 0)
         hpm_uart_dma_register_channel(serial, false, uart_rx_done, RT_NULL, RT_NULL);
         intc_m_enable_irq(uart->rx_chn_ctx.resource.irq_num);
 #else
@@ -899,7 +896,7 @@ static rt_err_t hpm_uart_control(struct rt_serial_device *serial, int cmd, void 
             if (ctrl_arg == RT_DEVICE_FLAG_INT_RX) {
                 /* enable rx irq */
                 uart_enable_irq(uart->uart_base, uart_intr_rx_data_avail_or_timeout);
-                intc_m_enable_irq_with_priority(uart->irq_num, 1);
+                intc_m_enable_irq_with_priority(uart->irq_num, 2);
             } else if (ctrl_arg == RT_DEVICE_FLAG_INT_TX) {
                 /* enable tx irq */
                 uart_enable_irq(uart->uart_base, uart_intr_tx_slot_avail);

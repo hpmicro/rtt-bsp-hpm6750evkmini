@@ -70,5 +70,8 @@ objs.extend(SConscript(os.path.join(libraries_path_prefix, hpm_library, 'compone
 # includes rtt drivers
 objs.extend(SConscript(os.path.join(libraries_path_prefix, 'drivers',  'SConscript')))
 
+# includes misc
+objs.extend(SConscript(os.path.join(libraries_path_prefix, 'misc',  'SConscript')))
+
 # make a building
 DoBuilding(TARGET, objs)

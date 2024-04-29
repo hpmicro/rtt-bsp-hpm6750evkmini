@@ -1,5 +1,20 @@
 # 更新
 
+
+## v1.5.0
+
+- 整合了hpm_sdk v1.5.0
+- 更新:
+    - USB相关sample协议栈切换为cherryUSB
+    - ETH PHY 抽象层多实例支持和优化
+- 修复:
+    - CAN sample开启硬件过滤器读取数据错误的问题
+- 新增:
+    - 增加中断向量模式和可抢占模式
+    - pwm sample
+    - systemView组件
+    - rtt lcd driver驱动
+
 ## v1.4.1
 - 修复：
   - I2C开启DMA后传输出错的问题

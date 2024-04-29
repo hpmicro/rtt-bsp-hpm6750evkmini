@@ -10,6 +10,7 @@
 #include "hpm_ipc_event_mgr.h"
 #include "hpm_ipc_event_mgr_mbx_config.h"
 #include "hpm_ipc_event_mgr_mbx_internal.h"
+#include "hpm_rtt_interrupt_util.h"
 
 /*****************************************************************************************************************
  *
@@ -23,7 +24,7 @@
  *
  *****************************************************************************************************************/
 static void mbx_isr(void);
-SDK_DECLARE_EXT_ISR_M(IRQn_MBX, mbx_isr)
+RTT_DECLARE_EXT_ISR_M(IRQn_MBX, mbx_isr)
 
 /*****************************************************************************************************************
  *

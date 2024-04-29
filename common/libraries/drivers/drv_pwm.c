@@ -44,27 +44,18 @@ static PWM_Type * pwm_base_tbl[PWM_INSTANCE_NUM] = {
 #endif
     };
 
-/**
- * @brief The motor system is connected to the same clock bus, using the clock of motor0 to represent all clocks
- *
- */
-static const clock_name_t pwm_clock_tbl[1] = {
-    clock_mot0
-};
-
 rt_err_t hpm_generate_central_aligned_waveform(uint8_t pwm_index, uint8_t channel, uint32_t period, uint32_t pulse)
 {
     uint32_t duty;
-    pwm_cmp_config_t cmp_config[4] = {0};
+    pwm_cmp_config_t cmp_config[2] = {0};
     pwm_config_t pwm_config = {0};
     uint32_t reload = 0;
     uint32_t freq;
     PWM_Type * pwm_name_index;
-    clock_name_t pwm_clock;
-    pwm_clock = pwm_clock_tbl[0];
     pwm_name_index = pwm_base_tbl[pwm_index];
 
-    freq = clock_get_frequency(pwm_clock);
+    init_pwm_pins(pwm_name_index);
+    freq = board_init_pwm_clock(pwm_name_index);
     if(period != 0) {
         reload = (uint64_t)freq * period / 1000000000;
     } else {
@@ -81,19 +72,18 @@ rt_err_t hpm_generate_central_aligned_waveform(uint8_t pwm_index, uint8_t channe
     pwm_set_start_count(pwm_name_index, 0, 0);
 
     /*
-     * config cmp1 and cmp2 and cmp3
+     * config cmp1 and cmp2
      */
+    duty = (uint64_t)freq * pulse / 1000000000;
+
     cmp_config[0].mode = pwm_cmp_mode_output_compare;
-    cmp_config[0].cmp = reload + 1;
-    cmp_config[0].update_trigger = pwm_shadow_register_update_on_hw_event;
+    cmp_config[0].cmp = (reload - duty) >> 1;
+    cmp_config[0].update_trigger = pwm_shadow_register_update_on_shlk;
 
     cmp_config[1].mode = pwm_cmp_mode_output_compare;
-    cmp_config[1].cmp = reload + 1;
-    cmp_config[1].update_trigger = pwm_shadow_register_update_on_hw_event;
+    cmp_config[1].cmp = (reload + duty) >> 1;
+    cmp_config[1].update_trigger = pwm_shadow_register_update_on_shlk;
 
-    cmp_config[3].mode = pwm_cmp_mode_output_compare;
-    cmp_config[3].cmp = reload;
-    cmp_config[3].update_trigger = pwm_shadow_register_update_on_modify;
 
     pwm_config.enable_output = true;
     pwm_config.dead_zone_in_half_cycle = 0;
@@ -104,12 +94,8 @@ rt_err_t hpm_generate_central_aligned_waveform(uint8_t pwm_index, uint8_t channe
     if (status_success != pwm_setup_waveform(pwm_name_index, channel, &pwm_config, channel * 2, cmp_config, 2)) {
         return -RT_ERROR;
     }
-    pwm_load_cmp_shadow_on_match(pwm_name_index, 17,  &cmp_config[3]);
     pwm_start_counter(pwm_name_index);
     pwm_issue_shadow_register_lock_event(pwm_name_index);
-    duty = (uint64_t)freq * pulse / 1000000000;
-
-    pwm_update_raw_cmp_central_aligned(pwm_name_index, channel * 2, channel * 2 + 1, (reload - duty) >> 1, (reload + duty) >> 1);
 
     return RT_EOK;
 
@@ -118,16 +104,13 @@ rt_err_t hpm_generate_central_aligned_waveform(uint8_t pwm_index, uint8_t channe
 rt_err_t hpm_set_central_aligned_waveform(uint8_t pwm_index, uint8_t channel, uint32_t period, uint32_t pulse)
 {
     uint32_t duty;
-    pwm_cmp_config_t cmp_config[4] = {0};
     pwm_config_t pwm_config = {0};
     uint32_t reload = 0;
     uint32_t freq;
     PWM_Type * pwm_name_index;
-    clock_name_t pwm_clock;
-    pwm_clock = pwm_clock_tbl[0];
     pwm_name_index = pwm_base_tbl[pwm_index];
 
-    freq = clock_get_frequency(pwm_clock);
+    freq = board_init_pwm_clock(pwm_name_index);
     if(period != 0) {
         reload = (uint64_t)freq * period / 1000000000;
     } else {
@@ -136,13 +119,9 @@ rt_err_t hpm_set_central_aligned_waveform(uint8_t pwm_index, uint8_t channel, ui
 
     pwm_get_default_pwm_config(pwm_name_index, &pwm_config);
     pwm_set_reload(pwm_name_index, 0, reload);
-    cmp_config[3].mode = pwm_cmp_mode_output_compare;
-    cmp_config[3].cmp = reload;
-    cmp_config[3].update_trigger = pwm_shadow_register_update_on_modify;
-    pwm_config_cmp(pwm_name_index, 17, &cmp_config[3]);
-    pwm_issue_shadow_register_lock_event(pwm_name_index);
     duty = (uint64_t)freq * pulse / 1000000000;
     pwm_update_raw_cmp_central_aligned(pwm_name_index, channel * 2, channel * 2 + 1, (reload - duty) >> 1, (reload + duty) >> 1);
+    pwm_issue_shadow_register_lock_event(pwm_name_index);
 
     return RT_EOK;
 }

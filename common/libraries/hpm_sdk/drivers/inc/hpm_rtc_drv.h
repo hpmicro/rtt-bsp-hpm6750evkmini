@@ -17,7 +17,7 @@
 
 #include "hpm_common.h"
 #include "hpm_rtc_regs.h"
-#include "sys/time.h"
+#include <sys/time.h>
 
 /**
  * @brief RTC alarm configuration

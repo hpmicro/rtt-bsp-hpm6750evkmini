@@ -32,11 +32,41 @@ if GetDepend(['BSP_USING_USB_DEVICE']):
 if GetDepend(['BSP_USING_USB_HOST']):
 	src += [ os.path.join(cwd, 'usb', 'host', 'hpm_usb_host.c') ]
 	path += [ os.path.join(cwd, 'usb', 'host') ]
+	CPPDEFINES += ['USB_HOST_MCU_CORE=HPM_CORE0']
+if GetDepend(['BSP_USING_ETH0']):
+	if GetDepend(['BSP_USING_ENET_PHY_DP83867']):
+	    src += [ os.path.join(cwd, 'enet_phy/dp83867/hpm_dp83867.c') ]
+	    path += [ os.path.join(cwd, 'enet_phy') ]
+	    path += [ os.path.join(cwd, 'enet_phy/dp83867') ]
+	    CPPDEFINES += ['__USE_DP83867=1']
 if GetDepend(['BSP_USING_ETH1']):
-	if GetDepend(['BSP_USING_ENET_PHY_RTL8201']):  
-	    src += [ os.path.join(cwd, 'enet_phy/rtl8201/hpm_rtl8201.c') ]        
+	if GetDepend(['BSP_USING_ENET_PHY_DP83848']):
+	    src += [ os.path.join(cwd, 'enet_phy/dp83848/hpm_dp83848.c') ]
+	    path += [ os.path.join(cwd, 'enet_phy') ]
+	    path += [ os.path.join(cwd, 'enet_phy/dp83848') ]
+	    CPPDEFINES += ['__USE_DP83848=1']
+if GetDepend(['BSP_USING_ETH0']):
+	if GetDepend(['BSP_USING_ENET_PHY_RTL8211']):
+	    src += [ os.path.join(cwd, 'enet_phy/rtl8211/hpm_rtl8211.c') ]
+	    path += [ os.path.join(cwd, 'enet_phy') ]
+	    path += [ os.path.join(cwd, 'enet_phy/rtl8211') ]
+	    CPPDEFINES += ['__USE_RTL8211=1']
+	if GetDepend(['BSP_USING_ENET_PHY_RTL8201']):
+	    src += [ os.path.join(cwd, 'enet_phy/rtl8201/hpm_rtl8201.c') ]
 	    path += [ os.path.join(cwd, 'enet_phy') ]
 	    path += [ os.path.join(cwd, 'enet_phy/rtl8201') ]
+	    CPPDEFINES += ['__USE_RTL8201=1']
+if GetDepend(['BSP_USING_ETH1']):
+	if GetDepend(['BSP_USING_ENET_PHY_RTL8201']):
+	    src += [ os.path.join(cwd, 'enet_phy/rtl8201/hpm_rtl8201.c') ]
+	    path += [ os.path.join(cwd, 'enet_phy') ]
+	    path += [ os.path.join(cwd, 'enet_phy/rtl8201') ]
+	    CPPDEFINES += ['__USE_RTL8201=1']
+	if GetDepend(['BSP_USING_ENET_PHY_LAN8720']):
+	    src += [ os.path.join(cwd, 'enet_phy/lan8720/hpm_lan8720.c') ]
+	    path += [ os.path.join(cwd, 'enet_phy') ]
+	    path += [ os.path.join(cwd, 'enet_phy/lan8720') ]
+	    CPPDEFINES += ['__USE_LAN8720=1']
 if GetDepend(['BSP_USING_CAMERA']):
 	path += [ os.path.join(cwd, 'camera') ]
 if GetDepend(['BSP_USING_CAMERA_MT9M114']):

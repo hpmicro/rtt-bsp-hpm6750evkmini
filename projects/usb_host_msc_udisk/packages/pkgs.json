@@ -1,7 +1,7 @@
 [
  {
-  "path": "/packages/system/TinyUSB", 
-  "ver": "v0.13.0", 
-  "name": "TINYUSB"
+  "path": "/packages/system/CherryUSB", 
+  "ver": "v1.2.0", 
+  "name": "CHERRYUSB"
  }
 ]

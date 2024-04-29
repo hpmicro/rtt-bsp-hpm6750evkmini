@@ -13,5 +13,6 @@
 #define _REENT_SMALL
 #define __RTTHREAD__
 #define __USE_ENET_PTP 1
+#define __USE_LAN8720 1
 
 #endif /*RTCONFIG_PREINC_H__*/

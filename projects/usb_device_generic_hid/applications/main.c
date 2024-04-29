@@ -10,16 +10,19 @@
 #include <rtthread.h>
 #include <rtdevice.h>
 #include "rtt_board.h"
+#include "usb_config.h"
+
+extern void hid_custom_init(uint8_t busid, uint32_t reg_base);
 
 void thread_entry(void *arg);
 
-
-
 int main(void)
 {
-    app_init_led_pins();
-
     static uint32_t led_thread_arg = 0;
+    app_init_led_pins();
+    app_init_usb_pins();
+    intc_set_irq_priority(CONFIG_HPM_USBD_IRQn, 2);
+    hid_custom_init(0, CONFIG_HPM_USBD_BASE);
     rt_thread_t led_thread = rt_thread_create("led_th", thread_entry, &led_thread_arg, 1024, 1, 10);
     rt_thread_startup(led_thread);
 

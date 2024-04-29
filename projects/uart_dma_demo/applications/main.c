@@ -20,9 +20,6 @@ void thread_entry(void *arg);
  * 程序功能：通过串口输出字符串 "hello RT-Thread!"，并通过串口输出接收到的数据，然后打印接收到的数据。
 */
 
-#include <rtthread.h>
-#include <rtdevice.h>
-
 /* 串口接收消息结构 */
 struct rx_msg
 {

@@ -5,6 +5,7 @@
 /* Automatically generated file; DO NOT EDIT. */
 /* RT-Thread pre-include file */
 
+#define CONFIG_USB_HS
 #define D45
 #define HPM6750
 #define RT_USING_LIBC

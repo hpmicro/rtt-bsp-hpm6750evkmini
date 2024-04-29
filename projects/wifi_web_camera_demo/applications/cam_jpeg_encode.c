@@ -20,6 +20,7 @@
 #include "hpm_l1c_drv.h"
 
 #include "cam_jpeg_encode.h"
+#include "hpm_rtt_interrupt_util.h"
 
 /* jpeg related */
 #ifndef BOARD_JPEG
@@ -133,7 +134,7 @@ void isr_cam(void)
     }
     rt_hw_interrupt_enable(level);
 }
-SDK_DECLARE_EXT_ISR_M(BOARD_CAM_IRQ, isr_cam)
+RTT_DECLARE_EXT_ISR_M(BOARD_CAM_IRQ, isr_cam)
 
 void isr_jpeg(void)
 {
@@ -143,7 +144,7 @@ void isr_jpeg(void)
         rt_sem_release(cam_jpeg_sem);
     }
 }
-SDK_DECLARE_EXT_ISR_M(IRQn_JPEG, isr_jpeg)
+RTT_DECLARE_EXT_ISR_M(IRQn_JPEG, isr_jpeg)
 
 /*
  * sensor configuration
