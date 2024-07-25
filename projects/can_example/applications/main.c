@@ -301,6 +301,7 @@ int can_sample(int argc, char *argv[])
     rt_device_control(can_dev, RT_CAN_CMD_SET_CANFD, (void*)1);
 
     msg.len = CAN_MSG_16BYTES;
+    msg.brs = 1;
     msg.fd_frame = 1;
     for (uint32_t i=8; i<16; i++)
     {

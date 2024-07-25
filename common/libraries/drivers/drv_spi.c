@@ -42,6 +42,7 @@ struct hpm_spi
     rt_sem_t spi_xfer_done_sem;
     rt_sem_t txdma_xfer_done_sem;
     rt_sem_t rxdma_xfer_done_sem;
+    void (*spi_pins_init)(SPI_Type *spi_base);
 };
 
 static rt_err_t hpm_spi_configure(struct rt_spi_device *device, struct rt_spi_configuration *cfg);
@@ -59,6 +60,11 @@ static struct hpm_spi hpm_spis[] =
         .tx_dmamux = HPM_DMA_SRC_SPI0_TX,
         .rx_dmamux = HPM_DMA_SRC_SPI0_RX,
         .spi_irq   = IRQn_SPI0,
+#if !defined BSP_SPI0_USING_HARD_CS
+        .spi_pins_init = init_spi_pins_with_gpio_as_cs,
+#else
+        .spi_pins_init = init_spi_pins,
+#endif
     },
 #endif
 #if defined(BSP_USING_SPI1)
@@ -71,6 +77,11 @@ static struct hpm_spi hpm_spis[] =
         .tx_dmamux = HPM_DMA_SRC_SPI1_TX,
         .rx_dmamux = HPM_DMA_SRC_SPI1_RX,
         .spi_irq   = IRQn_SPI1,
+#if !defined BSP_SPI1_USING_HARD_CS
+        .spi_pins_init = init_spi_pins_with_gpio_as_cs,
+#else
+        .spi_pins_init = init_spi_pins,
+#endif
     },
 #endif
 #if defined(BSP_USING_SPI2)
@@ -83,6 +94,11 @@ static struct hpm_spi hpm_spis[] =
         .tx_dmamux = HPM_DMA_SRC_SPI2_TX,
         .rx_dmamux = HPM_DMA_SRC_SPI2_RX,
         .spi_irq   = IRQn_SPI2,
+#if !defined BSP_SPI2_USING_HARD_CS
+        .spi_pins_init = init_spi_pins_with_gpio_as_cs,
+#else
+        .spi_pins_init = init_spi_pins,
+#endif
     },
 #endif
 #if defined(BSP_USING_SPI3)
@@ -95,6 +111,79 @@ static struct hpm_spi hpm_spis[] =
         .tx_dmamux = HPM_DMA_SRC_SPI3_TX,
         .rx_dmamux = HPM_DMA_SRC_SPI3_RX,
         .spi_irq   = IRQn_SPI3,
+#if !defined BSP_SPI3_USING_HARD_CS
+        .spi_pins_init = init_spi_pins_with_gpio_as_cs,
+#else
+        .spi_pins_init = init_spi_pins,
+#endif
+    },
+#endif
+#if defined(BSP_USING_SPI4)
+    {
+        .bus_name = "spi4",
+        .spi_base = HPM_SPI4,
+#if defined(BSP_SPI4_USING_DMA)
+        .enable_dma = RT_TRUE,
+#endif
+        .tx_dmamux = HPM_DMA_SRC_SPI4_TX,
+        .rx_dmamux = HPM_DMA_SRC_SPI4_RX,
+        .spi_irq   = IRQn_SPI4,
+#if !defined BSP_SPI4_USING_HARD_CS
+        .spi_pins_init = init_spi_pins_with_gpio_as_cs,
+#else
+        .spi_pins_init = init_spi_pins,
+#endif
+    },
+#endif
+#if defined(BSP_USING_SPI5)
+    {
+        .bus_name = "spi5",
+        .spi_base = HPM_SPI5,
+#if defined(BSP_SPI5_USING_DMA)
+        .enable_dma = RT_TRUE,
+#endif
+        .tx_dmamux = HPM_DMA_SRC_SPI5_TX,
+        .rx_dmamux = HPM_DMA_SRC_SPI5_RX,
+        .spi_irq   = IRQn_SPI5,
+#if !defined BSP_SPI5_USING_HARD_CS
+        .spi_pins_init = init_spi_pins_with_gpio_as_cs,
+#else
+        .spi_pins_init = init_spi_pins,
+#endif
+    },
+#endif
+#if defined(BSP_USING_SPI6)
+    {
+        .bus_name = "spi6",
+        .spi_base = HPM_SPI6,
+#if defined(BSP_SPI6_USING_DMA)
+        .enable_dma = RT_TRUE,
+#endif
+        .tx_dmamux = HPM_DMA_SRC_SPI6_TX,
+        .rx_dmamux = HPM_DMA_SRC_SPI6_RX,
+        .spi_irq   = IRQn_SPI6,
+#if !defined BSP_SPI6_USING_HARD_CS
+        .spi_pins_init = init_spi_pins_with_gpio_as_cs,
+#else
+        .spi_pins_init = init_spi_pins,
+#endif
+    },
+#endif
+#if defined(BSP_USING_SPI7)
+    {
+        .bus_name = "spi7",
+        .spi_base = HPM_SPI7,
+#if defined(BSP_SPI7_USING_DMA)
+        .enable_dma = RT_TRUE,
+#endif
+        .tx_dmamux = HPM_DMA_SRC_SPI7_TX,
+        .rx_dmamux = HPM_DMA_SRC_SPI7_RX,
+        .spi_irq   = IRQn_SPI7,
+#if !defined BSP_SPI7_USING_HARD_CS
+        .spi_pins_init = init_spi_pins_with_gpio_as_cs,
+#else
+        .spi_pins_init = init_spi_pins,
+#endif
     },
 #endif
 };
@@ -191,13 +280,13 @@ static rt_err_t hpm_spi_configure(struct rt_spi_device *device, struct rt_spi_co
 
     if (cfg->data_width != 8 && cfg->data_width != 16 && cfg->data_width != 32)
     {
-        return RT_EINVAL;
+        return -RT_EINVAL;
     }
 
     spi_master_get_default_timing_config(&timing_config);
     spi_master_get_default_format_config(&format_config);
 
-    init_spi_pins_with_gpio_as_cs(spi->spi_base);
+    spi->spi_pins_init(spi->spi_base);
 
     timing_config.master_config.clk_src_freq_in_hz = board_init_spi_clock(spi->spi_base);
 

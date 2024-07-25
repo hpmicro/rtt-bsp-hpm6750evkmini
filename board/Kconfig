@@ -142,6 +142,14 @@ menu "On-chip Peripheral Drivers"
                     config BSP_SPI1_USING_DMA
                     bool "Enable SPI1 DMA"
                     default n
+                    choice
+                        prompt "Select SPI1 CS TYPE"
+                        default BSP_SPI1_USING_SOFT_CS
+                        config BSP_SPI1_USING_SOFT_CS
+                            bool "Enable SPI1 software cs"
+                        config BSP_SPI1_USING_HARD_CS
+                            bool "Enable SPI1 hardware cs"
+                    endchoice
                 endif
             config BSP_USING_SPI2
                 bool "Enable SPI2"
@@ -150,14 +158,30 @@ menu "On-chip Peripheral Drivers"
                     config BSP_SPI2_USING_DMA
                     bool "Enable SPI2 DMA"
                     default n
+                    choice
+                        prompt "Select SPI2 CS TYPE"
+                        default BSP_SPI2_USING_SOFT_CS
+                        config BSP_SPI2_USING_SOFT_CS
+                            bool "Enable SPI2 software cs"
+                        config BSP_SPI2_USING_HARD_CS
+                            bool "Enable SPI2 hardware cs"
+                    endchoice
                 endif
             config BSP_USING_SPI3
                 bool "Enable SPI3"
                 default n
                 if BSP_USING_SPI3
                     config BSP_SPI3_USING_DMA
-                    bool "Enable SPI3 DMA"
-                    default n
+                        bool "Enable SPI3 DMA"
+                        default n
+                    choice
+                        prompt "Select SPI3 CS TYPE"
+                        default BSP_SPI3_USING_SOFT_CS
+                        config BSP_SPI3_USING_SOFT_CS
+                            bool "Enable SPI3 software cs"
+                        config BSP_SPI3_USING_HARD_CS
+                            bool "Enable SPI3 hardware cs"
+                    endchoice
                 endif
         endif
 
@@ -184,18 +208,72 @@ menu "On-chip Peripheral Drivers"
             config BSP_USING_SDXC0
                 bool "Enable SDXC0"
                 default n
+            if BSP_USING_SDXC0
+                choice
+                    prompt "Select BUS_WIDTH"
+                    default BSP_SDXC0_BUS_WIDTH_8BIT
+                    config BSP_SDXC0_BUS_WIDTH_1BIT
+                        bool "1-bit"
+                    config BSP_SDXC0_BUS_WIDTH_4BIT
+                        bool "4-bit"
+                    config BSP_SDXC0_BUS_WIDTH_8BIT
+                        bool "8-bit"
+                endchoice
+                choice
+                    prompt "Select Voltage"
+                    default BSP_SDXC0_VOLTAGE_1V8
+                    config BSP_SDXC0_VOLTAGE_3V3
+                        bool "3.3V"
+                    config BSP_SDXC0_VOLTAGE_1V8
+                        bool "1.8V"
+                    config BSP_SDXC0_VOLTAGE_DUAL
+                        bool "Dual voltage 3.3V / 1.8V"
+                endchoice
+                config BSP_SDXC0_VSEL_PIN
+                    default "None"
+                    string "VSEL pin name"
+                config BSP_SDXC0_PWR_PIN
+                    default "None"
+                    string "PWR pin name"
+            endif
 
             config BSP_USING_SDXC1
                 bool "Enable SDXC1"
-                default y
+                default n
+            if BSP_USING_SDXC1
+                    choice
+                        prompt "Select BUS_WIDTH"
+                        default BSP_SDXC1_BUS_WIDTH_4BIT
+                        config BSP_SDXC1_BUS_WIDTH_1BIT
+                            bool "1-bit"
+                        config BSP_SDXC1_BUS_WIDTH_4BIT
+                            bool "4-bit"
+                    endchoice
+                    choice
+                        prompt "Select Voltage"
+                        default BSP_SDXC1_VOLTAGE_3V3
+                        config BSP_SDXC1_VOLTAGE_3V3
+                            bool "3.3V"
+                        config BSP_SDXC1_VOLTAGE_1V8
+                            bool "1.8V"
+                        config BSP_SDXC1_VOLTAGE_DUAL
+                            bool "Dual voltage 3.3V / 1.8V"
+                    endchoice
+                    config BSP_SDXC1_VSEL_PIN
+                        default "PD29"
+                        string "VSEL pin name"
+                    config BSP_SDXC1_PWR_PIN
+                        default "None"
+                        string "PWR pin name"
+                endif
         endif
 
     menuconfig BSP_USING_TOUCH
        bool "Enable touch"
        default n
         if BSP_USING_TOUCH
-            config BSP_USING_TOUCH_GT911
-                bool "Enable GT911"
+            config BSP_USING_TOUCH_GT9xx
+                bool "Enable GT9xx"
                 default y
 
             config BSP_USING_TOUCH_FT5406
@@ -365,7 +443,7 @@ menu "On-chip Peripheral Drivers"
                 default n
         endif
 
-     menuconfig BSP_USING_ADC
+    menuconfig BSP_USING_ADC
      	bool "Enable ADC"
      	default n
      	select RT_USING_ADC if BSP_USING_ADC
@@ -394,7 +472,7 @@ menu "On-chip Peripheral Drivers"
 		     		endif
 	    endif
 
-        menuconfig BSP_USING_CAMERA
+    menuconfig BSP_USING_CAMERA
         bool "Enable camera"
         default n
             if BSP_USING_CAMERA
@@ -411,27 +489,27 @@ menu "On-chip Peripheral Drivers"
                         default n
             endif
 
-        menuconfig BSP_USING_JPEG
-            bool "Enable JPEG Driver"
-            default n
+    menuconfig BSP_USING_JPEG
+        bool "Enable JPEG Driver"
+        default n
 
-        menuconfig BSP_USING_CAM
-            bool "Enable CAM Driver"
-            default n
+    menuconfig BSP_USING_CAM
+        bool "Enable CAM Driver"
+        default n
 
-        menuconfig  BSP_USING_PANEL
-            bool "Enable panel"
-            default n
-            if BSP_USING_PANEL
-                config BSP_USEING_PANEL_RGB_TM070RDH13
-                    bool "Enable RGB TM070RDH13"
-                    default y
-            endif
+    menuconfig  BSP_USING_PANEL
+        bool "Enable panel"
+        default n
+        if BSP_USING_PANEL
+            config BSP_USEING_PANEL_RGB_TM070RDH13
+                bool "Enable RGB TM070RDH13"
+                default y
+        endif
 
-        menuconfig BSP_USING_RTT_LCD_DRIVER
-            bool "Enable RTT LCD Driver"
-            select BSP_USING_LCD
-            default n
+    menuconfig BSP_USING_RTT_LCD_DRIVER
+        bool "Enable RTT LCD Driver"
+        select BSP_USING_LCD
+        default n
 
 endmenu
 

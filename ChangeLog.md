@@ -1,5 +1,23 @@
 # Change Log
 
+## v1.6.0
+
+- Integrated hpm_sdk v1.6.0
+- Updated:
+    - Optimized the control of `BRS` bit in CANFD frame
+    - Upgraded the `cherryUSB` stack to v1.3.1
+    - Added USB descriptor for Full-speed mode to USB examples
+    - Upgraded the SoC Datasheet
+    - Optimized SDIO driver, added new configuration options such as `BUS_WDITH`，Added eMMC HS400 support, Added SD UHS-I speed mode support
+- Fixed:
+    - Macro definition errors related to  TX DMA for UART7 & UART7
+    - Memory leakage issue in uart_v2 driver
+- Added:
+    - SPI CS pin control option
+    - Adapted RT-Thread Cache API
+    - Added performance test command to `sdcard_demo`
+- New Examples:
+    - airoc_wifi_demo (Infinieon AIROC WiFi series)
 
 ## v1.5.0
 

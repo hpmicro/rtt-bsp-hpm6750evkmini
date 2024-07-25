@@ -18,12 +18,6 @@
 #include "hpm_uart_drv.h"
 #include "hpm_sysctl_drv.h"
 #include "hpm_l1c_drv.h"
-#ifdef HPMSOC_HAS_HPMSDK_DMAV2
-#include "hpm_dmav2_drv.h"
-#else
-#include "hpm_dma_drv.h"
-#endif
-#include "hpm_dmamux_drv.h"
 #include "hpm_dma_mgr.h"
 #include "hpm_soc.h"
 #include "hpm_rtt_interrupt_util.h"
@@ -40,10 +34,12 @@ typedef struct dma_channel {
     void (*tranfer_done)(struct rt_serial_device *serial);
     void (*tranfer_abort)(struct rt_serial_device *serial);
     void (*tranfer_error)(struct rt_serial_device *serial);
+    void *ringbuf_ptr;
 } hpm_dma_channel_handle_t;
 
 //static struct dma_channel dma_channels[DMA_SOC_CHANNEL_NUM];
 static int hpm_uart_dma_config(struct rt_serial_device *serial, void *arg);
+static void hpm_uart_receive_dma_next(struct rt_serial_device *serial);
 #endif
 
 #define UART_ROOT_CLK_FREQ BOARD_APP_UART_SRC_FREQ
@@ -601,6 +597,10 @@ static void uart_rx_done(struct rt_serial_device *serial)
             uint32_t aligned_size = aligned_end - aligned_start;
             l1c_dc_invalidate(aligned_start, aligned_size);
     }
+    /* if open uart again after closing uart, an idle interrupt may be triggered, but uart initialization is not performed at this time, and the program exits if the rxfifo is empty. */
+    if (rx_fifo == RT_NULL) {
+        return;
+    }
     rt_ringbuffer_put(&(rx_fifo->rb), uart->rx_idle_tmp_buffer, uart_recv_data_count);
     rt_hw_serial_isr(serial, RT_SERIAL_EVENT_RX_DMADONE);
 #else
@@ -613,7 +613,7 @@ static void uart_rx_done(struct rt_serial_device *serial)
     rt_hw_serial_isr(serial, RT_SERIAL_EVENT_RX_DMADONE | (serial->config.rx_bufsz << 8));
 #endif
     /* prepare for next read */
-    hpm_uart_dma_config(serial, (void *)RT_DEVICE_FLAG_DMA_RX);
+    hpm_uart_receive_dma_next(serial);
 }
 #endif /* RT_SERIAL_USING_DMA */
 
@@ -775,59 +775,82 @@ static int hpm_uart_dma_config(struct rt_serial_device *serial, void *arg)
 {
     rt_ubase_t ctrl_arg = (rt_ubase_t) arg;
     struct hpm_uart *uart = (struct hpm_uart *)serial->parent.user_data;
-    dma_handshake_config_t config;
     struct rt_serial_rx_fifo *rx_fifo;
-
+    dma_mgr_chn_conf_t chg_config;
+    dma_mgr_get_default_chn_config(&chg_config);
     if (ctrl_arg == RT_DEVICE_FLAG_DMA_RX) {
         rx_fifo = (struct rt_serial_rx_fifo *)serial->serial_rx;
-        config.ch_index = uart->rx_chn_ctx.resource.channel;
-#if defined(HPM_IP_FEATURE_UART_RX_IDLE_DETECT) && (HPM_IP_FEATURE_UART_RX_IDLE_DETECT == 1)
-        config.dst = (uint32_t)uart->rx_idle_tmp_buffer;
-#else
-        config.dst = (uint32_t) rx_fifo->rb.buffer_ptr;
-#endif
+        chg_config.dst_addr_ctrl = DMA_MGR_ADDRESS_CONTROL_INCREMENT;
+        chg_config.dst_mode = DMA_MGR_HANDSHAKE_MODE_NORMAL;
+        chg_config.dst_width = DMA_TRANSFER_WIDTH_BYTE;
+        chg_config.en_dmamux = true;
+        chg_config.dmamux_src = uart->rx_dma_mux;
+        chg_config.src_addr = (uint32_t)&(uart->uart_base->RBR);
+        chg_config.src_addr_ctrl = DMA_MGR_ADDRESS_CONTROL_FIXED;
+        chg_config.src_mode = DMA_HANDSHAKE_MODE_HANDSHAKE;
+        chg_config.src_width = DMA_TRANSFER_WIDTH_BYTE;
 
-        config.dst_fixed = false;
-        config.src = (uint32_t)&(uart->uart_base->RBR);
-        config.src_fixed = true;
-        config.data_width = DMA_TRANSFER_WIDTH_BYTE;
 #if defined(HPM_IP_FEATURE_UART_RX_IDLE_DETECT) && (HPM_IP_FEATURE_UART_RX_IDLE_DETECT == 1)
-        config.size_in_byte = sizeof(uart->rx_idle_tmp_buffer);
+        chg_config.dst_addr = (uint32_t)uart->rx_idle_tmp_buffer;
+        chg_config.size_in_byte = sizeof(uart->rx_idle_tmp_buffer);
 #else
-        config.size_in_byte = serial->config.rx_bufsz;
+        chg_config.dst_addr = (uint32_t)rx_fifo->rb.buffer_ptr;
+        chg_config.size_in_byte = serial->config.rx_bufsz;
 #endif
-        if (status_success != dma_setup_handshake(uart->rx_chn_ctx.resource.base, &config, true)) {
-            return RT_ERROR;
+        if (status_success != dma_mgr_setup_channel(&uart->rx_chn_ctx.resource, &chg_config)) {
+            return -RT_ERROR;
         }
-        uint32_t mux = DMA_SOC_CHN_TO_DMAMUX_CHN(uart->rx_chn_ctx.resource.base, uart->rx_dma_mux);
-        dmamux_config(BOARD_UART_DMAMUX, uart->rx_chn_ctx.resource.channel, mux, true);
- #if !defined(HPM_IP_FEATURE_UART_RX_IDLE_DETECT) || (HPM_IP_FEATURE_UART_RX_IDLE_DETECT == 0)
+        dma_mgr_enable_channel(&uart->rx_chn_ctx.resource);
+        dma_mgr_enable_chn_irq(&uart->rx_chn_ctx.resource, DMA_MGR_INTERRUPT_MASK_TC);
+        dma_mgr_enable_dma_irq_with_priority(&uart->rx_chn_ctx.resource, 1);
+#if !defined(HPM_IP_FEATURE_UART_RX_IDLE_DETECT) || (HPM_IP_FEATURE_UART_RX_IDLE_DETECT == 0)
         hpm_uart_dma_register_channel(serial, false, uart_rx_done, RT_NULL, RT_NULL);
-        intc_m_enable_irq(uart->rx_chn_ctx.resource.irq_num);
 #else
         intc_m_enable_irq_with_priority(uart->irq_num, 1);
 #endif
     } else if (ctrl_arg == RT_DEVICE_FLAG_DMA_TX) {
-        uint32_t mux = DMA_SOC_CHN_TO_DMAMUX_CHN(uart->tx_chn_ctx.resource.base, uart->tx_dma_mux);
-        dmamux_config(BOARD_UART_DMAMUX, uart->tx_chn_ctx.resource.channel, mux, true);
-        intc_m_enable_irq(uart->tx_chn_ctx.resource.irq_num);
+        chg_config.src_addr_ctrl = DMA_MGR_ADDRESS_CONTROL_INCREMENT;
+        chg_config.src_mode = DMA_MGR_HANDSHAKE_MODE_NORMAL;
+        chg_config.src_width = DMA_TRANSFER_WIDTH_BYTE;
+        chg_config.dst_addr = (uint32_t)&uart->uart_base->THR;
+        chg_config.dst_addr_ctrl = DMA_MGR_ADDRESS_CONTROL_FIXED;
+        chg_config.dst_mode = DMA_MGR_HANDSHAKE_MODE_HANDSHAKE;
+        chg_config.dst_width = DMA_TRANSFER_WIDTH_BYTE;
+        chg_config.en_dmamux = true;
+        chg_config.dmamux_src = uart->tx_dma_mux;
+        if (status_success != dma_mgr_setup_channel(&uart->tx_chn_ctx.resource, &chg_config)) {
+            return -RT_ERROR;
+        }
+        dma_mgr_enable_chn_irq(&uart->tx_chn_ctx.resource, DMA_MGR_INTERRUPT_MASK_TC);
+        dma_mgr_enable_dma_irq_with_priority(&uart->tx_chn_ctx.resource, 1);
     }
     return RT_EOK;
 }
 
-static void hpm_uart_transmit_dma(DMA_Type *dma, uint32_t ch_num, UART_Type *uart, uint8_t *src, uint32_t size)
+static void hpm_uart_receive_dma_next(struct rt_serial_device *serial)
 {
-    rt_base_t align = 0;
-    dma_handshake_config_t config;
+    uint32_t buf_addr;
+    uint32_t buf_size;
+    struct hpm_uart *uart = (struct hpm_uart *)serial->parent.user_data;
+    struct rt_serial_rx_fifo *rx_fifo = (struct rt_serial_rx_fifo *)serial->serial_rx;
+#if defined(HPM_IP_FEATURE_UART_RX_IDLE_DETECT) && (HPM_IP_FEATURE_UART_RX_IDLE_DETECT == 1)
+        buf_addr = (uint32_t)uart->rx_idle_tmp_buffer;
+        buf_size = sizeof(uart->rx_idle_tmp_buffer);
+#else
+        buf_addr = (uint32_t)rx_fifo->rb.buffer_ptr;
+        buf_size = serial->config.rx_bufsz;
+#endif
+    dma_mgr_set_chn_dst_addr(&uart->rx_chn_ctx.resource, buf_addr);
+    dma_mgr_set_chn_transize(&uart->rx_chn_ctx.resource, buf_size);
+    dma_mgr_enable_channel(&uart->rx_chn_ctx.resource);
+}
 
-    config.ch_index = ch_num;
-    config.dst = (uint32_t)&uart->THR;
-    config.dst_fixed = true;
-    config.src = (uint32_t) src;
-    config.src_fixed = false;
-    config.size_in_byte = size;
-    config.data_width = DMA_TRANSFER_WIDTH_BYTE;
-    dma_setup_handshake(dma, &config, true);
+static void hpm_uart_transmit_dma(struct rt_serial_device *serial, uint8_t *src, uint32_t size)
+{
+    struct hpm_uart *uart = (struct hpm_uart *)serial->parent.user_data;
+    dma_mgr_set_chn_src_addr(&uart->tx_chn_ctx.resource, (uint32_t)src);
+    dma_mgr_set_chn_transize(&uart->tx_chn_ctx.resource, size);
+    dma_mgr_enable_channel(&uart->tx_chn_ctx.resource);
 }
 
 #endif /* RT_SERIAL_USING_DMA */
@@ -885,9 +908,17 @@ static rt_err_t hpm_uart_control(struct rt_serial_device *serial, int cmd, void 
             else if (ctrl_arg == RT_DEVICE_FLAG_DMA_TX) {
                 dma_mgr_disable_chn_irq(&uart->tx_chn_ctx.resource, DMA_INTERRUPT_MASK_ALL);
                 dma_abort_channel(uart->tx_chn_ctx.resource.base, uart->tx_chn_ctx.resource.channel);
+                if (uart->tx_chn_ctx.ringbuf_ptr != RT_NULL) {
+                    rt_free(uart->tx_chn_ctx.ringbuf_ptr);
+                    uart->tx_chn_ctx.ringbuf_ptr = RT_NULL;
+                }
             } else if (ctrl_arg == RT_DEVICE_FLAG_DMA_RX) {
                 dma_mgr_disable_chn_irq(&uart->rx_chn_ctx.resource, DMA_INTERRUPT_MASK_ALL);
                 dma_abort_channel(uart->rx_chn_ctx.resource.base, uart->rx_chn_ctx.resource.channel);
+                if (uart->rx_chn_ctx.ringbuf_ptr != RT_NULL) {
+                    rt_free(uart->rx_chn_ctx.ringbuf_ptr);
+                    uart->rx_chn_ctx.ringbuf_ptr = RT_NULL;
+                }
             }
 #endif
             break;
@@ -914,6 +945,10 @@ static rt_err_t hpm_uart_control(struct rt_serial_device *serial, int cmd, void 
                     RT_ASSERT(rx_fifo != RT_NULL);
                     tmp_buffer = rt_malloc(serial->config.rx_bufsz + HPM_L1C_CACHELINE_SIZE);
                     RT_ASSERT(tmp_buffer != RT_NULL);
+                    if (uart->rx_chn_ctx.ringbuf_ptr != RT_NULL) {
+                        rt_free(uart->rx_chn_ctx.ringbuf_ptr);
+                    }
+                    uart->rx_chn_ctx.ringbuf_ptr = (void *)tmp_buffer;
                     tmp_buffer += (HPM_L1C_CACHELINE_SIZE - ((rt_ubase_t) tmp_buffer % HPM_L1C_CACHELINE_SIZE));
                     rt_ringbuffer_init(&rx_fifo->rb, tmp_buffer, serial->config.rx_bufsz);
                     rt_ringbuffer_reset(&rx_fifo->rb);
@@ -929,7 +964,11 @@ static rt_err_t hpm_uart_control(struct rt_serial_device *serial, int cmd, void 
                     RT_ASSERT(tx_fifo != RT_NULL);
                     tmp_buffer = rt_malloc(serial->config.tx_bufsz + HPM_L1C_CACHELINE_SIZE);
                     RT_ASSERT(tmp_buffer != RT_NULL);
-                    tmp_buffer+= (HPM_L1C_CACHELINE_SIZE - ((rt_ubase_t) tmp_buffer % HPM_L1C_CACHELINE_SIZE));
+                    if (uart->tx_chn_ctx.ringbuf_ptr != RT_NULL) {
+                        rt_free(uart->tx_chn_ctx.ringbuf_ptr);
+                    }
+                    uart->tx_chn_ctx.ringbuf_ptr = (void *)tmp_buffer;
+                    tmp_buffer += (HPM_L1C_CACHELINE_SIZE - ((rt_ubase_t) tmp_buffer % HPM_L1C_CACHELINE_SIZE));
                     rt_ringbuffer_init(&tx_fifo->rb, tmp_buffer, serial->config.tx_bufsz);
                     rt_ringbuffer_reset(&tx_fifo->rb);
                     tx_fifo->activated = RT_FALSE;
@@ -1006,13 +1045,13 @@ static rt_ssize_t hpm_uart_transmit(struct rt_serial_device *serial,
             uint32_t aligned_size = aligned_end - aligned_start;
             l1c_dc_flush(aligned_start, aligned_size);
         }
-        hpm_uart_transmit_dma(uart->tx_chn_ctx.resource.base, uart->tx_chn_ctx.resource.channel, uart->uart_base, buf, size);
+        hpm_uart_transmit_dma(serial, buf, size);
         return size;
     } else {
 #else
     {
 #endif
-        
+
         if (size > 0) {
             if (uart_check_status(uart->uart_base, uart_stat_tx_slot_avail)) {
                 uart_disable_irq(uart->uart_base, uart_intr_tx_slot_avail);
@@ -1219,7 +1258,7 @@ static int hpm_uart_config(void)
         return -RT_ERROR;
     }
 #endif //BSP_UART7_RX_USING_DMA
-#ifdef BSP_UART0_TX_USING_DMA
+#ifdef BSP_UART7_TX_USING_DMA
     status = hpm_uart_dma_tx_init(&uarts[HPM_UART7_INDEX]);
     if (status != status_success)
     {
@@ -1242,7 +1281,7 @@ static int hpm_uart_config(void)
         return -RT_ERROR;
     }
 #endif //BSP_UART8_RX_USING_DMA
-#ifdef BSP_UART0_TX_USING_DMA
+#ifdef BSP_UART8_TX_USING_DMA
     status = hpm_uart_dma_tx_init(&uarts[HPM_UART8_INDEX]);
     if (status != status_success)
     {
@@ -1432,7 +1471,7 @@ int rt_hw_uart_init(void)
     }
 
     if (RT_EOK != hpm_uart_config()) {
-        return RT_ERROR;
+        return -RT_ERROR;
     }
 
     for (uint32_t i = 0; i < sizeof(uarts) / sizeof(uarts[0]); i++) {

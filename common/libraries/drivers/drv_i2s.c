@@ -480,7 +480,7 @@ static rt_err_t hpm_i2s_start(struct rt_audio_device* audio, int stream)
         }
         i2s_reset_rx(hpm_audio->base); /* disable and reset rx */
         if (I2S_FIFO_SIZE != hpm_i2s_transmit(&hpm_audio->audio, NULL, hpm_audio->rx_buff, I2S_FIFO_SIZE)) {
-            return RT_ERROR;
+            return -RT_ERROR;
         }
         i2s_enable(hpm_audio->base);
         i2s_enable_rx_dma_request(hpm_audio->base);

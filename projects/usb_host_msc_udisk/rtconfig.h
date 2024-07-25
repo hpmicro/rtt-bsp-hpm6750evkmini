@@ -16,10 +16,10 @@
 #define RT_HOOK_USING_FUNC_PTR
 #define RT_USING_IDLE_HOOK
 #define RT_IDLE_HOOK_LIST_SIZE 4
-#define IDLE_THREAD_STACK_SIZE 512
+#define IDLE_THREAD_STACK_SIZE 2048
 #define RT_USING_TIMER_SOFT
 #define RT_TIMER_THREAD_PRIO 4
-#define RT_TIMER_THREAD_STACK_SIZE 512
+#define RT_TIMER_THREAD_STACK_SIZE 2048
 
 /* kservice optimization */
 
@@ -200,13 +200,16 @@
 #define PKG_CHERRYUSB_HOST
 #define PKG_CHERRYUSB_HOST_EHCI_HPM
 #define PKG_CHERRYUSB_HOST_MSC
-#define PKG_USING_CHERRYUSB_V010200
+#define PKG_USING_CHERRYUSB_V010301
 
 /* peripheral libraries and drivers */
 
 /* HAL & SDK Drivers */
 
 /* STM32 HAL & SDK Drivers */
+
+
+/* Infineon HAL Packages */
 
 
 /* Kendryte SDK */
@@ -281,6 +284,7 @@
 #define BSP_UART0_TX_BUFSIZE 0
 #define BSP_USING_SPI
 #define BSP_USING_SPI1
+#define BSP_SPI1_USING_SOFT_CS
 #define BSP_USING_RTC
 #define BSP_USING_FEMC
 #define INIT_EXT_RAM_FOR_DATA
@@ -288,6 +292,9 @@
 #define BSP_USING_USB_HOST
 
 /* Segger SystemView Config */
+
+
+/* Hpmicro Interrupt Config */
 
 
 #endif

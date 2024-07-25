@@ -234,7 +234,7 @@ static rt_err_t hpm_pdm_start(struct rt_audio_device* audio, int stream)
 
         i2s_reset_rx(PDM_I2S);
         if (RT_EOK != hpm_pdm_dma_transmit()) {
-            return RT_ERROR;
+            return -RT_ERROR;
         }
 
         pdm_start(HPM_PDM);
@@ -276,7 +276,7 @@ static rt_err_t hpm_pdm_dma_transmit()
 
     if (status_success != dma_setup_channel(dma_resource.base, dma_resource.channel, &ch_config, true)) {
         LOG_E("dma setup channel failed\n");
-        return RT_ERROR;
+        return -RT_ERROR;
     }
 
     if (l1c_dc_is_enabled()) {

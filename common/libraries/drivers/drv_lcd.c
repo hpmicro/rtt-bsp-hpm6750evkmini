@@ -166,7 +166,7 @@ static int hpm_lcdc_init(struct hpm_lcd *lcd, struct rt_device_graphic_info *inf
 
     if (info->framebuffer == RT_NULL)
     {
-        return RT_ERROR;
+        return -RT_ERROR;
     }
     rt_memcpy(&lcd->lcd_info, info, sizeof(struct rt_device_graphic_info));
     lcd->lcd_info.framebuffer = lcdc_framebuffer;
@@ -179,7 +179,7 @@ static int hpm_lcdc_init(struct hpm_lcd *lcd, struct rt_device_graphic_info *inf
         pixel_format = display_pixel_format_rgb565;
     }
     else {
-        return RT_ERROR;
+        return -RT_ERROR;
     }
     lcdc_init(lcd->lcd_base, &config);
     memset(lcd->lcd_info.framebuffer, 0, info->width * info->height * info->bits_per_pixel / 8);
@@ -194,7 +194,7 @@ static int hpm_lcdc_init(struct hpm_lcd *lcd, struct rt_device_graphic_info *inf
     layer.background.u = 0;
 
     if (status_success != lcdc_config_layer(lcd->lcd_base, LCD_LAYER_INDEX, &layer, true)) {
-        return RT_ERROR;
+        return -RT_ERROR;
     }
 
     lcdc_turn_on_display(lcd->lcd_base);
@@ -220,7 +220,7 @@ int drv_lcd_hw_init(void)
             goto __exit;
         }
         /* config LCD dev info */
-        
+
         lcd_info.height = PANEL_SIZE_HEIGHT;
         lcd_info.width = PANEL_SIZE_WIDTH;
         lcd_info.bits_per_pixel = LCD_BITS_PER_PIXEL;

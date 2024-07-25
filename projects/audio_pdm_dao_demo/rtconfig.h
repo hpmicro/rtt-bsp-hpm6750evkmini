@@ -115,7 +115,6 @@
 #define RT_MMCSD_STACK_SIZE 2048
 #define RT_MMCSD_THREAD_PREORITY 22
 #define RT_MMCSD_MAX_PARTITION 16
-#define RT_USING_SPI
 #define RT_USING_AUDIO
 #define RT_AUDIO_REPLAY_MP_BLOCK_SIZE 4096
 #define RT_AUDIO_REPLAY_MP_BLOCK_COUNT 2
@@ -245,6 +244,21 @@
 
 /* peripheral libraries and drivers */
 
+/* HAL & SDK Drivers */
+
+/* STM32 HAL & SDK Drivers */
+
+/* end of STM32 HAL & SDK Drivers */
+
+/* Infineon HAL Packages */
+
+/* end of Infineon HAL Packages */
+
+/* Kendryte SDK */
+
+/* end of Kendryte SDK */
+/* end of HAL & SDK Drivers */
+
 /* sensors drivers */
 
 /* end of sensors drivers */
@@ -252,10 +266,6 @@
 /* touch drivers */
 
 /* end of touch drivers */
-
-/* Kendryte SDK */
-
-/* end of Kendryte SDK */
 /* end of peripheral libraries and drivers */
 
 /* AI packages */
@@ -338,16 +348,26 @@
 #define BSP_USING_UART0
 #define BSP_UART0_RX_BUFSIZE 128
 #define BSP_UART0_TX_BUFSIZE 0
-#define BSP_USING_SPI
-#define BSP_USING_SPI1
 #define BSP_USING_RTC
 #define BSP_USING_SDXC
 #define BSP_USING_SDXC1
+#define BSP_SDXC1_BUS_WIDTH_4BIT
+#define BSP_SDXC1_VOLTAGE_3V3
+#define BSP_SDXC1_VSEL_PIN "PD29"
+#define BSP_SDXC1_PWR_PIN "None"
 #define BSP_USING_FEMC
 #define INIT_EXT_RAM_FOR_DATA
 #define BSP_USING_DAO
 #define BSP_USING_PDM
 /* end of On-chip Peripheral Drivers */
+
+/* Segger SystemView Config */
+
+/* end of Segger SystemView Config */
+
+/* Hpmicro Interrupt Config */
+
+/* end of Hpmicro Interrupt Config */
 /* end of Hardware Drivers Config */
 
 #endif

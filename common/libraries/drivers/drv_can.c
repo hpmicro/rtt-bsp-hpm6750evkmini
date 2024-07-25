@@ -348,7 +348,7 @@ static rt_err_t hpm_can_control(struct rt_can_device *can, int cmd, void *arg)
         else if (arg_val == RT_DEVICE_CAN_INT_ERR)
         {
             uint8_t irq_txrx_mask = CAN_EVENT_ERROR;
-            uint8_t irq_error_mask = CAN_ERROR_ARBITRAITION_LOST_INT_ENABLE | CAN_ERROR_PASSIVE_INT_ENABLE | CAN_ERROR_BUS_ERROR_INT_ENABLE;
+            uint8_t irq_error_mask = CAN_ERROR_ARBITRATION_LOST_INT_ENABLE | CAN_ERROR_PASSIVE_INT_ENABLE | CAN_ERROR_BUS_ERROR_INT_ENABLE;
             drv_can->can_config.irq_txrx_enable_mask &= (uint8_t)~irq_txrx_mask;
             drv_can->can_config.irq_error_enable_mask &= (uint8_t)~irq_error_mask;
             can_disable_tx_rx_irq(drv_can->can_base, irq_txrx_mask);
@@ -378,7 +378,7 @@ static rt_err_t hpm_can_control(struct rt_can_device *can, int cmd, void *arg)
         else if (arg_val == RT_DEVICE_CAN_INT_ERR)
         {
             uint8_t irq_txrx_mask = CAN_EVENT_ERROR;
-            uint8_t irq_error_mask = CAN_ERROR_ARBITRAITION_LOST_INT_ENABLE | CAN_ERROR_PASSIVE_INT_ENABLE | CAN_ERROR_BUS_ERROR_INT_ENABLE;
+            uint8_t irq_error_mask = CAN_ERROR_ARBITRATION_LOST_INT_ENABLE | CAN_ERROR_PASSIVE_INT_ENABLE | CAN_ERROR_BUS_ERROR_INT_ENABLE;
             drv_can->can_config.irq_txrx_enable_mask |= irq_txrx_mask;
             drv_can->can_config.irq_error_enable_mask |= irq_error_mask;
             can_enable_tx_rx_irq(drv_can->can_base, irq_txrx_mask);
@@ -545,11 +545,10 @@ static int hpm_can_sendmsg(struct rt_can_device *can, const void *buf, rt_uint32
     }
 
 #ifdef RT_CAN_USING_CANFD
+    tx_buf.bitrate_switch = can_msg->brs;
     if (can_msg->fd_frame != 0)
     {
         tx_buf.canfd_frame = 1;
-        tx_buf.bitrate_switch = 1;
-
         RT_ASSERT(can_msg->len <= 15);
     }
     else
@@ -635,7 +634,10 @@ static int hpm_can_recvmsg(struct rt_can_device *can, void *buf, rt_uint32_t box
         else {
             can_msg->rtr = RT_CAN_DTR;
         }
-
+#ifdef RT_CAN_USING_CANFD
+        can_msg->fd_frame = rx_buf.canfd_frame;
+        can_msg->brs = rx_buf.bitrate_switch;
+#endif
         can_msg->len = rx_buf.dlc;
         uint32_t msg_len = can_get_data_bytes_from_dlc(can_msg->len);
         for(uint32_t i = 0; i < msg_len; i++) {

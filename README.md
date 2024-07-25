@@ -3,6 +3,7 @@ RT-Thread Studio BSP for HPM6750EVKMINI Board
 
 ## Supported examples
 ***
+- airoc_wifi_demo
 - audio_pdm_dao_demo
 - blink_led
 - can_example

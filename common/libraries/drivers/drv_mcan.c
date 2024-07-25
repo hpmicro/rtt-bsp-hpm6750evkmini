@@ -6,6 +6,7 @@
  * Change Logs:
  * Date           Author       Notes
  * 2023-04-07     HPMicro      the first version
+ * 2024-05-31     HPMicro      add MCAN4-7 support
  */
 
 #include <rtthread.h>
@@ -186,6 +187,66 @@ void can3_isr(void)
 RTT_DECLARE_EXT_ISR_M(IRQn_MCAN3, can3_isr);
 #endif
 
+#if defined(HPM_MCAN4_BASE) && defined(BSP_USING_MCAN4)
+static hpm_can_t dev_can4 =
+{
+        .can_base = HPM_MCAN4,
+        .name = "can4",
+        .irq_num = IRQn_MCAN4,
+        .fifo_index = 4,
+};
+void can4_isr(void)
+{
+    hpm_mcan_isr(&dev_can4);
+}
+RTT_DECLARE_EXT_ISR_M(IRQn_MCAN4, can4_isr);
+#endif
+
+#if defined(HPM_MCAN5_BASE) && defined(BSP_USING_MCAN5)
+static hpm_can_t dev_can5 =
+{
+        .can_base = HPM_MCAN5,
+        .name = "can5",
+        .irq_num = IRQn_MCAN5,
+        .fifo_index = 5,
+};
+void can5_isr(void)
+{
+    hpm_mcan_isr(&dev_can5);
+}
+RTT_DECLARE_EXT_ISR_M(IRQn_MCAN5, can5_isr);
+#endif
+
+#if defined(HPM_MCAN6_BASE) && defined(BSP_USING_MCAN6)
+static hpm_can_t dev_can6 =
+{
+        .can_base = HPM_MCAN6,
+        .name = "can6",
+        .irq_num = IRQn_MCAN6,
+        .fifo_index = 6,
+};
+void can6_isr(void)
+{
+    hpm_mcan_isr(&dev_can6);
+}
+RTT_DECLARE_EXT_ISR_M(IRQn_MCAN6, can6_isr);
+#endif
+
+#if defined(HPM_MCAN7_BASE) && defined(BSP_USING_MCAN7)
+static hpm_can_t dev_can7 =
+{
+        .can_base = HPM_MCAN7,
+        .name = "can7",
+        .irq_num = IRQn_MCAN7,
+        .fifo_index = 7,
+};
+void can7_isr(void)
+{
+    hpm_mcan_isr(&dev_can7);
+}
+RTT_DECLARE_EXT_ISR_M(IRQn_MCAN7, can7_isr);
+#endif
+
 static hpm_can_t *hpm_cans[] = {
 #if defined(HPM_MCAN0_BASE) && defined(BSP_USING_MCAN0)
         &dev_can0,
@@ -198,6 +259,18 @@ static hpm_can_t *hpm_cans[] = {
 #endif
 #if defined(HPM_MCAN3_BASE) && defined(BSP_USING_MCAN3)
         &dev_can3,
+#endif
+#if defined(HPM_MCAN4_BASE) && defined(BSP_USING_MCAN4)
+        &dev_can4,
+#endif
+#if defined(HPM_MCAN5_BASE) && defined(BSP_USING_MCAN5)
+        &dev_can5,
+#endif
+#if defined(HPM_MCAN6_BASE) && defined(BSP_USING_MCAN6)
+        &dev_can6,
+#endif
+#if defined(HPM_MCAN7_BASE) && defined(BSP_USING_MCAN7)
+        &dev_can7,
 #endif
         };
 
@@ -289,7 +362,7 @@ static rt_err_t hpm_mcan_configure(struct rt_can_device *can, struct can_configu
 
     hpm_can_t *drv_can = (hpm_can_t*) can->parent.user_data;
     RT_ASSERT(drv_can);
-    
+
 #ifdef RT_CAN_USING_CANFD
     drv_can->can_config.enable_canfd = (cfg->enable_canfd != 0) ? true : false;
     if (cfg->use_bit_timing != 0U)
@@ -429,12 +502,12 @@ static rt_err_t hpm_mcan_control(struct rt_can_device *can, int cmd, void *arg)
             /* Convert the RT-Thread Filter format to the filter format supported by HPM CAN */
             struct rt_can_filter_config *filter = (struct rt_can_filter_config*)arg;
             drv_can->std_filter_num = 0;
-            drv_can->ext_filter_num = 0;  
-            if (filter != NULL) 
+            drv_can->ext_filter_num = 0;
+            if (filter != NULL)
             {
                 for (uint32_t i = 0; i < filter->count; i++)
                 {
-                    if (filter->items[i].ide != 0) 
+                    if (filter->items[i].ide != 0)
                     {
                         drv_can->ext_can_filters[drv_can->ext_filter_num].filter_type   = MCAN_FILTER_TYPE_CLASSIC_FILTER;
                         drv_can->ext_can_filters[drv_can->ext_filter_num].filter_config = MCAN_FILTER_ELEM_CFG_STORE_IN_RX_FIFO0_IF_MATCH;
@@ -448,7 +521,7 @@ static rt_err_t hpm_mcan_control(struct rt_can_device *can, int cmd, void *arg)
                     {
                         drv_can->std_can_filters[drv_can->std_filter_num].filter_type   = MCAN_FILTER_TYPE_CLASSIC_FILTER;
                         drv_can->std_can_filters[drv_can->std_filter_num].filter_config = MCAN_FILTER_ELEM_CFG_STORE_IN_RX_FIFO0_IF_MATCH;
-                        drv_can->std_can_filters[drv_can->std_filter_num].can_id_type   = MCAN_CAN_ID_TYPE_STANDARD; 
+                        drv_can->std_can_filters[drv_can->std_filter_num].can_id_type   = MCAN_CAN_ID_TYPE_STANDARD;
                         drv_can->std_can_filters[drv_can->std_filter_num].filter_id     = filter->items[i].id;
                         drv_can->std_can_filters[drv_can->std_filter_num].filter_mask   = filter->items[i].mask;
                         drv_can->std_filter_num++;
@@ -485,7 +558,7 @@ static rt_err_t hpm_mcan_control(struct rt_can_device *can, int cmd, void *arg)
                 {
                     drv_can->can_config.all_filters_config.global_filter_config.accept_non_matching_std_frame_option  = MCAN_ACCEPT_NON_MATCHING_FRAME_OPTION_IN_RXFIFO0;
                     drv_can->can_config.all_filters_config.global_filter_config.accept_non_matching_ext_frame_option  = MCAN_ACCEPT_NON_MATCHING_FRAME_OPTION_IN_RXFIFO0;
-                }                           
+                }
             }
             else
             {
@@ -636,10 +709,10 @@ static int hpm_mcan_sendmsg(struct rt_can_device *can, const void *buf, rt_uint3
     }
 
  #ifdef RT_CAN_USING_CANFD
+    tx_frame.bitrate_switch = can_msg->brs;
     if (can_msg->fd_frame != 0)
     {
         tx_frame.canfd_frame    = 1;
-        tx_frame.bitrate_switch = 1;
         RT_ASSERT(can_msg->len <= 15);
     }
     else
@@ -696,7 +769,7 @@ static int hpm_mcan_recvmsg(struct rt_can_device *can, void *buf, rt_uint32_t bo
             can_msg->ide = RT_CAN_STDID;
             can_msg->id = rx_buf.std_id;
         }
-        
+
 
         if (rx_buf.rtr != 0) {
             can_msg->rtr = RT_CAN_RTR;
@@ -704,7 +777,10 @@ static int hpm_mcan_recvmsg(struct rt_can_device *can, void *buf, rt_uint32_t bo
         else {
             can_msg->rtr = RT_CAN_DTR;
         }
-
+#ifdef RT_CAN_USING_CANFD
+        can_msg->fd_frame = rx_buf.canfd_frame;
+        can_msg->brs = rx_buf.bitrate_switch;
+#endif
         can_msg->len = rx_buf.dlc;
         uint32_t msg_len = mcan_get_message_size_from_dlc(can_msg->len);
         for(uint32_t i = 0; i < msg_len; i++) {
@@ -715,8 +791,8 @@ static int hpm_mcan_recvmsg(struct rt_can_device *can, void *buf, rt_uint32_t bo
         can_msg->hdr_index = boxno;
         can->hdr[can_msg->hdr_index].connected = 1;
 #endif
-    } 
-    else 
+    }
+    else
     {
         return -RT_EEMPTY;
     }

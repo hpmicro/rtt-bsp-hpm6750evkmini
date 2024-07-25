@@ -22,8 +22,10 @@
 
 /* kservice optimization */
 
-#define RT_PRINTF_LONGLONG
 /* end of kservice optimization */
+#define RT_USING_DEBUG
+#define RT_DEBUGING_COLOR
+#define RT_DEBUGING_CONTEXT
 
 /* Inter-Thread communication */
 
@@ -49,7 +51,7 @@
 #define RT_CONSOLEBUF_SIZE 128
 #define RT_CONSOLE_DEVICE_NAME "uart0"
 /* end of Kernel Device Object */
-#define RT_VER_NUM 0x40100
+#define RT_VER_NUM 0x50002
 /* end of RT-Thread Kernel */
 
 /* RT-Thread Components */
@@ -71,12 +73,17 @@
 #define MSH_USING_BUILT_IN_COMMANDS
 #define FINSH_USING_DESCRIPTION
 #define FINSH_ARG_MAX 10
+#define FINSH_USING_OPTION_COMPLETION
+
+/* DFS: device virtual file system */
+
 #define RT_USING_DFS
 #define DFS_USING_POSIX
 #define DFS_USING_WORKDIR
+#define DFS_FD_MAX 16
+#define RT_USING_DFS_V1
 #define DFS_FILESYSTEMS_MAX 4
 #define DFS_FILESYSTEM_TYPES_MAX 4
-#define DFS_FD_MAX 16
 #define RT_USING_DFS_ELMFAT
 
 /* elm-chan's FatFs, Generic FAT Filesystem Module */
@@ -94,10 +101,12 @@
 #define RT_DFS_ELM_MUTEX_TIMEOUT 3000
 /* end of elm-chan's FatFs, Generic FAT Filesystem Module */
 #define RT_USING_DFS_DEVFS
+/* end of DFS: device virtual file system */
 
 /* Device Drivers */
 
 #define RT_USING_DEVICE_IPC
+#define RT_UNAMED_PIPE_NUMBER 64
 #define RT_USING_SERIAL
 #define RT_USING_SERIAL_V2
 #define RT_USING_PIN
@@ -108,7 +117,7 @@
 #define RT_MMCSD_STACK_SIZE 2048
 #define RT_MMCSD_THREAD_PREORITY 22
 #define RT_MMCSD_MAX_PARTITION 16
-#define RT_USING_SPI
+#define RT_SDIO_DEBUG
 
 /* Using USB */
 
@@ -117,7 +126,16 @@
 
 /* C/C++ and POSIX layer */
 
-#define RT_LIBC_DEFAULT_TIMEZONE 8
+/* ISO-ANSI C layer */
+
+/* Timezone and Daylight Saving Time */
+
+#define RT_LIBC_USING_LIGHT_TZ_DST
+#define RT_LIBC_TZ_DEFAULT_HOUR 8
+#define RT_LIBC_TZ_DEFAULT_MIN 0
+#define RT_LIBC_TZ_DEFAULT_SEC 0
+/* end of Timezone and Daylight Saving Time */
+/* end of ISO-ANSI C layer */
 
 /* POSIX (Portable Operating System Interface) layer */
 
@@ -154,6 +172,18 @@
 /* Wiced WiFi */
 
 /* end of Wiced WiFi */
+
+/* CYW43012 WiFi */
+
+/* end of CYW43012 WiFi */
+
+/* BL808 WiFi */
+
+/* end of BL808 WiFi */
+
+/* CYW43439 WiFi */
+
+/* end of CYW43439 WiFi */
 /* end of Wi-Fi */
 
 /* IoT Cloud */
@@ -185,10 +215,6 @@
 /* u8g2: a monochrome graphic library */
 
 /* end of u8g2: a monochrome graphic library */
-
-/* PainterEngine: A cross-platform graphics application framework written in C language */
-
-/* end of PainterEngine: A cross-platform graphics application framework written in C language */
 /* end of multimedia packages */
 
 /* tools packages */
@@ -216,15 +242,37 @@
 
 /* peripheral libraries and drivers */
 
+/* HAL & SDK Drivers */
+
+/* STM32 HAL & SDK Drivers */
+
+/* end of STM32 HAL & SDK Drivers */
+
+/* Infineon HAL Packages */
+
+/* end of Infineon HAL Packages */
 
 /* Kendryte SDK */
 
 /* end of Kendryte SDK */
+/* end of HAL & SDK Drivers */
+
+/* sensors drivers */
+
+/* end of sensors drivers */
+
+/* touch drivers */
+
+/* end of touch drivers */
 /* end of peripheral libraries and drivers */
 
 /* AI packages */
 
 /* end of AI packages */
+
+/* Signal Processing and Control Algorithm Packages */
+
+/* end of Signal Processing and Control Algorithm Packages */
 
 /* miscellaneous packages */
 
@@ -240,6 +288,51 @@
 
 /* end of entertainment: terminal games and other interesting software packages */
 /* end of miscellaneous packages */
+
+/* Arduino libraries */
+
+
+/* Projects and Demos */
+
+/* end of Projects and Demos */
+
+/* Sensors */
+
+/* end of Sensors */
+
+/* Display */
+
+/* end of Display */
+
+/* Timing */
+
+/* end of Timing */
+
+/* Data Processing */
+
+/* end of Data Processing */
+
+/* Data Storage */
+
+/* Communication */
+
+/* end of Communication */
+
+/* Device Control */
+
+/* end of Device Control */
+
+/* Other */
+
+/* end of Other */
+
+/* Signal IO */
+
+/* end of Signal IO */
+
+/* Uncategorized */
+
+/* end of Arduino libraries */
 /* end of RT-Thread online packages */
 
 /* Hardware Drivers Config */
@@ -253,14 +346,24 @@
 #define BSP_USING_UART0
 #define BSP_UART0_RX_BUFSIZE 128
 #define BSP_UART0_TX_BUFSIZE 0
-#define BSP_USING_SPI
-#define BSP_USING_SPI1
 #define BSP_USING_RTC
 #define BSP_USING_SDXC
 #define BSP_USING_SDXC1
+#define BSP_SDXC1_BUS_WIDTH_4BIT
+#define BSP_SDXC1_VOLTAGE_3V3
+#define BSP_SDXC1_VSEL_PIN "PD29"
+#define BSP_SDXC1_PWR_PIN "None"
 #define BSP_USING_FEMC
 #define INIT_EXT_RAM_FOR_DATA
 /* end of On-chip Peripheral Drivers */
+
+/* Segger SystemView Config */
+
+/* end of Segger SystemView Config */
+
+/* Hpmicro Interrupt Config */
+
+/* end of Hpmicro Interrupt Config */
 /* end of Hardware Drivers Config */
 
 #endif

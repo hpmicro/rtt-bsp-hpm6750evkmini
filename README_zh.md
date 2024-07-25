@@ -4,6 +4,7 @@ HPM6750EVKMINI 开发板的 RT-Thread Studio 板级支持包
 
 ## 支持的示例
 ***
+- airoc_wifi_demo
 - audio_pdm_dao_demo
 - blink_led
 - can_example

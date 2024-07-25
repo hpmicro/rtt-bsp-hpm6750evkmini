@@ -11,7 +11,7 @@
 ```console
  \ | /
 - RT -     Thread Operating System
- / | \     5.0.1 build May 15 2023 17:44:01
+ / | \     5.0.2 build May 15 2023 17:44:01
  2006 - 2022 Copyright by RT-Thread team
 msh />found part[0], begin: 32256, size: 28.907GB
 
@@ -46,6 +46,7 @@ tail             - print the last N - lines data of the given file
 date             - get date and time or set (local timezone) [year month day hour min sec]
 pin              - pin [option]
 reset            - reset the board
+mmcsd_perf       - test emmc/sd read write speed
 ```
 
 其中，如下命令可做文件系统相关的测试：

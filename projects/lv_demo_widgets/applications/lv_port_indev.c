@@ -100,6 +100,9 @@ static void touchpad_init(void)
         rt_kprintf("touchpad initialization failed, the lvgl demo aborted\n");
         while(1);
     }
+#ifdef BSP_USEING_PANEL_MIPI_MC10128007_31B
+    touch_config(1, 0, 1);
+#endif
     rt_kprintf("touchpad initialization completed\n");
 }
 
@@ -123,7 +126,7 @@ static void touchpad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
 
 static void touchpad_get_xy(lv_coord_t *x, lv_coord_t *y)
 {
-#if CONFIG_TOUCH_GT911 == 1
+#if CONFIG_TOUCH_GT9XX == 1
     (*x) = touch_points[0].x;
     (*y) = touch_points[0].y;
 #elif CONFIG_TOUCH_FT5406 == 1
