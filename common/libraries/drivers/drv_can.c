@@ -15,7 +15,7 @@
 #include "board.h"
 #include "hpm_can_drv.h"
 #include "hpm_rtt_interrupt_util.h"
-
+#include "hpm_clock_drv.h"
 
 #define CAN_SEND_WAIT_MS_MAX (1000U)    /* CAN maximum wait time for transmission */
 #define CAN_SENDBOX_NUM (1U)            /* CAN Hardware Transmission buffer number */
@@ -29,6 +29,8 @@ typedef struct _hpm_can_struct
     CAN_Type *can_base;                                     /**< CAN Base address  */
     const char *name;                                       /**< CAN device name */
     int32_t irq_num;                                        /**< CAN IRQ index */
+    uint8_t irq_priority;                                   /**< CAN IRQ priority */
+    clock_name_t clk_name;                                  /**< CAN clock name */
     uint32_t fifo_index;                                    /**< FIFO index, it is a fake value to satisfy the driver framework */
     can_config_t can_config;                                /**< CAN configuration for IP */
     struct rt_can_device can_dev;                           /**< CAN device configuration in rt-thread */
@@ -98,6 +100,12 @@ static hpm_can_t dev_can0 =
     .name = "can0",
     .irq_num = IRQn_CAN0,
     .fifo_index = 0,
+    .clk_name = clock_can0,
+#if defined(BSP_CAN0_IRQ_PRIORITY)
+    .irq_priority = BSP_CAN0_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
 };
 
 void can0_isr(void)
@@ -115,6 +123,12 @@ static hpm_can_t dev_can1 =
         .name = "can1",
         .irq_num = IRQn_CAN1,
         .fifo_index = 1,
+        .clk_name = clock_can1,
+#if defined(BSP_CAN1_IRQ_PRIORITY)
+        .irq_priority = BSP_CAN1_IRQ_PRIORITY,
+#else
+        .irq_priority = 1,
+#endif
 };
 void can1_isr(void)
 {
@@ -130,6 +144,12 @@ static hpm_can_t dev_can2 =
         .name = "can2",
         .irq_num = IRQn_CAN2,
         .fifo_index = 2,
+        .clk_name = clock_can2,
+#if defined(BSP_CAN2_IRQ_PRIORITY)
+        .irq_priority = BSP_CAN2_IRQ_PRIORITY,
+#else
+        .irq_priority = 1,
+#endif
 };
 void can2_isr(void)
 {
@@ -145,6 +165,12 @@ static hpm_can_t dev_can3 =
         .name = "can3",
         .irq_num = IRQn_CAN3,
         .fifo_index = 3,
+        .clk_name = clock_can3,
+#if defined(BSP_CAN3_IRQ_PRIORITY)
+       .irq_priority = BSP_CAN3_IRQ_PRIORITY,
+#else
+       .irq_priority = 1,
+#endif
 };
 void can3_isr(void)
 {
@@ -304,7 +330,8 @@ static rt_err_t hpm_can_configure(struct rt_can_device *can, struct can_configur
 
     drv_can->can_config.enable_tx_buffer_priority_mode = (cfg->privmode != 0U) ? true : false;
     init_can_pins(drv_can->can_base);
-    uint32_t can_clk = board_init_can_clock(drv_can->can_base);
+    clock_add_to_group(drv_can->clk_name, BOARD_RUNNING_CORE & 0x1);
+    uint32_t can_clk = clock_get_frequency(drv_can->clk_name);
     drv_can->can_config.filter_list_num = drv_can->filter_num;
     drv_can->can_config.filter_list = &drv_can->filter_list[0];
     hpm_stat_t status = can_init(drv_can->can_base, &drv_can->can_config, can_clk);
@@ -366,14 +393,14 @@ static rt_err_t hpm_can_control(struct rt_can_device *can, int cmd, void *arg)
             uint8_t irq_txrx_mask = CAN_EVENT_RECEIVE | CAN_EVENT_RX_BUF_ALMOST_FULL | CAN_EVENT_RX_BUF_FULL | CAN_EVENT_RX_BUF_OVERRUN;
             drv_can->can_config.irq_txrx_enable_mask |= irq_txrx_mask;
             can_enable_tx_rx_irq(drv_can->can_base, irq_txrx_mask);
-            intc_m_enable_irq_with_priority(drv_can->irq_num, 1);
+            intc_m_enable_irq_with_priority(drv_can->irq_num, drv_can->irq_priority);
         }
         else if (arg_val == RT_DEVICE_FLAG_INT_TX)
         {
             uint8_t irq_txrx_mask = CAN_EVENT_TX_PRIMARY_BUF | CAN_EVENT_TX_SECONDARY_BUF;
             drv_can->can_config.irq_txrx_enable_mask |= irq_txrx_mask;
             can_enable_tx_rx_irq(drv_can->can_base, irq_txrx_mask);
-            intc_m_enable_irq_with_priority(drv_can->irq_num, 1);
+            intc_m_enable_irq_with_priority(drv_can->irq_num, drv_can->irq_priority);
         }
         else if (arg_val == RT_DEVICE_CAN_INT_ERR)
         {
@@ -383,7 +410,7 @@ static rt_err_t hpm_can_control(struct rt_can_device *can, int cmd, void *arg)
             drv_can->can_config.irq_error_enable_mask |= irq_error_mask;
             can_enable_tx_rx_irq(drv_can->can_base, irq_txrx_mask);
             can_enable_error_irq(drv_can->can_base, irq_error_mask);
-            intc_m_enable_irq_with_priority(drv_can->irq_num, 1);
+            intc_m_enable_irq_with_priority(drv_can->irq_num, drv_can->irq_priority);
         }
         else
         {

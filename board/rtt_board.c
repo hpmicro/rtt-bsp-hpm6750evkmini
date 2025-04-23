@@ -20,8 +20,18 @@
 
 extern int rt_hw_uart_init(void);
 
+void rtt_os_tick_clock(void)
+{
+#ifdef HPM_USING_VECTOR_PREEMPTED_MODE
+    clock_add_to_group(BOARD_OS_TIMER_CLK_NAME, 0);
+#else
+    clock_add_to_group(clock_mchtmr0, 0);
+#endif
+}
+
 void rtt_board_init(void)
 {
+    rtt_os_tick_clock();
     board_init_clock();
     board_init_console();
     board_init_pmp();
@@ -81,7 +91,7 @@ void rt_hw_console_output(const char *str)
 
 void app_init_usb_pins(void)
 {
-    board_init_usb_pins();
+    board_init_usb(HPM_USB0);
 }
 
 void rt_hw_cpu_reset(void)
@@ -108,4 +118,112 @@ void rt_hw_cpu_dcache_ops(int ops, void *addr, int size)
     }
 }
 #endif
+
+uint32_t rtt_board_init_adc12_clock(ADC12_Type *ptr, bool clk_src_ahb)
+{
+    uint32_t freq = 0;
+
+    if (ptr == HPM_ADC0) {
+        if (clk_src_ahb) {
+            /* Configure the ADC clock from AHB (@200MHz by default)*/
+            clock_set_adc_source(clock_adc0, clk_adc_src_ahb0);
+        } else {
+            /* Configure the ADC clock from pll1_clk1 divided by 2 (@200MHz by default) */
+            clock_set_adc_source(clock_adc0, clk_adc_src_ana0);
+            clock_set_source_divider(clock_ana0, clk_src_pll1_clk1, 2U);
+        }
+        clock_add_to_group(clock_adc0, 0);
+        freq = clock_get_frequency(clock_adc0);
+    } else if (ptr == HPM_ADC1) {
+        if (clk_src_ahb) {
+            /* Configure the ADC clock from AHB (@200MHz by default)*/
+            clock_set_adc_source(clock_adc1, clk_adc_src_ahb0);
+        } else {
+            /* Configure the ADC clock from pll1_clk1 divided by 2 (@200MHz by default) */
+            clock_set_adc_source(clock_adc1, clk_adc_src_ana1);
+            clock_set_source_divider(clock_ana1, clk_src_pll1_clk1, 2U);
+        }
+        clock_add_to_group(clock_adc1, 0);
+        freq = clock_get_frequency(clock_adc1);
+    } else if (ptr == HPM_ADC2) {
+        if (clk_src_ahb) {
+            /* Configure the ADC clock from AHB (@200MHz by default)*/
+            clock_set_adc_source(clock_adc2, clk_adc_src_ahb0);
+        } else {
+            /* Configure the ADC clock from pll1_clk1 divided by 2 (@200MHz by default) */
+            clock_set_adc_source(clock_adc2, clk_adc_src_ana2);
+            clock_set_source_divider(clock_ana2, clk_src_pll1_clk1, 2U);
+        }
+        clock_add_to_group(clock_adc2, 0);
+        freq = clock_get_frequency(clock_adc2);
+    }
+
+    return freq;
+}
+
+uint32_t rtt_board_init_adc16_clock(ADC16_Type *ptr, bool clk_src_ahb)
+{
+    uint32_t freq = 0;
+
+    if (ptr == HPM_ADC3) {
+        if (clk_src_ahb) {
+            /* Configure the ADC clock from AHB (@200MHz by default)*/
+            clock_set_adc_source(clock_adc3, clk_adc_src_ahb0);
+        } else {
+            /* Configure the ADC clock from pll1_clk1 divided by 2 (@200MHz by default) */
+            clock_set_adc_source(clock_adc3, clk_adc_src_ana2);
+            clock_set_source_divider(clock_ana2, clk_src_pll1_clk1, 2U);
+        }
+        clock_add_to_group(clock_adc3, 0);
+        freq = clock_get_frequency(clock_adc3);
+    }
+
+    return freq;
+}
+
+uint32_t rtt_board_init_i2s_clock(I2S_Type *ptr)
+{
+    uint32_t freq = 0;
+
+    if (ptr == HPM_I2S0) {
+        clock_add_to_group(clock_i2s0, 0);
+
+        sysctl_config_clock(HPM_SYSCTL, clock_node_aud0, clock_source_pll3_clk0, 25);
+        sysctl_set_adc_i2s_clock_mux(HPM_SYSCTL, clock_node_i2s0, clock_source_i2s_aud0_clk);
+
+        freq = clock_get_frequency(clock_i2s0);
+    } else if (ptr == HPM_I2S1) {
+        clock_add_to_group(clock_i2s1, 0);
+
+        sysctl_config_clock(HPM_SYSCTL, clock_node_aud1, clock_source_pll3_clk0, 25);
+        sysctl_set_adc_i2s_clock_mux(HPM_SYSCTL, clock_node_i2s1, clock_source_i2s_aud1_clk);
+
+        freq = clock_get_frequency(clock_i2s1);
+    } else {
+        ;
+    }
+
+    return freq;
+}
+
+uint32_t rtt_board_init_pwm_clock(PWM_Type *ptr)
+{
+    uint32_t freq = 0;
+    if (ptr == HPM_PWM0) {
+        clock_add_to_group(clock_mot0, 0);
+        freq = clock_get_frequency(clock_mot0);
+    } else if (ptr == HPM_PWM1) {
+        clock_add_to_group(clock_mot1, 0);
+        freq = clock_get_frequency(clock_mot1);
+    } else if (ptr == HPM_PWM2) {
+        clock_add_to_group(clock_mot2, 0);
+        freq = clock_get_frequency(clock_mot2);
+    } else if (ptr == HPM_PWM3) {
+        clock_add_to_group(clock_mot3, 0);
+        freq = clock_get_frequency(clock_mot3);
+    } else {
+
+    }
+    return freq;
+}
 

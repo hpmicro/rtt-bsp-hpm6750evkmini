@@ -18,7 +18,7 @@
 #define FREQ_PRESET1_OSC0_CLK0 (24000000UL)
 #define FREQ_PRESET1_PLL0_CLK0 (400000000UL)
 #define FREQ_PRESET1_PLL0_CLK1 (333333333UL)
-#define FREQ_PRESET1_PLL1_CLK2 (250000000UL)
+#define FREQ_PRESET1_PLL0_CLK2 (250000000UL)
 #define FREQ_PRESET1_PLL1_CLK0 (480000000UL)
 #define FREQ_PRESET1_PLL1_CLK1 (320000000UL)
 #define FREQ_PRESET1_PLL2_CLK0 (516096000UL)
@@ -34,6 +34,10 @@
 #define CLOCK_ON (true)
 #define CLOCK_OFF (false)
 
+typedef struct _pllclk_div_map {
+    uint8_t pll_idx;
+    uint8_t pll_div;
+} clk_pll_div_map_t;
 
 /***********************************************************************************************************************
  * Prototypes
@@ -89,12 +93,18 @@ static const clock_node_t s_dac_clk_mux_node[] = {
         clock_node_ahb
 };
 
-static const clock_node_t s_i2s_clk_mux_node[] = {
-        clock_node_aud0,
-        clock_node_aud1,
-};
-
 static WDG_Type *const s_wdgs[] = { HPM_WDG0, HPM_WDG1};
+
+static const clk_pll_div_map_t s_clk_pll_div_map[] = {
+    {0xFF, 1}, /* OSC, Div 1 */
+    {pllctlv2_pll0, pllctlv2_clk0}, /* PLL0, clock 0 */
+    {pllctlv2_pll0, pllctlv2_clk1}, /* PLL0, clock 1 */
+    {pllctlv2_pll0, pllctlv2_clk2}, /* PLL0, clock 2 */
+    {pllctlv2_pll1, pllctlv2_clk0}, /* PLL1, clock 0 */
+    {pllctlv2_pll1, pllctlv2_clk1}, /* PLL1, clock 1 */
+    {pllctlv2_pll2, pllctlv2_clk0}, /* PLL2, clock 0 */
+    {pllctlv2_pll2, pllctlv2_clk1}, /* PLL2, clock 1 */
+};
 
 uint32_t hpm_core_clock;
 
@@ -156,25 +166,25 @@ uint32_t get_frequency_for_source(clock_source_t source)
         clk_freq = FREQ_PRESET1_OSC0_CLK0;
         break;
     case clock_source_pll0_clk0:
-        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, 0U, 0U);
+        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, pllctlv2_pll0, pllctlv2_clk0);
         break;
     case clock_source_pll0_clk1:
-        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, 0U, 1U);
+        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, pllctlv2_pll0, pllctlv2_clk1);
         break;
     case clock_source_pll0_clk2:
-        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, 0U, 2U);
+        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, pllctlv2_pll0, pllctlv2_clk2);
         break;
     case clock_source_pll1_clk0:
-        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, 1U, 0U);
+        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, pllctlv2_pll1, pllctlv2_clk0);
         break;
     case clock_source_pll1_clk1:
-        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, 1U, 1U);
+        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, pllctlv2_pll1, pllctlv2_clk1);
         break;
     case clock_source_pll2_clk0:
-        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, 2U, 0U);
+        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, pllctlv2_pll2, pllctlv2_clk0);
         break;
     case clock_source_pll2_clk1:
-        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, 2U, 1U);
+        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, pllctlv2_pll2, pllctlv2_clk1);
         break;
     default:
         clk_freq = 0UL;
@@ -202,37 +212,40 @@ static uint32_t get_frequency_for_ip_in_common_group(clock_node_t node)
 static uint32_t get_frequency_for_i2s_or_adc(uint32_t clk_src_type, uint32_t instance)
 {
     uint32_t clk_freq = 0UL;
-    bool is_mux_valid = false;
     clock_node_t node = clock_node_end;
+    uint32_t mux_in_reg;
+
     if (clk_src_type == CLK_SRC_GROUP_ADC) {
         uint32_t adc_index = instance;
         if (adc_index < ADC_INSTANCE_NUM) {
-            is_mux_valid = true;
-            uint32_t mux_in_reg = SYSCTL_ADCCLK_MUX_GET(HPM_SYSCTL->ADCCLK[adc_index]);
+            mux_in_reg = SYSCTL_ADCCLK_MUX_GET(HPM_SYSCTL->ADCCLK[adc_index]);
             if (mux_in_reg == 1) {
                 node = s_adc_clk_mux_node[1];
             } else {
                 node = s_adc_clk_mux_node[0] + adc_index;
             }
+
+            if (node == clock_node_ahb) {
+                clk_freq = get_frequency_for_ahb();
+            } else {
+                clk_freq = get_frequency_for_ip_in_common_group(node);
+            }
         }
     } else {
         uint32_t i2s_index = instance;
         if (i2s_index < I2S_INSTANCE_NUM) {
-            uint32_t mux_in_reg = SYSCTL_I2SCLK_MUX_GET(HPM_SYSCTL->I2SCLK[i2s_index]);
-            if (mux_in_reg < ARRAY_SIZE(s_i2s_clk_mux_node)) {
-                node = s_i2s_clk_mux_node[mux_in_reg];
-                is_mux_valid = true;
+            mux_in_reg = SYSCTL_I2SCLK_MUX_GET(HPM_SYSCTL->I2SCLK[i2s_index]);
+            if (mux_in_reg == 0) {
+                node = clock_node_aud0 + i2s_index;
+            } else if (i2s_index == 0) {
+                node = clock_node_aud1;
+            } else {
+                node = clock_node_aud0;
             }
-        }
-    }
-
-    if (is_mux_valid) {
-        if (node == clock_node_ahb) {
-            clk_freq = get_frequency_for_ahb();
-        } else {
             clk_freq = get_frequency_for_ip_in_common_group(node);
         }
     }
+
     return clk_freq;
 }
 
@@ -371,6 +384,27 @@ clk_src_t clock_get_source(clock_name_t clock_name)
     return clk_src;
 }
 
+hpm_stat_t clock_wait_source_stable(clock_name_t clock_name)
+{
+    clk_src_t clk_src = clock_get_source(clock_name);
+    if (clk_src == clk_src_invalid) {
+        return status_invalid_argument;
+    }
+    uint64_t ticks_per_ms = clock_get_core_clock_ticks_per_ms();
+    uint64_t timeout_ticks = hpm_csr_get_core_cycle() + 100UL * ticks_per_ms;
+    const clk_pll_div_map_t *map_entry = &s_clk_pll_div_map[clk_src];
+    bool is_stable;
+    do {
+        is_stable = (map_entry->pll_idx == 0xFF) ? pllctlv2_xtal_is_stable(HPM_PLLCTLV2)
+                                                 : pllctlv2_pll_is_stable(HPM_PLLCTLV2, map_entry->pll_idx);
+        if (hpm_csr_get_core_cycle() > timeout_ticks) {
+            return status_timeout;
+        }
+    } while (!is_stable);
+
+    return status_success;
+}
+
 uint32_t clock_get_divider(clock_name_t clock_name)
 {
     uint32_t clk_divider = CLOCK_DIV_INVALID;
@@ -456,7 +490,7 @@ hpm_stat_t clock_set_i2s_source(clock_name_t clock_name, clk_src_t src)
         return status_clk_invalid;
     }
 
-    if (!((src == clk_i2s_src_aud0) || (src == clk_i2s_src_aud1))) {
+    if (!((src < clk_i2s_src_audn) || (src > clk_i2s_src_audx))) {
         return status_clk_src_invalid;
     }
 
@@ -618,18 +652,32 @@ void clock_disconnect_group_from_cpu(uint32_t group, uint32_t cpu)
     }
 }
 
+uint32_t clock_get_core_clock_ticks_per_us(void)
+{
+    if (hpm_core_clock == 0U) {
+        clock_update_core_clock();
+    }
+    return (hpm_core_clock + FREQ_1MHz - 1U) / FREQ_1MHz;
+}
+
+uint32_t clock_get_core_clock_ticks_per_ms(void)
+{
+    if (hpm_core_clock == 0U) {
+        clock_update_core_clock();
+    }
+    return (hpm_core_clock + FREQ_1MHz - 1U) / 1000;
+}
+
 void clock_cpu_delay_us(uint32_t us)
 {
-    uint32_t ticks_per_us = (hpm_core_clock + FREQ_1MHz - 1U) / FREQ_1MHz;
-    uint64_t expected_ticks = hpm_csr_get_core_cycle() + ticks_per_us * us;
+    uint64_t expected_ticks = hpm_csr_get_core_cycle() + (uint64_t)clock_get_core_clock_ticks_per_us() * (uint64_t)us;
     while (hpm_csr_get_core_cycle() < expected_ticks) {
     }
 }
 
 void clock_cpu_delay_ms(uint32_t ms)
 {
-    uint32_t ticks_per_us = (hpm_core_clock + FREQ_1MHz - 1U) / FREQ_1MHz;
-    uint64_t expected_ticks = hpm_csr_get_core_cycle() + (uint64_t)ticks_per_us * 1000UL * ms;
+    uint64_t expected_ticks = hpm_csr_get_core_cycle() + (uint64_t)clock_get_core_clock_ticks_per_ms() * (uint64_t)ms;
     while (hpm_csr_get_core_cycle() < expected_ticks) {
     }
 }

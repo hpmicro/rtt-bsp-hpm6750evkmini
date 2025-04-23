@@ -591,6 +591,21 @@ static inline void pwm_cmp_update_cmp_value(PWM_Type *pwm_x, uint8_t index,
         | PWM_CMP_CMP_SET(cmp) | PWM_CMP_XCMP_SET(ex_cmp);
 }
 
+/**
+ * @brief update pwm cmp value in order to recovery pwm fault
+ * The configured values need to be staggered to coincide with the moment when the pwm output changes,
+ * otherwise the recovery will be abnormal
+ *
+ * @param[in] pwm_x PWM base address, HPM_PWMx(x=0..n)
+ * @param[in] index cmp index (0..(PWM_SOC_CMP_MAX_COUNT-1))
+ * @param[in] cmp clock counter compare value
+ */
+static inline void pwm_fault_recovery_update_cmp_value(PWM_Type *pwm_x, uint8_t index,
+                                            uint32_t cmp)
+{
+    pwm_cmp_update_cmp_value(pwm_x, index, cmp, 0);
+}
+
 #if defined(PWM_SOC_HRPWM_SUPPORT) && PWM_SOC_HRPWM_SUPPORT
 /**
  * @brief update high-precision cmp value
@@ -1002,6 +1017,30 @@ hpm_stat_t pwm_update_raw_cmp_edge_aligned(PWM_Type *pwm_x, uint8_t cmp_index,
  */
 hpm_stat_t pwm_update_raw_cmp_central_aligned(PWM_Type *pwm_x, uint8_t cmp1_index,
                                        uint8_t cmp2_index, uint32_t target_cmp1, uint32_t target_cmp2);
+
+
+/**
+ * @brief update duty value for edge aligned waveform
+ *
+ * @param[in] pwm_x PWM base address, HPM_PWMx(x=0..n)
+ * @param[in] cmp_index index of cmp to be adjusted (0..(PWM_SOC_PWM_MAX_COUNT-1))
+ * @param[in] duty duty value
+ * @retval hpm_stat_t @ref status_invalid_argument or @ref status_success
+ */
+hpm_stat_t pwm_update_duty_edge_aligned(PWM_Type *pwm_x, uint8_t cmp_index, float duty);
+
+/**
+ * @brief update duty value for central aligned waveform
+ *
+ * @param[in] pwm_x PWM base address, HPM_PWMx(x=0..n)
+ * @param[in] cmp1_index index of cmp1 to be adjusted (cmp1_index must be even number)
+ * @param[in] cmp2_index index of cmp2 to be adjusted (cmp2_index must be odd number)
+ * @param[in] duty duty value
+ * @retval hpm_stat_t @ref status_invalid_argument or @ref status_success cmp1_index
+ */
+hpm_stat_t pwm_update_duty_central_aligned(PWM_Type *pwm_x, uint8_t cmp1_index,
+                                       uint8_t cmp2_index, float duty);
+
 #if defined(PWM_SOC_HRPWM_SUPPORT) && PWM_SOC_HRPWM_SUPPORT
 
 /**

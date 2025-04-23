@@ -1,12 +1,17 @@
 [
  {
   "path": "/packages/iot/wifi-host-driver", 
-  "ver": "v1.0.0", 
+  "ver": "v1.2.1", 
   "name": "WIFI_HOST_DRIVER"
  }, 
  {
   "path": "/packages/iot/netutils", 
-  "ver": "latest", 
+  "ver": "v1.3.3", 
   "name": "NETUTILS"
+ }, 
+ {
+  "path": "/packages/tools/cpu_usage", 
+  "ver": "latest", 
+  "name": "CPU_USAGE"
  }
 ]

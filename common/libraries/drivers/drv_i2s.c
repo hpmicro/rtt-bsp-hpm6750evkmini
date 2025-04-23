@@ -28,6 +28,8 @@
 #include "drv_i2s.h"
 #include "drivers/audio.h"
 
+extern uint32_t rtt_board_init_i2s_clock(I2S_Type *ptr);
+
 static rt_ssize_t hpm_i2s_transmit(struct rt_audio_device* audio, const void* writeBuf, void* readBuf, rt_size_t size);
 
 /**
@@ -147,7 +149,7 @@ static rt_err_t hpm_i2s_init(struct rt_audio_device* audio)
     struct hpm_i2s* hpm_audio = (struct hpm_i2s*)audio->parent.user_data;
 
     init_i2s_pins(hpm_audio->base);
-    board_init_i2s_clock(hpm_audio->base);
+    rtt_board_init_i2s_clock(hpm_audio->base);
 
     /* enable dma request */
     i2s_enable_rx_dma_request(hpm_audio->base);

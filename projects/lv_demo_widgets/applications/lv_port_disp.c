@@ -41,6 +41,7 @@
 #define LV_FB_SIZE_ALIGNED HPM_L1C_CACHELINE_ALIGN_UP(LV_LCD_WIDTH * LV_LCD_HEIGHT)
 
 #if LVGL_CONFIG_FLUSH_DIRECT_MODE_ENABLE
+#define LVGL_PDMA_CLOCK clock_pdma
 
 #ifndef HPM_LVGL_FRAMEBUFFER_NONCACHEABLE
 static lv_color_t __attribute__((section(".framebuffer"), aligned(HPM_L1C_CACHELINE_SIZE))) lv_framebuffer0[LV_FB_SIZE_ALIGNED];
@@ -102,6 +103,7 @@ static void lvgl_pdma_init(struct lv_adapter *ctx)
 {
     struct pdma_ctx *pdma_ctx = &ctx->pdma_ctx;
     pdma_config_t config;
+    clock_add_to_group(LVGL_PDMA_CLOCK, BOARD_RUNNING_CORE);
 
 #if LV_COLOR_DEPTH == 32
     display_pixel_format_t pixel_format = display_pixel_format_argb8888;

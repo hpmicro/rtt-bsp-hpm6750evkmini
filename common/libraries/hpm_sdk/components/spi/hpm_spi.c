@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 HPMicro
+ * Copyright (c) 2021-2024 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -9,9 +9,10 @@
 #include "hpm_clock_drv.h"
 #include <stdlib.h>
 
-#if USE_DMA_MGR
-#include "hpm_dma_mgr.h"
+#ifndef SPI_COMP_FREQUENCY_THRESHOLD
+#define SPI_COMP_FREQUENCY_THRESHOLD  (20000000U)
 #endif
+
 typedef struct {
     SPI_Type *spi_ptr;
     clock_name_t spi_clock_name;
@@ -594,13 +595,13 @@ hpm_stat_t hpm_spi_release_gpio_cs(spi_context_t *context)
 
 static hpm_stat_t wait_spi_slave_active(SPI_Type *ptr, bool active_status, uint32_t timeout)
 {
-    uint32_t ticks_per_us = (hpm_core_clock + 1000000 - 1U) / 1000000;
+    uint32_t ticks_per_us = clock_get_core_clock_ticks_per_us();
     uint64_t expected_ticks = hpm_csr_get_core_cycle() + (uint64_t)ticks_per_us * 1000UL * timeout;
-    do {
+    while (spi_is_active(ptr) != active_status) {
         if (hpm_csr_get_core_cycle() > expected_ticks) {
             return status_timeout;
         }
-    } while (spi_is_active(ptr) == !active_status);
+    }
     return status_success;
 }
 
@@ -617,14 +618,22 @@ static hpm_spi_cfg_t *hpm_spi_get_cfg_obj(SPI_Type *ptr)
     return NULL;
 }
 
-static void hpm_spi_transfer_init(SPI_Type *ptr, spi_trans_mode_t mode, uint32_t size)
+static hpm_stat_t hpm_spi_transfer_init(SPI_Type *ptr, spi_trans_mode_t mode, uint32_t size)
 {
     uint32_t slv_mode = SPI_TRANSFMT_SLVMODE_GET(ptr->TRANSFMT);
+    spi_data_phase_format_t data_phase = (spi_data_phase_format_t)SPI_TRANSCTRL_DUALQUAD_GET(ptr->TRANSCTRL);
     uint8_t data_len_in_bytes = spi_get_data_length_in_bytes(ptr);
+    /* spi slave is not support dspi and qspi */
+    if ((slv_mode == spi_slave_mode) && (data_phase != spi_single_io_mode)) {
+        return status_invalid_argument;
+    }
     if (data_len_in_bytes > 2) {
         data_len_in_bytes = 4;
     }
     if (slv_mode == spi_master_mode) {
+        if (spi_is_active(ptr) == true) {
+            return status_spi_master_busy;
+        }
         spi_set_transfer_mode(ptr, mode);
     } else {
         /* for slave mode, only support trans_write_read_together mode in only_data_mode */
@@ -646,6 +655,7 @@ static void hpm_spi_transfer_init(SPI_Type *ptr, spi_trans_mode_t mode, uint32_t
     spi_receive_fifo_reset(ptr);
     while (ptr->CTRL & (SPI_CTRL_TXFIFORST_MASK | SPI_CTRL_RXFIFORST_MASK)) {
     }
+    return status_success;
 }
 
 static hpm_stat_t write_read_data_together(SPI_Type *ptr, uint8_t data_len_in_bytes, uint8_t *wbuff, uint32_t wsize,
@@ -654,7 +664,7 @@ static hpm_stat_t write_read_data_together(SPI_Type *ptr, uint8_t data_len_in_by
     uint8_t txfifo_size = spi_get_tx_fifo_size(ptr);
     uint32_t rx_index = 0, tx_index = 0;
     uint8_t rxfifo_valid_size, txfifo_valid_size, j;
-    uint32_t ticks_per_us = (hpm_core_clock + 1000000 - 1U) / 1000000;
+    uint32_t ticks_per_us = clock_get_core_clock_ticks_per_us();
     uint64_t expected_ticks = hpm_csr_get_core_cycle() + (uint64_t)ticks_per_us * 1000UL * timeout;
     while ((rx_index < rsize) || (tx_index < wsize)) {
         if (tx_index < wsize) {
@@ -714,7 +724,7 @@ static hpm_stat_t read_data_single(SPI_Type *ptr, uint8_t data_len_in_bytes, uin
 {
     uint32_t rx_index = 0;
     uint8_t rxfifo_valid_size, j;
-    uint32_t ticks_per_us = (hpm_core_clock + 1000000 - 1U) / 1000000;
+    uint32_t ticks_per_us = clock_get_core_clock_ticks_per_us();
     uint64_t expected_ticks = hpm_csr_get_core_cycle() + (uint64_t)ticks_per_us * 1000UL * timeout;
     while (rx_index < rsize) {
         rxfifo_valid_size = spi_get_rx_fifo_valid_data_size(ptr);
@@ -750,7 +760,7 @@ static hpm_stat_t write_data_single(SPI_Type *ptr, uint8_t data_len_in_bytes, ui
     uint8_t txfifo_size = spi_get_tx_fifo_size(ptr);
     uint32_t tx_index = 0;
     uint8_t txfifo_valid_size, j;
-    uint32_t ticks_per_us = (hpm_core_clock + 1000000 - 1U) / 1000000;
+    uint32_t ticks_per_us = clock_get_core_clock_ticks_per_us();
     uint64_t expected_ticks = hpm_csr_get_core_cycle() + (uint64_t)ticks_per_us * 1000UL * timeout;
     while (tx_index < wsize) {
         txfifo_valid_size = spi_get_tx_fifo_valid_data_size(ptr);
@@ -789,12 +799,14 @@ void hpm_spi_get_default_init_config(spi_initialize_config_t *config)
     config->clk_phase = spi_sclk_sampling_odd_clk_edges;
     config->data_len = 8;
     config->data_merge = false;
-    config->direction = msb_first;
+    config->direction = spi_msb_first;
 }
 
 hpm_stat_t hpm_spi_initialize(SPI_Type *ptr, spi_initialize_config_t *config)
 {
-    if (config->data_len == 0) {
+    /* spi slave is not support dspi and qspi */
+    if ((config->data_len == 0) ||
+        ((config->mode == spi_slave_mode) && (config->io_mode != spi_single_io_mode))) {
         return status_invalid_argument;
     }
     /* frist init TRANSFMT reg*/
@@ -822,58 +834,98 @@ hpm_stat_t hpm_spi_set_sclk_frequency(SPI_Type *ptr, uint32_t freq)
 {
     int freq_list[clock_source_general_source_end] = {0};
     int _freq = freq;
-    uint8_t i = 0;
+    uint8_t i = 0, index = 0;
     int min_diff_freq;
     int current_diff_freq;
     int best_freq;
     hpm_stat_t stat;
-    uint32_t div;
+    uint32_t div, sclk_div;
     clock_source_t clock_source;
-    clk_src_t clk_src;
-    static spi_timing_config_t timing_config = {0};
-    uint32_t pll_clk = 0;
+    clk_src_t clk_src = clk_src_pll0_clk0;
+    uint32_t pll_clk = 0, spi_clock;
     hpm_spi_cfg_t *obj = hpm_spi_get_cfg_obj(ptr);
     if (obj == NULL) {
         return status_invalid_argument;
     }
-    spi_master_get_default_timing_config(&timing_config);
-    timing_config.master_config.clk_src_freq_in_hz = clock_get_frequency(obj->spi_clock_name);
-    timing_config.master_config.sclk_freq_in_hz = freq;
-    timing_config.master_config.cs2sclk = spi_cs2sclk_half_sclk_1;
-    timing_config.master_config.csht = spi_csht_half_sclk_1;
-    stat = spi_master_timing_init(ptr, &timing_config);
-    if (stat != status_success) {
-        spi_master_set_sclk_div(ptr, 0xFF);
+    /* The minimum time that SPI CS should stay HIGH. set One half sclk cycle */
+    spi_master_set_csht_timing(ptr, spi_csht_half_sclk_1);
+    /* The minimum time between the edges of SPI CS and the edges of SCLK. set One half sclk cycle */
+    spi_master_set_cs2sclk_timing(ptr, spi_cs2sclk_half_sclk_1);
+    /* SCLK = SPI_SRC_CLOK / ((SCLK_DIV + 1) * 2)*/
+    spi_clock = clock_get_frequency(obj->spi_clock_name);
+    sclk_div = ((spi_clock / freq) / 2) - 1;
+    /* If the default SPI operating frequency cannot meet the frequency division,
+     * other clock sources and frequency divisions are automatically calculated and allocated. */
+    if (((spi_clock % freq) != 0) || (((spi_clock / freq) % 2) != 0) || (sclk_div > 0xFE)) {
         for (clock_source = (clock_source_t)0; clock_source < clock_source_general_source_end; clock_source++) {
             pll_clk = get_frequency_for_source(clock_source);
-            div = pll_clk / freq;
-            /* The division factor ranges from 1 to 256 as any integer */
-            if ((div > 0) && (div <= 0x100)) {
-                freq_list[clock_source] = pll_clk / div;
+            /* if the SCLK frequency is less than 20M, select another suitable clock source for frequency division. */
+            if (freq <= SPI_COMP_FREQUENCY_THRESHOLD) {
+                if (clock_source == clock_source_osc0_clk0) { /* 24M clock source */
+                    div = 1;
+                } else {
+                    div = 10;
+                }
+                while (1) {
+                    sclk_div = (((pll_clk / div) / freq) / 2) - 1;
+                    clk_src = MAKE_CLK_SRC(CLK_SRC_GROUP_COMMON, clock_source);
+                    if (clock_source == clock_source_osc0_clk0) {
+                        break;
+                    }
+                    /* Check div to ensure the SPI clock source is within a reasonable range */
+                    if ((div == 5) || (div == 15)) {
+                        div = 10;
+                        break;
+                    }
+                    if ((sclk_div == 0) || (sclk_div > 0xFE)) {
+                        if ((pll_clk / div) > 800000000) {
+                            div++;
+                        } else {
+                            div--;
+                        }
+                        continue;
+                    } else {
+                        break;
+                    }
+                }
+                if (sclk_div <= 0xFE) {
+                    break;
+                } else {
+                    if (clock_source == (clock_source_general_source_end - 1)) {
+                        sclk_div = 0xFE;
+                    }
+                }
+            } else {
+                div = pll_clk / freq;
+                /* The division factor ranges from 1 to 256 as any integer */
+                if ((div > 0) && (div <= 0x100)) {
+                    freq_list[clock_source] = pll_clk / div;
+                }
             }
         }
-        /* Find the best sclk frequency */
-        min_diff_freq = abs(freq_list[0] - _freq);
-        best_freq = freq_list[0];
-        for (i = 1; i < clock_source_general_source_end; i++) {
-            current_diff_freq = abs(freq_list[i] - _freq);
-            if (current_diff_freq < min_diff_freq) {
-                min_diff_freq = current_diff_freq;
-                best_freq = freq_list[i];
+        if (freq > SPI_COMP_FREQUENCY_THRESHOLD) {
+            /* The SCLK frequency is greater than 20M, and SCLK is directly equal to the SPI clock source */
+            /* SPI SCLK clock = SPI clock source */
+            sclk_div = 0xFF;
+            /* Find the best sclk frequency */
+            min_diff_freq = abs(freq_list[0] - _freq);
+            best_freq = freq_list[0];
+            for (i = 1; i < clock_source_general_source_end; i++) {
+                current_diff_freq = abs(freq_list[i] - _freq);
+                if (current_diff_freq < min_diff_freq) {
+                    min_diff_freq = current_diff_freq;
+                    best_freq = freq_list[i];
+                    index = i;
+                }
             }
+            pll_clk = get_frequency_for_source((clock_source_t)index);
+            clk_src = MAKE_CLK_SRC(CLK_SRC_GROUP_COMMON, index);
+            div = pll_clk / best_freq;
         }
-        /* Find the best spi clock frequency */
-        for (i = 0; i < clock_source_general_source_end; i++) {
-            if (best_freq == freq_list[i]) {
-                pll_clk = get_frequency_for_source((clock_source_t)i);
-                clk_src = MAKE_CLK_SRC(CLK_SRC_GROUP_COMMON, i);
-                div = pll_clk / best_freq;
-                clock_set_source_divider(obj->spi_clock_name, clk_src, div);
-                break;
-            }
-        }
-        stat = status_success;
+        clock_set_source_divider(obj->spi_clock_name, clk_src, div);
     }
+    spi_master_set_sclk_div(ptr, sclk_div);
+    stat = status_success;
     return stat;
 }
 
@@ -893,7 +945,7 @@ hpm_stat_t hpm_spi_transmit_receive_blocking(SPI_Type *ptr, uint8_t *wbuff, uint
         return status_invalid_argument;
     }
     count = (size / data_len_in_bytes);
-    hpm_spi_transfer_init(ptr, spi_trans_write_read_together, size);
+    HPM_CHECK_RET(hpm_spi_transfer_init(ptr, spi_trans_write_read_together, size));
     /* for master mode, This CMD register must be written with a dummy value
      *  to start a SPI transfer even when the command phase is not enabled
      */
@@ -938,7 +990,7 @@ hpm_stat_t hpm_spi_receive_blocking(SPI_Type *ptr, uint8_t *buff, uint32_t size,
         return status_invalid_argument;
     }
     count = (size / data_len_in_bytes);
-    hpm_spi_transfer_init(ptr, spi_trans_read_only, size);
+    HPM_CHECK_RET(hpm_spi_transfer_init(ptr, spi_trans_read_only, size));
     /* for master mode, This CMD register must be written with a dummy value
      * to start a SPI transfer even when the command phase is not enabled
      */
@@ -976,7 +1028,7 @@ hpm_stat_t hpm_spi_transmit_blocking(SPI_Type *ptr, uint8_t *buff, uint32_t size
         return status_invalid_argument;
     }
     count = (size / data_len_in_bytes);
-    hpm_spi_transfer_init(ptr, spi_trans_write_only, size);
+    HPM_CHECK_RET(hpm_spi_transfer_init(ptr, spi_trans_write_only, size));
     /* for master mode, This CMD register must be written with a dummy value
      * to start a SPI transfer even when the command phase is not enabled
      */
@@ -1011,6 +1063,7 @@ hpm_stat_t hpm_spi_transmit_blocking(SPI_Type *ptr, uint8_t *buff, uint32_t size
 hpm_stat_t hpm_spi_transmit_receive_setup_dma(SPI_Type *ptr, uint32_t size)
 {
     hpm_stat_t stat = status_success;
+#if (SPI_SOC_TRANSFER_COUNT_MAX == 512)
     uint8_t data_len_in_bytes = spi_get_data_length_in_bytes(ptr);
     if (data_len_in_bytes > 2) {
         data_len_in_bytes = 4; /* must be 4 aglin */
@@ -1019,7 +1072,11 @@ hpm_stat_t hpm_spi_transmit_receive_setup_dma(SPI_Type *ptr, uint32_t size)
         ((SPI_SOC_TRANSFER_COUNT_MAX == 512) && (size > (SPI_SOC_TRANSFER_COUNT_MAX * data_len_in_bytes)))) {
         return status_invalid_argument;
     }
-    hpm_spi_transfer_init(ptr, spi_trans_write_read_together, size);
+#endif
+    HPM_CHECK_RET(hpm_spi_transfer_init(ptr, spi_trans_write_read_together, size));
+#if defined(HPM_IP_FEATURE_SPI_DMA_TX_REQ_AFTER_CMD_FO_MASTER) && (HPM_IP_FEATURE_SPI_DMA_TX_REQ_AFTER_CMD_FO_MASTER == 1)
+    spi_master_enable_tx_dma_request_after_cmd_write(ptr);
+#endif
     spi_enable_tx_dma(ptr);
     spi_enable_rx_dma(ptr);
     /* for master mode, This CMD register must be written with a dummy value
@@ -1034,6 +1091,7 @@ hpm_stat_t hpm_spi_transmit_receive_setup_dma(SPI_Type *ptr, uint32_t size)
 hpm_stat_t hpm_spi_receive_setup_dma(SPI_Type *ptr, uint32_t size)
 {
     hpm_stat_t stat = status_success;
+#if (SPI_SOC_TRANSFER_COUNT_MAX == 512)
     uint8_t data_len_in_bytes = spi_get_data_length_in_bytes(ptr);
     if (data_len_in_bytes > 2) {
         data_len_in_bytes = 4; /* must be 4 aglin */
@@ -1042,7 +1100,8 @@ hpm_stat_t hpm_spi_receive_setup_dma(SPI_Type *ptr, uint32_t size)
         ((SPI_SOC_TRANSFER_COUNT_MAX == 512) && (size > (SPI_SOC_TRANSFER_COUNT_MAX * data_len_in_bytes)))) {
         return status_invalid_argument;
     }
-    hpm_spi_transfer_init(ptr, spi_trans_read_only, size);
+#endif
+    HPM_CHECK_RET(hpm_spi_transfer_init(ptr, spi_trans_read_only, size));
     spi_disable_tx_dma(ptr);
     spi_enable_rx_dma(ptr);
     /* for master mode, This CMD register must be written with a dummy value
@@ -1057,6 +1116,7 @@ hpm_stat_t hpm_spi_receive_setup_dma(SPI_Type *ptr, uint32_t size)
 hpm_stat_t hpm_spi_transmit_setup_dma(SPI_Type *ptr, uint32_t size)
 {
     hpm_stat_t stat = status_success;
+#if (SPI_SOC_TRANSFER_COUNT_MAX == 512)
     uint8_t data_len_in_bytes = spi_get_data_length_in_bytes(ptr);
     if (data_len_in_bytes > 2) {
         data_len_in_bytes = 4; /* must be 4 aglin */
@@ -1065,7 +1125,11 @@ hpm_stat_t hpm_spi_transmit_setup_dma(SPI_Type *ptr, uint32_t size)
         ((SPI_SOC_TRANSFER_COUNT_MAX == 512) && (size > (SPI_SOC_TRANSFER_COUNT_MAX * data_len_in_bytes)))) {
         return status_invalid_argument;
     }
-    hpm_spi_transfer_init(ptr, spi_trans_write_only, size);
+#endif
+    HPM_CHECK_RET(hpm_spi_transfer_init(ptr, spi_trans_write_only, size));
+#if defined(HPM_IP_FEATURE_SPI_DMA_TX_REQ_AFTER_CMD_FO_MASTER) && (HPM_IP_FEATURE_SPI_DMA_TX_REQ_AFTER_CMD_FO_MASTER == 1)
+    spi_master_enable_tx_dma_request_after_cmd_write(ptr);
+#endif
     spi_enable_tx_dma(ptr);
     spi_disable_rx_dma(ptr);
     /* for master mode, This CMD register must be written with a dummy value
@@ -1093,7 +1157,7 @@ void dma_channel_tc_callback(DMA_Type *ptr, uint32_t channel, void *user_data)
     }
 }
 
-hpm_stat_t hpm_spi_dma_install_callback(SPI_Type *ptr, spi_dma_complete_cb tx_complete, spi_dma_complete_cb rx_complete)
+hpm_stat_t hpm_spi_dma_mgr_install_callback(SPI_Type *ptr, spi_dma_complete_cb tx_complete, spi_dma_complete_cb rx_complete)
 {
     dma_mgr_chn_conf_t chg_config;
     dma_resource_t *resource = NULL;
@@ -1251,4 +1315,23 @@ hpm_stat_t hpm_spi_transmit_nonblocking(SPI_Type *ptr, uint8_t *buff, uint32_t s
     stat = hpm_spi_transmit_setup_dma(ptr, size);
     return stat;
 }
+
+dma_resource_t *hpm_spi_get_tx_dma_resource(SPI_Type *ptr)
+{
+    hpm_spi_cfg_t *obj = hpm_spi_get_cfg_obj(ptr);
+    if (obj != NULL) {
+        return &obj->txdma_resource;
+    }
+    return NULL;
+}
+
+dma_resource_t *hpm_spi_get_rx_dma_resource(SPI_Type *ptr)
+{
+    hpm_spi_cfg_t *obj = hpm_spi_get_cfg_obj(ptr);
+    if (obj != NULL) {
+        return &obj->rxdma_resource;
+    }
+    return NULL;
+}
+
 #endif

@@ -30,8 +30,6 @@ if GetDepend(['BSP_USING_USB_DEVICE']):
 	src += [ os.path.join(cwd, 'usb', 'device', 'hpm_usb_device.c') ]
 	path += [ os.path.join(cwd, 'usb', 'device') ]
 if GetDepend(['BSP_USING_USB_HOST']):
-	src += [ os.path.join(cwd, 'usb', 'host', 'hpm_usb_host.c') ]
-	path += [ os.path.join(cwd, 'usb', 'host') ]
 	CPPDEFINES += ['USB_HOST_MCU_CORE=HPM_CORE0']
 if GetDepend(['BSP_USING_ETH0']):
 	if GetDepend(['BSP_USING_ENET_PHY_DP83867']):
@@ -67,6 +65,12 @@ if GetDepend(['BSP_USING_ETH1']):
 	    path += [ os.path.join(cwd, 'enet_phy') ]
 	    path += [ os.path.join(cwd, 'enet_phy/lan8720') ]
 	    CPPDEFINES += ['__USE_LAN8720=1']
+if GetDepend(['BSP_USING_TSW']):
+	if GetDepend(['BSP_USING_TSW_PHY_RTL8211']):
+	    src += [ os.path.join(cwd, 'tsw_phy/rtl8211/hpm_rtl8211.c') ]
+	    path += [ os.path.join(cwd, 'tsw_phy') ]
+	    path += [ os.path.join(cwd, 'tsw_phy/rtl8211') ]
+	    CPPDEFINES += ['__USE_RTL8211=1']	   
 if GetDepend(['BSP_USING_CAMERA']):
 	path += [ os.path.join(cwd, 'camera') ]
 if GetDepend(['BSP_USING_CAMERA_MT9M114']):

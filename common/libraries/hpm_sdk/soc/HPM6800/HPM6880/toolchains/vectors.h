@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 HPMicro
+ * Copyright (c) 2021-2025 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -269,7 +269,6 @@ __vector_table
 
 #else
 
-.global default_irq_handler
 .weak default_irq_handler
 .align 2
 default_irq_handler:
@@ -679,7 +678,6 @@ __vector_s_table
 
 #else
 
-.global default_irq_s_handler
 .weak default_irq_s_handler
 .align 2
 default_irq_s_handler:

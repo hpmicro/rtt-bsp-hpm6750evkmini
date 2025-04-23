@@ -1,5 +1,27 @@
 # Change Log
 
+## v1.9.0
+
+- Integrated hpm_sdk v1.9.0
+
+- Updated:
+    - Upgrade `CherryUSB` stack to 1.4.3
+    - `sdio` driver supports configurable IRQ priority
+    - `uart/uart_v2` driver supports configurable IRQ priority
+    - `spi` driver supports for configurable IRQ priority for 
+    - `i2c` driver support for configurable IRQ priority
+    - `gpio` driver support for configurable IRQ priority
+    - `lcd` driver supports for configurable IRQ priority
+    - `can` driver supports configurable IRQ priority
+
+
+- Fixed:
+    - Fixed the issue of the same MAC address between the master and slave devices in `thernet_ptp_slave_demo`
+
+- Added:
+    - The `sdio` driver has added interrupt-driven mode
+    - DSPI/QSPI mode added for `spi` driver
+
 ## v1.6.0
 
 - Integrated hpm_sdk v1.6.0

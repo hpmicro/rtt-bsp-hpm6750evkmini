@@ -14,6 +14,7 @@
 #include "board.h"
 #include "hpm_gptmr_drv.h"
 #include "hpm_rtt_interrupt_util.h"
+#include "hpm_clock_drv.h"
 
 typedef struct _hpm_gptimer
 {
@@ -23,6 +24,7 @@ typedef struct _hpm_gptimer
     uint32_t channel;
     clock_name_t clock_name;
     int32_t irq_num;
+    uint8_t irq_priority;
 } hpm_gptimer_t;
 
 static void hpm_hwtimer_init(rt_hwtimer_t *timer, rt_uint32_t state);
@@ -50,28 +52,116 @@ static const struct rt_hwtimer_info hpm_hwtimer_info = {
 
 
 #ifdef BSP_USING_GPTMR0
-static hpm_gptimer_t timer0 = {.name = "GPT0", .base = HPM_GPTMR0, .clock_name = clock_gptmr0, .irq_num = IRQn_GPTMR0 };
+static hpm_gptimer_t timer0 =
+{
+    .name = "GPT0",
+    .base = HPM_GPTMR0,
+    .clock_name = clock_gptmr0,
+    .irq_num = IRQn_GPTMR0,
+#if defined(BSP_GPTMR0_IRQ_PRIORITY)
+    .irq_priority = BSP_GPTMR0_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+};
 #endif
 #ifdef BSP_USING_GPTMR1
-static hpm_gptimer_t timer1 = {.name = "GPT1", .base = HPM_GPTMR1, .clock_name = clock_gptmr1, .irq_num = IRQn_GPTMR1 };
+static hpm_gptimer_t timer1 =
+{
+    .name = "GPT1",
+    .base = HPM_GPTMR1,
+    .clock_name = clock_gptmr1,
+    .irq_num = IRQn_GPTMR1,
+#if defined(BSP_GPTMR1_IRQ_PRIORITY)
+   .irq_priority = BSP_GPTMR1_IRQ_PRIORITY,
+#else
+   .irq_priority = 1,
+#endif
+};
 #endif
 #ifdef BSP_USING_GPTMR2
-static hpm_gptimer_t timer2 = {.name = "GPT2", .base = HPM_GPTMR2, .clock_name = clock_gptmr2, .irq_num = IRQn_GPTMR2 };
+static hpm_gptimer_t timer2 =
+{
+    .name = "GPT2",
+    .base = HPM_GPTMR2,
+    .clock_name = clock_gptmr2,
+    .irq_num = IRQn_GPTMR2,
+#if defined(BSP_GPTMR2_IRQ_PRIORITY)
+   .irq_priority = BSP_GPTMR2_IRQ_PRIORITY,
+#else
+   .irq_priority = 1,
+#endif
+};
 #endif
 #ifdef BSP_USING_GPTMR3
-static hpm_gptimer_t timer3 = {.name = "GPT3", .base = HPM_GPTMR3, .clock_name = clock_gptmr3, .irq_num = IRQn_GPTMR3 };
+static hpm_gptimer_t timer3 =
+{
+    .name = "GPT3",
+    .base = HPM_GPTMR3,
+    .clock_name = clock_gptmr3,
+    .irq_num = IRQn_GPTMR3,
+#if defined(BSP_GPTMR3_IRQ_PRIORITY)
+  .irq_priority = BSP_GPTMR3_IRQ_PRIORITY,
+#else
+  .irq_priority = 1,
+#endif
+};
 #endif
 #ifdef BSP_USING_GPTMR4
-static hpm_gptimer_t timer4 = {.name = "GPT4", .base = HPM_GPTMR4, .clock_name = clock_gptmr4, .irq_num = IRQn_GPTMR4 };
+static hpm_gptimer_t timer4 =
+{
+    .name = "GPT4",
+    .base = HPM_GPTMR4,
+    .clock_name = clock_gptmr4,
+    .irq_num = IRQn_GPTMR4,
+#if defined(BSP_GPTMR4_IRQ_PRIORITY)
+    .irq_priority = BSP_GPTMR4_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+};
 #endif
 #ifdef BSP_USING_GPTMR5
-static hpm_gptimer_t timer5 = {.name = "GPT5", .base = HPM_GPTMR5, .clock_name = clock_gptmr5, .irq_num = IRQn_GPTMR5 };
+static hpm_gptimer_t timer5 =
+{
+    .name = "GPT5",
+    .base = HPM_GPTMR5,
+    .clock_name = clock_gptmr5,
+    .irq_num = IRQn_GPTMR5,
+#if defined(BSP_GPTMR5_IRQ_PRIORITY)
+  .irq_priority = BSP_GPTMR5_IRQ_PRIORITY,
+#else
+  .irq_priority = 1,
+#endif
+};
 #endif
 #ifdef BSP_USING_GPTMR6
-static hpm_gptimer_t timer6 = {.name = "GPT6", .base = HPM_GPTMR6, .clock_name = clock_gptmr6, .irq_num = IRQn_GPTMR6 };
+static hpm_gptimer_t timer6 =
+{
+    .name = "GPT6",
+    .base = HPM_GPTMR6,
+    .clock_name = clock_gptmr6,
+    .irq_num = IRQn_GPTMR6,
+#if defined(BSP_GPTMR6_IRQ_PRIORITY)
+    .irq_priority = BSP_GPTMR6_IRQ_PRIORITY,
+#else   
+    .irq_priority = 1,
+#endif
+};
 #endif
 #ifdef BSP_USING_GPTMR7
-static hpm_gptimer_t timer7 = {.name = "GPT7", .base = HPM_GPTMR7, .clock_name = clock_gptmr7, .irq_num = IRQn_GPTMR7 };
+static hpm_gptimer_t timer7 =
+{
+    .name = "GPT7",
+    .base = HPM_GPTMR7,
+    .clock_name = clock_gptmr7,
+    .irq_num = IRQn_GPTMR7,
+#if defined(BSP_GPTMR7_IRQ_PRIORITY)
+    .irq_priority = BSP_GPTMR7_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+};
 #endif
 
 
@@ -184,7 +274,8 @@ static void hpm_hwtimer_init(rt_hwtimer_t *timer, rt_uint32_t state)
 
     if (state == 1)
     {
-        hpm_gptmr->timer.freq = board_init_gptmr_clock(base);
+        clock_add_to_group(hpm_gptmr->clock_name, BOARD_RUNNING_CORE & 0x1);
+        hpm_gptmr->timer.freq = clock_get_frequency(hpm_gptmr->clock_name);
         gptmr_channel_get_default_config(base, &config);
         gptmr_channel_config(base, hpm_gptmr->channel, &config, false);
     }
@@ -210,7 +301,7 @@ static rt_err_t hpm_hwtimer_start(rt_hwtimer_t *timer, rt_uint32_t cnt, rt_hwtim
     gptmr_channel_update_count(base, hpm_gptmr->channel, 0);
     gptmr_start_counter(base, hpm_gptmr->channel);
 
-    intc_m_enable_irq_with_priority(hpm_gptmr->irq_num, 1);
+    intc_m_enable_irq_with_priority(hpm_gptmr->irq_num, hpm_gptmr->irq_priority);
 
     return RT_EOK;
 }

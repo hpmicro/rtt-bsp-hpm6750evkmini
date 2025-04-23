@@ -63,6 +63,22 @@ typedef enum {
     pcfg_pmc_periph_debug = 16,
 } pcfg_pmc_periph_t;
 
+/* @brief PCFG wakeup source */
+typedef enum {
+    pcfg_wakeup_src_soc = (1 << 0),
+    pcfg_wakeup_src_otp = (1 << 4),
+    pcfg_wakeup_src_puart = (1 << 7),
+    pcfg_wakeup_src_ptimer = (1 << 8),
+    pcfg_wakeup_src_pwdg = (1 << 9),
+    pcfg_wakeup_src_pgpio = (1 << 10),
+    pcfg_wakeup_src_monitor = (1 << 11),
+    pcfg_wakeup_src_psecurity = (1 << 12),
+    pcfg_wakeup_src_bsecurity = (1 << 16),
+    pcfg_wakeup_src_bgpio = (1 << 17),
+    pcfg_wakeup_src_wbutn = (1 << 18),
+    pcfg_wakeup_src_rtc = (1 << 19),
+} pcfg_wakeup_src_t;
+
 /* @brief PCFG status */
 enum {
     status_pcfg_ldo_out_of_range = MAKE_STATUS(status_group_pcfg, 1),
@@ -357,17 +373,6 @@ static inline void pcfg_dcdc_set_resume_time_in_cycle(PCFG_Type *ptr, uint32_t c
 }
 
 /**
- * @brief set dcdc current hysteres range
- *
- * @param[in] ptr base address
- * @param[in] range current hysteres range
- */
-static inline void pcfg_dcdc_set_current_hys_range(PCFG_Type *ptr, pcfg_dcdc_current_hys_t range)
-{
-    ptr->DCDC_MISC = (ptr->DCDC_MISC & (~PCFG_DCDC_MISC_OL_HYST_MASK)) | PCFG_DCDC_MISC_OL_HYST_SET(range);
-}
-
-/**
  * @brief disable power trap
  *
  * @param[in] ptr base address
@@ -437,7 +442,7 @@ static inline void pcfg_enable_dcdc_retention(PCFG_Type *ptr)
  */
 static inline void pcfg_clear_wakeup_cause(PCFG_Type *ptr, uint32_t mask)
 {
-    ptr->WAKE_CAUSE |= mask;
+    ptr->WAKE_CAUSE = mask;
 }
 
 /**
@@ -483,6 +488,22 @@ static inline void pcfg_disable_wakeup_source(PCFG_Type *ptr, uint32_t mask)
 static inline void pcfg_set_periph_clock_mode(PCFG_Type *ptr, uint32_t mode)
 {
     ptr->SCG_CTRL = mode;
+}
+
+/**
+ * @brief update clock gate mode in vpmc domain
+ *
+ * @param[in] ptr base address
+ * @param[in] periph peripherals to be updated
+ * @param[in] on true - always on, false - always off
+ */
+static inline void pcfg_update_periph_clock_mode(PCFG_Type *ptr, pcfg_pmc_periph_t periph, bool on)
+{
+    if (on) {
+        ptr->SCG_CTRL = (ptr->SCG_CTRL & ~(0x03 << periph)) | PCFG_PERIPH_KEEP_CLOCK_ON(periph);
+    } else {
+        ptr->SCG_CTRL = (ptr->SCG_CTRL & ~(0x03 << periph)) | PCFG_PERIPH_KEEP_CLOCK_OFF(periph);
+    }
 }
 
 /**

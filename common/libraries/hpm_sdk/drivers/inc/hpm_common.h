@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 HPMicro
+ * Copyright (c) 2021-2025 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -80,6 +80,9 @@
         }                              \
     } while (false)
 
+#define _HPM_STRINGIFY(x) #x
+#define HPM_STRINGIFY(x)  _HPM_STRINGIFY(x)
+
 #define SIZE_1KB (1024UL)
 #define SIZE_1MB (1048576UL)
 
@@ -115,6 +118,10 @@
 #define BIT29_MASK (0x20000000UL)
 #define BIT30_MASK (0x40000000UL)
 #define BIT31_MASK (0x80000000UL)
+
+#define HPM_PI      (3.14159265358979323846)
+#define HPM_2_PI    (6.28318530717958647692)
+#define HPM_HALF_PI (1.57079632679489661923)
 
 typedef uint32_t hpm_stat_t;
 
@@ -164,6 +171,8 @@ enum {
     status_group_dma_manager,
     status_group_spi_nor_flash,
     status_group_touch,
+    status_group_plb_qei_encoder,
+    status_group_pmbus,
 };
 
 /* @brief Common status code definitions */
@@ -215,6 +224,7 @@ struct timeval {
 #define ATTR_PLACE_AT_WITH_ALIGNMENT(section_name, alignment) \
 ATTR_PLACE_AT(section_name) ATTR_ALIGN(alignment)
 
+/* ATTR_PLACE_AT_NONCACHEABLE is legacy attribute, ATTR_PLACE_AT_NONCACHEABLE_NON_INIT instead of this */
 #define ATTR_PLACE_AT_NONCACHEABLE ATTR_PLACE_AT(".noncacheable")
 #define ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(alignment) \
     ATTR_PLACE_AT_NONCACHEABLE ATTR_ALIGN(alignment)
@@ -228,7 +238,12 @@ ATTR_PLACE_AT(section_name) ATTR_ALIGN(alignment)
 #define ATTR_PLACE_AT_NONCACHEABLE_INIT_WITH_ALIGNMENT(alignment) \
     ATTR_PLACE_AT_NONCACHEABLE_INIT ATTR_ALIGN(alignment)
 
+#define ATTR_PLACE_AT_NONCACHEABLE_NON_INIT ATTR_PLACE_AT(".noncacheable.non_init")
+#define ATTR_PLACE_AT_NONCACHEABLE_NON_INIT_WITH_ALIGNMENT(alignment) \
+    ATTR_PLACE_AT_NONCACHEABLE_NON_INIT ATTR_ALIGN(alignment)
+
 /* .fast_ram section */
+/* ATTR_PLACE_AT_FAST_RAM is legacy attribute, ATTR_PLACE_AT_FAST_RAM_NON_INIT instead of this */
 #define ATTR_PLACE_AT_FAST_RAM ATTR_PLACE_AT(".fast_ram")
 #define ATTR_PLACE_AT_FAST_RAM_WITH_ALIGNMENT(alignment) \
     ATTR_PLACE_AT_FAST_RAM ATTR_ALIGN(alignment)
@@ -240,6 +255,10 @@ ATTR_PLACE_AT(section_name) ATTR_ALIGN(alignment)
 #define ATTR_PLACE_AT_FAST_RAM_INIT ATTR_PLACE_AT(".fast_ram.init")
 #define ATTR_PLACE_AT_FAST_RAM_INIT_WITH_ALIGNMENT(alignment) \
     ATTR_PLACE_AT_FAST_RAM_INIT ATTR_ALIGN(alignment)
+
+#define ATTR_PLACE_AT_FAST_RAM_NON_INIT ATTR_PLACE_AT(".fast_ram.non_init")
+#define ATTR_PLACE_AT_FAST_RAM_NON_INIT_WITH_ALIGNMENT(alignment) \
+    ATTR_PLACE_AT_FAST_RAM_NON_INIT ATTR_ALIGN(alignment)
 
 #define ATTR_RAMFUNC ATTR_PLACE_AT(".fast")
 #define ATTR_RAMFUNC_WITH_ALIGNMENT(alignment) \

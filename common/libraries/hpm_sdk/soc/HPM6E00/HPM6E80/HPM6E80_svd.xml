@@ -7,7 +7,7 @@
   <description>HPM6E00 device</description>
   <licenseText>
     /*
- * Copyright (c) 2021-2024 HPMicro
+ * Copyright (c) 2021-2025 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -758,9 +758,9 @@ Note: combinational interrupt is sensitive to environment noise</description>
           </fields>
         </register>
         <register>
-          <dim>127</dim>
+          <dim>163</dim>
           <dimIncrement>0x4</dimIncrement>
-          <dimIndex>PRIORITY1,PRIORITY2,PRIORITY3,PRIORITY4,PRIORITY5,PRIORITY6,PRIORITY7,PRIORITY8,PRIORITY9,PRIORITY10,PRIORITY11,PRIORITY12,PRIORITY13,PRIORITY14,PRIORITY15,PRIORITY16,PRIORITY17,PRIORITY18,PRIORITY19,PRIORITY20,PRIORITY21,PRIORITY22,PRIORITY23,PRIORITY24,PRIORITY25,PRIORITY26,PRIORITY27,PRIORITY28,PRIORITY29,PRIORITY30,PRIORITY31,PRIORITY32,PRIORITY33,PRIORITY34,PRIORITY35,PRIORITY36,PRIORITY37,PRIORITY38,PRIORITY39,PRIORITY40,PRIORITY41,PRIORITY42,PRIORITY43,PRIORITY44,PRIORITY45,PRIORITY46,PRIORITY47,PRIORITY48,PRIORITY49,PRIORITY50,PRIORITY51,PRIORITY52,PRIORITY53,PRIORITY54,PRIORITY55,PRIORITY56,PRIORITY57,PRIORITY58,PRIORITY59,PRIORITY60,PRIORITY61,PRIORITY62,PRIORITY63,PRIORITY64,PRIORITY65,PRIORITY66,PRIORITY67,PRIORITY68,PRIORITY69,PRIORITY70,PRIORITY71,PRIORITY72,PRIORITY73,PRIORITY74,PRIORITY75,PRIORITY76,PRIORITY77,PRIORITY78,PRIORITY79,PRIORITY80,PRIORITY81,PRIORITY82,PRIORITY83,PRIORITY84,PRIORITY85,PRIORITY86,PRIORITY87,PRIORITY88,PRIORITY89,PRIORITY90,PRIORITY91,PRIORITY92,PRIORITY93,PRIORITY94,PRIORITY95,PRIORITY96,PRIORITY97,PRIORITY98,PRIORITY99,PRIORITY100,PRIORITY101,PRIORITY102,PRIORITY103,PRIORITY104,PRIORITY105,PRIORITY106,PRIORITY107,PRIORITY108,PRIORITY109,PRIORITY110,PRIORITY111,PRIORITY112,PRIORITY113,PRIORITY114,PRIORITY115,PRIORITY116,PRIORITY117,PRIORITY118,PRIORITY119,PRIORITY120,PRIORITY121,PRIORITY122,PRIORITY123,PRIORITY124,PRIORITY125,PRIORITY126,PRIORITY127</dimIndex>
+          <dimIndex>PRIORITY1,PRIORITY2,PRIORITY3,PRIORITY4,PRIORITY5,PRIORITY6,PRIORITY7,PRIORITY8,PRIORITY9,PRIORITY10,PRIORITY11,PRIORITY12,PRIORITY13,PRIORITY14,PRIORITY15,PRIORITY16,PRIORITY17,PRIORITY18,PRIORITY19,PRIORITY20,PRIORITY21,PRIORITY22,PRIORITY23,PRIORITY24,PRIORITY25,PRIORITY26,PRIORITY27,PRIORITY28,PRIORITY29,PRIORITY30,PRIORITY31,PRIORITY32,PRIORITY33,PRIORITY34,PRIORITY35,PRIORITY36,PRIORITY37,PRIORITY38,PRIORITY39,PRIORITY40,PRIORITY41,PRIORITY42,PRIORITY43,PRIORITY44,PRIORITY45,PRIORITY46,PRIORITY47,PRIORITY48,PRIORITY49,PRIORITY50,PRIORITY51,PRIORITY52,PRIORITY53,PRIORITY54,PRIORITY55,PRIORITY56,PRIORITY57,PRIORITY58,PRIORITY59,PRIORITY60,PRIORITY61,PRIORITY62,PRIORITY63,PRIORITY64,PRIORITY65,PRIORITY66,PRIORITY67,PRIORITY68,PRIORITY69,PRIORITY70,PRIORITY71,PRIORITY72,PRIORITY73,PRIORITY74,PRIORITY75,PRIORITY76,PRIORITY77,PRIORITY78,PRIORITY79,PRIORITY80,PRIORITY81,PRIORITY82,PRIORITY83,PRIORITY84,PRIORITY85,PRIORITY86,PRIORITY87,PRIORITY88,PRIORITY89,PRIORITY90,PRIORITY91,PRIORITY92,PRIORITY93,PRIORITY94,PRIORITY95,PRIORITY96,PRIORITY97,PRIORITY98,PRIORITY99,PRIORITY100,PRIORITY101,PRIORITY102,PRIORITY103,PRIORITY104,PRIORITY105,PRIORITY106,PRIORITY107,PRIORITY108,PRIORITY109,PRIORITY110,PRIORITY111,PRIORITY112,PRIORITY113,PRIORITY114,PRIORITY115,PRIORITY116,PRIORITY117,PRIORITY118,PRIORITY119,PRIORITY120,PRIORITY121,PRIORITY122,PRIORITY123,PRIORITY124,PRIORITY125,PRIORITY126,PRIORITY127,PRIORITY128,PRIORITY129,PRIORITY130,PRIORITY131,PRIORITY132,PRIORITY133,PRIORITY134,PRIORITY135,PRIORITY136,PRIORITY137,PRIORITY138,PRIORITY139,PRIORITY140,PRIORITY141,PRIORITY142,PRIORITY143,PRIORITY144,PRIORITY145,PRIORITY146,PRIORITY147,PRIORITY148,PRIORITY149,PRIORITY150,PRIORITY151,PRIORITY152,PRIORITY153,PRIORITY154,PRIORITY155,PRIORITY156,PRIORITY157,PRIORITY158,PRIORITY159,PRIORITY160,PRIORITY161,PRIORITY162,PRIORITY163</dimIndex>
           <name>PRIORITY[%s]</name>
           <description>no description available</description>
           <addressOffset>0x4</addressOffset>
@@ -875,9 +875,9 @@ Note: combinational interrupt is sensitive to environment noise</description>
           <description>no description available</description>
           <addressOffset>0x2000</addressOffset>
           <register>
-            <dim>4</dim>
+            <dim>6</dim>
             <dimIncrement>0x4</dimIncrement>
-            <dimIndex>INTEN0,INTEN1,INTEN2,INTEN3</dimIndex>
+            <dimIndex>INTEN0,INTEN1,INTEN2,INTEN3,INTEN4,INTEN5</dimIndex>
             <name>INTEN[%s]</name>
             <description>no description available</description>
             <addressOffset>0x0</addressOffset>
@@ -1633,7 +1633,7 @@ User should set this bit before set CMPEN to 1.</description>
               <description>set this bitfield to trigger software counter sync event</description>
               <bitOffset>0</bitOffset>
               <bitWidth>4</bitWidth>
-              <access>read-write</access>
+              <access>write-only</access>
             </field>
           </fields>
         </register>
@@ -1686,12 +1686,6 @@ User should set this bit before set CMPEN to 1.</description>
       <description>NTMR0</description>
       <groupName>GPTMR</groupName>
       <baseAddress>0xf1410000</baseAddress>
-    </peripheral>
-    <peripheral derivedFrom="GPTMR0">
-      <name>NTMR1</name>
-      <description>NTMR1</description>
-      <groupName>GPTMR</groupName>
-      <baseAddress>0xf1414000</baseAddress>
     </peripheral>
     <peripheral derivedFrom="GPTMR0">
       <name>PTMR</name>
@@ -1967,7 +1961,7 @@ OSC&lt;=8: The over-sample ratio is 8
           <addressOffset>0x18</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
-          <resetMask>0x008F0FFF</resetMask>
+          <resetMask>0x009F1FFF</resetMask>
           <fields>
             <field>
               <name>FIFOT4EN</name>
@@ -1979,17 +1973,17 @@ clr to use 2bit(TFIFOT and RFIFOT)</description>
             </field>
             <field>
               <name>TFIFOT4</name>
-              <description>txfifo threshold(0 for 1byte, 0xF for 16bytes), uart will send tx_dma_req when data in fifo is less than threshold.</description>
+              <description>txfifo threshold(0 for 1byte, 0xF for 32bytes), uart will send tx_dma_req when data in fifo is less than threshold.</description>
               <bitOffset>16</bitOffset>
-              <bitWidth>4</bitWidth>
+              <bitWidth>5</bitWidth>
               <access>read-write</access>
             </field>
             <field>
               <name>RFIFOT4</name>
-              <description>rxfifo threshold(0 for 1byte, 0xF for 16bytes).
+              <description>rxfifo threshold(0 for 1byte, 0xF for 32bytes).
 Uart will send rx_dma_req if data in fifo reachs the threshold, also will set the rxdata irq if enabled</description>
               <bitOffset>8</bitOffset>
-              <bitWidth>4</bitWidth>
+              <bitWidth>5</bitWidth>
               <access>read-write</access>
             </field>
             <field>
@@ -2310,14 +2304,14 @@ Register (FIFOE) is set to 1.</description>
           <fields>
             <field>
               <name>RFIFOT</name>
-              <description>Receiver FIFO trigger level</description>
+              <description>Receiver FIFO trigger level(0 for 1byte, 0x3 for 4bytes). Uart will send rx_dma_req if data in fifo reachs the threshold</description>
               <bitOffset>6</bitOffset>
               <bitWidth>2</bitWidth>
               <access>write-only</access>
             </field>
             <field>
               <name>TFIFOT</name>
-              <description>Transmitter FIFO trigger level</description>
+              <description>Transmitter FIFO trigger level(0 for 1byte, 0x3 for 4bytes), uart will send tx_dma_req when data in fifo is less than threshold.</description>
               <bitOffset>4</bitOffset>
               <bitWidth>2</bitWidth>
               <access>write-only</access>
@@ -5249,7 +5243,7 @@ Note: Parity check is required once writing to this register. The result should 
           <addressOffset>0x0</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
-          <resetMask>0x2FE2F03F</resetMask>
+          <resetMask>0x2FE0F03F</resetMask>
           <fields>
             <field>
               <name>CLK_SEL</name>
@@ -5291,13 +5285,6 @@ Note: Parity check is required once writing to this register. The result should 
 Once the lock mechanism takes effect, the CTRL0, CTRL1, timeout int register, timeout rst register, needs unlock before re-config them.
 The register update needs to be finished in the required period defined by UPD_OT_TIME register</description>
               <bitOffset>21</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>OT_SELF_CLEAR</name>
-              <description>overtime reset can be self released after 32 function cycles</description>
-              <bitOffset>17</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
@@ -7829,38 +7816,6 @@ others Reserved.</description>
           </fields>
         </register>
         <register>
-          <dim>16</dim>
-          <dimIncrement>0x4</dimIncrement>
-          <dimIndex>chn0,chn1,chn2,chn3,chn4,chn5,chn6,chn7,chn8,chn9,chn10,chn11,chn12,chn13,chn14,chn15</dimIndex>
-          <name>BUS_RESULT[%s]</name>
-          <description>no description available</description>
-          <addressOffset>0x400</addressOffset>
-          <size>32</size>
-          <resetValue>0x00000000</resetValue>
-          <resetMask>0x0001FFFF</resetMask>
-          <fields>
-            <field>
-              <name>VALID</name>
-              <description>set after conversion finished if wait_dis is set, cleared after software read.
-The first time read with 0 will trigger one new conversion.
-If SW read other channel when one channel conversion is in progress, it will not trigger new conversion at other channel, and will get old result with valid 0, also with read_cflct interrupt status bit set.
-the result may not realtime if software read once and wait  long time to read again</description>
-              <bitOffset>16</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-only</access>
-            </field>
-            <field>
-              <name>CHAN_RESULT</name>
-              <description>read this register will trigger one adc conversion.
-If wait_dis bit is set, SW will get the latest conversion result(not current one) with valid bit is 0, SW need polling valid bit till it's set to get current result
-If wait_dis bit is 0, SW can get the current conversion result with holding the bus, valid bit is always set at this mode. this is not recommended if channel sample time is too long</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-only</access>
-            </field>
-          </fields>
-        </register>
-        <register>
           <name>buf_cfg0</name>
           <description>No description available</description>
           <addressOffset>0x500</addressOffset>
@@ -8185,7 +8140,7 @@ it may be updated period according to config, also may be updated due to other q
               <name>CONVERT_CLOCK_NUMBER</name>
               <description>convert clock numbers, set to 21 (0x15) for 16bit mode, which means convert need 21 adc clock cycles(based on clock after divider);
 user can use small value to get faster conversion, but less accuracy, need to config cov_end_cnt at adc16_config1 also.
-Ex: use 200MHz bus clock for adc, set sample_clock_number to 4, sample_clock_number_shift to 0, covert_clk_number to 21 for 16bit mode, clock_divder to 3, then each ADC conversion(plus sample) need 25 cycles(50MHz).</description>
+Ex: use 200MHz bus clock for adc, set sample_clock_number to 4, sample_clock_number_shift to 0, covert_clk_number to 21 for 16bit mode, clock_divider to 3, then each ADC conversion(plus sample) need 25 cycles(50MHz).</description>
               <bitOffset>4</bitOffset>
               <bitWidth>5</bitWidth>
               <access>read-write</access>
@@ -8672,16 +8627,16 @@ should set to (21-convert_clock_number+1).</description>
             <description>Configure Register</description>
             <addressOffset>0x0</addressOffset>
             <size>32</size>
-            <resetValue>0x00000000</resetValue>
-            <resetMask>0xFFFFFFFF</resetMask>
+            <resetValue>0x00000020</resetValue>
+            <resetMask>0xFFFFEFFF</resetMask>
             <fields>
               <field>
                 <name>HYST</name>
                 <description>This bitfield configure the comparator hysteresis.
-00: Hysteresis level 0
-01: Hysteresis level 1
-10: Hysteresis level 2
-11: Hysteresis level 3</description>
+0: Hysteresis about 30mV
+1: Hysteresis about 20mV
+2: Hysteresis about 10mV
+3: Disable hysteresis</description>
                 <bitOffset>30</bitOffset>
                 <bitWidth>2</bitWidth>
                 <access>read-write</access>
@@ -8784,19 +8739,22 @@ if clr, use dac_cfg value</description>
                 <access>read-write</access>
               </field>
               <field>
-                <name>SYNCEN</name>
-                <description>This bit enable the comparator output synchronization.
-0: ACMP output not synchronized with ACMP clock.
-1: ACMP output synchronized with ACMP clock.</description>
-                <bitOffset>12</bitOffset>
-                <bitWidth>1</bitWidth>
+                <name>FLTLEN_SHIFT</name>
+                <description>this field is to extend filter length.
+0: filter length = fltlen
+1: filter length = fltlen * 2
+2: filter length = fltlen * 4
+7: filter length = fltlen * 128
+When the clock frequency is 200MHz, the maximum filter length is about 300uS.</description>
+                <bitOffset>9</bitOffset>
+                <bitWidth>3</bitWidth>
                 <access>read-write</access>
               </field>
               <field>
                 <name>FLTLEN</name>
                 <description>This bitfield define the ACMP output digital filter length. The unit is ACMP clock cycle.</description>
                 <bitOffset>0</bitOffset>
-                <bitWidth>12</bitWidth>
+                <bitWidth>9</bitWidth>
                 <access>read-write</access>
               </field>
             </fields>
@@ -8811,7 +8769,7 @@ if clr, use dac_cfg value</description>
             <fields>
               <field>
                 <name>DACCFG</name>
-                <description>8bit DAC digital value output to analog block</description>
+                <description>8bit DAC digital value</description>
                 <bitOffset>0</bitOffset>
                 <bitWidth>8</bitWidth>
                 <access>read-write</access>
@@ -8928,7 +8886,7 @@ if clr, use dac_cfg value</description>
           <addressOffset>0x0</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
-          <resetMask>0xFFFFFFFF</resetMask>
+          <resetMask>0xFFF7FFFF</resetMask>
           <fields>
             <field>
               <name>SFTRST_RX</name>
@@ -15480,7 +15438,7 @@ Default 1.25us@200MHz;   max 80ms;</description>
         </register>
         <register>
           <name>angle</name>
-          <description>No description available</description>
+          <description>angle</description>
           <addressOffset>0x290</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
@@ -16784,7 +16742,7 @@ This bit can be cleared by set shadow_lock bit in work_ctrl1</description>
           <description>No description available</description>
           <addressOffset>0x4</addressOffset>
           <size>32</size>
-          <resetValue>0x00000000</resetValue>
+          <resetValue>0xFFFFFFFF</resetValue>
           <resetMask>0xFFFFFFFF</resetMask>
           <fields>
             <field>
@@ -16829,7 +16787,7 @@ this register can only be updated after unlock</description>
             <field>
               <name>POLARITY</name>
               <description>one bit for one pwm channel, it's used as shadow register when pwm_cfg0.polarity_opt0 is set.
-output polarity, set to 1 will invert the output(after pwm selection, pair mode, dead area insertion, before force/fault)</description>
+output polarity, set to 1 will invert the output</description>
               <bitOffset>16</bitOffset>
               <bitWidth>8</bitWidth>
               <access>read-write</access>
@@ -16933,7 +16891,7 @@ if b&lt;=a then output all 0; if b&gt;=(T+a), then output all 1;</description>
               </field>
               <field>
                 <name>OUT_POLARITY</name>
-                <description>output polarity, set to 1 will invert the output(after pwm selection, pair mode, dead area insertion, before force/fault)
+                <description>output polarity, set to 1 will invert the output.
 when polarity_opt0 is set, this bit is controlled by shadow register, can't be writable; read as working register
 use compare channel settings(in cmp_cfg) as shadow register update</description>
                 <bitOffset>1</bitOffset>
@@ -19804,7 +19762,7 @@ De-assert this bit by write-1-clear the corresponding error status bits in the c
             <addressOffset>0x0</addressOffset>
             <size>32</size>
             <resetValue>0x00000000</resetValue>
-            <resetMask>0xFFFF01F4</resetMask>
+            <resetMask>0xFFFF01F0</resetMask>
             <fields>
               <field>
                 <name>GATE_SAMPLES</name>
@@ -19820,13 +19778,6 @@ De-assert this bit by write-1-clear the corresponding error status bits in the c
                 <bitWidth>5</bitWidth>
                 <access>read-write</access>
               </field>
-              <field>
-                <name>D_RDY_INT_EN</name>
-                <description>FIFO data ready interrupt enable</description>
-                <bitOffset>2</bitOffset>
-                <bitWidth>1</bitWidth>
-                <access>read-write</access>
-              </field>
             </fields>
           </register>
           <register>
@@ -19835,7 +19786,7 @@ De-assert this bit by write-1-clear the corresponding error status bits in the c
             <addressOffset>0x4</addressOffset>
             <size>32</size>
             <resetValue>0x00000000</resetValue>
-            <resetMask>0xFFFFFFFF</resetMask>
+            <resetMask>0xFFFEFFFF</resetMask>
             <fields>
               <field>
                 <name>MANCH_THR</name>
@@ -19849,13 +19800,6 @@ De-assert this bit by write-1-clear the corresponding error status bits in the c
                 <description>Watch dog threshold for channel failure of CLK halting</description>
                 <bitOffset>17</bitOffset>
                 <bitWidth>8</bitWidth>
-                <access>read-write</access>
-              </field>
-              <field>
-                <name>AF_IE</name>
-                <description>Acknowledge feedback interrupt enable</description>
-                <bitOffset>16</bitOffset>
-                <bitWidth>1</bitWidth>
                 <access>read-write</access>
               </field>
               <field>
@@ -20052,7 +19996,7 @@ Zero: Store all samples</description>
             <addressOffset>0xc</addressOffset>
             <size>32</size>
             <resetValue>0x00000000</resetValue>
-            <resetMask>0xFF8033FF</resetMask>
+            <resetMask>0xFF8032FF</resetMask>
             <fields>
               <field>
                 <name>PERIOD_MCLK</name>
@@ -20063,16 +20007,16 @@ Zero: Store all samples</description>
               </field>
               <field>
                 <name>SDATA_D0_T1</name>
-                <description>1: next readout is timestamp
-0: next readout is data</description>
+                <description>1: current value in SDATA is data
+0: current value in SDATA is timestamp</description>
                 <bitOffset>13</bitOffset>
                 <bitWidth>1</bitWidth>
                 <access>read-only</access>
               </field>
               <field>
                 <name>SDFIFO_D0_T1</name>
-                <description>1: next readout is timestamp
-0: next readout is data</description>
+                <description>1: first value readout from FIFO is data
+0: first value readout from FIFO is timestamp</description>
                 <bitOffset>12</bitOffset>
                 <bitWidth>1</bitWidth>
                 <access>read-only</access>
@@ -20081,13 +20025,6 @@ Zero: Store all samples</description>
                 <name>FIFO_DR</name>
                 <description>FIFO data ready</description>
                 <bitOffset>9</bitOffset>
-                <bitWidth>1</bitWidth>
-                <access>write-only</access>
-              </field>
-              <field>
-                <name>AF</name>
-                <description>Achnowledge flag</description>
-                <bitOffset>8</bitOffset>
                 <bitWidth>1</bitWidth>
                 <access>write-only</access>
               </field>
@@ -20988,16 +20925,16 @@ Software need reset timer first to start another one shot</description>
               </field>
               <field>
                 <name>RESTART</name>
-                <description>Restart tranceiver, this is a self clear bit
+                <description>Restart transceiver, this is a self clear bit
 0: no effect
-1: reset tranceiver</description>
+1: reset transceiver</description>
                 <bitOffset>4</bitOffset>
                 <bitWidth>1</bitWidth>
                 <access>write-only</access>
               </field>
               <field>
                 <name>MODE</name>
-                <description>Tranceiver mode
+                <description>Transceiver mode
 0: synchronous maaster
 1: synchronous slave
 2: asynchronous mode
@@ -22399,7 +22336,8 @@ Software need reset timer first to start another one shot</description>
             <fields>
               <field>
                 <name>DAT_SEL</name>
-                <description>Data register sampled, each bit represent a data register</description>
+                <description>Data register sampled, each bit represent a data register, select the DATA registers need to be updated when SAMPLE happens.
+Note: CRC register will be cleared automatically by SAMPLE if select the DATA register used for CRC.</description>
                 <bitOffset>0</bitOffset>
                 <bitWidth>32</bitWidth>
                 <access>read-write</access>
@@ -22597,7 +22535,8 @@ Software need reset timer first to start another one shot</description>
             <fields>
               <field>
                 <name>DAT_SEL</name>
-                <description>Data register sampled, each bit represent a data register</description>
+                <description>Data register sampled, each bit represent a data register, select the DATA registers need to be updated when UPDATE happen.
+Note: CRC register will be cleared automatically by UPDATE if select the DATA register used for CRC.</description>
                 <bitOffset>0</bitOffset>
                 <bitWidth>32</bitWidth>
                 <access>read-write</access>
@@ -23501,6 +23440,198 @@ Software need reset timer first to start another one shot</description>
               </field>
             </fields>
           </register>
+          <register>
+            <name>IRQ_DMA_EN</name>
+            <description>DMA Enable</description>
+            <addressOffset>0x320</addressOffset>
+            <size>32</size>
+            <resetValue>0x00000000</resetValue>
+            <resetMask>0xFF1F3FF7</resetMask>
+            <fields>
+              <field>
+                <name>TRG_ERR3</name>
+                <description>Trigger3 failed</description>
+                <bitOffset>31</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>TRG_ERR2</name>
+                <description>Trigger2 failed</description>
+                <bitOffset>30</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>TRG_ERR1</name>
+                <description>Trigger1 failed</description>
+                <bitOffset>29</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>TRG_ERR0</name>
+                <description>Trigger0 failed</description>
+                <bitOffset>28</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>TRIGER3</name>
+                <description>Trigger3</description>
+                <bitOffset>27</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>TRIGER2</name>
+                <description>Trigger2</description>
+                <bitOffset>26</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>TRIGER1</name>
+                <description>Trigger1</description>
+                <bitOffset>25</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>TRIGER0</name>
+                <description>Trigger0</description>
+                <bitOffset>24</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>SMP_ERR</name>
+                <description>Sample error</description>
+                <bitOffset>20</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>LATCH3</name>
+                <description>Latch3</description>
+                <bitOffset>19</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>LATCH2</name>
+                <description>Latch2</description>
+                <bitOffset>18</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>LATCH1</name>
+                <description>Latch1</description>
+                <bitOffset>17</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>LATCH0</name>
+                <description>Latch0</description>
+                <bitOffset>16</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>TIMEOUT</name>
+                <description>Timeout</description>
+                <bitOffset>13</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>TRX_ERR</name>
+                <description>Transfer error</description>
+                <bitOffset>12</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>INSTR1_END</name>
+                <description>Instruction 1 end</description>
+                <bitOffset>11</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>INSTR0_END</name>
+                <description>Instruction 0 end</description>
+                <bitOffset>10</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>PTR1_END</name>
+                <description>Pointer 1 end</description>
+                <bitOffset>9</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>PTR0_END</name>
+                <description>Pointer 0 end</description>
+                <bitOffset>8</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>INSTR1_ST</name>
+                <description>Instruction 1 start</description>
+                <bitOffset>7</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>INSTR0_ST</name>
+                <description>Instruction 0 start</description>
+                <bitOffset>6</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>PTR1_ST</name>
+                <description>Pointer 1 start</description>
+                <bitOffset>5</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>PTR0_ST</name>
+                <description>Pointer 0 start</description>
+                <bitOffset>4</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>WDOG</name>
+                <description>Watch dog</description>
+                <bitOffset>2</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>EXCEPT</name>
+                <description>Exception</description>
+                <bitOffset>1</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+              <field>
+                <name>STALL</name>
+                <description>Stall</description>
+                <bitOffset>0</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+              </field>
+            </fields>
+          </register>
         </cluster>
         <register>
           <dim>256</dim>
@@ -23571,12 +23702,12 @@ Software need reset timer first to start another one shot</description>
             </field>
             <field>
               <name>OPR</name>
-              <description>[1] When OP is 0, this area is the halt time in baudrate, 0 represents infinite time.
-[2] When OP is 1, this area is the the pointer to the command table.
+              <description>a. When OP is 0, this area is the halt time in baudrate, 0 represents infinite time.
+b. When OP is 1, this area is the the pointer to the command table.
 OPR[4]=1, OPR[3:0] value is CMD_TABLE instruct pointer;
 OPR[4]=0, OPR[3:0]=0 is INIT_POINTER;
 OPR[4]=0, OPR[3:0]=1 is WDG_POINTER.
-[3] When OP is 2-7, this area is the data length as fellow:
+c. When OP is 2-7, this area is the data length as fellow:
 0: 1 bit
 1: 2 bit
  ...
@@ -23934,7 +24065,7 @@ OPR[4]=0, OPR[3:0]=1 is WDG_POINTER.
         <register>
           <dim>64</dim>
           <dimIncrement>0x4</dimIncrement>
-          <dimIndex>PWM0_IN0,PWM0_IN1,PWM0_IN2,PWM0_IN3,PWM0_IN4,PWM0_IN5,PWM0_IN6,PWM0_IN7,PWM1_IN0,PWM1_IN1,PWM1_IN2,PWM1_IN3,PWM1_IN4,PWM1_IN5,PWM1_IN6,PWM1_IN7,PWM2_IN0,PWM2_IN1,PWM2_IN2,PWM2_IN3,PWM2_IN4,PWM2_IN5,PWM2_IN6,PWM2_IN7,PWM3_IN0,PWM3_IN1,PWM3_IN2,PWM3_IN3,PWM3_IN4,PWM3_IN5,PWM3_IN6,PWM3_IN7,MOTO_GPIO_IN0,MOTO_GPIO_IN1,MOTO_GPIO_IN2,MOTO_GPIO_IN3,MOTO_GPIO_IN4,MOTO_GPIO_IN5,MOTO_GPIO_IN6,MOTO_GPIO_IN7,MOTO_GPIO_IN8,MOTO_GPIO_IN9,MOTO_GPIO_IN10,MOTO_GPIO_IN11,MOTO_GPIO_IN12,MOTO_GPIO_IN13,MOTO_GPIO_IN14,MOTO_GPIO_IN15,MOTO_GPIO_IN16,MOTO_GPIO_IN17,MOTO_GPIO_IN18,MOTO_GPIO_IN19,MOTO_GPIO_IN20,MOTO_GPIO_IN21,MOTO_GPIO_IN22,MOTO_GPIO_IN23,MOTO_GPIO_IN24,MOTO_GPIO_IN25,MOTO_GPIO_IN26,MOTO_GPIO_IN27,MOTO_GPIO_IN28,MOTO_GPIO_IN29,MOTO_GPIO_IN30,MOTO_GPIO_IN31</dimIndex>
+          <dimIndex>PWM0_IN0,PWM0_IN1,PWM0_IN2,PWM0_IN3,PWM0_IN4,PWM0_IN5,PWM0_IN6,PWM0_IN7,PWM1_IN0,PWM1_IN1,PWM1_IN2,PWM1_IN3,PWM1_IN4,PWM1_IN5,PWM1_IN6,PWM1_IN7,PWM2_IN0,PWM2_IN1,PWM2_IN2,PWM2_IN3,PWM2_IN4,PWM2_IN5,PWM2_IN6,PWM2_IN7,PWM3_IN0,PWM3_IN1,PWM3_IN2,PWM3_IN3,PWM3_IN4,PWM3_IN5,PWM3_IN6,PWM3_IN7,TRGM_P_00,TRGM_P_01,TRGM_P_02,TRGM_P_03,TRGM_P_04,TRGM_P_05,TRGM_P_06,TRGM_P_07,TRGM_P_08,TRGM_P_09,TRGM_P_10,TRGM_P_11,TRGM_P_12,TRGM_P_13,TRGM_P_14,TRGM_P_15,TRGM_P_16,TRGM_P_17,TRGM_P_18,TRGM_P_19,TRGM_P_20,TRGM_P_21,TRGM_P_22,TRGM_P_23,TRGM_P_24,TRGM_P_25,TRGM_P_26,TRGM_P_27,TRGM_P_28,TRGM_P_29,TRGM_P_30,TRGM_P_31</dimIndex>
           <name>FILTCFG[%s]</name>
           <description>no description available</description>
           <addressOffset>0x0</addressOffset>
@@ -24640,7 +24771,7 @@ OPR[4]=0, OPR[3:0]=1 is WDG_POINTER.
         <register>
           <dim>8</dim>
           <dimIncrement>0x4</dimIncrement>
-          <dimIndex>0,4,1,5,2,6,3,7</dimIndex>
+          <dimIndex>0,1,2,3,4,5,6,7</dimIndex>
           <name>TRGM_IN[%s]</name>
           <description>no description available</description>
           <addressOffset>0x600</addressOffset>
@@ -24700,28 +24831,52 @@ OPR[4]=0, OPR[3:0]=1 is WDG_POINTER.
           <addressOffset>0x804</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
-          <resetMask>0x0000801F</resetMask>
+          <resetMask>0x00008080</resetMask>
           <fields>
             <field>
               <name>CALIB_SW_START</name>
-              <description>No description available</description>
+              <description>set to trigger calibration once by software, need to be cleared first before setting it</description>
               <bitOffset>15</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CALIB_PERIOD</name>
+              <name>CALIB_HW_ENABLE</name>
+              <description>No description available</description>
+              <bitOffset>7</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>pwm_calib_status0</name>
+          <description>No description available</description>
+          <addressOffset>0x810</addressOffset>
+          <size>32</size>
+          <resetValue>0x00000001</resetValue>
+          <resetMask>0x8000003F</resetMask>
+          <fields>
+            <field>
+              <name>CALIB_ON</name>
+              <description>No description available</description>
+              <bitOffset>31</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-only</access>
+            </field>
+            <field>
+              <name>CALIB_RESULT</name>
               <description>No description available</description>
               <bitOffset>0</bitOffset>
-              <bitWidth>5</bitWidth>
-              <access>read-write</access>
+              <bitWidth>6</bitWidth>
+              <access>read-only</access>
             </field>
           </fields>
         </register>
         <register>
           <dim>242</dim>
           <dimIncrement>0x4</dimIncrement>
-          <dimIndex>MOT_GPIO0,MOT_GPIO1,MOT_GPIO2,MOT_GPIO3,MOT_GPIO4,MOT_GPIO5,MOT_GPIO6,MOT_GPIO7,MOT_GPIO8,MOT_GPIO9,MOT_GPIO10,MOT_GPIO11,MOT_GPIO12,MOT_GPIO13,MOT_GPIO14,MOT_GPIO15,MOT_GPIO16,MOT_GPIO17,MOT_GPIO18,MOT_GPIO19,MOT_GPIO20,MOT_GPIO21,MOT_GPIO22,MOT_GPIO23,MOT_GPIO24,MOT_GPIO25,MOT_GPIO26,MOT_GPIO27,MOT_GPIO28,MOT_GPIO29,MOT_GPIO30,MOT_GPIO31,SDM_PWM_SOC0,SDM_PWM_SOC1,SDM_PWM_SOC2,SDM_PWM_SOC3,SDM_PWM_SOC4,SDM_PWM_SOC5,SDM_PWM_SOC6,SDM_PWM_SOC7,SDM_PWM_SOC8,SDM_PWM_SOC9,SDM_PWM_SOC10,SDM_PWM_SOC11,SDM_PWM_SOC12,SDM_PWM_SOC13,SDM_PWM_SOC14,SDM_PWM_SOC15,ADC0_STRGI,ADC1_STRGI,ADC2_STRGI,ADC3_STRGI,ADCx_PTRGI0A,ADCx_PTRGI0B,ADCx_PTRGI0C,ADCx_PTRGI1A,ADCx_PTRGI1B,ADCx_PTRGI1C,ADCx_PTRGI2A,ADCx_PTRGI2B,ADCx_PTRGI2C,ADCx_PTRGI3A,ADCx_PTRGI3B,ADCx_PTRGI3C,VSC0_TRIG_IN0,VSC0_TRIG_IN1,VSC1_TRIG_IN0,VSC1_TRIG_IN1,RDC0_TRIG_IN0,RDC0_TRIG_IN1,RDC1_TRIG_IN0,RDC1_TRIG_IN1,QEI0_TRIG_IN,QEI1_TRIG_IN,QEI2_TRIG_IN,QEI3_TRIG_IN,QEI0_PAUSE,QEI1_PAUSE,QEI2_PAUSE,QEI3_PAUSE,QEO0_TRIG_IN0,QEO0_TRIG_IN1,QEO1_TRIG_IN0,QEO1_TRIG_IN1,QEO2_TRIG_IN0,QEO2_TRIG_IN1,QEO3_TRIG_IN0,QEO3_TRIG_IN1,SEI_TRIG_IN0,SEI_TRIG_IN1,SEI_TRIG_IN2,SEI_TRIG_IN3,SEI_TRIG_IN4,SEI_TRIG_IN5,SEI_TRIG_IN6,SEI_TRIG_IN7,CMP0_WIN,CMP1_WIN,CMP2_WIN,CMP3_WIN,CMP4_WIN,CMP5_WIN,CMP6_WIN,CMP7_WIN,GPTMR0_IN2,GPTMR0_IN3,GPTMR0_SYNCI,GPTMR1_IN2,GPTMR1_IN3,GPTMR1_SYNCI,GPTMR2_IN2,GPTMR2_IN3,GPTMR2_SYNCI,GPTMR3_IN2,GPTMR3_IN3,GPTMR3_SYNCI,GPTMR4_IN2,GPTMR4_IN3,GPTMR4_SYNCI,GPTMR5_IN2,GPTMR5_IN3,GPTMR5_SYNCI,GPTMR6_IN2,GPTMR6_IN3,GPTMR6_SYNCI,GPTMR7_IN2,GPTMR7_IN3,GPTMR7_SYNCI,PLB_IN_00,PLB_IN_01,PLB_IN_02,PLB_IN_03,PLB_IN_04,PLB_IN_05,PLB_IN_06,PLB_IN_07,PLB_IN_08,PLB_IN_09,PLB_IN_10,PLB_IN_11,PLB_IN_12,PLB_IN_13,PLB_IN_14,PLB_IN_15,PLB_IN_16,PLB_IN_17,PLB_IN_18,PLB_IN_19,PLB_IN_20,PLB_IN_21,PLB_IN_22,PLB_IN_23,PLB_IN_24,PLB_IN_25,PLB_IN_26,PLB_IN_27,PLB_IN_28,PLB_IN_29,PLB_IN_30,PLB_IN_31,PLB_IN_32,PLB_IN_33,PLB_IN_34,PLB_IN_35,PLB_IN_36,PLB_IN_37,PLB_IN_38,PLB_IN_39,PLB_IN_40,PLB_IN_41,PLB_IN_42,PLB_IN_43,PLB_IN_44,PLB_IN_45,PLB_IN_46,PLB_IN_47,PLB_IN_48,PLB_IN_49,PLB_IN_50,PLB_IN_51,PLB_IN_52,PLB_IN_53,PLB_IN_54,PLB_IN_55,PLB_IN_56,PLB_IN_57,PLB_IN_58,PLB_IN_59,PLB_IN_60,PLB_IN_61,PLB_IN_62,PLB_IN_63,PWM0_TRIG_IN0,PWM0_TRIG_IN1,PWM0_TRIG_IN2,PWM0_TRIG_IN3,PWM0_TRIG_IN4,PWM0_TRIG_IN5,PWM0_TRIG_IN6,PWM0_TRIG_IN7,PWM1_TRIG_IN0,PWM1_TRIG_IN1,PWM1_TRIG_IN2,PWM1_TRIG_IN3,PWM1_TRIG_IN4,PWM1_TRIG_IN5,PWM1_TRIG_IN6,PWM1_TRIG_IN7,PWM2_TRIG_IN0,PWM2_TRIG_IN1,PWM2_TRIG_IN2,PWM2_TRIG_IN3,PWM2_TRIG_IN4,PWM2_TRIG_IN5,PWM2_TRIG_IN6,PWM2_TRIG_IN7,PWM3_TRIG_IN0,PWM3_TRIG_IN1,PWM3_TRIG_IN2,PWM3_TRIG_IN3,PWM3_TRIG_IN4,PWM3_TRIG_IN5,PWM3_TRIG_IN6,PWM3_TRIG_IN7,CAN_PTPC0_CAP,CAN_PTPC1_CAP,UART_TRIG0,UART_TRIG1,SYNCTIMER_TRIG,TRGM_IRQ0,TRGM_IRQ1,TRGM_DMA0,TRGM_DMA1,MTG0_TRIG_IN0,MTG0_TRIG_IN1,MTG0_TRIG_IN2,MTG0_TRIG_IN3,MTG1_TRIG_IN0,MTG1_TRIG_IN1,MTG1_TRIG_IN2,MTG1_TRIG_IN3,ESC_TRIG_IN</dimIndex>
+          <dimIndex>TRGM_P_00,TRGM_P_01,TRGM_P_02,TRGM_P_03,TRGM_P_04,TRGM_P_05,TRGM_P_06,TRGM_P_07,TRGM_P_08,TRGM_P_09,TRGM_P_10,TRGM_P_11,TRGM_P_12,TRGM_P_13,TRGM_P_14,TRGM_P_15,TRGM_P_16,TRGM_P_17,TRGM_P_18,TRGM_P_19,TRGM_P_20,TRGM_P_21,TRGM_P_22,TRGM_P_23,TRGM_P_24,TRGM_P_25,TRGM_P_26,TRGM_P_27,TRGM_P_28,TRGM_P_29,TRGM_P_30,TRGM_P_31,SDM_PWM_SOC0,SDM_PWM_SOC1,SDM_PWM_SOC2,SDM_PWM_SOC3,SDM_PWM_SOC4,SDM_PWM_SOC5,SDM_PWM_SOC6,SDM_PWM_SOC7,SDM_PWM_SOC8,SDM_PWM_SOC9,SDM_PWM_SOC10,SDM_PWM_SOC11,SDM_PWM_SOC12,SDM_PWM_SOC13,SDM_PWM_SOC14,SDM_PWM_SOC15,ADC0_STRGI,ADC1_STRGI,ADC2_STRGI,ADC3_STRGI,ADCx_PTRGI0A,ADCx_PTRGI0B,ADCx_PTRGI0C,ADCx_PTRGI1A,ADCx_PTRGI1B,ADCx_PTRGI1C,ADCx_PTRGI2A,ADCx_PTRGI2B,ADCx_PTRGI2C,ADCx_PTRGI3A,ADCx_PTRGI3B,ADCx_PTRGI3C,VSC0_TRIG_IN0,VSC0_TRIG_IN1,VSC1_TRIG_IN0,VSC1_TRIG_IN1,RDC0_TRIG_IN0,RDC0_TRIG_IN1,RDC1_TRIG_IN0,RDC1_TRIG_IN1,QEI0_TRIG_IN,QEI1_TRIG_IN,QEI2_TRIG_IN,QEI3_TRIG_IN,QEI0_PAUSE,QEI1_PAUSE,QEI2_PAUSE,QEI3_PAUSE,QEO0_TRIG_IN0,QEO0_TRIG_IN1,QEO1_TRIG_IN0,QEO1_TRIG_IN1,QEO2_TRIG_IN0,QEO2_TRIG_IN1,QEO3_TRIG_IN0,QEO3_TRIG_IN1,SEI_TRIG_IN0,SEI_TRIG_IN1,SEI_TRIG_IN2,SEI_TRIG_IN3,SEI_TRIG_IN4,SEI_TRIG_IN5,SEI_TRIG_IN6,SEI_TRIG_IN7,ACMP0_CH0_WIN,ACMP0_CH1_WIN,ACMP1_CH0_WIN,ACMP1_CH1_WIN,ACMP2_CH0_WIN,ACMP2_CH1_WIN,ACMP3_CH0_WIN,ACMP3_CH1_WIN,GPTMR0_IN2,GPTMR0_IN3,GPTMR0_SYNCI,GPTMR1_IN2,GPTMR1_IN3,GPTMR1_SYNCI,GPTMR2_IN2,GPTMR2_IN3,GPTMR2_SYNCI,GPTMR3_IN2,GPTMR3_IN3,GPTMR3_SYNCI,GPTMR4_IN2,GPTMR4_IN3,GPTMR4_SYNCI,GPTMR5_IN2,GPTMR5_IN3,GPTMR5_SYNCI,GPTMR6_IN2,GPTMR6_IN3,GPTMR6_SYNCI,GPTMR7_IN2,GPTMR7_IN3,GPTMR7_SYNCI,PLB_IN_00,PLB_IN_01,PLB_IN_02,PLB_IN_03,PLB_IN_04,PLB_IN_05,PLB_IN_06,PLB_IN_07,PLB_IN_08,PLB_IN_09,PLB_IN_10,PLB_IN_11,PLB_IN_12,PLB_IN_13,PLB_IN_14,PLB_IN_15,PLB_IN_16,PLB_IN_17,PLB_IN_18,PLB_IN_19,PLB_IN_20,PLB_IN_21,PLB_IN_22,PLB_IN_23,PLB_IN_24,PLB_IN_25,PLB_IN_26,PLB_IN_27,PLB_IN_28,PLB_IN_29,PLB_IN_30,PLB_IN_31,PLB_IN_32,PLB_IN_33,PLB_IN_34,PLB_IN_35,PLB_IN_36,PLB_IN_37,PLB_IN_38,PLB_IN_39,PLB_IN_40,PLB_IN_41,PLB_IN_42,PLB_IN_43,PLB_IN_44,PLB_IN_45,PLB_IN_46,PLB_IN_47,PLB_IN_48,PLB_IN_49,PLB_IN_50,PLB_IN_51,PLB_IN_52,PLB_IN_53,PLB_IN_54,PLB_IN_55,PLB_IN_56,PLB_IN_57,PLB_IN_58,PLB_IN_59,PLB_IN_60,PLB_IN_61,PLB_IN_62,PLB_IN_63,PWM0_TRIG_IN0,PWM0_TRIG_IN1,PWM0_TRIG_IN2,PWM0_TRIG_IN3,PWM0_TRIG_IN4,PWM0_TRIG_IN5,PWM0_TRIG_IN6,PWM0_TRIG_IN7,PWM1_TRIG_IN0,PWM1_TRIG_IN1,PWM1_TRIG_IN2,PWM1_TRIG_IN3,PWM1_TRIG_IN4,PWM1_TRIG_IN5,PWM1_TRIG_IN6,PWM1_TRIG_IN7,PWM2_TRIG_IN0,PWM2_TRIG_IN1,PWM2_TRIG_IN2,PWM2_TRIG_IN3,PWM2_TRIG_IN4,PWM2_TRIG_IN5,PWM2_TRIG_IN6,PWM2_TRIG_IN7,PWM3_TRIG_IN0,PWM3_TRIG_IN1,PWM3_TRIG_IN2,PWM3_TRIG_IN3,PWM3_TRIG_IN4,PWM3_TRIG_IN5,PWM3_TRIG_IN6,PWM3_TRIG_IN7,CAN_PTPC0_CAP,CAN_PTPC1_CAP,UART_TRIG0,UART_TRIG1,SYNCTIMER_TRIG,TRGM_IRQ0,TRGM_IRQ1,TRGM_DMA0,TRGM_DMA1,MTG0_TRIG_IN0,MTG0_TRIG_IN1,MTG0_TRIG_IN2,MTG0_TRIG_IN3,MTG1_TRIG_IN0,MTG1_TRIG_IN1,MTG1_TRIG_IN2,MTG1_TRIG_IN3,ESC_TRIG_IN</dimIndex>
           <name>TRGOCFG[%s]</name>
           <description>no description available</description>
           <addressOffset>0x1000</addressOffset>
@@ -24738,14 +24893,14 @@ OPR[4]=0, OPR[3:0]=1 is WDG_POINTER.
             </field>
             <field>
               <name>FEDG2PEN</name>
-              <description>1- The selected input signal falling edge will be convert to an pulse on output.</description>
+              <description>1- The selected input signal falling edge will be convert to an pulse on output. The output pulse can be stably used within the motor control system. When connecting the signal outside the motor system, due to the asynchronization of the clock systems, the clock frequency and signal active length need to be considered.</description>
               <bitOffset>17</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
               <name>REDG2PEN</name>
-              <description>1- The selected input signal rising edge will be convert to an pulse on output.</description>
+              <description>1- The selected input signal rising edge will be convert to an pulse on output. The output pulse can be stably used within the motor control system. When connecting the signal outside the motor system, due to the asynchronization of the clock systems, the clock frequency and signal active length need to be considered.</description>
               <bitOffset>16</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
@@ -26410,12 +26565,19 @@ OPR[4]=0, OPR[3:0]=1 is WDG_POINTER.
           <addressOffset>0x0</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
-          <resetMask>0x8FFF3338</resetMask>
+          <resetMask>0xCFFF3338</resetMask>
           <fields>
             <field>
               <name>PHASE_ABSENT_MODE</name>
               <description>whether using value_a and value_b instead of three phase</description>
               <bitOffset>31</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>POSTION_USE_LAST_LOCKED</name>
+              <description>position will not blockage vsc convert. always use last locked position, it should be cfg to 1 when position_capture_mode=2'b00 and adc valure are injected by software;</description>
+              <bitOffset>30</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
@@ -31761,7 +31923,13 @@ The actual clock is of different frequency that gets synchronized every second. 
 - When PPSCTRL = 0011, the PPS (4 Hz) is a sequence of:
   - Three clocks of 50 percent duty cycle and 268 ms period
   - Fourth clock of 195 ms period (134 ms low and 61 ms high)
+--------------------------------------------------------------------------------------------------------------------------------------
 PPSCMD0: Flexible PPS0 Output Control
+Programming these bits with a non-zero value instructs the MAC to
+initiate an event. When the command is transferred or synchronized to
+the PTP clock domain, these bits get cleared automatically. The
+Software should ensure that these bits are programmed only when they
+are “all-zero”.
 0000: No Command
 0001: START Single Pulse
 This command generates single pulse rising at the start point defined in
@@ -33292,12 +33460,6 @@ refclk is always from pad, can use external clock from pad, or use internal cloc
           </fields>
         </register>
       </registers>
-    </peripheral>
-    <peripheral derivedFrom="ENET0">
-      <name>ENET1</name>
-      <description>ENET1</description>
-      <groupName>ENET</groupName>
-      <baseAddress>0xf1404000</baseAddress>
     </peripheral>
     <peripheral>
       <name>USB0</name>
@@ -35222,7 +35384,7 @@ Bit.</description>
           <addressOffset>0x210</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
-          <resetMask>0x02007007</resetMask>
+          <resetMask>0x02007807</resetMask>
           <fields>
             <field>
               <name>GPIO_ID_SEL_N</name>
@@ -35249,6 +35411,13 @@ Bit.</description>
               <name>VBUS_VALID_OVERRIDE</name>
               <description>No description available</description>
               <bitOffset>12</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>OP_MODE_SUSPENDM_ENJ</name>
+              <description>set op_mode to 2'b01 in suspend, for naneng usbphy</description>
+              <bitOffset>11</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
@@ -35292,7 +35461,9 @@ Bit.</description>
             </field>
             <field>
               <name>UTMI_OTG_SUSPENDM</name>
-              <description>OTG suspend, not utmi_suspendm</description>
+              <description>OTG suspend, not utmi_suspendm.
+setting this bit also enable host high-speed disconnect detection logic(check DP/DM voltage at end of SOF, to determine whether 50Ohm are still there on DP/DM)
+should clear this bit before entering into suspend state(setting portsc.phcd), avoide unwanted glitch on vbus/sess_vld/sess_end</description>
               <bitOffset>1</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
@@ -38825,7 +38996,7 @@ be non-normalized.</description>
               <description>Select entry. Selected entry mapped to 0x40 – 0x5C.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>8</bitWidth>
-              <access>read-only</access>
+              <access>read-write</access>
             </field>
           </fields>
         </register>
@@ -38957,6 +39128,23 @@ be non-normalized.</description>
           </fields>
         </register>
         <register>
+          <name>CPU_PORT_EGRESS_STMID_AMACLO</name>
+          <description>No description available</description>
+          <addressOffset>0x12858</addressOffset>
+          <size>32</size>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0xFFFFFFFF</resetMask>
+          <fields>
+            <field>
+              <name>AMACL</name>
+              <description>Active Destination MAC, MAC-Address [31:0]</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
           <name>CPU_PORT_EGRESS_STMID_AMACHI</name>
           <description>No description available</description>
           <addressOffset>0x1285c</addressOffset>
@@ -38990,7 +39178,7 @@ be non-normalized.</description>
         <register>
           <name>CPU_PORT_EGRESS_FRER_CONTROL</name>
           <description>Frame Replication and Elimination</description>
-          <addressOffset>0x12a00</addressOffset>
+          <addressOffset>0x12900</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0x00000003</resetMask>
@@ -39014,7 +39202,7 @@ be non-normalized.</description>
         <register>
           <name>CPU_PORT_EGRESS_FRER_SIDSEL</name>
           <description>No description available</description>
-          <addressOffset>0x12a04</addressOffset>
+          <addressOffset>0x12904</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0x000000FF</resetMask>
@@ -39031,7 +39219,7 @@ be non-normalized.</description>
         <register>
           <name>CPU_PORT_EGRESS_FRER_IRFUNC</name>
           <description>No description available</description>
-          <addressOffset>0x12a08</addressOffset>
+          <addressOffset>0x12908</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0x800000FF</resetMask>
@@ -39055,7 +39243,7 @@ be non-normalized.</description>
         <register>
           <name>CPU_PORT_EGRESS_FRER_SRFUNC</name>
           <description>No description available</description>
-          <addressOffset>0x12a0c</addressOffset>
+          <addressOffset>0x1290c</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0x800000FF</resetMask>
@@ -39079,7 +39267,7 @@ be non-normalized.</description>
         <register>
           <name>CPU_PORT_EGRESS_FRER_FSELECT</name>
           <description>No description available</description>
-          <addressOffset>0x12a10</addressOffset>
+          <addressOffset>0x12910</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0x000000FF</resetMask>
@@ -39096,7 +39284,7 @@ be non-normalized.</description>
         <register>
           <name>CPU_PORT_EGRESS_FRER_FCTRL</name>
           <description>No description available</description>
-          <addressOffset>0x12a40</addressOffset>
+          <addressOffset>0x12940</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0x80FFFFFF</resetMask>
@@ -39155,7 +39343,7 @@ be non-normalized.</description>
         <register>
           <name>CPU_PORT_EGRESS_FRER_RESETMSEC</name>
           <description>No description available</description>
-          <addressOffset>0x12a44</addressOffset>
+          <addressOffset>0x12944</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0x00FFFFFF</resetMask>
@@ -39172,7 +39360,7 @@ be non-normalized.</description>
         <register>
           <name>CPU_PORT_EGRESS_FRER_LatRsPeriod</name>
           <description>No description available</description>
-          <addressOffset>0x12a48</addressOffset>
+          <addressOffset>0x12948</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0x00FFFFFF</resetMask>
@@ -39189,7 +39377,7 @@ be non-normalized.</description>
         <register>
           <name>CPU_PORT_EGRESS_FRER_LatTestPeriod</name>
           <description>No description available</description>
-          <addressOffset>0x12a4c</addressOffset>
+          <addressOffset>0x1294c</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0x00FFFFFF</resetMask>
@@ -39206,7 +39394,7 @@ be non-normalized.</description>
         <register>
           <name>CPU_PORT_EGRESS_FRER_LatErrDiffAlw</name>
           <description>No description available</description>
-          <addressOffset>0x12a50</addressOffset>
+          <addressOffset>0x12950</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0xFFFFFFFF</resetMask>
@@ -39223,7 +39411,7 @@ be non-normalized.</description>
         <register>
           <name>CPU_PORT_EGRESS_FRER_LatErrCnt</name>
           <description>No description available</description>
-          <addressOffset>0x12a54</addressOffset>
+          <addressOffset>0x12954</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0xFFFFFFFF</resetMask>
@@ -39243,7 +39431,7 @@ be non-normalized.</description>
           <dimIndex>CPU_PORT_EGRESS_FRER_CNT0,CPU_PORT_EGRESS_FRER_CNT1,CPU_PORT_EGRESS_FRER_CNT2,CPU_PORT_EGRESS_FRER_CNT3,CPU_PORT_EGRESS_FRER_CNT4,CPU_PORT_EGRESS_FRER_CNT5,CPU_PORT_EGRESS_FRER_CNT6,CPU_PORT_EGRESS_FRER_CNT7</dimIndex>
           <name>EGFRCNT[%s]</name>
           <description>no description available</description>
-          <addressOffset>0x12a60</addressOffset>
+          <addressOffset>0x12960</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0xFFFFFFFF</resetMask>
@@ -39649,7 +39837,7 @@ bit 1 - Port 1, …</description>
               <description>Select entry. Selected entry mapped to 0x40 – 0x5C.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>8</bitWidth>
-              <access>read-only</access>
+              <access>read-write</access>
             </field>
           </fields>
         </register>
@@ -39781,6 +39969,23 @@ bit 1 - Port 1, …</description>
           </fields>
         </register>
         <register>
+          <name>CPU_PORT_IGRESS_STMID_AMACLO</name>
+          <description>No description available</description>
+          <addressOffset>0x14858</addressOffset>
+          <size>32</size>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0xFFFFFFFF</resetMask>
+          <fields>
+            <field>
+              <name>AMACL</name>
+              <description>Active Destination MAC, MAC-Address [31:0]</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
           <name>CPU_PORT_IGRESS_STMID_AMACHI</name>
           <description>No description available</description>
           <addressOffset>0x1485c</addressOffset>
@@ -39814,7 +40019,7 @@ bit 1 - Port 1, …</description>
         <register>
           <name>CPU_PORT_IGRESS_FRER_CONTROL</name>
           <description>Frame Replication and Elimination</description>
-          <addressOffset>0x14a00</addressOffset>
+          <addressOffset>0x14900</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0x00000003</resetMask>
@@ -39838,7 +40043,7 @@ bit 1 - Port 1, …</description>
         <register>
           <name>CPU_PORT_IGRESS_FRER_SIDSEL</name>
           <description>No description available</description>
-          <addressOffset>0x14a04</addressOffset>
+          <addressOffset>0x14904</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0x000000FF</resetMask>
@@ -39855,7 +40060,7 @@ bit 1 - Port 1, …</description>
         <register>
           <name>CPU_PORT_IGRESS_FRER_IRFUNC</name>
           <description>No description available</description>
-          <addressOffset>0x14a08</addressOffset>
+          <addressOffset>0x14908</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0x800000FF</resetMask>
@@ -39879,7 +40084,7 @@ bit 1 - Port 1, …</description>
         <register>
           <name>CPU_PORT_IGRESS_FRER_SRFUNC</name>
           <description>No description available</description>
-          <addressOffset>0x14a0c</addressOffset>
+          <addressOffset>0x1490c</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0x800000FF</resetMask>
@@ -39903,7 +40108,7 @@ bit 1 - Port 1, …</description>
         <register>
           <name>CPU_PORT_IGRESS_FRER_FSELECT</name>
           <description>No description available</description>
-          <addressOffset>0x14a10</addressOffset>
+          <addressOffset>0x14910</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0x000000FF</resetMask>
@@ -39920,7 +40125,7 @@ bit 1 - Port 1, …</description>
         <register>
           <name>CPU_PORT_IGRESS_FRER_FCTRL</name>
           <description>No description available</description>
-          <addressOffset>0x14a40</addressOffset>
+          <addressOffset>0x14940</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0x80FFFFFF</resetMask>
@@ -39979,7 +40184,7 @@ bit 1 - Port 1, …</description>
         <register>
           <name>CPU_PORT_IGRESS_FRER_RESETMSEC</name>
           <description>No description available</description>
-          <addressOffset>0x14a44</addressOffset>
+          <addressOffset>0x14944</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0x00FFFFFF</resetMask>
@@ -39996,7 +40201,7 @@ bit 1 - Port 1, …</description>
         <register>
           <name>CPU_PORT_IGRESS_FRER_LatRsPeriod</name>
           <description>No description available</description>
-          <addressOffset>0x14a48</addressOffset>
+          <addressOffset>0x14948</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0x00FFFFFF</resetMask>
@@ -40013,7 +40218,7 @@ bit 1 - Port 1, …</description>
         <register>
           <name>CPU_PORT_IGRESS_FRER_LatTestPeriod</name>
           <description>No description available</description>
-          <addressOffset>0x14a4c</addressOffset>
+          <addressOffset>0x1494c</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0x00FFFFFF</resetMask>
@@ -40030,7 +40235,7 @@ bit 1 - Port 1, …</description>
         <register>
           <name>CPU_PORT_IGRESS_FRER_LatErrDiffAlw</name>
           <description>No description available</description>
-          <addressOffset>0x14a50</addressOffset>
+          <addressOffset>0x14950</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0xFFFFFFFF</resetMask>
@@ -40047,7 +40252,7 @@ bit 1 - Port 1, …</description>
         <register>
           <name>CPU_PORT_IGRESS_FRER_LatErrCnt</name>
           <description>No description available</description>
-          <addressOffset>0x14a54</addressOffset>
+          <addressOffset>0x14954</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0xFFFFFFFF</resetMask>
@@ -40067,7 +40272,7 @@ bit 1 - Port 1, …</description>
           <dimIndex>CPU_PORT_IGRESS_FRER_CNT0,CPU_PORT_IGRESS_FRER_CNT1,CPU_PORT_IGRESS_FRER_CNT2,CPU_PORT_IGRESS_FRER_CNT3,CPU_PORT_IGRESS_FRER_CNT4,CPU_PORT_IGRESS_FRER_CNT5,CPU_PORT_IGRESS_FRER_CNT6,CPU_PORT_IGRESS_FRER_CNT7</dimIndex>
           <name>IGFRCNT[%s]</name>
           <description>no description available</description>
-          <addressOffset>0x14a60</addressOffset>
+          <addressOffset>0x14960</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
           <resetMask>0xFFFFFFFF</resetMask>
@@ -40638,16 +40843,8 @@ CLKSEL is write-locked if CSA=1.</description>
                 </field>
                 <field>
                   <name>PHYSEL</name>
-                  <description>Selection of the PHY (See Chapter 4.6.)
-00 – MII
-01 – GMII
-10 – RGMII
-11 – reserved
-PHYSEL can only be changed if RX_EN=0 and TX_EN=0. Deactivation delays of
-RX_EN and TX_EN have to be considered. PHYSEL can only be changed, if these
-register bits can be read as 0. It is possible to change PHYSEL together with the
-activation of RX_EN and TX_EN.
-PHYSEL drives the output &lt;rx_physel&gt;.</description>
+                  <description>Selection of the PHY
+01 – GMII, fixed to 1</description>
                   <bitOffset>5</bitOffset>
                   <bitWidth>2</bitWidth>
                   <access>read-write</access>
@@ -41541,16 +41738,16 @@ Write access: switch to next RX buffer – shall only be done when buffer not em
               <resetMask>0xFFFFFFFF</resetMask>
               <fields>
                 <field>
-                  <name>TXBUF_BIN0_DATA_WORD0</name>
-                  <description>TXBUF_BIN0_DATA_WORD0</description>
+                  <name>TXBUF_DATA</name>
+                  <description>TXBUF_DATA</description>
                   <bitOffset>0</bitOffset>
                   <bitWidth>32</bitWidth>
-                  <access>read-write</access>
+                  <access>write-only</access>
                 </field>
               </fields>
             </register>
             <register>
-              <name>TSYN_TXBUF_BIN0_TQUE_AND_TX_LEN</name>
+              <name>TSYN_TXBUF_TQUE_AND_TX_LEN</name>
               <description>No description available</description>
               <addressOffset>0xf0</addressOffset>
               <size>32</size>
@@ -41558,23 +41755,23 @@ Write access: switch to next RX buffer – shall only be done when buffer not em
               <resetMask>0x070000FF</resetMask>
               <fields>
                 <field>
-                  <name>TXBUF_BIN0_TQUE</name>
-                  <description>TXBUF_BIN0_TQUE</description>
+                  <name>TXBUF_TQUE</name>
+                  <description>TXBUF_TQUE</description>
                   <bitOffset>24</bitOffset>
                   <bitWidth>3</bitWidth>
-                  <access>read-write</access>
+                  <access>write-only</access>
                 </field>
                 <field>
-                  <name>TXBUF_BIN0_TX_LEN</name>
-                  <description>TXBUF_BIN0_TX_LEN</description>
+                  <name>TXBUF_TX_LEN</name>
+                  <description>TXBUF_TX_LEN</description>
                   <bitOffset>0</bitOffset>
                   <bitWidth>8</bitWidth>
-                  <access>read-write</access>
+                  <access>write-only</access>
                 </field>
               </fields>
             </register>
             <register>
-              <name>TSYN_TXBUF_BIN0_TX_TIMESTAMP_L</name>
+              <name>TSYN_TXBUF_TX_TIMESTAMP_L</name>
               <description>No description available</description>
               <addressOffset>0xf8</addressOffset>
               <size>32</size>
@@ -41582,16 +41779,16 @@ Write access: switch to next RX buffer – shall only be done when buffer not em
               <resetMask>0xFFFFFFFF</resetMask>
               <fields>
                 <field>
-                  <name>TXBUF_BIN0_TX_TIMESTAMP_L</name>
-                  <description>TXBUF_BIN0_TX_TIMESTAMP_L</description>
+                  <name>TXBUF_TX_TIMESTAMP_L</name>
+                  <description>TXBUF_TX_TIMESTAMP_L</description>
                   <bitOffset>0</bitOffset>
                   <bitWidth>32</bitWidth>
-                  <access>read-write</access>
+                  <access>read-only</access>
                 </field>
               </fields>
             </register>
             <register>
-              <name>TSYN_TXBUF_BIN0_TX_TIMESTAMP_H</name>
+              <name>TSYN_TXBUF_TX_TIMESTAMP_H</name>
               <description>No description available</description>
               <addressOffset>0xfc</addressOffset>
               <size>32</size>
@@ -41599,11 +41796,11 @@ Write access: switch to next RX buffer – shall only be done when buffer not em
               <resetMask>0xFFFFFFFF</resetMask>
               <fields>
                 <field>
-                  <name>TXBUF_BIN0_TX_TIMESTAMP_H</name>
-                  <description>TXBUF_BIN0TX_TIMESTAMP_H</description>
+                  <name>TXBUF_TX_TIMESTAMP_H</name>
+                  <description>TXBUF_TX_TIMESTAMP_H</description>
                   <bitOffset>0</bitOffset>
                   <bitWidth>32</bitWidth>
-                  <access>read-write</access>
+                  <access>read-only</access>
                 </field>
               </fields>
             </register>
@@ -41783,13 +41980,13 @@ Express traffic (default)</description>
             <addressOffset>0x2120</addressOffset>
             <size>32</size>
             <resetValue>0x00000000</resetValue>
-            <resetMask>0x0000FFFF</resetMask>
+            <resetMask>0x00000001</resetMask>
             <fields>
               <field>
                 <name>CBS_EN</name>
                 <description>CBS enable traffic queue n (n = 0 – 7). Returns 0 when n &gt; TQC. Must be 0 when changing register IDSLPi.</description>
                 <bitOffset>0</bitOffset>
-                <bitWidth>16</bitWidth>
+                <bitWidth>1</bitWidth>
                 <access>read-write</access>
               </field>
             </fields>
@@ -42280,7 +42477,7 @@ Setting Bit=1 triggers configuration change event.</description>
             <description>no description available</description>
             <addressOffset>0x3800</addressOffset>
             <register>
-              <name>TSN_SHAPER_ACLIST_ENTRY0_L</name>
+              <name>TSN_SHAPER_ACLIST_ENTRY_L</name>
               <description>No description available</description>
               <addressOffset>0x0</addressOffset>
               <size>32</size>
@@ -42316,7 +42513,7 @@ Setting Bit=1 triggers configuration change event.</description>
               </fields>
             </register>
             <register>
-              <name>TSN_SHAPER_ACLIST_ENTRY0_H</name>
+              <name>TSN_SHAPER_ACLIST_ENTRY_H</name>
               <description>No description available</description>
               <addressOffset>0x4</addressOffset>
               <size>32</size>
@@ -43602,28 +43799,38 @@ are available.</description>
             <fields>
               <field>
                 <name>MAC_SPEED</name>
-                <description>mac speed</description>
+                <description>mac speed
+00: 1000Mbps
+10: 10Mbps
+11: 100Mbps</description>
                 <bitOffset>20</bitOffset>
                 <bitWidth>2</bitWidth>
                 <access>read-write</access>
               </field>
               <field>
                 <name>PAD_OE_ETH_REFCLK</name>
-                <description>refclock output enable when rmii</description>
+                <description>RMII REFCLK output enable
+0: Disable REFCLK output
+1: Enable EFCLK output</description>
                 <bitOffset>19</bitOffset>
                 <bitWidth>1</bitWidth>
                 <access>read-write</access>
               </field>
               <field>
                 <name>PHY_INTF_SEL</name>
-                <description>phy interface select</description>
+                <description>phy interface select
+000: MII
+001: RGMII
+100: RMII</description>
                 <bitOffset>13</bitOffset>
                 <bitWidth>3</bitWidth>
                 <access>read-write</access>
               </field>
               <field>
                 <name>RMII_TXCLK_SEL</name>
-                <description>txclk select control for RMII</description>
+                <description>refclk select for RMII
+0: Use RXCLK PAD
+1: Use TXCLK PAD</description>
                 <bitOffset>10</bitOffset>
                 <bitWidth>1</bitWidth>
                 <access>read-write</access>
@@ -45479,9 +45686,9 @@ This bit is always 1 if PDI has EEPROM control.</description>
 1:Second word
 …
 Actually used EEPROM Address bits:
-[9-0] : EEPROM size up to 16 Kbit
-[17-0] : EEPROM size 32 Kbit – 4 Mbit
-[31-0] : EEPROM Emulation</description>
+9-0: EEPROM size up to 16 Kbit
+17-0: EEPROM size 32 Kbit – 4 Mbit
+31-0: EEPROM Emulation</description>
               <bitOffset>0</bitOffset>
               <bitWidth>32</bitWidth>
               <access>read-write</access>
@@ -46565,7 +46772,7 @@ depending on this setting</description>
 1:PDI-controlled
 NOTE:Latch interrupt is routed to ECAT/PDI
 depending on this setting.
-Always 1 (PDI-controlled) if System Time is PDIcontrolled.</description>
+Always 1 (PDI-controlled) if System Time is PDIcontrolled.</description>
               <bitOffset>4</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-only</access>
@@ -47144,16 +47351,16 @@ asserts a PDI buffer change event</description>
           <addressOffset>0xe08</addressOffset>
           <size>64</size>
           <resetValue>0x0000000000000000</resetValue>
-          <resetMask>0x00000000FFFFFFFF</resetMask>
+          <resetMask>0xFFFFFFFFFFFFFFFF</resetMask>
           <fields>
             <field>
               <name>VID</name>
               <description>Vendor ID:
-[23-0] Company
-[31-24] Department
+23-0: Company
+31-24: Department
 NOTE:Test Vendor IDs have [31:28]=0xE</description>
               <bitOffset>0</bitOffset>
-              <bitWidth>32</bitWidth>
+              <bitWidth>64</bitWidth>
               <access>read-only</access>
             </field>
           </fields>
@@ -47953,13 +48160,20 @@ Watchdog PDI (0x0410:0x0411)</description>
           <addressOffset>0x1f010</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
-          <resetMask>0x40808080</resetMask>
+          <resetMask>0x5F808080</resetMask>
           <fields>
             <field>
               <name>MAC_SPEED</name>
               <description>1:100M</description>
               <bitOffset>30</bitOffset>
               <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>PHY_OFFSET_VAL</name>
+              <description>No description available</description>
+              <bitOffset>24</bitOffset>
+              <bitWidth>5</bitWidth>
               <access>read-write</access>
             </field>
             <field>
@@ -48104,7 +48318,8 @@ assign pdi_gpi = gpi_trig_en ? gpi_reg :
               <description>select the trigger signal to latch GPI.
 0000: SOF;  0001: EOF;  0010: pos of  SYNC0;  0011: pos of SYNC1;
 0100: pos of LATCH0;   0101: pos of LATCH1;   0110: neg of LATCH0;   0111: neg of LATCH1
-1000: wdog trigger;   1001: sw set gpio_ctrl[31];   others no trigger</description>
+1000: wdog trigger;   1001: sw set gpio_ctrl[31];
+others no trigger</description>
               <bitOffset>8</bitOffset>
               <bitWidth>4</bitWidth>
               <access>read-write</access>
@@ -48123,7 +48338,8 @@ clr to use GPO signals direclty(from reg or pad)</description>
               <description>select the trigger signal to latch GPO.
 0000: SOF;  0001: EOF;  0010: pos of  SYNC0;  0011: pos of SYNC1;
 0100: pos of LATCH0;   0101: pos of LATCH1;   0110: neg of LATCH0;   0111: neg of LATCH1
-1000: wdog trigger;   1001: sw set gpio_ctrl[30];   others no trigger</description>
+1000: wdog trigger;   1001: sw set gpio_ctrl[30];
+others no trigger</description>
               <bitOffset>0</bitOffset>
               <bitWidth>4</bitWidth>
               <access>read-write</access>
@@ -48452,13 +48668,29 @@ Reset all internal logic in SEMC except configuration register</description>
           <addressOffset>0x4</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
-          <resetMask>0x000000F0</resetMask>
+          <resetMask>0x0000FFF0</resetMask>
           <fields>
+            <field>
+              <name>IO_SCS_1</name>
+              <description>IO_SCS_1 output selection
+1001b -SRAM CE2#</description>
+              <bitOffset>12</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>IO_SCS_0</name>
+              <description>IO_SCS_0 output selection
+1000b -SRAM CE1#</description>
+              <bitOffset>8</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
             <field>
               <name>IO_CSX</name>
               <description>IO_CSX output selection
 0001b - SDRAM CS1
-0110b - SRAM CE#</description>
+0110b - SRAM CE0#</description>
               <bitOffset>4</bitOffset>
               <bitWidth>4</bitWidth>
               <access>read-write</access>
@@ -48560,7 +48792,7 @@ is multiplied by WQOS to get weight score.</description>
           </fields>
         </register>
         <register>
-          <dim>3</dim>
+          <dim>7</dim>
           <dimIncrement>0x4</dimIncrement>
           <dimIndex>BASE0,BASE1,rsv2,rsv3,rsv4,rsv5,BASE6</dimIndex>
           <name>BR[%s]</name>
@@ -48972,7 +49204,7 @@ number of Auto-Refresh command cycle sent to all SDRAM device in one refresh per
         </register>
         <register>
           <name>SRCTRL0</name>
-          <description>SRAM control register 0</description>
+          <description>SRAM0 control register 0</description>
           <addressOffset>0x70</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
@@ -49018,7 +49250,7 @@ number of Auto-Refresh command cycle sent to all SDRAM device in one refresh per
         </register>
         <register>
           <name>SRCTRL1</name>
-          <description>SRAM control register 1</description>
+          <description>SRAM0 control register 1</description>
           <addressOffset>0x74</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
@@ -49256,6 +49488,175 @@ pending device access.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-only</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <dim>2</dim>
+          <dimIncrement>0x4</dimIncrement>
+          <dimIndex>BASE0,BASE1</dimIndex>
+          <name>BR2[%s]</name>
+          <description>no description available</description>
+          <addressOffset>0x100</addressOffset>
+          <size>32</size>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0xFFFFF03F</resetMask>
+          <fields>
+            <field>
+              <name>BASE</name>
+              <description>Base Address
+This field determines high position 20 bits of SoC level Base Address. SoC level Base Address low
+position 12 bits are all zero.</description>
+              <bitOffset>12</bitOffset>
+              <bitWidth>20</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>SIZE</name>
+              <description>Memory size
+00000b - 4KB
+00001b - 8KB
+00010b - 16KB
+00011b - 32KB
+00100b - 64KB
+00101b - 128KB
+00110b - 256KB
+00111b - 512KB
+01000b - 1MB
+01001b - 2MB
+01010b - 4MB
+01011b - 8MB
+01100b - 16MB
+01101b - 32MB
+01110b - 64MB
+01111b - 128MB
+10000b - 256MB
+10001b - 512MB
+10010b - 1GB
+10011b - 2GB
+10100-11111b - 4GB</description>
+              <bitOffset>1</bitOffset>
+              <bitWidth>5</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>VLD</name>
+              <description>Valid</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SRCTRL2</name>
+          <description>SRAM1/2 control register 0</description>
+          <addressOffset>0x120</addressOffset>
+          <size>32</size>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0x00000F01</resetMask>
+          <fields>
+            <field>
+              <name>ADVH</name>
+              <description>ADV hold state
+0b - ADV is high during address hold state
+1b - ADV is low during address hold state</description>
+              <bitOffset>11</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>ADVP</name>
+              <description>ADV polarity
+0b - ADV is active low
+1b - ADV is active high</description>
+              <bitOffset>10</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>ADM</name>
+              <description>address data mode
+00b - address and data MUX mode
+11b - address and data non-MUX mode</description>
+              <bitOffset>8</bitOffset>
+              <bitWidth>2</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>PORTSZ</name>
+              <description>port size
+0b - 8bit
+1b - 16bit</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SRCTRL3</name>
+          <description>SRAM1/2 control register 1</description>
+          <addressOffset>0x124</addressOffset>
+          <size>32</size>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0xFFFFFFFF</resetMask>
+          <fields>
+            <field>
+              <name>OEH</name>
+              <description>OE high time, is OEH+1 clock cycles</description>
+              <bitOffset>28</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>OEL</name>
+              <description>OE low time, is OEL+1 clock cycles</description>
+              <bitOffset>24</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>WEH</name>
+              <description>WE high time, is WEH+1 clock cycles</description>
+              <bitOffset>20</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>WEL</name>
+              <description>WE low time, is WEL+1 clock cycles</description>
+              <bitOffset>16</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>AH</name>
+              <description>Address hold time, is AH+1 clock cycles</description>
+              <bitOffset>12</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>AS</name>
+              <description>Address setup time, is AS+1 clock cycles</description>
+              <bitOffset>8</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>CEH</name>
+              <description>Chip enable hold time, is CEH+1 clock cycles</description>
+              <bitOffset>4</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>CES</name>
+              <description>Chip enable setup time, is CES+1 clock cycles</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
             </field>
           </fields>
         </register>
@@ -51821,7 +52222,7 @@ region3: usrer configurable</description>
       </addressBlock>
       <registers>
         <register>
-          <dim>228</dim>
+          <dim>380</dim>
           <dimIncrement>0x4</dimIncrement>
           <dimIndex>cpu0,cpx0,rsv2,rsv3,rsv4,rsv5,rsv6,rsv7,cpu1,cpx1,rsv10,rsv11,rsv12,rsv13,rsv14,rsv15,rsv16,rsv17,rsv18,rsv19,rsv20,pow_cpu0,pow_cpu1,pow_otn,rst_soc,rst_cpu0,rst_cpu1,rst_otn,rsv28,rsv29,rsv30,rsv31,clk_src_xtal,clk_src_pll0,clk_src_clk0_pll0,clk_src_clk1_pll0,clk_src_pll1,clk_src_clk0_pll1,clk_src_clk1_pll1,clk_src_clk2_pll1,clk_src_pll2,clk_src_clk0_pll2,clk_src_clk1_pll2,clk_src_pll0_ref,clk_src_pll1_ref,clk_src_pll2_ref,rsv46,rsv47,rsv48,rsv49,rsv50,rsv51,rsv52,rsv53,rsv54,rsv55,rsv56,rsv57,rsv58,rsv59,rsv60,rsv61,rsv62,rsv63,clk_top_cpu0,clk_top_mct0,clk_top_cpu1,clk_top_mct1,clk_top_ahb0,clk_top_axif,clk_top_axis,clk_top_axic,clk_top_axin,clk_top_tmr0,clk_top_tmr1,clk_top_tmr2,clk_top_tmr3,clk_top_tmr4,clk_top_tmr5,clk_top_tmr6,clk_top_tmr7,clk_top_i2c0,clk_top_i2c1,clk_top_i2c2,clk_top_i2c3,clk_top_i2c4,clk_top_i2c5,clk_top_i2c6,clk_top_i2c7,clk_top_spi0,clk_top_spi1,clk_top_spi2,clk_top_spi3,clk_top_spi4,clk_top_spi5,clk_top_spi6,clk_top_spi7,clk_top_urt0,clk_top_urt1,clk_top_urt2,clk_top_urt3,clk_top_urt4,clk_top_urt5,clk_top_urt6,clk_top_urt7,clk_top_urt8,clk_top_urt9,clk_top_urt10,clk_top_urt11,clk_top_urt12,clk_top_urt13,clk_top_urt14,clk_top_urt15,clk_top_ana0,clk_top_ana1,clk_top_ana2,clk_top_ana3,clk_top_aud0,clk_top_aud1,clk_top_can0,clk_top_can1,clk_top_can2,clk_top_can3,clk_top_can4,clk_top_can5,clk_top_can6,clk_top_can7,clk_top_xpi0,clk_top_femc,clk_top_eth0,clk_top_ptp0,clk_top_ref0,clk_top_ref1,clk_top_ntm0,clk_top_tsw1,clk_top_tsw2,clk_top_tsw3,clk_top_adc0,clk_top_adc1,clk_top_adc2,clk_top_adc3,clk_top_i2s0,clk_top_i2s1,rsv143,rsv144,rsv145,rsv146,rsv147,rsv148,rsv149,rsv150,rsv151,rsv152,rsv153,rsv154,rsv155,rsv156,rsv157,rsv158,rsv159,rsv160,rsv161,rsv162,rsv163,rsv164,rsv165,rsv166,rsv167,rsv168,rsv169,rsv170,rsv171,rsv172,rsv173,rsv174,rsv175,rsv176,rsv177,rsv178,rsv179,rsv180,rsv181,rsv182,rsv183,rsv184,rsv185,rsv186,rsv187,rsv188,rsv189,rsv190,rsv191,rsv192,rsv193,rsv194,rsv195,rsv196,rsv197,rsv198,rsv199,rsv200,rsv201,rsv202,rsv203,rsv204,rsv205,rsv206,rsv207,rsv208,rsv209,rsv210,rsv211,rsv212,rsv213,rsv214,rsv215,rsv216,rsv217,rsv218,rsv219,rsv220,rsv221,rsv222,rsv223,rsv224,rsv225,rsv226,rsv227,rsv228,rsv229,rsv230,rsv231,rsv232,rsv233,rsv234,rsv235,rsv236,rsv237,rsv238,rsv239,rsv240,rsv241,rsv242,rsv243,rsv244,rsv245,rsv246,rsv247,rsv248,rsv249,rsv250,rsv251,rsv252,rsv253,rsv254,rsv255,ahbp,axis,axic,axin,rom0,lmm0,mct0,lmm1,mct1,tmr0,tmr1,tmr2,tmr3,tmr4,tmr5,tmr6,tmr7,i2c0,i2c1,i2c2,i2c3,i2c4,i2c5,i2c6,i2c7,spi0,spi1,spi2,spi3,spi4,spi5,spi6,spi7,urt0,urt1,urt2,urt3,urt4,urt5,urt6,urt7,urt8,urt9,urt10,urt11,urt12,urt13,urt14,urt15,crc0,tsns,wdg0,wdg1,wdg2,wdg3,mbx0,mbx1,gpio,ppi0,hdma,lobs,adc0,adc1,adc2,adc3,cmp0,cmp1,cmp2,cmp3,i2s0,i2s1,pdm0,clsd,can0,can1,can2,can3,can4,can5,can6,can7,ptpc,qei0,qei1,qei2,qei3,qeo0,qeo1,qeo2,qeo3,pwm0,pwm1,pwm2,pwm3,rdc0,rdc1,sdm0,sdm1,plb0,sei0,mtg0,mtg1,vsc0,vsc1,clc0,clc1,emds,rng0,sdp0,pka0,kman,xpi0,femc,ram0,ram1,xdma,ffa0,eth0,usb0,ntm0,ref0,ref1,tsw0,esc0</dimIndex>
           <name>RESOURCE[%s]</name>
@@ -54100,14 +54501,14 @@ XX0: trun off
             </field>
             <field>
               <name>OL_THRE</name>
-              <description>overload for threshold for lod power mode</description>
+              <description>overload threshold in low power mode</description>
               <bitOffset>8</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
               <name>OL_HYST</name>
-              <description>current hysteres range
+              <description>voltage ripple threshold in low power mode
 0: 12.5mV
 1: 25mV</description>
               <bitOffset>4</bitOffset>

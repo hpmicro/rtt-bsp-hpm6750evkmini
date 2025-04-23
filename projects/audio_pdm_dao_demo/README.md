@@ -24,6 +24,10 @@ msh />sd0 mounted to /
 
 - SD/eMMC卡必须被格式化FAT32格式
 
+## 已知问题
+
+- 使用DAO播放某些音频时会产生噪声。
+
 
 ## 支持的命令
 
@@ -59,7 +63,7 @@ date             - get date and time or set (local timezone) [year month day hou
 ## 运行现象
 使用`pdm_recordwav /sample.wav`命令, 对着开发板mic发声，会录制一段音频以wav格式保存在SD卡中
 ```console
-msh />pdm_recordwav /test.wav
+msh />pdm_recordwav /sample.wav
 record 10s audio data to wav file:
 samplerate: 16000
 samplebits: 32
@@ -67,7 +71,7 @@ channel number: 1
 ```
 使用`dao_playwav /sample.wav`命令, 播放sd卡中的wav，通过喇叭可听到声音
 ```console
-msh />dao_playwav /test.wav
+msh />dao_playwav /sample.wav
 wav information:
 time: 10s
 samplerate: 16000

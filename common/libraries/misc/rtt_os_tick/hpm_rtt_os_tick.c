@@ -80,14 +80,14 @@ void debug0_isr(void)
 }
 RTT_DECLARE_EXT_ISR_M(IRQn_PendSV, debug0_isr);
 
-void gptmr0_isr(void)
+void os_gtimer_isr(void)
 {
-    if (gptmr_check_status(HPM_GPTMR0, GPTMR_CH_RLD_STAT_MASK(0))) {
+    if (gptmr_check_status(BOARD_OS_TIMER, GPTMR_CH_RLD_STAT_MASK(BOARD_OS_TIMER_CH))) {
         rt_tick_increase();
-        gptmr_clear_status(HPM_GPTMR0, GPTMR_CH_RLD_STAT_MASK(0));
+        gptmr_clear_status(BOARD_OS_TIMER, GPTMR_CH_RLD_STAT_MASK(BOARD_OS_TIMER_CH));
     }
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_GPTMR0, gptmr0_isr);
+RTT_DECLARE_EXT_ISR_M(BOARD_OS_TIMER_IRQ, os_gtimer_isr);
 #endif
 
 void os_tick_config(void)
@@ -96,15 +96,15 @@ void os_tick_config(void)
     uint32_t gptmr_freq;
     gptmr_channel_config_t config;
 
-    gptmr_channel_get_default_config(HPM_GPTMR0, &config);
+    gptmr_channel_get_default_config(BOARD_OS_TIMER, &config);
 
-    gptmr_freq = clock_get_frequency(clock_gptmr0);
+    gptmr_freq = clock_get_frequency(BOARD_OS_TIMER_CLK_NAME);
     config.reload = gptmr_freq / RT_TICK_PER_SECOND;
-    gptmr_channel_config(HPM_GPTMR0, 0, &config, false);
-    gptmr_start_counter(HPM_GPTMR0, 0);
+    gptmr_channel_config(BOARD_OS_TIMER, BOARD_OS_TIMER_CH, &config, false);
+    gptmr_start_counter(BOARD_OS_TIMER, BOARD_OS_TIMER_CH);
 
-    gptmr_enable_irq(HPM_GPTMR0, GPTMR_CH_RLD_IRQ_MASK(0));
-    intc_m_enable_irq_with_priority(IRQn_GPTMR0, 1);
+    gptmr_enable_irq(BOARD_OS_TIMER, GPTMR_CH_RLD_IRQ_MASK(BOARD_OS_TIMER_CH));
+    intc_m_enable_irq_with_priority(BOARD_OS_TIMER_IRQ, 1);
 #else
     sysctl_config_clock(HPM_SYSCTL, clock_node_mchtmr0, clock_source_osc0_clk0, 1);
     sysctl_add_resource_to_cpu0(HPM_SYSCTL, sysctl_resource_mchtmr0);

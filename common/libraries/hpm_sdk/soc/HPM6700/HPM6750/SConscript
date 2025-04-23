@@ -12,7 +12,6 @@ path = [ cwd, cwd + '/boot' ]
 # The set of source files associated with this SConscript file.
 src = Split('''
     system.c
-    hpm_l1c_drv.c
     hpm_sysctl_drv.c
     hpm_clock_drv.c
     hpm_otp_drv.c

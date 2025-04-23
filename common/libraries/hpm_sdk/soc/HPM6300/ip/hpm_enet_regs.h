@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 HPMicro
+ * Copyright (c) 2021-2025 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -4431,6 +4431,17 @@ ICMP payload */
 #define ENET_PPS_CTRL_TRGTMODSEL1_GET(x) (((uint32_t)(x) & ENET_PPS_CTRL_TRGTMODSEL1_MASK) >> ENET_PPS_CTRL_TRGTMODSEL1_SHIFT)
 
 /*
+ * PPSEN1 (RW)
+ *
+ * "Flexible PPS Output Mode Enable
+ * When set low, Bits [3:0] function as PPSCTRL (backward compatible). When set high, Bits[3:0] function as PPSCMD."
+ */
+#define ENET_PPS_CTRL_PPSEN1_MASK (0x1000U)
+#define ENET_PPS_CTRL_PPSEN1_SHIFT (12U)
+#define ENET_PPS_CTRL_PPSEN1_SET(x) (((uint32_t)(x) << ENET_PPS_CTRL_PPSEN1_SHIFT) & ENET_PPS_CTRL_PPSEN1_MASK)
+#define ENET_PPS_CTRL_PPSEN1_GET(x) (((uint32_t)(x) & ENET_PPS_CTRL_PPSEN1_MASK) >> ENET_PPS_CTRL_PPSEN1_SHIFT)
+
+/*
  * PPSCMD1 (WO)
  *
  * Flexible PPS1 Output Control
@@ -4489,7 +4500,13 @@ ICMP payload */
  * - When PPSCTRL = 0011, the PPS (4 Hz) is a sequence of:
  *   - Three clocks of 50 percent duty cycle and 268 ms period
  *   - Fourth clock of 195 ms period (134 ms low and 61 ms high)
+ * --------------------------------------------------------------------------------------------------------------------------------------
  * PPSCMD0: Flexible PPS0 Output Control
+ * Programming these bits with a non-zero value instructs the MAC to
+ * initiate an event. When the command is transferred or synchronized to
+ * the PTP clock domain, these bits get cleared automatically. The
+ * Software should ensure that these bits are programmed only when they
+ * are “all-zero”.
  * 0000: No Command
  * 0001: START Single Pulse
  * This command generates single pulse rising at the start point defined in

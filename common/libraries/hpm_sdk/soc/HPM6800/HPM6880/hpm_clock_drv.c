@@ -33,6 +33,10 @@
 #define CLOCK_ON (true)
 #define CLOCK_OFF (false)
 
+typedef struct _pllclk_div_map {
+    uint8_t pll_idx;
+    uint8_t pll_div;
+} clk_pll_div_map_t;
 
 /***********************************************************************************************************************
  * Prototypes
@@ -77,6 +81,17 @@ static const clock_node_t s_adc_clk_mux_node[] = {
 };
 
 static EWDG_Type *const s_wdgs[] = { HPM_EWDG0, HPM_EWDG1};
+
+static const clk_pll_div_map_t s_clk_pll_div_map[] = {
+    {0xFF, 1}, /* OSC, Div 1 */
+    {pllctlv2_pll0, pllctlv2_clk0}, /* PLL0, clock 0 */
+    {pllctlv2_pll1, pllctlv2_clk0}, /* PLL1, clock 0 */
+    {pllctlv2_pll1, pllctlv2_clk1}, /* PLL1, clock 1 */
+    {pllctlv2_pll2, pllctlv2_clk0}, /* PLL2, clock 0 */
+    {pllctlv2_pll2, pllctlv2_clk1}, /* PLL2, clock 1 */
+    {pllctlv2_pll3, pllctlv2_clk0}, /* PLL3, clock 0 */
+    {pllctlv2_pll4, pllctlv2_clk0}, /* PLL4, clock 0 */
+};
 
 uint32_t hpm_core_clock;
 
@@ -134,25 +149,25 @@ uint32_t get_frequency_for_source(clock_source_t source)
         clk_freq = FREQ_PRESET1_OSC0_CLK0;
         break;
     case clock_source_pll0_clk0:
-        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, 0U, 0U);
+        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, pllctlv2_pll0, pllctlv2_clk0);
         break;
     case clock_source_pll1_clk0:
-        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, 1U, 0U);
+        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, pllctlv2_pll1, pllctlv2_clk0);
         break;
     case clock_source_pll1_clk1:
-        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, 1U, 1U);
+        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, pllctlv2_pll1, pllctlv2_clk1);
         break;
     case clock_source_pll2_clk0:
-        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, 2U, 0U);
+        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, pllctlv2_pll2, pllctlv2_clk0);
         break;
     case clock_source_pll2_clk1:
-        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, 2U, 1U);
+        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, pllctlv2_pll2, pllctlv2_clk1);
         break;
     case clock_source_pll3_clk0:
-        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, 3U, 0U);
+        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, pllctlv2_pll3, pllctlv2_clk0);
         break;
     case clock_source_pll4_clk0:
-        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, 4U, 0U);
+        clk_freq = pllctlv2_get_pll_postdiv_freq_in_hz(HPM_PLLCTLV2, pllctlv2_pll4, pllctlv2_clk0);
         break;
     default:
         clk_freq = 0UL;
@@ -319,6 +334,27 @@ clk_src_t clock_get_source(clock_name_t clock_name)
     return clk_src;
 }
 
+hpm_stat_t clock_wait_source_stable(clock_name_t clock_name)
+{
+    clk_src_t clk_src = clock_get_source(clock_name);
+    if (clk_src == clk_src_invalid) {
+        return status_invalid_argument;
+    }
+    uint64_t ticks_per_ms = clock_get_core_clock_ticks_per_ms();
+    uint64_t timeout_ticks = hpm_csr_get_core_cycle() + 100UL * ticks_per_ms;
+    const clk_pll_div_map_t *map_entry = &s_clk_pll_div_map[clk_src];
+    bool is_stable;
+    do {
+        is_stable = (map_entry->pll_idx == 0xFF) ? pllctlv2_xtal_is_stable(HPM_PLLCTLV2)
+                                                 : pllctlv2_pll_is_stable(HPM_PLLCTLV2, map_entry->pll_idx);
+        if (hpm_csr_get_core_cycle() > timeout_ticks) {
+            return status_timeout;
+        }
+    } while (!is_stable);
+
+    return status_success;
+}
+
 uint32_t clock_get_divider(clock_name_t clock_name)
 {
     uint32_t clk_divider = CLOCK_DIV_INVALID;
@@ -364,7 +400,7 @@ hpm_stat_t clock_set_adc_source(clock_name_t clock_name, clk_src_t src)
         return status_clk_invalid;
     }
 
-    if ((src < clk_adc_src_ana0) || (src > clk_adc_src_ahb0)) {
+    if ((src < clk_adc_src_ana0) || (src > clk_adc_src_axi0)) {
         return status_clk_src_invalid;
     }
 
@@ -384,7 +420,7 @@ hpm_stat_t clock_set_i2s_source(clock_name_t clock_name, clk_src_t src)
         return status_clk_invalid;
     }
 
-    if ((src < clk_i2s_src_aud0) || (src > clk_i2s_src_audx)) {
+    if ((src < clk_i2s_src_audn) || (src > clk_i2s_src_audx)) {
         return status_clk_src_invalid;
     }
 
@@ -410,8 +446,8 @@ hpm_stat_t clock_set_wdg_source(clock_name_t clock_name, clk_src_t src)
         }
     } else {
         uint32_t instance = GET_CLK_SRC_INDEX(clock_name);
-        if ((src == clk_wdg_src_ahb0) || (src == clk_wdg_src_osc32k)) {
-             uint32_t wdg_clk_src_in_ip = (uint32_t)(src - clk_wdg_src_ahb0);
+        if ((src == clk_wdg_src_axi0) || (src == clk_wdg_src_osc32k)) {
+             uint32_t wdg_clk_src_in_ip = (uint32_t)(src - clk_wdg_src_axi0);
             s_wdgs[instance]->CTRL0 = (s_wdgs[instance]->CTRL0 & ~EWDG_CTRL0_CLK_SEL_MASK) | EWDG_CTRL0_CLK_SEL_SET(wdg_clk_src_in_ip);
         } else {
             return status_invalid_argument;
@@ -541,12 +577,27 @@ static uint64_t get_core_mcycle(void)
     return result;
  }
 
+uint32_t clock_get_core_clock_ticks_per_us(void)
+{
+    if (hpm_core_clock == 0U) {
+        clock_update_core_clock();
+    }
+    return (hpm_core_clock + FREQ_1MHz - 1U) / FREQ_1MHz;
+}
+
+uint32_t clock_get_core_clock_ticks_per_ms(void)
+{
+    if (hpm_core_clock == 0U) {
+        clock_update_core_clock();
+    }
+    return (hpm_core_clock + FREQ_1MHz - 1U) / 1000;
+}
+
 void clock_cpu_delay_us(uint32_t us)
 {
-    uint32_t ticks_per_us = (hpm_core_clock + FREQ_1MHz - 1U) / FREQ_1MHz;
     uint32_t mcounteren = read_csr(CSR_MCOUNTEREN);
     write_csr(CSR_MCOUNTEREN, mcounteren | 1); /* Enable MCYCLE */
-    uint64_t expected_ticks = get_core_mcycle() + ticks_per_us * us;
+    uint64_t expected_ticks = get_core_mcycle() + (uint64_t)clock_get_core_clock_ticks_per_us() * (uint64_t)us;
     while (get_core_mcycle() < expected_ticks) {
     }
     write_csr(CSR_MCOUNTEREN, mcounteren); /* Restore MCOUNTEREN */
@@ -554,10 +605,9 @@ void clock_cpu_delay_us(uint32_t us)
 
 void clock_cpu_delay_ms(uint32_t ms)
 {
-    uint32_t ticks_per_us = (hpm_core_clock + FREQ_1MHz - 1U) / FREQ_1MHz;
     uint32_t mcounteren = read_csr(CSR_MCOUNTEREN);
     write_csr(CSR_MCOUNTEREN, mcounteren | 1); /* Enable MCYCLE */
-    uint64_t expected_ticks = get_core_mcycle() + (uint64_t)ticks_per_us * 1000UL * ms;
+    uint64_t expected_ticks = get_core_mcycle() + (uint64_t)clock_get_core_clock_ticks_per_ms() * (uint64_t)ms;
     while (get_core_mcycle() < expected_ticks) {
     }
     write_csr(CSR_MCOUNTEREN, mcounteren); /* Restore MCOUNTEREN */

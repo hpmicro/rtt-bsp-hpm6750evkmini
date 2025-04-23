@@ -21,6 +21,7 @@
 #include "hpm_dma_mgr.h"
 #include "hpm_soc.h"
 #include "hpm_rtt_interrupt_util.h"
+#include "hpm_clock_drv.h"
 
 #ifdef RT_USING_SERIAL_V2
 
@@ -46,7 +47,9 @@ static void hpm_uart_receive_dma_next(struct rt_serial_device *serial);
 
 struct hpm_uart {
     UART_Type *uart_base;
-    uint32_t irq_num;
+    rt_uint32_t irq_num;
+    rt_uint8_t irq_priority;
+    clock_name_t clk_name;
     struct rt_serial_device *serial;
     char *device_name;
 #ifdef RT_SERIAL_USING_DMA
@@ -256,6 +259,12 @@ static struct hpm_uart uarts[] =
 {
     HPM_UART0,
     IRQn_UART0,
+#if defined(BSP_UART0_IRQ_PRIORITY)
+    .irq_priority = BSP_UART0_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+    clock_uart0,
     &serial0,
     "uart0",
 #ifdef RT_SERIAL_USING_DMA
@@ -270,6 +279,12 @@ static struct hpm_uart uarts[] =
 {
     HPM_UART1,
     IRQn_UART1,
+#if defined(BSP_UART1_IRQ_PRIORITY)
+    .irq_priority = BSP_UART1_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+    clock_uart1,
     &serial1,
     "uart1",
 #ifdef RT_SERIAL_USING_DMA
@@ -284,6 +299,12 @@ static struct hpm_uart uarts[] =
 {
     HPM_UART2,
     IRQn_UART2,
+#if defined(BSP_UART2_IRQ_PRIORITY)
+    .irq_priority = BSP_UART2_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+    clock_uart2,
     &serial2,
     "uart2",
 #ifdef RT_SERIAL_USING_DMA
@@ -298,6 +319,12 @@ static struct hpm_uart uarts[] =
 {
     HPM_UART3,
     IRQn_UART3,
+#if defined(BSP_UART3_IRQ_PRIORITY)
+    .irq_priority = BSP_UART3_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+    clock_uart3,
     &serial3,
     "uart3",
 #ifdef RT_SERIAL_USING_DMA
@@ -312,6 +339,12 @@ static struct hpm_uart uarts[] =
 {
     HPM_UART4,
     IRQn_UART4,
+#if defined(BSP_UART4_IRQ_PRIORITY)
+    .irq_priority = BSP_UART4_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+    clock_uart4,
     &serial4,
     "uart4",
 #ifdef RT_SERIAL_USING_DMA
@@ -326,6 +359,12 @@ static struct hpm_uart uarts[] =
 {
     HPM_UART5,
     IRQn_UART5,
+#if defined(BSP_UART5_IRQ_PRIORITY)
+    .irq_priority = BSP_UART5_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+    clock_uart5,
     &serial5,
     "uart5",
 #ifdef RT_SERIAL_USING_DMA
@@ -340,6 +379,12 @@ static struct hpm_uart uarts[] =
 {
     HPM_UART6,
     IRQn_UART6,
+#if defined(BSP_UART6_IRQ_PRIORITY)
+    .irq_priority = BSP_UART6_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+    clock_uart6,
     &serial6,
     "uart6",
 #ifdef RT_SERIAL_USING_DMA
@@ -354,6 +399,12 @@ static struct hpm_uart uarts[] =
 {
     HPM_UART7,
     IRQn_UART7,
+#if defined(BSP_UART7_IRQ_PRIORITY)
+    .irq_priority = BSP_UART7_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+    clock_uart7,
     &serial7,
     "uart7",
 #ifdef RT_SERIAL_USING_DMA
@@ -368,6 +419,12 @@ static struct hpm_uart uarts[] =
 {
     HPM_UART8,
     IRQn_UART8,
+#if defined(BSP_UART8_IRQ_PRIORITY)
+    .irq_priority = BSP_UART8_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+    clock_uart8,
     &serial8,
     "uart8",
 #ifdef RT_SERIAL_USING_DMA
@@ -382,6 +439,12 @@ static struct hpm_uart uarts[] =
 {
     HPM_UART9,
     IRQn_UART9,
+#if defined(BSP_UART9_IRQ_PRIORITY)
+    .irq_priority = BSP_UART9_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+    clock_uart9,
     &serial9,
     "uart9",
 #ifdef RT_SERIAL_USING_DMA
@@ -396,6 +459,12 @@ static struct hpm_uart uarts[] =
 {
     HPM_UART10,
     IRQn_UART10,
+#if defined(BSP_UART10_IRQ_PRIORITY)
+    .irq_priority = BSP_UART10_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+    clock_uart10,
     &serial10,
     "uart10",
 #ifdef RT_SERIAL_USING_DMA
@@ -410,6 +479,12 @@ static struct hpm_uart uarts[] =
 {
     HPM_UART11,
     IRQn_UART11,
+#if defined(BSP_UART11_IRQ_PRIORITY)
+    .irq_priority = BSP_UART11_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+    clock_uart11,
     &serial11,
     "uart11",
 #ifdef RT_SERIAL_USING_DMA
@@ -424,6 +499,12 @@ static struct hpm_uart uarts[] =
 {
     HPM_UART12,
     IRQn_UART12,
+#if defined(BSP_UART12_IRQ_PRIORITY)
+    .irq_priority = BSP_UART12_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+    clock_uart12,
     &serial12,
     "uart12",
 #ifdef RT_SERIAL_USING_DMA
@@ -438,6 +519,12 @@ static struct hpm_uart uarts[] =
 {
     HPM_UART13,
     IRQn_UART13,
+#if defined(BSP_UART13_IRQ_PRIORITY)
+    .irq_priority = BSP_UART13_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+    clock_uart13,
     &serial13,
     "uart13",
 #ifdef RT_SERIAL_USING_DMA
@@ -452,6 +539,12 @@ static struct hpm_uart uarts[] =
 {
     HPM_UART14,
     IRQn_UART14,
+#if defined(BSP_UART14_IRQ_PRIORITY)
+    .irq_priority = BSP_UART14_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+    clock_uart14,
     &serial14,
     "uart14",
 #ifdef RT_SERIAL_USING_DMA
@@ -466,6 +559,12 @@ static struct hpm_uart uarts[] =
 {
     HPM_UART15,
     IRQn_UART15,
+#if defined(BSP_UART15_IRQ_PRIORITY)
+    .irq_priority = BSP_UART15_IRQ_PRIORITY,
+#else
+    .irq_priority = 1,
+#endif
+    clock_uart15,
     &serial15,
     "uart15",
 #ifdef RT_SERIAL_USING_DMA
@@ -702,8 +801,8 @@ static rt_err_t hpm_uart_configure(struct rt_serial_device *serial, struct seria
 
     init_uart_pins(uart->uart_base);
     uart_default_config(uart->uart_base, &uart_config);
-
-    uart_config.src_freq_in_hz = board_init_uart_clock(uart->uart_base);
+    clock_add_to_group(uart->clk_name, BOARD_RUNNING_CORE & 0x1);
+    uart_config.src_freq_in_hz = clock_get_frequency(uart->clk_name);
     uart_config.baudrate = cfg->baud_rate;
     uart_config.num_of_stop_bits = cfg->stop_bits;
     uart_config.parity = cfg->parity;
@@ -806,7 +905,7 @@ static int hpm_uart_dma_config(struct rt_serial_device *serial, void *arg)
 #if !defined(HPM_IP_FEATURE_UART_RX_IDLE_DETECT) || (HPM_IP_FEATURE_UART_RX_IDLE_DETECT == 0)
         hpm_uart_dma_register_channel(serial, false, uart_rx_done, RT_NULL, RT_NULL);
 #else
-        intc_m_enable_irq_with_priority(uart->irq_num, 1);
+        intc_m_enable_irq_with_priority(uart->irq_num, uart->irq_priority);
 #endif
     } else if (ctrl_arg == RT_DEVICE_FLAG_DMA_TX) {
         chg_config.src_addr_ctrl = DMA_MGR_ADDRESS_CONTROL_INCREMENT;
@@ -927,11 +1026,11 @@ static rt_err_t hpm_uart_control(struct rt_serial_device *serial, int cmd, void 
             if (ctrl_arg == RT_DEVICE_FLAG_INT_RX) {
                 /* enable rx irq */
                 uart_enable_irq(uart->uart_base, uart_intr_rx_data_avail_or_timeout);
-                intc_m_enable_irq_with_priority(uart->irq_num, 2);
+                intc_m_enable_irq_with_priority(uart->irq_num, uart->irq_priority);
             } else if (ctrl_arg == RT_DEVICE_FLAG_INT_TX) {
                 /* enable tx irq */
                 uart_enable_irq(uart->uart_base, uart_intr_tx_slot_avail);
-                intc_m_enable_irq_with_priority(uart->irq_num, 1);
+                intc_m_enable_irq_with_priority(uart->irq_num, uart->irq_priority);
             }
             break;
 

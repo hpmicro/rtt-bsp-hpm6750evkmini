@@ -10,9 +10,6 @@
 #include "hpm_soc_feature.h"
 #include "rtthread.h"
 
-#define CHERRYUSB_VERSION     0x010300
-#define CHERRYUSB_VERSION_STR "v1.3.0"
-
 /* ================ USB common Configuration ================ */
 
 #define CONFIG_USB_PRINTF(...) rt_kprintf(__VA_ARGS__)

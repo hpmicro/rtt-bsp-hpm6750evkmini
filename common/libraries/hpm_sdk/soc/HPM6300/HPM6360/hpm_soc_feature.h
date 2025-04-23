@@ -12,6 +12,17 @@
 #include "hpm_soc_ip_feature.h"
 
 /*
+ * Cache section
+ */
+#define HPM_L1C_CACHE_SIZE (uint32_t)(32 * SIZE_1KB)
+#define HPM_L1C_ICACHE_SIZE (HPM_L1C_CACHE_SIZE)
+#define HPM_L1C_DCACHE_SIZE (HPM_L1C_CACHE_SIZE)
+#define HPM_L1C_CACHELINE_SIZE (64)
+#define HPM_L1C_CACHELINES_PER_WAY (128)
+#define HPM_L1C_CACHELINE_ALIGN_DOWN(n) ((uint32_t)(n) & ~(HPM_L1C_CACHELINE_SIZE - 1U))
+#define HPM_L1C_CACHELINE_ALIGN_UP(n)   HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)(n) + HPM_L1C_CACHELINE_SIZE - 1U)
+
+/*
  * I2C Section
  */
 #define I2C_SOC_FIFO_SIZE (4U)
@@ -101,7 +112,6 @@
 /*
 * ENET Section
 */
-#define ENET_SOC_RGMII_EN                          (0U)
 #define ENET_SOC_DESC_ADDR_ALIGNMENT               (32U)
 #define ENET_SOC_BUFF_ADDR_ALIGNMENT               (4U)
 #define ENET_SOC_ADDR_MAX_COUNT                    (5U)
@@ -109,7 +119,7 @@
 #define ENET_SOC_ALT_EHD_DES_MAX_LEN               (8U)
 #define ENET_SOC_ALT_EHD_DES_LEN                   (8U)
 #define ENET_SOC_PPS_MAX_COUNT                     (2L)
-#define ENET_SOC_PPS1_EN                           (0U)
+#define ENET_SOC_DMA_BUS_WIDTH_IN_BYTES            (4U)
 
 /*
 * ADC Section
@@ -208,5 +218,11 @@
 #define PWM_SOC_HRPWM_SUPPORT  (0U)
 #define PWM_SOC_SHADOW_TRIG_SUPPORT (0U)
 #define PWM_SOC_TIMER_RESET_SUPPORT (1U)
+
+/**
+ * @brief FFA Section
+ *
+ */
+#define FFA_SOC_BUFFER_MAX (4096U)
 
 #endif /* HPM_SOC_FEATURE_H */

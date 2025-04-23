@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 HPMicro
+ * Copyright (c) 2024-2025 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -134,6 +134,8 @@ void irq_handler_trap(void)
 #ifdef __riscv_flen
     int fcsr = read_fcsr();
 #endif
+    int mcctlbeginaddr = read_csr(CSR_MCCTLBEGINADDR);
+    int mcctldata = read_csr(CSR_MCCTLDATA);
 
     /* clobbers list for ecall */
 #ifdef __riscv_32e
@@ -162,7 +164,6 @@ void irq_handler_trap(void)
             ((isr_func_t)__vector_table[irq_index])();
             __plic_complete_irq(HPM_PLIC_BASE, HPM_PLIC_TARGET_M_MODE, irq_index);
         }
-
     }
 #endif
 
@@ -203,10 +204,12 @@ void irq_handler_trap(void)
 #ifdef __riscv_flen
     write_fcsr(fcsr);
 #endif
+    write_csr(CSR_MCCTLDATA, mcctldata);
+    write_csr(CSR_MCCTLBEGINADDR, mcctlbeginaddr);
 }
 
 
-#if !defined(CONFIG_FREERTOS) && !defined(CONFIG_UCOS_III) && !defined(CONFIG_THREADX)
+#if !defined(CONFIG_FREERTOS) && !defined(CONFIG_UCOS_III) && !defined(CONFIG_THREADX) && !defined(CONFIG_RTTHREAD)
 HPM_ATTR_SUPERVISOR_INTERRUPT void irq_handler_s_trap(void);
 #define IRQ_HANDLER_TRAP_AS_ISR 1
 #else

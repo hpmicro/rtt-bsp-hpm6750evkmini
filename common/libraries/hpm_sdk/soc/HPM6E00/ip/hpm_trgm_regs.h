@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 HPMicro
+ * Copyright (c) 2021-2025 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -35,13 +35,15 @@ typedef struct {
     __RW uint32_t POS_MATRIX_SEL1;             /* 0x5C4: position matrix select register0 */
     __RW uint32_t POS_MATRIX_SEL2;             /* 0x5C8: position matrix select register2 */
     __R  uint8_t  RESERVED5[52];               /* 0x5CC - 0x5FF: Reserved */
-    __R  uint32_t TRGM_IN[4];                  /* 0x600 - 0x60C: trigmux input read register0 */
-    __R  uint8_t  RESERVED6[112];              /* 0x610 - 0x67F: Reserved */
+    __R  uint32_t TRGM_IN[8];                  /* 0x600 - 0x61C: trigmux input read register0 */
+    __R  uint8_t  RESERVED6[96];               /* 0x620 - 0x67F: Reserved */
     __R  uint32_t TRGM_OUT[8];                 /* 0x680 - 0x69C: trigmux output read register0 */
     __R  uint8_t  RESERVED7[352];              /* 0x6A0 - 0x7FF: Reserved */
     __RW uint32_t PWM_DELAY_CFG;               /* 0x800: pwm delay chain config register */
     __RW uint32_t PWM_CALIB_CFG;               /* 0x804: pwm delay chain calibration control register */
-    __R  uint8_t  RESERVED8[2040];             /* 0x808 - 0xFFF: Reserved */
+    __R  uint8_t  RESERVED8[8];                /* 0x808 - 0x80F: Reserved */
+    __R  uint32_t PWM_CALIB_STATUS0;           /* 0x810:  */
+    __R  uint8_t  RESERVED9[2028];             /* 0x814 - 0xFFF: Reserved */
     __RW uint32_t TRGOCFG[242];                /* 0x1000 - 0x13C4: Trigger manager output configure register */
 } TRGM_Type;
 
@@ -755,6 +757,7 @@ typedef struct {
 /*
  * CALIB_SW_START (RW)
  *
+ * set to trigger calibration once by software, need to be cleared first before setting it
  */
 #define TRGM_PWM_CALIB_CFG_CALIB_SW_START_MASK (0x8000U)
 #define TRGM_PWM_CALIB_CFG_CALIB_SW_START_SHIFT (15U)
@@ -762,13 +765,30 @@ typedef struct {
 #define TRGM_PWM_CALIB_CFG_CALIB_SW_START_GET(x) (((uint32_t)(x) & TRGM_PWM_CALIB_CFG_CALIB_SW_START_MASK) >> TRGM_PWM_CALIB_CFG_CALIB_SW_START_SHIFT)
 
 /*
- * CALIB_PERIOD (RW)
+ * CALIB_HW_ENABLE (RW)
  *
  */
-#define TRGM_PWM_CALIB_CFG_CALIB_PERIOD_MASK (0x1FU)
-#define TRGM_PWM_CALIB_CFG_CALIB_PERIOD_SHIFT (0U)
-#define TRGM_PWM_CALIB_CFG_CALIB_PERIOD_SET(x) (((uint32_t)(x) << TRGM_PWM_CALIB_CFG_CALIB_PERIOD_SHIFT) & TRGM_PWM_CALIB_CFG_CALIB_PERIOD_MASK)
-#define TRGM_PWM_CALIB_CFG_CALIB_PERIOD_GET(x) (((uint32_t)(x) & TRGM_PWM_CALIB_CFG_CALIB_PERIOD_MASK) >> TRGM_PWM_CALIB_CFG_CALIB_PERIOD_SHIFT)
+#define TRGM_PWM_CALIB_CFG_CALIB_HW_ENABLE_MASK (0x80U)
+#define TRGM_PWM_CALIB_CFG_CALIB_HW_ENABLE_SHIFT (7U)
+#define TRGM_PWM_CALIB_CFG_CALIB_HW_ENABLE_SET(x) (((uint32_t)(x) << TRGM_PWM_CALIB_CFG_CALIB_HW_ENABLE_SHIFT) & TRGM_PWM_CALIB_CFG_CALIB_HW_ENABLE_MASK)
+#define TRGM_PWM_CALIB_CFG_CALIB_HW_ENABLE_GET(x) (((uint32_t)(x) & TRGM_PWM_CALIB_CFG_CALIB_HW_ENABLE_MASK) >> TRGM_PWM_CALIB_CFG_CALIB_HW_ENABLE_SHIFT)
+
+/* Bitfield definition for register: PWM_CALIB_STATUS0 */
+/*
+ * CALIB_ON (RO)
+ *
+ */
+#define TRGM_PWM_CALIB_STATUS0_CALIB_ON_MASK (0x80000000UL)
+#define TRGM_PWM_CALIB_STATUS0_CALIB_ON_SHIFT (31U)
+#define TRGM_PWM_CALIB_STATUS0_CALIB_ON_GET(x) (((uint32_t)(x) & TRGM_PWM_CALIB_STATUS0_CALIB_ON_MASK) >> TRGM_PWM_CALIB_STATUS0_CALIB_ON_SHIFT)
+
+/*
+ * CALIB_RESULT (RO)
+ *
+ */
+#define TRGM_PWM_CALIB_STATUS0_CALIB_RESULT_MASK (0x3FU)
+#define TRGM_PWM_CALIB_STATUS0_CALIB_RESULT_SHIFT (0U)
+#define TRGM_PWM_CALIB_STATUS0_CALIB_RESULT_GET(x) (((uint32_t)(x) & TRGM_PWM_CALIB_STATUS0_CALIB_RESULT_MASK) >> TRGM_PWM_CALIB_STATUS0_CALIB_RESULT_SHIFT)
 
 /* Bitfield definition for register array: TRGOCFG */
 /*
@@ -784,7 +804,7 @@ typedef struct {
 /*
  * FEDG2PEN (RW)
  *
- * 1- The selected input signal falling edge will be convert to an pulse on output.
+ * 1- The selected input signal falling edge will be convert to an pulse on output. The output pulse can be stably used within the motor control system. When connecting the signal outside the motor system, due to the asynchronization of the clock systems, the clock frequency and signal active length need to be considered.
  */
 #define TRGM_TRGOCFG_FEDG2PEN_MASK (0x20000UL)
 #define TRGM_TRGOCFG_FEDG2PEN_SHIFT (17U)
@@ -794,7 +814,7 @@ typedef struct {
 /*
  * REDG2PEN (RW)
  *
- * 1- The selected input signal rising edge will be convert to an pulse on output.
+ * 1- The selected input signal rising edge will be convert to an pulse on output. The output pulse can be stably used within the motor control system. When connecting the signal outside the motor system, due to the asynchronization of the clock systems, the clock frequency and signal active length need to be considered.
  */
 #define TRGM_TRGOCFG_REDG2PEN_MASK (0x10000UL)
 #define TRGM_TRGOCFG_REDG2PEN_SHIFT (16U)
@@ -846,38 +866,38 @@ typedef struct {
 #define TRGM_FILTCFG_PWM3_IN5 (29UL)
 #define TRGM_FILTCFG_PWM3_IN6 (30UL)
 #define TRGM_FILTCFG_PWM3_IN7 (31UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN0 (32UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN1 (33UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN2 (34UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN3 (35UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN4 (36UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN5 (37UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN6 (38UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN7 (39UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN8 (40UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN9 (41UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN10 (42UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN11 (43UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN12 (44UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN13 (45UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN14 (46UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN15 (47UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN16 (48UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN17 (49UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN18 (50UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN19 (51UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN20 (52UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN21 (53UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN22 (54UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN23 (55UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN24 (56UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN25 (57UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN26 (58UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN27 (59UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN28 (60UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN29 (61UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN30 (62UL)
-#define TRGM_FILTCFG_MOTO_GPIO_IN31 (63UL)
+#define TRGM_FILTCFG_TRGM_P_00 (32UL)
+#define TRGM_FILTCFG_TRGM_P_01 (33UL)
+#define TRGM_FILTCFG_TRGM_P_02 (34UL)
+#define TRGM_FILTCFG_TRGM_P_03 (35UL)
+#define TRGM_FILTCFG_TRGM_P_04 (36UL)
+#define TRGM_FILTCFG_TRGM_P_05 (37UL)
+#define TRGM_FILTCFG_TRGM_P_06 (38UL)
+#define TRGM_FILTCFG_TRGM_P_07 (39UL)
+#define TRGM_FILTCFG_TRGM_P_08 (40UL)
+#define TRGM_FILTCFG_TRGM_P_09 (41UL)
+#define TRGM_FILTCFG_TRGM_P_10 (42UL)
+#define TRGM_FILTCFG_TRGM_P_11 (43UL)
+#define TRGM_FILTCFG_TRGM_P_12 (44UL)
+#define TRGM_FILTCFG_TRGM_P_13 (45UL)
+#define TRGM_FILTCFG_TRGM_P_14 (46UL)
+#define TRGM_FILTCFG_TRGM_P_15 (47UL)
+#define TRGM_FILTCFG_TRGM_P_16 (48UL)
+#define TRGM_FILTCFG_TRGM_P_17 (49UL)
+#define TRGM_FILTCFG_TRGM_P_18 (50UL)
+#define TRGM_FILTCFG_TRGM_P_19 (51UL)
+#define TRGM_FILTCFG_TRGM_P_20 (52UL)
+#define TRGM_FILTCFG_TRGM_P_21 (53UL)
+#define TRGM_FILTCFG_TRGM_P_22 (54UL)
+#define TRGM_FILTCFG_TRGM_P_23 (55UL)
+#define TRGM_FILTCFG_TRGM_P_24 (56UL)
+#define TRGM_FILTCFG_TRGM_P_25 (57UL)
+#define TRGM_FILTCFG_TRGM_P_26 (58UL)
+#define TRGM_FILTCFG_TRGM_P_27 (59UL)
+#define TRGM_FILTCFG_TRGM_P_28 (60UL)
+#define TRGM_FILTCFG_TRGM_P_29 (61UL)
+#define TRGM_FILTCFG_TRGM_P_30 (62UL)
+#define TRGM_FILTCFG_TRGM_P_31 (63UL)
 
 /* DMACFG register group index macro definition */
 #define TRGM_DMACFG_0 (0UL)
@@ -891,13 +911,13 @@ typedef struct {
 
 /* TRGM_IN register group index macro definition */
 #define TRGM_TRGM_IN_0 (0UL)
-#define TRGM_TRGM_IN_4 (0UL)
 #define TRGM_TRGM_IN_1 (1UL)
-#define TRGM_TRGM_IN_5 (1UL)
 #define TRGM_TRGM_IN_2 (2UL)
-#define TRGM_TRGM_IN_6 (2UL)
 #define TRGM_TRGM_IN_3 (3UL)
-#define TRGM_TRGM_IN_7 (3UL)
+#define TRGM_TRGM_IN_4 (4UL)
+#define TRGM_TRGM_IN_5 (5UL)
+#define TRGM_TRGM_IN_6 (6UL)
+#define TRGM_TRGM_IN_7 (7UL)
 
 /* TRGM_OUT register group index macro definition */
 #define TRGM_TRGM_OUT_0 (0UL)
@@ -910,38 +930,38 @@ typedef struct {
 #define TRGM_TRGM_OUT_7 (7UL)
 
 /* TRGOCFG register group index macro definition */
-#define TRGM_TRGOCFG_MOT_GPIO0 (0UL)
-#define TRGM_TRGOCFG_MOT_GPIO1 (1UL)
-#define TRGM_TRGOCFG_MOT_GPIO2 (2UL)
-#define TRGM_TRGOCFG_MOT_GPIO3 (3UL)
-#define TRGM_TRGOCFG_MOT_GPIO4 (4UL)
-#define TRGM_TRGOCFG_MOT_GPIO5 (5UL)
-#define TRGM_TRGOCFG_MOT_GPIO6 (6UL)
-#define TRGM_TRGOCFG_MOT_GPIO7 (7UL)
-#define TRGM_TRGOCFG_MOT_GPIO8 (8UL)
-#define TRGM_TRGOCFG_MOT_GPIO9 (9UL)
-#define TRGM_TRGOCFG_MOT_GPIO10 (10UL)
-#define TRGM_TRGOCFG_MOT_GPIO11 (11UL)
-#define TRGM_TRGOCFG_MOT_GPIO12 (12UL)
-#define TRGM_TRGOCFG_MOT_GPIO13 (13UL)
-#define TRGM_TRGOCFG_MOT_GPIO14 (14UL)
-#define TRGM_TRGOCFG_MOT_GPIO15 (15UL)
-#define TRGM_TRGOCFG_MOT_GPIO16 (16UL)
-#define TRGM_TRGOCFG_MOT_GPIO17 (17UL)
-#define TRGM_TRGOCFG_MOT_GPIO18 (18UL)
-#define TRGM_TRGOCFG_MOT_GPIO19 (19UL)
-#define TRGM_TRGOCFG_MOT_GPIO20 (20UL)
-#define TRGM_TRGOCFG_MOT_GPIO21 (21UL)
-#define TRGM_TRGOCFG_MOT_GPIO22 (22UL)
-#define TRGM_TRGOCFG_MOT_GPIO23 (23UL)
-#define TRGM_TRGOCFG_MOT_GPIO24 (24UL)
-#define TRGM_TRGOCFG_MOT_GPIO25 (25UL)
-#define TRGM_TRGOCFG_MOT_GPIO26 (26UL)
-#define TRGM_TRGOCFG_MOT_GPIO27 (27UL)
-#define TRGM_TRGOCFG_MOT_GPIO28 (28UL)
-#define TRGM_TRGOCFG_MOT_GPIO29 (29UL)
-#define TRGM_TRGOCFG_MOT_GPIO30 (30UL)
-#define TRGM_TRGOCFG_MOT_GPIO31 (31UL)
+#define TRGM_TRGOCFG_TRGM_P_00 (0UL)
+#define TRGM_TRGOCFG_TRGM_P_01 (1UL)
+#define TRGM_TRGOCFG_TRGM_P_02 (2UL)
+#define TRGM_TRGOCFG_TRGM_P_03 (3UL)
+#define TRGM_TRGOCFG_TRGM_P_04 (4UL)
+#define TRGM_TRGOCFG_TRGM_P_05 (5UL)
+#define TRGM_TRGOCFG_TRGM_P_06 (6UL)
+#define TRGM_TRGOCFG_TRGM_P_07 (7UL)
+#define TRGM_TRGOCFG_TRGM_P_08 (8UL)
+#define TRGM_TRGOCFG_TRGM_P_09 (9UL)
+#define TRGM_TRGOCFG_TRGM_P_10 (10UL)
+#define TRGM_TRGOCFG_TRGM_P_11 (11UL)
+#define TRGM_TRGOCFG_TRGM_P_12 (12UL)
+#define TRGM_TRGOCFG_TRGM_P_13 (13UL)
+#define TRGM_TRGOCFG_TRGM_P_14 (14UL)
+#define TRGM_TRGOCFG_TRGM_P_15 (15UL)
+#define TRGM_TRGOCFG_TRGM_P_16 (16UL)
+#define TRGM_TRGOCFG_TRGM_P_17 (17UL)
+#define TRGM_TRGOCFG_TRGM_P_18 (18UL)
+#define TRGM_TRGOCFG_TRGM_P_19 (19UL)
+#define TRGM_TRGOCFG_TRGM_P_20 (20UL)
+#define TRGM_TRGOCFG_TRGM_P_21 (21UL)
+#define TRGM_TRGOCFG_TRGM_P_22 (22UL)
+#define TRGM_TRGOCFG_TRGM_P_23 (23UL)
+#define TRGM_TRGOCFG_TRGM_P_24 (24UL)
+#define TRGM_TRGOCFG_TRGM_P_25 (25UL)
+#define TRGM_TRGOCFG_TRGM_P_26 (26UL)
+#define TRGM_TRGOCFG_TRGM_P_27 (27UL)
+#define TRGM_TRGOCFG_TRGM_P_28 (28UL)
+#define TRGM_TRGOCFG_TRGM_P_29 (29UL)
+#define TRGM_TRGOCFG_TRGM_P_30 (30UL)
+#define TRGM_TRGOCFG_TRGM_P_31 (31UL)
 #define TRGM_TRGOCFG_SDM_PWM_SOC0 (32UL)
 #define TRGM_TRGOCFG_SDM_PWM_SOC1 (33UL)
 #define TRGM_TRGOCFG_SDM_PWM_SOC2 (34UL)
@@ -1006,14 +1026,14 @@ typedef struct {
 #define TRGM_TRGOCFG_SEI_TRIG_IN5 (93UL)
 #define TRGM_TRGOCFG_SEI_TRIG_IN6 (94UL)
 #define TRGM_TRGOCFG_SEI_TRIG_IN7 (95UL)
-#define TRGM_TRGOCFG_CMP0_WIN (96UL)
-#define TRGM_TRGOCFG_CMP1_WIN (97UL)
-#define TRGM_TRGOCFG_CMP2_WIN (98UL)
-#define TRGM_TRGOCFG_CMP3_WIN (99UL)
-#define TRGM_TRGOCFG_CMP4_WIN (100UL)
-#define TRGM_TRGOCFG_CMP5_WIN (101UL)
-#define TRGM_TRGOCFG_CMP6_WIN (102UL)
-#define TRGM_TRGOCFG_CMP7_WIN (103UL)
+#define TRGM_TRGOCFG_ACMP0_CH0_WIN (96UL)
+#define TRGM_TRGOCFG_ACMP0_CH1_WIN (97UL)
+#define TRGM_TRGOCFG_ACMP1_CH0_WIN (98UL)
+#define TRGM_TRGOCFG_ACMP1_CH1_WIN (99UL)
+#define TRGM_TRGOCFG_ACMP2_CH0_WIN (100UL)
+#define TRGM_TRGOCFG_ACMP2_CH1_WIN (101UL)
+#define TRGM_TRGOCFG_ACMP3_CH0_WIN (102UL)
+#define TRGM_TRGOCFG_ACMP3_CH1_WIN (103UL)
 #define TRGM_TRGOCFG_GPTMR0_IN2 (104UL)
 #define TRGM_TRGOCFG_GPTMR0_IN3 (105UL)
 #define TRGM_TRGOCFG_GPTMR0_SYNCI (106UL)

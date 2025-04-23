@@ -72,7 +72,7 @@ enum {
 #define MCAN_INT_TX_COMPLETED               MCAN_IR_TC_MASK     /*!< Transmission Completed */
 #define MCAN_INT_HIGH_PRIORITY_MSG          MCAN_IR_HPM_MASK    /*!< High Priority Message */
 
-#define MCAN_INT_RXFIFO1_MSG_LOST           MCAN_IR_RF1L_MASK   /*!< RX FIFO0 Message Lost */
+#define MCAN_INT_RXFIFO1_MSG_LOST           MCAN_IR_RF1L_MASK   /*!< RX FIFO1 Message Lost */
 #define MCAN_INT_RXFIFO1_FULL               MCAN_IR_RF1F_MASK   /*!< RX FIFO1 Full */
 #define MCAN_INT_RXFIFO1_WMK_REACHED        MCAN_IR_RF1W_MASK   /*!< RX FIFO1 Watermark Reached */
 #define MCAN_INT_RXFIFO1_NEW_MSG            MCAN_IR_RF1N_MASK   /*!< RX FIFO1 New Message */
@@ -253,7 +253,7 @@ typedef struct mcan_rx_message_struct {
         uint16_t dlc: 4;                            /*!< Data Length Code */
         uint16_t bitrate_switch: 1;                 /*!< Bit rate switch flag */
         uint16_t canfd_frame: 1;                    /*!< CANFD Frame flag */
-        uint16_t : 1;
+        uint16_t : 2;
         uint16_t filter_index: 7;                   /*!< CAN filter index */
         uint16_t accepted_non_matching_frame: 1;    /*!< Accept non-matching Frame flag */
     };

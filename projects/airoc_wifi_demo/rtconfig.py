@@ -1,4 +1,4 @@
-# Copyright 2021-2024 HPMicro
+# Copyright 2021-2025 HPMicro
 # SPDX-License-Identifier: BSD-3-Clause
 
 import os
@@ -74,7 +74,7 @@ if PLATFORM == 'gcc':
     ARCH_ABI = ' -mcmodel=medlow '
     CFLAGS = ARCH_ABI  + ' -DUSE_NONVECTOR_MODE=1  ' + ' -ffunction-sections -fdata-sections -fno-common '
     AFLAGS = CFLAGS
-    LFLAGS  = ARCH_ABI + '  --specs=nano.specs --specs=nosys.specs  -u _printf_float -u _scanf_float -nostartfiles -Wl,--gc-sections '
+    LFLAGS  = ARCH_ABI + '  --specs=nano.specs --specs=nosys.specs  -u _printf_float -u _scanf_float -nostartfiles -Wl,-Map=rtthread.map,--gc-sections,-print-memory-usage '
 
     CPATH = ''
     LPATH = ''
@@ -86,13 +86,13 @@ if PLATFORM == 'gcc':
         CFLAGS += ' -DFLASH_XIP=1'
         LINKER_FILE = 'board/linker_scripts/flash_airoc_wifi_rtt.ld'
     elif BUILD == 'flash_release':
-        CFLAGS += ' -O2 -Os'
-        LFLAGS += ' -O2 -Os'
+        CFLAGS += ' -O2'
+        LFLAGS += ' -O2'
         CFLAGS += ' -DFLASH_XIP=1'
         LINKER_FILE = 'board/linker_scripts/flash_airoc_wifi_rtt.ld'
     else:
-        CFLAGS += ' -O2 -Os'
-        LFLAGS += ' -O2 -Os'
+        CFLAGS += ' -O2'
+        LFLAGS += ' -O2'
         LINKER_FILE = 'board/linker_scripts/flash_airoc_wifi_rtt.ld'
     LFLAGS += ' -T ' + LINKER_FILE
 

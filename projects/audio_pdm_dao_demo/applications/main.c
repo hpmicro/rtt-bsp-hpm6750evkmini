@@ -59,7 +59,7 @@ static int pdm_recordwav(int argc, char *argv[])
         goto __exit;
     }
 
-    fd = open(argv[1], O_WRONLY | O_CREAT);
+    fd = open(argv[1], O_WRONLY | O_CREAT | O_TRUNC);
     if (fd < 0)
     {
         rt_kprintf("open file failed!\n");

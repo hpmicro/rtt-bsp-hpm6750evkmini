@@ -10,6 +10,7 @@
 #include "hpm_common.h"
 #include "hpm_sysctl_drv.h"
 
+#define CLOCK_DIV_INVALID (~0UL)
 
 /**
  * @brief Error codes for clock driver
@@ -76,6 +77,7 @@ typedef enum _clock_sources {
 
     clk_i2s_src_aud0 = MAKE_CLK_SRC(CLK_SRC_GROUP_I2S, 0),
     clk_i2s_src_aud1 = MAKE_CLK_SRC(CLK_SRC_GROUP_I2S, 0),
+    clk_i2s_src_audn = MAKE_CLK_SRC(CLK_SRC_GROUP_I2S, 0),    /* clk_i2s_src_audn is equal to clk_i2s_src_aud0 and clk_i2s_src_aud1, n is the num */
     clk_i2s_src_audx = MAKE_CLK_SRC(CLK_SRC_GROUP_I2S, 1),
 
     clk_wdg_src_ahb0 = MAKE_CLK_SRC(CLK_SRC_GROUP_EWDG, 0),
@@ -177,10 +179,10 @@ typedef enum _clock_name {
     clock_ppi0 = MAKE_CLOCK_NAME(sysctl_resource_ppi0, CLK_SRC_GROUP_AHB, 0),
     clock_hdma = MAKE_CLOCK_NAME(sysctl_resource_hdma, CLK_SRC_GROUP_AHB, 0),
     clock_lobs = MAKE_CLOCK_NAME(sysctl_resource_lobs, CLK_SRC_GROUP_AHB, 0),
-    clock_cmp0 = MAKE_CLOCK_NAME(sysctl_resource_cmp0, CLK_SRC_GROUP_AHB, 0),
-    clock_cmp1 = MAKE_CLOCK_NAME(sysctl_resource_cmp1, CLK_SRC_GROUP_AHB, 0),
-    clock_cmp2 = MAKE_CLOCK_NAME(sysctl_resource_cmp2, CLK_SRC_GROUP_AHB, 0),
-    clock_cmp3 = MAKE_CLOCK_NAME(sysctl_resource_cmp3, CLK_SRC_GROUP_AHB, 0),
+    clock_acmp0 = MAKE_CLOCK_NAME(sysctl_resource_cmp0, CLK_SRC_GROUP_AHB, 0),
+    clock_acmp1 = MAKE_CLOCK_NAME(sysctl_resource_cmp1, CLK_SRC_GROUP_AHB, 0),
+    clock_acmp2 = MAKE_CLOCK_NAME(sysctl_resource_cmp2, CLK_SRC_GROUP_AHB, 0),
+    clock_acmp3 = MAKE_CLOCK_NAME(sysctl_resource_cmp3, CLK_SRC_GROUP_AHB, 0),
     clock_ptpc = MAKE_CLOCK_NAME(sysctl_resource_ptpc, CLK_SRC_GROUP_AHB, 0),
     clock_mot0 = MAKE_CLOCK_NAME(RESOURCE_INVALID, CLK_SRC_GROUP_AHB, 0),
     clock_qei0 = MAKE_CLOCK_NAME(sysctl_resource_qei0, CLK_SRC_GROUP_AHB, 0),
@@ -264,6 +266,12 @@ typedef enum _clock_name {
     clk_pll1clk2 = MAKE_CLOCK_NAME(sysctl_resource_clk2_pll1, CLK_SRC_GROUP_SRC, 5),
     clk_pll2clk0 = MAKE_CLOCK_NAME(sysctl_resource_clk0_pll2, CLK_SRC_GROUP_SRC, 6),
     clk_pll2clk1 = MAKE_CLOCK_NAME(sysctl_resource_clk1_pll2, CLK_SRC_GROUP_SRC, 7),
+
+    /* Legacy name, kept for backwards compatibility */
+    clock_cmp0 = clock_acmp0,
+    clock_cmp1 = clock_acmp1,
+    clock_cmp2 = clock_acmp2,
+    clock_cmp3 = clock_acmp3,
 } clock_name_t;
 
 #ifdef __cplusplus
@@ -293,6 +301,14 @@ uint32_t get_frequency_for_source(clock_source_t source);
  * @return IP clock source
  */
 clk_src_t clock_get_source(clock_name_t clock_name);
+
+/**
+ * @brief Get the IP clock divider
+ *        Note:This API return the direct clock divider
+ * @param [in] clock_name clock name
+ * @return IP clock divider
+ */
+uint32_t clock_get_divider(clock_name_t clock_name);
 
 /**
  * @brief Set ADC clock source
@@ -356,6 +372,19 @@ hpm_stat_t clock_set_wdg_source(clock_name_t clock_name, clk_src_t src);
 hpm_stat_t clock_set_source_divider(clock_name_t clock_name, clk_src_t src, uint32_t div);
 
 /**
+ * @brief Wait until the clock source for specified IP clock is stable
+ *
+ * @note This function must be used after clock_add_to_group(clock_name, group_idx)
+ *
+ * @param [in] clock_name Clock name for specified IP module
+ *
+ * @retval status_success The clock source is stable
+ * @retval status_invalid_argument Invalid clock name is provided
+ * @retval status_timeout Timeout occurred
+ */
+hpm_stat_t clock_wait_source_stable(clock_name_t clock_name);
+
+/**
  * @brief Enable IP clock
  * @param[in] clock_name IP clock name
  */
@@ -401,6 +430,20 @@ void clock_connect_group_to_cpu(uint32_t group, uint32_t cpu);
  * @param[in] cpu CPU index, valid value is 0/1
  */
 void clock_disconnect_group_from_cpu(uint32_t group, uint32_t cpu);
+
+/**
+ * @brief Get core clock ticks per microsecond
+ *
+ * @return core clock ticks per microsecond
+ */
+uint32_t clock_get_core_clock_ticks_per_us(void);
+
+/**
+ * @brief Get core clock ticks per millisecond
+ *
+ * @return core clock ticks per millisecond
+ */
+uint32_t clock_get_core_clock_ticks_per_ms(void);
 
 /**
  * @brief Delay specified microseconds

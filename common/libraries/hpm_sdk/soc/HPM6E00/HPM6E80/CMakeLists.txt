@@ -4,23 +4,32 @@
 sdk_inc(toolchains)
 
 if(NOT DEFINED USE_CUSTOM_STARTUP)
-    sdk_gcc_src(toolchains/gcc/start.S)
-    sdk_ses_src(toolchains/segger/startup.s)
-    sdk_iar_src(toolchains/iar/startup.s)
+    sdk_gcc_startup_src(toolchains/gcc/start.S)
+    sdk_ses_startup_src(toolchains/segger/startup.s)
+    sdk_iar_startup_src(toolchains/iar/startup.s)
 endif()
 
-sdk_src(
+sdk_gcc_startup_src(toolchains/gcc/initfini.c)
+sdk_gcc_src(
     toolchains/reset.c
     toolchains/trap.c
-    system.c
 )
 
-sdk_gcc_src(toolchains/gcc/initfini.c)
+sdk_ses_src(
+    toolchains/reset.c
+    toolchains/trap.c
+)
+
+sdk_iar_src(
+    toolchains/reset.c
+    toolchains/trap.c
+)
+
+sdk_src(system.c)
 
 # soc drivers
 sdk_src (
     hpm_sysctl_drv.c
-    hpm_l1c_drv.c
     hpm_clock_drv.c
     hpm_otp_drv.c
     hpm_trgm_soc_drv.c
@@ -32,12 +41,8 @@ if(${INCLUDE_BOOTHEADER})
 endif()
 
 sdk_nds_compile_options(-mcpu=d45)
-sdk_zcc_compile_options(-mtune=andes-kavalan)
-sdk_zcc_ld_options(-mtune=andes-kavalan)
-
-if(${TOOLCHAIN_VARIANT} EQUAL "zcc")
-    set(RV_ARCH "${RV_ARCH}xandes" PARENT_SCOPE)
-endif()
+sdk_zcc_compile_options(-mtune=andes-d45-series)
+sdk_zcc_ld_options(-mtune=andes-d45-series)
 
 if(NOT HPM_SOC_DISABLE_B_EXT)
     get_toolchain_gcc_spec(spec)

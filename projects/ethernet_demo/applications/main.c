@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 hpmicro
+ * Copyright (c) 2021 HPMicro
  *
  * Change Logs:
  * Date         Author          Notes
@@ -29,17 +29,23 @@ int main(void)
 void thread_entry(void *arg)
 {
     while(1){
-        app_led_write(0, APP_LED_ON);
+#ifdef APP_LED0
+        app_led_write(APP_LED0, APP_LED_ON);
         rt_thread_mdelay(500);
-        app_led_write(0, APP_LED_OFF);
+        app_led_write(APP_LED0, APP_LED_OFF);
         rt_thread_mdelay(500);
-        app_led_write(1, APP_LED_ON);
+#endif
+#ifdef APP_LED1
+        app_led_write(APP_LED1, APP_LED_ON);
         rt_thread_mdelay(500);
-        app_led_write(1, APP_LED_OFF);
+        app_led_write(APP_LED1, APP_LED_OFF);
         rt_thread_mdelay(500);
-        app_led_write(2, APP_LED_ON);
+#endif
+#ifdef APP_LED2
+        app_led_write(APP_LED2, APP_LED_ON);
         rt_thread_mdelay(500);
-        app_led_write(2, APP_LED_OFF);
+        app_led_write(APP_LED2, APP_LED_OFF);
         rt_thread_mdelay(500);
+#endif
     }
 }

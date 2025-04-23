@@ -5,15 +5,18 @@ from building import *
 cwd = GetCurrentDir()
 
 # Update include path
-path = [ cwd + '/arch', cwd + "/drivers/inc", cwd + '/soc/' + rtconfig.SOC_FAMILY + '/' + '/ip']
+path = [ cwd + "/utils", cwd + '/arch', cwd + '/arch/riscv/l1c', cwd + "/drivers/inc", cwd + '/soc/' + rtconfig.SOC_FAMILY + '/' + '/ip']
 
 # The set of source files associated with this SConscript file.
 src = []
 
 CPPDEFINES=[]
 
+src += ['arch/riscv/l1c/hpm_l1c_drv.c']
 src += ['drivers/src/hpm_pmp_drv.c']
 src += ['drivers/src/hpm_pcfg_drv.c']
+
+CPPDEFINES += ['HPM_SDK_L1C_NO_REENTRANT=1']
 
 if rtconfig.SOC_FAMILY == "HPM6700":
     src += ['drivers/src/hpm_pllctl_drv.c']
@@ -24,7 +27,7 @@ if rtconfig.SOC_FAMILY == "HPM6700" or rtconfig.SOC_FAMILY == "HPM6300" or rtcon
     src += ['drivers/src/hpm_dma_drv.c']
 else:
     src += ['drivers/src/hpm_dmav2_drv.c']
-    CPPDEFINES = ['HPMSOC_HAS_HPMSDK_DMAV2']
+    CPPDEFINES += ['HPMSOC_HAS_HPMSDK_DMAV2']
 
 if GetDepend(['BSP_USING_GPIO']):
     src += ['drivers/src/hpm_gpio_drv.c']
@@ -73,6 +76,7 @@ if GetDepend(['BSP_USING_LCD']):
 
 if GetDepend(['BSP_USING_GPTMR']) or GetDepend('HPM_USING_VECTOR_PREEMPTED_MODE'):
     src += ['drivers/src/hpm_gptmr_drv.c']
+    CPPDEFINES += ['NO_BOARD_TIMER_SUPPORT=1']
 
 if GetDepend(['BSP_USING_FEMC']):
     src += ['drivers/src/hpm_femc_drv.c']
@@ -123,6 +127,27 @@ if GetDepend(['BSP_USING_LVB']):
 if GetDepend(['BSP_USING_LCB']):
     src += ['drivers/src/hpm_lcb_drv.c']
 
+if GetDepend(['BSP_USING_CLC']):
+    src += ['drivers/src/hpm_clc_drv.c']
+
+if GetDepend(['BSP_USING_DAC']):
+    src += ['drivers/src/hpm_dac_drv.c']
+
+if GetDepend(['BSP_USING_QEIV2']):
+    src += ['drivers/src/hpm_qeiv2_drv.c']
+    src += ['drivers/src/hpm_enc_pos_drv.c']
+
+if GetDepend(['BSP_USING_QEIV2']):
+    src += ['drivers/src/hpm_qeiv2_drv.c']
+    src += ['drivers/src/hpm_enc_pos_drv.c']
+
+if GetDepend(['BSP_USING_ESC']):
+    src += ['drivers/src/hpm_esc_drv.c']
+
+if GetDepend(['BSP_USING_TSW']):
+	src += ['drivers/src/hpm_tsw_drv.c']
+	src += ['utils/hpm_swap.c']
+	
 group = DefineGroup('Libraries', src, depend = [''], CPPPATH = path, CPPDEFINES=CPPDEFINES)
 
 Return ('group')

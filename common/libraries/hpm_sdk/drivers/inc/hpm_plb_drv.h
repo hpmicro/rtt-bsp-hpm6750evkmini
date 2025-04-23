@@ -60,29 +60,17 @@ typedef enum plb_chn {
  *
  */
 typedef enum plb_type_a_lut_num {
-#ifdef PLB_TYPE_A_0
-    plb_type_a_table0 = PLB_TYPE_A_0,
+#ifdef PLB_TYPE_A_LOOKUP_TABLE_0
+    plb_type_a_table0 = PLB_TYPE_A_LOOKUP_TABLE_0,
 #endif
-#ifdef PLB_TYPE_A_1
-    plb_type_a_table1 = PLB_TYPE_A_1,
+#ifdef PLB_TYPE_A_LOOKUP_TABLE_1
+    plb_type_a_table1 = PLB_TYPE_A_LOOKUP_TABLE_1,
 #endif
-#ifdef PLB_TYPE_A_2
-    plb_type_a_table2 = PLB_TYPE_A_2,
+#ifdef PLB_TYPE_A_LOOKUP_TABLE_2
+    plb_type_a_table2 = PLB_TYPE_A_LOOKUP_TABLE_2,
 #endif
-#ifdef PLB_TYPE_A_3
-    plb_type_a_table3 = PLB_TYPE_A_3,
-#endif
-#ifdef PLB_TYPE_A_4
-    plb_type_a_table4 = PLB_TYPE_A_4,
-#endif
-#ifdef PLB_TYPE_A_5
-    plb_type_a_table5 = PLB_TYPE_A_5,
-#endif
-#ifdef PLB_TYPE_A_6
-    plb_type_a_table6 = PLB_TYPE_A_6,
-#endif
-#ifdef PLB_TYPE_A_7
-    plb_type_a_table7 = PLB_TYPE_A_7,
+#ifdef PLB_TYPE_A_LOOKUP_TABLE_3
+    plb_type_a_table3 = PLB_TYPE_A_LOOKUP_TABLE_3,
 #endif
 } plb_type_a_lut_num_t;
 
@@ -255,6 +243,36 @@ static inline void plb_type_b_inject_by_sw(PLB_Type *plb, plb_chn_t chn, uint32_
     plb->TYPE_B[chn].SW_INJECT = val;
 }
 
+#ifdef PLB_TYPE_B_LUT_CMP_LUT_CMP_MASK
+/**
+ * @brief  Set this cmp lut as cmp load control's true table
+ *
+ * @param plb @ref PLB_Type plb base
+ * @param chn @ref plb_chn_t
+ * @param cmp_index @ref plb_type_b_cmp_t
+ * @param val cmp value
+ */
+static inline void plb_type_b_set_cmp_lut(PLB_Type *plb, plb_chn_t chn, plb_type_b_cmp_t cmp_index, uint16_t val)
+{
+    plb->TYPE_B[chn].LUT_CMP[cmp_index] = PLB_TYPE_B_LUT_CMP_LUT_CMP_SET(val);
+}
+#endif
+
+/**
+ * @brief Get the counter value for PLB Type B
+ *
+ * Retrieve the value of the SW_INJECT field for the specified channel from the given PLB Type B structure.
+ *
+ * @param plb Pointer to the PLB Type B structure
+ * @param chn Channel number
+ *
+ * @return The value of the SW_INJECT field for the corresponding channel
+ */
+static inline uint32_t plb_type_b_get_counter(PLB_Type *plb, plb_chn_t chn)
+{
+    return plb->TYPE_B[chn].SW_INJECT;
+}
+
 /**
  * @brief Configuring the PLB type_b's lookup table
  *
@@ -264,6 +282,25 @@ static inline void plb_type_b_inject_by_sw(PLB_Type *plb, plb_chn_t chn, uint32_
  * @param opt @ref plb_type_b_slice_opt_t
  */
 void plb_type_b_set_lut(PLB_Type *plb, plb_chn_t chn, plb_type_b_lut_slice_t slice, plb_type_b_slice_opt_t opt);
+
+/**
+ * @brief Batch set plb lut b type data, the unit corresponding to the bit marked with a mask of 1 is configured
+ *
+ * @param plb @ref PLB_Type plb base
+ * @param chn @ref plb_chn_t
+ * @param mask bit16
+ * @param opt @ref plb_type_b_slice_opt_t
+ */
+void plb_type_b_set_lut_range_mask(PLB_Type *plb, plb_chn_t chn, uint16_t mask, plb_type_b_slice_opt_t opt);
+
+/**
+ * @brief Configure all lut to the same configuration
+ *
+ * @param plb @ref PLB_Type plb base
+ * @param chn @ref plb_chn_t
+ * @param opt @ref plb_type_b_slice_opt_t
+ */
+void plb_type_b_set_all_slice(PLB_Type *plb, plb_chn_t chn, plb_type_b_slice_opt_t opt);
 
 #ifdef __cplusplus
 }

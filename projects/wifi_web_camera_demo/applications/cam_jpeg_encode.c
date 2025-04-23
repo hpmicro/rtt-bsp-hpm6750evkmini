@@ -205,7 +205,7 @@ void init_cam(void)
     if (PIXEL_FORMAT == display_pixel_format_rgb565) {
         cam_config.color_format = CAM_COLOR_FORMAT_RGB565;
     } else if (PIXEL_FORMAT == display_pixel_format_y8) {
-        cam_config.color_format = CAM_COLOR_FORMAT_YCBCR422;
+        cam_config.color_format = CAM_COLOR_FORMAT_YCBCR422_YUV422;
         cam_config.data_store_mode = CAM_DATA_STORE_MODE_Y_ONLY;
     }
     cam_init(BOARD_CAM, &cam_config);
@@ -318,6 +318,8 @@ uint32_t jpeg_encode(uint8_t *src_buf, uint32_t width, uint32_t height, uint8_t 
 
 int jepg_cam_init(void)
 {
+    clock_add_to_group(clock_jpeg, BOARD_RUNNING_CORE);
+    clock_add_to_group(clock_pdma, BOARD_RUNNING_CORE);
     cam_transfer_done_sem = rt_sem_create("csem", 0, RT_IPC_FLAG_PRIO);
     if (cam_transfer_done_sem == RT_NULL) {
         return 1;

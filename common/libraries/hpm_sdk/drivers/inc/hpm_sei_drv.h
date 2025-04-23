@@ -36,7 +36,7 @@ typedef enum {
     sei_synchronous_master_mode = 0,
     sei_synchronous_slave_mode,
     sei_asynchronous_mode
-} sei_tranceiver_mode_t;
+} sei_transceiver_mode_t;
 
 /**
  * @brief sei asynchronous mode parity
@@ -132,6 +132,38 @@ typedef enum {
 } sei_irq_event_t;      /**< irq event type */
 
 /**
+ * @brief sei dma enable bit
+ */
+typedef enum {
+    sei_dma_en_stall_event = SEI_CTRL_DMA_EN_STALL_MASK,
+    sei_dma_en_execpt_event = SEI_CTRL_DMA_EN_EXCEPT_MASK,
+    sei_dma_en_wdog_event = SEI_CTRL_DMA_EN_WDOG_MASK,
+    sei_dma_en_instr_ptr0_start_event = SEI_CTRL_DMA_EN_PTR0_ST_MASK,
+    sei_dma_en_instr_ptr1_start_event = SEI_CTRL_DMA_EN_PTR1_ST_MASK,
+    sei_dma_en_instr_value0_start_event = SEI_CTRL_DMA_EN_INSTR0_ST_MASK,
+    sei_dma_en_instr_value1_start_event = SEI_CTRL_DMA_EN_INSTR1_ST_MASK,
+    sei_dma_en_instr_ptr0_end_event = SEI_CTRL_DMA_EN_PTR0_END_MASK,
+    sei_dma_en_instr_ptr1_end_event = SEI_CTRL_DMA_EN_PTR1_END_MASK,
+    sei_dma_en_instr_value0_end_event = SEI_CTRL_DMA_EN_INSTR0_END_MASK,
+    sei_dma_en_instr_value1_end_event = SEI_CTRL_DMA_EN_INSTR1_END_MASK,
+    sei_dma_en_trx_err_event = SEI_CTRL_DMA_EN_TRX_ERR_MASK,
+    sei_dma_en_timeout_event = SEI_CTRL_DMA_EN_TIMEOUT_MASK,
+    sei_dma_en_latch0_event = SEI_CTRL_DMA_EN_LATCH0_MASK,
+    sei_dma_en_latch1_event = SEI_CTRL_DMA_EN_LATCH1_MASK,
+    sei_dma_en_latch2_event = SEI_CTRL_DMA_EN_LATCH2_MASK,
+    sei_dma_en_latch3_event = SEI_CTRL_DMA_EN_LATCH3_MASK,
+    sei_dma_en_sample_err_event = SEI_CTRL_DMA_EN_SMP_ERR_MASK,
+    sei_dma_en_trig0_event = SEI_CTRL_DMA_EN_TRIGER0_MASK,
+    sei_dma_en_trig1_event = SEI_CTRL_DMA_EN_TRIGER1_MASK,
+    sei_dma_en_trig2_event = SEI_CTRL_DMA_EN_TRIGER2_MASK,
+    sei_dma_en_trig3_event = SEI_CTRL_DMA_EN_TRIGER3_MASK,
+    sei_dma_en_trig0_err_event = SEI_CTRL_DMA_EN_TRG_ERR0_MASK,
+    sei_dma_en_trig1_err_event = SEI_CTRL_DMA_EN_TRG_ERR1_MASK,
+    sei_dma_en_trig2_err_event = SEI_CTRL_DMA_EN_TRG_ERR2_MASK,
+    sei_dma_en_trig3_err_event = SEI_CTRL_DMA_EN_TRG_ERR3_MASK,
+} sei_dma_en_t;      /**< dma enable bit */
+
+/**
  * @brief sei select command or data
  */
 #define SEI_SELECT_CMD true      /**< select cmd */
@@ -208,7 +240,7 @@ typedef struct {
 } sei_engine_config_t;      /**< engine config struct */
 
 /**
- * @brief sei tranceiver synchronous master mode config structure
+ * @brief sei transceiver synchronous master mode config structure
  */
 typedef struct {
     bool data_idle_high_z;
@@ -216,10 +248,10 @@ typedef struct {
     bool clock_idle_high_z;
     sei_idle_state_t clock_idle_state;
     uint32_t baudrate;
-} sei_tranceiver_synchronous_master_config_t;      /**< tranceiver synchronous master config struct */
+} sei_transceiver_synchronous_master_config_t;      /**< transceiver synchronous master config struct */
 
 /**
- * @brief sei tranceiver synchronous master mode config structure
+ * @brief sei transceiver synchronous master mode config structure
  */
 typedef struct {
     bool data_idle_high_z;
@@ -229,10 +261,10 @@ typedef struct {
     uint32_t max_baudrate;
     uint16_t ck0_timeout_us;
     uint16_t ck1_timeout_us;
-} sei_tranceiver_synchronous_slave_config_t;      /**< tranceiver synchronous slave config struct */
+} sei_transceiver_synchronous_slave_config_t;      /**< transceiver synchronous slave config struct */
 
 /**
- * @brief sei tranceiver asynchronous mode config structure
+ * @brief sei transceiver asynchronous mode config structure
  */
 typedef struct {
     uint8_t wait_len;
@@ -242,19 +274,19 @@ typedef struct {
     bool data_idle_high_z;
     sei_idle_state_t data_idle_state;
     uint32_t baudrate;
-} sei_tranceiver_asynchronous_config_t;      /**< tranceiver asynchronous config struct */
+} sei_transceiver_asynchronous_config_t;      /**< transceiver asynchronous config struct */
 
 /**
- * @brief sei tranceiver config structure
+ * @brief sei transceiver config structure
  */
 typedef struct {
-    sei_tranceiver_mode_t mode;
+    sei_transceiver_mode_t mode;
     bool tri_sample;
     uint32_t src_clk_freq;
-    sei_tranceiver_synchronous_master_config_t synchronous_master_config;
-    sei_tranceiver_synchronous_slave_config_t synchronous_slave_config;
-    sei_tranceiver_asynchronous_config_t asynchronous_config;
-} sei_tranceiver_config_t;             /**< tranceiver config struct */
+    sei_transceiver_synchronous_master_config_t synchronous_master_config;
+    sei_transceiver_synchronous_slave_config_t synchronous_slave_config;
+    sei_transceiver_asynchronous_config_t asynchronous_config;
+} sei_transceiver_config_t;             /**< transceiver config struct */
 
 /**
  * @brief sei trigger input config structure
@@ -513,7 +545,7 @@ static inline uint32_t sei_get_latch_time(SEI_Type *ptr, uint8_t idx, uint8_t la
 }
 
 /**
- * @brief Set the SEI tranceiver rx point
+ * @brief Set the SEI transceiver rx point
  * @param [in] ptr SEI base address
  * @param [in] idx SEI ctrl index, such as SEI_CTRL_0, SEI_CTRL_1, etc.
  * @param [in] point rx point value
@@ -530,7 +562,7 @@ static inline void sei_set_xcvr_rx_point(SEI_Type *ptr, uint8_t idx, uint16_t po
 }
 
 /**
- * @brief Set the SEI tranceiver tx point
+ * @brief Set the SEI transceiver tx point
  * @param [in] ptr SEI base address
  * @param [in] idx SEI ctrl index, such as SEI_CTRL_0, SEI_CTRL_1, etc.
  * @param [in] point tx point value
@@ -547,7 +579,7 @@ static inline void sei_set_xcvr_tx_point(SEI_Type *ptr, uint8_t idx, uint16_t po
 }
 
 /**
- * @brief Set the SEI tranceiver ck0 point
+ * @brief Set the SEI transceiver ck0 point
  * @param [in] ptr SEI base address
  * @param [in] idx SEI ctrl index, such as SEI_CTRL_0, SEI_CTRL_1, etc.
  * @param [in] point ck0 point value
@@ -564,7 +596,7 @@ static inline void sei_set_xcvr_ck0_point(SEI_Type *ptr, uint8_t idx, uint16_t p
 }
 
 /**
- * @brief Set the SEI tranceiver ck1 point
+ * @brief Set the SEI transceiver ck1 point
  * @param [in] ptr SEI base address
  * @param [in] idx SEI ctrl index, such as SEI_CTRL_0, SEI_CTRL_1, etc.
  * @param [in] point ck1 point value
@@ -581,7 +613,7 @@ static inline void sei_set_xcvr_ck1_point(SEI_Type *ptr, uint8_t idx, uint16_t p
 }
 
 /**
- * @brief Get the SEI tranceiver ck0 point
+ * @brief Get the SEI transceiver ck0 point
  * @param [in] ptr SEI base address
  * @param [in] idx SEI ctrl index, such as SEI_CTRL_0, SEI_CTRL_1, etc.
  * @retval ck0 point value
@@ -592,7 +624,7 @@ static inline uint16_t sei_get_xcvr_ck0_point(SEI_Type *ptr, uint8_t idx)
 }
 
 /**
- * @brief Get the SEI tranceiver ck1 point
+ * @brief Get the SEI transceiver ck1 point
  * @param [in] ptr SEI base address
  * @param [in] idx SEI ctrl index, such as SEI_CTRL_0, SEI_CTRL_1, etc.
  * @retval ck1 point value
@@ -852,13 +884,31 @@ static inline void sei_clear_irq_flag(SEI_Type *ptr, uint8_t idx, uint32_t irq_m
 }
 
 /**
- * @brief Init SEI tranceiver configuration
+ * @brief Set the SEI DMA request enable or disable
  * @param [in] ptr SEI base address
  * @param [in] idx SEI ctrl index, such as SEI_CTRL_0, SEI_CTRL_1, etc.
- * @param [in] config tranceiver configuration @ref sei_tranceiver_config_t
+ * @param [in] dma_en_mask dma enable bit mask, @ref sei_dma_en_t
+ * @param [in] enable enable or disable
+ *  @arg true enable
+ *  @arg false disable
+ */
+static inline void sei_set_dma_req_enable(SEI_Type *ptr, uint8_t idx, uint32_t dma_en_mask, bool enable)
+{
+    if (enable) {
+        ptr->CTRL[idx].DMA_EN |= dma_en_mask;
+    } else {
+        ptr->CTRL[idx].DMA_EN &= ~dma_en_mask;
+    }
+}
+
+/**
+ * @brief Init SEI transceiver configuration
+ * @param [in] ptr SEI base address
+ * @param [in] idx SEI ctrl index, such as SEI_CTRL_0, SEI_CTRL_1, etc.
+ * @param [in] config transceiver configuration @ref sei_transceiver_config_t
  * @retval API execution status
  */
-hpm_stat_t sei_tranceiver_config_init(SEI_Type *ptr, uint8_t idx, sei_tranceiver_config_t *config);
+hpm_stat_t sei_transceiver_config_init(SEI_Type *ptr, uint8_t idx, sei_transceiver_config_t *config);
 
 /**
  * @brief Init SEI command or data format configuration

@@ -1,12 +1,12 @@
 /*
- * Copyright 2021-2023 HPMicro
+ * Copyright 2021-2025 HPMicro
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 ENTRY(_start)
 
 STACK_SIZE = DEFINED(_stack_size) ? _stack_size : 0x4000;
-HEAP_SIZE = DEFINED(_heap_size) ? _heap_size : 384K;
+HEAP_SIZE = DEFINED(_heap_size) ? _heap_size : 768K;
 FLASH_SIZE = DEFINED(_flash_size) ? _flash_size : 16M;
 NONCACHEABLE_SIZE = DEFINED(_noncacheable_size) ? _noncacheable_size : 256K;
 SDRAM_SIZE = DEFINED(_sdram_size) ? _sdram_size : 16M;
@@ -228,10 +228,10 @@ SECTIONS
         PROVIDE(__init_array_end = .);
 
         . = ALIGN(8);
-        PROVIDE(__finit_array_start = .);
-        KEEP(*(SORT_BY_INIT_PRIORITY(.finit_array.*)))
-        KEEP(*(.finit_array))
-        PROVIDE(__finit_array_end = .);
+        PROVIDE(__fini_array_start = .);
+        KEEP(*(SORT_BY_INIT_PRIORITY(.fini_array.*)))
+        KEEP(*(.fini_array))
+        PROVIDE(__fini_array_end = .);
 
         . = ALIGN(8);
         PROVIDE(__ctors_start__ = .);
@@ -288,8 +288,11 @@ SECTIONS
     .noncacheable.bss (NOLOAD) : {
         . = ALIGN(8);
         KEEP(*(.noncacheable))
+        KEEP(*(.noncacheable.non_init))
+        KEEP(*(.noncacheable.non_init.*))
         __noncacheable_bss_start__ = .;
         KEEP(*(.noncacheable.bss))
+        KEEP(*(.noncacheable.bss.*))
         __noncacheable_bss_end__ = .;
         . = ALIGN(8);
     } > NONCACHEABLE_RAM
@@ -308,7 +311,6 @@ SECTIONS
     .sdram (NOLOAD) : {
         . = ALIGN(8);
         __sdram_start__ = .;
-        . += SDRAM_SIZE;
         __sdram_end__ = .;
     } > SDRAM
 }

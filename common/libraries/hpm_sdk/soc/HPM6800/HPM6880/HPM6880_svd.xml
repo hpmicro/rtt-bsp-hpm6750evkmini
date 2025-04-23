@@ -7,7 +7,7 @@
   <description>HPM6800 device</description>
   <licenseText>
     /*
- * Copyright (c) 2021-2024 HPMicro
+ * Copyright (c) 2021-2025 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -668,9 +668,9 @@ Note: combinational interrupt is sensitive to environment noise</description>
           </fields>
         </register>
         <register>
-          <dim>127</dim>
+          <dim>163</dim>
           <dimIncrement>0x4</dimIncrement>
-          <dimIndex>PRIORITY1,PRIORITY2,PRIORITY3,PRIORITY4,PRIORITY5,PRIORITY6,PRIORITY7,PRIORITY8,PRIORITY9,PRIORITY10,PRIORITY11,PRIORITY12,PRIORITY13,PRIORITY14,PRIORITY15,PRIORITY16,PRIORITY17,PRIORITY18,PRIORITY19,PRIORITY20,PRIORITY21,PRIORITY22,PRIORITY23,PRIORITY24,PRIORITY25,PRIORITY26,PRIORITY27,PRIORITY28,PRIORITY29,PRIORITY30,PRIORITY31,PRIORITY32,PRIORITY33,PRIORITY34,PRIORITY35,PRIORITY36,PRIORITY37,PRIORITY38,PRIORITY39,PRIORITY40,PRIORITY41,PRIORITY42,PRIORITY43,PRIORITY44,PRIORITY45,PRIORITY46,PRIORITY47,PRIORITY48,PRIORITY49,PRIORITY50,PRIORITY51,PRIORITY52,PRIORITY53,PRIORITY54,PRIORITY55,PRIORITY56,PRIORITY57,PRIORITY58,PRIORITY59,PRIORITY60,PRIORITY61,PRIORITY62,PRIORITY63,PRIORITY64,PRIORITY65,PRIORITY66,PRIORITY67,PRIORITY68,PRIORITY69,PRIORITY70,PRIORITY71,PRIORITY72,PRIORITY73,PRIORITY74,PRIORITY75,PRIORITY76,PRIORITY77,PRIORITY78,PRIORITY79,PRIORITY80,PRIORITY81,PRIORITY82,PRIORITY83,PRIORITY84,PRIORITY85,PRIORITY86,PRIORITY87,PRIORITY88,PRIORITY89,PRIORITY90,PRIORITY91,PRIORITY92,PRIORITY93,PRIORITY94,PRIORITY95,PRIORITY96,PRIORITY97,PRIORITY98,PRIORITY99,PRIORITY100,PRIORITY101,PRIORITY102,PRIORITY103,PRIORITY104,PRIORITY105,PRIORITY106,PRIORITY107,PRIORITY108,PRIORITY109,PRIORITY110,PRIORITY111,PRIORITY112,PRIORITY113,PRIORITY114,PRIORITY115,PRIORITY116,PRIORITY117,PRIORITY118,PRIORITY119,PRIORITY120,PRIORITY121,PRIORITY122,PRIORITY123,PRIORITY124,PRIORITY125,PRIORITY126,PRIORITY127</dimIndex>
+          <dimIndex>PRIORITY1,PRIORITY2,PRIORITY3,PRIORITY4,PRIORITY5,PRIORITY6,PRIORITY7,PRIORITY8,PRIORITY9,PRIORITY10,PRIORITY11,PRIORITY12,PRIORITY13,PRIORITY14,PRIORITY15,PRIORITY16,PRIORITY17,PRIORITY18,PRIORITY19,PRIORITY20,PRIORITY21,PRIORITY22,PRIORITY23,PRIORITY24,PRIORITY25,PRIORITY26,PRIORITY27,PRIORITY28,PRIORITY29,PRIORITY30,PRIORITY31,PRIORITY32,PRIORITY33,PRIORITY34,PRIORITY35,PRIORITY36,PRIORITY37,PRIORITY38,PRIORITY39,PRIORITY40,PRIORITY41,PRIORITY42,PRIORITY43,PRIORITY44,PRIORITY45,PRIORITY46,PRIORITY47,PRIORITY48,PRIORITY49,PRIORITY50,PRIORITY51,PRIORITY52,PRIORITY53,PRIORITY54,PRIORITY55,PRIORITY56,PRIORITY57,PRIORITY58,PRIORITY59,PRIORITY60,PRIORITY61,PRIORITY62,PRIORITY63,PRIORITY64,PRIORITY65,PRIORITY66,PRIORITY67,PRIORITY68,PRIORITY69,PRIORITY70,PRIORITY71,PRIORITY72,PRIORITY73,PRIORITY74,PRIORITY75,PRIORITY76,PRIORITY77,PRIORITY78,PRIORITY79,PRIORITY80,PRIORITY81,PRIORITY82,PRIORITY83,PRIORITY84,PRIORITY85,PRIORITY86,PRIORITY87,PRIORITY88,PRIORITY89,PRIORITY90,PRIORITY91,PRIORITY92,PRIORITY93,PRIORITY94,PRIORITY95,PRIORITY96,PRIORITY97,PRIORITY98,PRIORITY99,PRIORITY100,PRIORITY101,PRIORITY102,PRIORITY103,PRIORITY104,PRIORITY105,PRIORITY106,PRIORITY107,PRIORITY108,PRIORITY109,PRIORITY110,PRIORITY111,PRIORITY112,PRIORITY113,PRIORITY114,PRIORITY115,PRIORITY116,PRIORITY117,PRIORITY118,PRIORITY119,PRIORITY120,PRIORITY121,PRIORITY122,PRIORITY123,PRIORITY124,PRIORITY125,PRIORITY126,PRIORITY127,PRIORITY128,PRIORITY129,PRIORITY130,PRIORITY131,PRIORITY132,PRIORITY133,PRIORITY134,PRIORITY135,PRIORITY136,PRIORITY137,PRIORITY138,PRIORITY139,PRIORITY140,PRIORITY141,PRIORITY142,PRIORITY143,PRIORITY144,PRIORITY145,PRIORITY146,PRIORITY147,PRIORITY148,PRIORITY149,PRIORITY150,PRIORITY151,PRIORITY152,PRIORITY153,PRIORITY154,PRIORITY155,PRIORITY156,PRIORITY157,PRIORITY158,PRIORITY159,PRIORITY160,PRIORITY161,PRIORITY162,PRIORITY163</dimIndex>
           <name>PRIORITY[%s]</name>
           <description>no description available</description>
           <addressOffset>0x4</addressOffset>
@@ -785,9 +785,9 @@ Note: combinational interrupt is sensitive to environment noise</description>
           <description>no description available</description>
           <addressOffset>0x2000</addressOffset>
           <register>
-            <dim>4</dim>
+            <dim>6</dim>
             <dimIncrement>0x4</dimIncrement>
-            <dimIndex>INTEN0,INTEN1,INTEN2,INTEN3</dimIndex>
+            <dimIndex>INTEN0,INTEN1,INTEN2,INTEN3,INTEN4,INTEN5</dimIndex>
             <name>INTEN[%s]</name>
             <description>no description available</description>
             <addressOffset>0x0</addressOffset>
@@ -1520,14 +1520,14 @@ Register (FIFOE) is set to 1.</description>
           <fields>
             <field>
               <name>RFIFOT</name>
-              <description>Receiver FIFO trigger level</description>
+              <description>Receiver FIFO trigger level(0 for 1byte, 0x3 for 4bytes). Uart will send rx_dma_req if data in fifo reachs the threshold</description>
               <bitOffset>6</bitOffset>
               <bitWidth>2</bitWidth>
               <access>write-only</access>
             </field>
             <field>
               <name>TFIFOT</name>
-              <description>Transmitter FIFO trigger level</description>
+              <description>Transmitter FIFO trigger level(0 for 1byte, 0x3 for 4bytes), uart will send tx_dma_req when data in fifo is less than threshold.</description>
               <bitOffset>4</bitOffset>
               <bitWidth>2</bitWidth>
               <access>write-only</access>
@@ -3937,7 +3937,7 @@ User should set this bit before set CMPEN to 1.</description>
               <description>set this bitfield to trigger software counter sync event</description>
               <bitOffset>0</bitOffset>
               <bitWidth>4</bitWidth>
-              <access>read-write</access>
+              <access>write-only</access>
             </field>
           </fields>
         </register>
@@ -4347,7 +4347,7 @@ Note: Parity check is required once writing to this register. The result should 
           <addressOffset>0x0</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
-          <resetMask>0x2FE2F03F</resetMask>
+          <resetMask>0x2FE0F03F</resetMask>
           <fields>
             <field>
               <name>CLK_SEL</name>
@@ -4389,13 +4389,6 @@ Note: Parity check is required once writing to this register. The result should 
 Once the lock mechanism takes effect, the CTRL0, CTRL1, timeout int register, timeout rst register, needs unlock before re-config them.
 The register update needs to be finished in the required period defined by UPD_OT_TIME register</description>
               <bitOffset>21</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>OT_SELF_CLEAR</name>
-              <description>overtime reset can be self released after 32 function cycles</description>
-              <bitOffset>17</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
@@ -5553,38 +5546,6 @@ bit1: 1, invisible to cpu0 fast gpio; 0: visible to cpu0 fast gpio</description>
           </fields>
         </register>
         <register>
-          <dim>16</dim>
-          <dimIncrement>0x4</dimIncrement>
-          <dimIndex>chn0,chn1,chn2,chn3,chn4,chn5,chn6,chn7,chn8,chn9,chn10,chn11,chn12,chn13,chn14,chn15</dimIndex>
-          <name>BUS_RESULT[%s]</name>
-          <description>no description available</description>
-          <addressOffset>0x400</addressOffset>
-          <size>32</size>
-          <resetValue>0x00000000</resetValue>
-          <resetMask>0x0001FFFF</resetMask>
-          <fields>
-            <field>
-              <name>VALID</name>
-              <description>set after conversion finished if wait_dis is set, cleared after software read.
-The first time read with 0 will trigger one new conversion.
-If SW read other channel when one channel conversion is in progress, it will not trigger new conversion at other channel, and will get old result with valid 0, also with read_cflct interrupt status bit set.
-the result may not realtime if software read once and wait  long time to read again</description>
-              <bitOffset>16</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-only</access>
-            </field>
-            <field>
-              <name>CHAN_RESULT</name>
-              <description>read this register will trigger one adc conversion.
-If wait_dis bit is set, SW will get the latest conversion result(not current one) with valid bit is 0, SW need polling valid bit till it's set to get current result
-If wait_dis bit is 0, SW can get the current conversion result with holding the bus, valid bit is always set at this mode. this is not recommended if channel sample time is too long</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-only</access>
-            </field>
-          </fields>
-        </register>
-        <register>
           <name>buf_cfg0</name>
           <description>No description available</description>
           <addressOffset>0x500</addressOffset>
@@ -5902,7 +5863,7 @@ it may be updated period according to config, also may be updated due to other q
               <name>CONVERT_CLOCK_NUMBER</name>
               <description>convert clock numbers, set to 21 (0x15) for 16bit mode, which means convert need 21 adc clock cycles(based on clock after divider);
 user can use small value to get faster conversion, but less accuracy, need to config cov_end_cnt at adc16_config1 also.
-Ex: use 200MHz bus clock for adc, set sample_clock_number to 4, sample_clock_number_shift to 0, covert_clk_number to 21 for 16bit mode, clock_divder to 3, then each ADC conversion(plus sample) need 25 cycles(50MHz).</description>
+Ex: use 200MHz bus clock for adc, set sample_clock_number to 4, sample_clock_number_shift to 0, covert_clk_number to 21 for 16bit mode, clock_divider to 3, then each ADC conversion(plus sample) need 25 cycles(50MHz).</description>
               <bitOffset>4</bitOffset>
               <bitWidth>5</bitWidth>
               <access>read-write</access>
@@ -6288,7 +6249,7 @@ should set to (21-convert_clock_number+1).</description>
           <addressOffset>0x0</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
-          <resetMask>0xFFFFFFFF</resetMask>
+          <resetMask>0xFFF7FFFF</resetMask>
           <fields>
             <field>
               <name>SFTRST_RX</name>
@@ -11779,7 +11740,7 @@ clr to use ptpc0 for canx</description>
       <baseAddress>0xf1000000</baseAddress>
       <addressBlock>
         <offset>0x0</offset>
-        <size>0x404</size>
+        <size>0x400</size>
         <usage>registers</usage>
       </addressBlock>
       <registers>
@@ -12873,49 +12834,6 @@ typically -16 (0x1F0).</description>
             </fields>
           </register>
         </cluster>
-        <register>
-          <name>CLUT_LOAD</name>
-          <description>Clut Load Control Register</description>
-          <addressOffset>0x400</addressOffset>
-          <size>32</size>
-          <resetValue>0x00000000</resetValue>
-          <resetMask>0x8000007F</resetMask>
-          <fields>
-            <field>
-              <name>STR_HIGH</name>
-              <description>1'b1: Store 8+ CLUT tables through APB
-1'b0: Store 0-7 CLUT tables through APB</description>
-              <bitOffset>31</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>SEL_NUM</name>
-              <description>Selected CLUT Number
-The SEL_CLUT_NUM is used to select which plane's CLUT need to be updated. The hardware can only backup one CLUT setting and load, so the SEL_CLUT_NUM can't be changed when CLUT_LOAD[UPDATE_EN] is 1.
-. 3'h0 - PLANE 0
-. 3'h1 - PLANE 1
-. ------
-. 3'h7 - PLANE 7
-CLUT 8 can be modified via APB even when display is on.
-Currently CLUT for plane 0..7 cannot be modified via APB when display is on.  Can only be updated via CLUT_LOAD[UPDATE_EN] bit.</description>
-              <bitOffset>4</bitOffset>
-              <bitWidth>3</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>UPDATE_EN</name>
-              <description>CLUT Update Enable
-The bit is written to 1 when software want to update the Color Look Up Tables during display.
-If set to 1, software update selected CLUT due to SEL_CLUT_NUM setting, the table will be copied from CLUT8 during vertical blanking period after SHADOW_LOAD_EN is set to 1.
-If set to 0, software can update CLUT8 directly according to the CLUT memory map.
-Hardware will automatically clear this bit when selected CLUT is updated according to SEL_CLUT_NUM.</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-write</access>
-            </field>
-          </fields>
-        </register>
       </registers>
     </peripheral>
     <peripheral derivedFrom="LCDC">
@@ -12931,7 +12849,7 @@ Hardware will automatically clear this bit when selected CLUT is updated accordi
       <baseAddress>0xf1008000</baseAddress>
       <addressBlock>
         <offset>0x0</offset>
-        <size>0x4b0</size>
+        <size>0x4a0</size>
         <usage>registers</usage>
       </addressBlock>
       <registers>
@@ -12941,7 +12859,7 @@ Hardware will automatically clear this bit when selected CLUT is updated accordi
           <addressOffset>0x0</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
-          <resetMask>0xFF9AAFFF</resetMask>
+          <resetMask>0xFE9AAFFF</resetMask>
           <fields>
             <field>
               <name>INV_DEN</name>
@@ -12991,15 +12909,6 @@ Data in RX FIFO = 0x11223344
 0 Disable swapping
 1 Enable swapping</description>
               <bitOffset>25</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>PACK_DIR</name>
-              <description>Data Packing Direction. This bit Controls how 8-bit/10-bit image data is packed into 32-bit RX FIFO.
-0 Pack from LSB first. For image data, 0x11, 0x22, 0x33, 0x44, it will appear as 0x44332211 in RX FIFO.
-1 Pack from MSB first. For image data, 0x11, 0x22, 0x33, 0x44, it will appear as 0x11223344 in RX FIFO.</description>
-              <bitOffset>24</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
@@ -13075,7 +12984,6 @@ Note: YUV420 is not supported.
             <field>
               <name>SENSOR_BIT_WIDTH</name>
               <description>the bit width of the sensor
-0: 8 bits
 1: 10 bits
 3:24bits
 Others: Undefined</description>
@@ -13408,40 +13316,6 @@ As the input data from the sensor is 8-bit/pixel format, the IMAGE_WIDTH should 
           </fields>
         </register>
         <register>
-          <name>DMASA_UV1</name>
-          <description>Pixel UV DMA Frame Buffer 1 Address</description>
-          <addressOffset>0x50</addressOffset>
-          <size>32</size>
-          <resetValue>0x00000000</resetValue>
-          <resetMask>0xFFFFFFFF</resetMask>
-          <fields>
-            <field>
-              <name>PTR</name>
-              <description>Two Plane UV Buffer Start Address 1</description>
-              <bitOffset>2</bitOffset>
-              <bitWidth>30</bitWidth>
-              <access>read-write</access>
-            </field>
-          </fields>
-        </register>
-        <register>
-          <name>DMASA_UV2</name>
-          <description>Pixel UV DMA Frame Buffer 2 Address</description>
-          <addressOffset>0x54</addressOffset>
-          <size>32</size>
-          <resetValue>0x00000000</resetValue>
-          <resetMask>0xFFFFFFFF</resetMask>
-          <fields>
-            <field>
-              <name>PTR</name>
-              <description>Two Plane UV Buffer Start Address 2</description>
-              <bitOffset>2</bitOffset>
-              <bitWidth>30</bitWidth>
-              <access>read-write</access>
-            </field>
-          </fields>
-        </register>
-        <register>
           <name>CR20</name>
           <description>Control CR20 Register</description>
           <addressOffset>0x58</addressOffset>
@@ -13758,105 +13632,6 @@ typically -16 (0x1F0).</description>
             <field>
               <name>ACT_WIDTH</name>
               <description>actual width after scale and/or roi</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
-            </field>
-          </fields>
-        </register>
-        <register>
-          <name>VSYNC_VALID_CNT</name>
-          <description>vsync valid counter</description>
-          <addressOffset>0x4a0</addressOffset>
-          <size>32</size>
-          <resetValue>0x00000000</resetValue>
-          <resetMask>0xFFFFFFFF</resetMask>
-          <fields>
-            <field>
-              <name>VSYNC_VALID_CNT</name>
-              <description>vsync valid counter</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>32</bitWidth>
-              <access>read-write</access>
-            </field>
-          </fields>
-        </register>
-        <register>
-          <name>HSYNC_VALID_CNT</name>
-          <description>hsync valid counter</description>
-          <addressOffset>0x4a4</addressOffset>
-          <size>32</size>
-          <resetValue>0x00000000</resetValue>
-          <resetMask>0xFFFFFFFF</resetMask>
-          <fields>
-            <field>
-              <name>HSYNC_VALID_CNT</name>
-              <description>hsync valid counter</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>32</bitWidth>
-              <access>read-write</access>
-            </field>
-          </fields>
-        </register>
-        <register>
-          <name>VALID_MARGIN</name>
-          <description>valid margin</description>
-          <addressOffset>0x4a8</addressOffset>
-          <size>32</size>
-          <resetValue>0x00000000</resetValue>
-          <resetMask>0xFFFFFFFF</resetMask>
-          <fields>
-            <field>
-              <name>HSYNC_VALID_MARGIN</name>
-              <description>hsync valid margin</description>
-              <bitOffset>16</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>VSYNC_VALID_MARGIN</name>
-              <description>vsync valid margin</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
-            </field>
-          </fields>
-        </register>
-        <register>
-          <name>ALARM_SET</name>
-          <description>alarm set</description>
-          <addressOffset>0x4ac</addressOffset>
-          <size>32</size>
-          <resetValue>0x00000000</resetValue>
-          <resetMask>0xFFFFFFFF</resetMask>
-          <fields>
-            <field>
-              <name>SIG_NORMAL</name>
-              <description>define signal duty cycles(base clock)
-0x0: disable signal
-0x1:  high 1, low 15
-0x2:  high 2, low 14
-…...
-0xF:   high 15, low 1</description>
-              <bitOffset>20</bitOffset>
-              <bitWidth>4</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>FATAL_NORMAL</name>
-              <description>define signal duty cycles(base clock)
-0x0: disable signal
-0x1:  high 1, low 15
-0x2:  high 2, low 14
-…...
-0xF:   high 15, low 1</description>
-              <bitOffset>16</bitOffset>
-              <bitWidth>4</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>PRE_DIV</name>
-              <description>frequency division</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>read-write</access>
@@ -28566,7 +28341,13 @@ The actual clock is of different frequency that gets synchronized every second. 
 - When PPSCTRL = 0011, the PPS (4 Hz) is a sequence of:
   - Three clocks of 50 percent duty cycle and 268 ms period
   - Fourth clock of 195 ms period (134 ms low and 61 ms high)
+--------------------------------------------------------------------------------------------------------------------------------------
 PPSCMD0: Flexible PPS0 Output Control
+Programming these bits with a non-zero value instructs the MAC to
+initiate an event. When the command is transferred or synchronized to
+the PTP clock domain, these bits get cleared automatically. The
+Software should ensure that these bits are programmed only when they
+are “all-zero”.
 0000: No Command
 0001: START Single Pulse
 This command generates single pulse rising at the start point defined in
@@ -32021,7 +31802,7 @@ Bit.</description>
           <addressOffset>0x210</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
-          <resetMask>0x02007007</resetMask>
+          <resetMask>0x02007807</resetMask>
           <fields>
             <field>
               <name>GPIO_ID_SEL_N</name>
@@ -32048,6 +31829,13 @@ Bit.</description>
               <name>VBUS_VALID_OVERRIDE</name>
               <description>No description available</description>
               <bitOffset>12</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>OP_MODE_SUSPENDM_ENJ</name>
+              <description>set op_mode to 2'b01 in suspend, for naneng usbphy</description>
+              <bitOffset>11</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
@@ -32091,7 +31879,9 @@ Bit.</description>
             </field>
             <field>
               <name>UTMI_OTG_SUSPENDM</name>
-              <description>OTG suspend, not utmi_suspendm</description>
+              <description>OTG suspend, not utmi_suspendm.
+setting this bit also enable host high-speed disconnect detection logic(check DP/DM voltage at end of SOF, to determine whether 50Ohm are still there on DP/DM)
+should clear this bit before entering into suspend state(setting portsc.phcd), avoide unwanted glitch on vbus/sess_vld/sess_end</description>
               <bitOffset>1</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
@@ -34901,7 +34691,7 @@ ADMA3: This register is set by ADMA3. ADMA2 increments the address of this regis
           </fields>
         </register>
         <register>
-          <dim>9</dim>
+          <dim>11</dim>
           <dimIncrement>0x2</dimIncrement>
           <dimIndex>INIT,DS,HS,SDR12,SDR25,SDR50,SDR104,DDR50,rsv8,rsv9,UHS2</dimIndex>
           <name>PRESET[%s]</name>
@@ -39952,8 +39742,7 @@ Others: Reserved</description>
             <field>
               <name>OUTD_TYPE</name>
               <description>Output data type:
-0:Real Q31, 1:Real Q15, 2:Complex Q31, 3:Complex Q15
-4:complex sp float 5: real sp float</description>
+0:Real Q31, 1:Real Q15, 2:Complex Q31, 3:Complex Q15</description>
               <bitOffset>15</bitOffset>
               <bitWidth>3</bitWidth>
               <access>read-write</access>
@@ -39961,8 +39750,7 @@ Others: Reserved</description>
             <field>
               <name>COEF_TYPE</name>
               <description>Coef data type (used for FIR):
-0:Real Q31, 1:Real Q15, 2:Complex Q31, 3:Complex Q15
-4:complex sp float 5: real sp float</description>
+0:Real Q31, 1:Real Q15, 2:Complex Q31, 3:Complex Q15</description>
               <bitOffset>12</bitOffset>
               <bitWidth>3</bitWidth>
               <access>read-write</access>
@@ -39970,8 +39758,7 @@ Others: Reserved</description>
             <field>
               <name>IND_TYPE</name>
               <description>Input data type:
-0:Real Q31, 1:Real Q15, 2:Complex Q31, 3:Complex Q15
-4:complex sp float 5: real sp float</description>
+0:Real Q31, 1:Real Q15, 2:Complex Q31, 3:Complex Q15</description>
               <bitOffset>9</bitOffset>
               <bitWidth>3</bitWidth>
               <access>read-write</access>
@@ -42117,7 +41904,7 @@ bit2: software key 0: not selected, 1:selected</description>
       </addressBlock>
       <registers>
         <register>
-          <dim>200</dim>
+          <dim>353</dim>
           <dimIncrement>0x4</dimIncrement>
           <dimIndex>cpu0,cpx0,rsv2,rsv3,rsv4,rsv5,rsv6,rsv7,rsv8,rsv9,rsv10,rsv11,rsv12,rsv13,rsv14,rsv15,rsv16,rsv17,rsv18,rsv19,rsv20,pow_vis,pow_cpu0,pow_gpu,rsv24,rst_soc,rst_con,rst_vis,rst_cpu0,rst_gpu,rsv30,rsv31,clk_src_xtal,clk_src_pll0,clk_src_clk0_pll0,clk_src_pll1,clk_src_clk0_pll1,clk_src_clk1_pll1,clk_src_pll2,clk_src_clk0_pll2,clk_src_clk1_pll2,clk_src_pll3,clk_src_clk0_pll3,clk_src_pll4,clk_src_clk0_pll4,clk_src_pll0_ref,clk_src_pll1_ref,clk_src_pll2_ref,clk_src_pll3_ref,clk_src_pll4_ref,rsv50,rsv51,rsv52,rsv53,rsv54,rsv55,rsv56,rsv57,rsv58,rsv59,rsv60,rsv61,rsv62,rsv63,clk_top_cpu0,clk_top_mct0,clk_top_gpu0,clk_top_axif,clk_top_axis,clk_top_axic,clk_top_axiv,clk_top_axid,clk_top_can0,clk_top_can1,clk_top_can2,clk_top_can3,clk_top_can4,clk_top_can5,clk_top_can6,clk_top_can7,clk_top_lin0,clk_top_lin1,clk_top_lin2,clk_top_lin3,clk_top_lin4,clk_top_lin5,clk_top_lin6,clk_top_lin7,clk_top_i2c0,clk_top_i2c1,clk_top_i2c2,clk_top_i2c3,clk_top_spi0,clk_top_spi1,clk_top_spi2,clk_top_spi3,clk_top_urt0,clk_top_urt1,clk_top_urt2,clk_top_urt3,clk_top_urt4,clk_top_urt5,clk_top_urt6,clk_top_urt7,clk_top_tmr0,clk_top_tmr1,clk_top_tmr2,clk_top_tmr3,clk_top_tmr4,clk_top_tmr5,clk_top_tmr6,clk_top_tmr7,clk_top_xpi0,clk_top_xram,clk_top_ana0,clk_top_ana1,clk_top_aud0,clk_top_aud1,clk_top_aud2,clk_top_aud3,clk_top_eth0,clk_top_ptp0,clk_top_sdc0,clk_top_sdc1,clk_top_ntm0,clk_top_ref0,clk_top_ref1,clk_top_cam0,clk_top_cam1,clk_top_lcd0,clk_top_lcd1,clk_top_csi0,clk_top_csi1,clk_top_adc0,clk_top_adc1,clk_top_i2s0,clk_top_i2s1,clk_top_i2s2,clk_top_i2s3,rsv139,rsv140,rsv141,rsv142,rsv143,rsv144,rsv145,rsv146,rsv147,rsv148,rsv149,rsv150,rsv151,rsv152,rsv153,rsv154,rsv155,rsv156,rsv157,rsv158,rsv159,rsv160,rsv161,rsv162,rsv163,rsv164,rsv165,rsv166,rsv167,rsv168,rsv169,rsv170,rsv171,rsv172,rsv173,rsv174,rsv175,rsv176,rsv177,rsv178,rsv179,rsv180,rsv181,rsv182,rsv183,rsv184,rsv185,rsv186,rsv187,rsv188,rsv189,rsv190,rsv191,rsv192,rsv193,rsv194,rsv195,rsv196,rsv197,rsv198,rsv199,rsv200,rsv201,rsv202,rsv203,rsv204,rsv205,rsv206,rsv207,rsv208,rsv209,rsv210,rsv211,rsv212,rsv213,rsv214,rsv215,rsv216,rsv217,rsv218,rsv219,rsv220,rsv221,rsv222,rsv223,rsv224,rsv225,rsv226,rsv227,rsv228,rsv229,rsv230,rsv231,rsv232,rsv233,rsv234,rsv235,rsv236,rsv237,rsv238,rsv239,rsv240,rsv241,rsv242,rsv243,rsv244,rsv245,rsv246,rsv247,rsv248,rsv249,rsv250,rsv251,rsv252,rsv253,rsv254,rsv255,axis,axic,axiv,axig,lmm0,mct0,rom0,ddr0,xram,can0,can1,can2,can3,can4,can5,can6,can7,ptpc,crc0,oamp,lin0,lin1,lin2,lin3,lin4,lin5,lin6,lin7,i2c0,i2c1,i2c2,i2c3,spi0,spi1,spi2,spi3,urt0,urt1,urt2,urt3,urt4,urt5,urt6,urt7,wdg0,wdg1,mbx0,mbx1,tmr0,tmr1,tmr2,tmr3,tmr4,tmr5,tmr6,tmr7,i2s0,i2s1,i2s2,i2s3,pdm0,dao0,smix,rng0,sdp0,kman,gpio,adc0,adc1,sdm0,hdma,xdma,xpi0,ffa0,tsns,eth0,usb0,sdc0,sdc1,ntm0,ref0,ref1,cam0,cam1,pdma,jpeg,lcd0,lcd1,gwc0,gwc1,csi0,csi1,dsi0,dsi1,lvb0,lcb0,gpu0</dimIndex>
           <name>RESOURCE[%s]</name>
@@ -44301,14 +44088,14 @@ XX0: turn off
             </field>
             <field>
               <name>OL_THRE</name>
-              <description>overload for threshold for lod power mode</description>
+              <description>overload threshold in low power mode</description>
               <bitOffset>8</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
               <name>OL_HYST</name>
-              <description>current hysteres range
+              <description>voltage ripple threshold in low power mode
 0: 12.5mV
 1: 25mV</description>
               <bitOffset>4</bitOffset>
@@ -53720,209 +53507,6 @@ this value will be added to ratio number</description>
               <description>force switch to crystal</description>
               <bitOffset>4</bitOffset>
               <bitWidth>1</bitWidth>
-              <access>read-write</access>
-            </field>
-          </fields>
-        </register>
-      </registers>
-    </peripheral>
-    <peripheral>
-      <name>BUTN</name>
-      <description>BUTN</description>
-      <groupName>BUTN</groupName>
-      <baseAddress>0xf420c000</baseAddress>
-      <addressBlock>
-        <offset>0x0</offset>
-        <size>0xc</size>
-        <usage>registers</usage>
-      </addressBlock>
-      <registers>
-        <register>
-          <name>BTN_STATUS</name>
-          <description>Button status</description>
-          <addressOffset>0x0</addressOffset>
-          <size>32</size>
-          <resetValue>0x00000000</resetValue>
-          <resetMask>0x77770FFF</resetMask>
-          <fields>
-            <field>
-              <name>XWCLICK</name>
-              <description>wake button click status when power button held, write 1 to clear flag
-bit0: clicked
-bit1: double clicked
-bit2: tripple clicked</description>
-              <bitOffset>28</bitOffset>
-              <bitWidth>3</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>WCLICK</name>
-              <description>wake button click status, write 1 to clear flag
-bit0: clicked
-bit1: double clicked
-bit2: tripple clicked</description>
-              <bitOffset>24</bitOffset>
-              <bitWidth>3</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>XPCLICK</name>
-              <description>power button click status when wake button held, write 1 to clear flag
-bit0: clicked
-bit1: double clicked
-bit2: tripple clicked</description>
-              <bitOffset>20</bitOffset>
-              <bitWidth>3</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>PCLICK</name>
-              <description>power button click status, write 1 to clear flag
-bit0: clicked
-bit1: double clicked
-bit2: tripple clicked</description>
-              <bitOffset>16</bitOffset>
-              <bitWidth>3</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>DBTN</name>
-              <description>Dual button press status, write 1 to clear flag
-bit0: button pressed
-bit1: button confirmd
-bit2: button long pressed
-bit3: button long long pressed</description>
-              <bitOffset>8</bitOffset>
-              <bitWidth>4</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>WBTN</name>
-              <description>Wake button press status, write 1 to clear flag
-bit0: button pressed
-bit1: button confirmd
-bit2: button long pressed
-bit3: button long long pressed</description>
-              <bitOffset>4</bitOffset>
-              <bitWidth>4</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>PBTN</name>
-              <description>Power button press status, write 1 to clear flag
-bit0: button pressed
-bit1: button confirmd
-bit2: button long pressed
-bit3: button long long pressed</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>4</bitWidth>
-              <access>read-write</access>
-            </field>
-          </fields>
-        </register>
-        <register>
-          <name>BTN_IRQ_MASK</name>
-          <description>Button interrupt mask</description>
-          <addressOffset>0x4</addressOffset>
-          <size>32</size>
-          <resetValue>0x00000000</resetValue>
-          <resetMask>0x77770FFF</resetMask>
-          <fields>
-            <field>
-              <name>XWCLICK</name>
-              <description>wake button click status when power button held interrupt enable
-bit0: clicked
-bit1: double clicked
-bit2: tripple clicked</description>
-              <bitOffset>28</bitOffset>
-              <bitWidth>3</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>WCLICK</name>
-              <description>wake button click interrupt enable
-bit0: clicked
-bit1: double clicked
-bit2: tripple clicked</description>
-              <bitOffset>24</bitOffset>
-              <bitWidth>3</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>XPCLICK</name>
-              <description>power button click status when wake button held interrupt enable
-bit0: clicked
-bit1: double clicked
-bit2: tripple clicked</description>
-              <bitOffset>20</bitOffset>
-              <bitWidth>3</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>PCLICK</name>
-              <description>power button click interrupt enable
-bit0: clicked
-bit1: double clicked
-bit2: tripple clicked</description>
-              <bitOffset>16</bitOffset>
-              <bitWidth>3</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>DBTN</name>
-              <description>Dual button press interrupt enable
-bit0: button pressed
-bit1: button confirmd
-bit2: button long pressed
-bit3: button long long pressed</description>
-              <bitOffset>8</bitOffset>
-              <bitWidth>4</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>WBTN</name>
-              <description>Wake button press interrupt enable
-bit0: button pressed
-bit1: button confirmd
-bit2: button long pressed
-bit3: button long long pressed</description>
-              <bitOffset>4</bitOffset>
-              <bitWidth>4</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>PBTN</name>
-              <description>Power button press interrupt enable
-bit0: button pressed
-bit1: button confirmd
-bit2: button long pressed
-bit3: button long long pressed</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>4</bitWidth>
-              <access>read-write</access>
-            </field>
-          </fields>
-        </register>
-        <register>
-          <name>LED_INTENSE</name>
-          <description>Debounce setting</description>
-          <addressOffset>0x8</addressOffset>
-          <size>32</size>
-          <resetValue>0x00000000</resetValue>
-          <resetMask>0x000F000F</resetMask>
-          <fields>
-            <field>
-              <name>RLED</name>
-              <description>Rbutton brightness 0</description>
-              <bitOffset>16</bitOffset>
-              <bitWidth>4</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>PLED</name>
-              <description>Pbutton brightness 0</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>4</bitWidth>
               <access>read-write</access>
             </field>
           </fields>

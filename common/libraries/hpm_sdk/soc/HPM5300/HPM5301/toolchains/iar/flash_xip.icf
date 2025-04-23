@@ -31,7 +31,7 @@ define region NOR_CFG_OPTION = mem:[ from 0x80000400 size 0x0C00 ];
 define region BOOT_HEADER = mem:[ from 0x80001000 size 0x90 ];
 define region XPI0 = mem:[from 0x80003000 size (__size_flash__ - 0x3000) ];   /* XPI0 */
 define region ILM = mem:[from 0x00000000 size 128k];        /* ILM */
-define region DLM = mem:[from 0x00080000 size 128k];        /* DLM */
+define region DLM = mem:[from 0x00080300 size (128k - 768)];        /* DLM */
 define region AHB_SRAM = mem:[from 0xF0400000 size 32k];
 
 /* Blocks */
@@ -60,18 +60,17 @@ define exported symbol __boot_header_length__ = size(BOOT_HEADER);
 define exported symbol __fw_size__ = 0x1000;
 
 /* Initialization */
-do not initialize                           { section .noncacheable, section .fast_ram };
+do not initialize                           { section .noncacheable, section .fast_ram };    // Legacy sections, kept for backwards compatibility
 do not initialize                           { section .non_init, section .non_init.*, section .*.non_init, section .*.non_init.* };
 do not initialize                           { section .no_init, section .no_init.*, section .*.no_init, section .*.no_init.* };   // Legacy sections, kept for backwards compatibility
 do not initialize                           { section .noinit, section .noinit.*, section .*.noinit, section .*.noinit.* };       // Legacy sections, used by some SDKs/HALs
 
-initialize by copy with packing=auto        { section .noncacheable.init, section .fast_ram.init };
+initialize by copy with packing=auto        { section .noncacheable.init, section .noncacheable.init.*, section .fast_ram.init, section .fast_ram.init.* };
 initialize by copy with packing=auto        { section .fast, section .fast.*, section .*.fast, section .*.fast.* };               // "RAM Code" sections
 initialize by copy with packing=none        { section .vector_table };
 initialize by copy with packing=none        { section .isr_vector };
 initialize by copy with packing=none        { section .vector_s_table };
 initialize by copy with packing=none        { section .isr_s_vector };
-initialize by copy with packing=auto        { section .usbh_class_info };
 initialize by copy                          { readwrite };
 
 /* Placement */
@@ -82,19 +81,19 @@ place in XPI0                               { block rtthread_FSymTab,
                                               block rtthread_VSymTab,
                                               block rtthread_rti_fn,
                                               block rtthread_RTMSymTab,
+                                              block cherryusb_usbh_class_info,
                                               readonly
                                             };
 place at start of ILM                       { block vectors, block vectors_s };
 place in ILM                                {
                                               section .fast, section .fast.*,                       // "ramfunc" section
                                             };
-place in DLM                                { block cherryusb_usbh_class_info };
 place in DLM                                {
                                               block RW_DATA
                                             };
-place in DLM                                { section .noncacheable, section .noncacheable.init, section .noncacheable.bss };  // Noncacheable
-place in AHB_SRAM                           { section .ahb_sram};                                   // AHB SRAM memory
-place in DLM                                { section .fast_ram.init, section .fast_ram, section .fast_ram.bss};   // Fast access memory
+place in DLM                                { section .noncacheable.non_init, section .noncacheable.non_init.*, section .noncacheable.init, section .noncacheable.init.*, section .noncacheable.bss, section .noncacheable.bss.*, section .noncacheable };  // Noncacheable
+place in AHB_SRAM                           { section .ahb_sram, section .ahb_sram.*};                                   // AHB SRAM memory
+place in DLM                                { section .fast_ram.init, section .fast_ram.init.*, section .fast_ram.non_init,  section .fast_ram.non_init.*, section .fast_ram.bss, section .fast_ram.bss.*, section .fast_ram };   // Fast access memory
 place in DLM                                { block HEAP };                                         // Heap reserved block
 place at end of DLM                         { block CSTACK };                                       // Stack reserved block
 

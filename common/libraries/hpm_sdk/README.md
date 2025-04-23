@@ -3,10 +3,9 @@ gantt
     title HPM SDK Release Plan
     dateFormat  YYYY-MM-DD
     section Mainline Release
-    v1.5.0           :a1, 2024-01-01, 2024-03-31
-    v1.6.0           :a2, 2024-04-01, 2024-06-30
-    v1.7.0           :a3, 2024-07-01, 2024-09-30
-    v1.8.0           :a4, 2024-10-01, 2024-12-31
+    v1.8.0           :a1, 2024-10-01, 2024-12-31
+    v1.9.0           :a2, 2025-01-01, 2025-03-31
+    v1.10.0 LTS      :a3, 2025-04-01, 2025-06-30
 ```
 
 [中文](README_zh.md)
@@ -35,7 +34,7 @@ The HPM SDK Project is a software development kit based on HPMicro's MCUs, which
   SDK documentation can be built locally, once it's done, it can be accessed with the following entries:
   - <HPM_SDK_BASE>>/docs/index.html
   - <HPM_SDK_BASE>>/docs/index_zh.html
-  > Please refer to for [hpm_sdk Getting Started](docs/en/get_started.md) more details about documentation building.
+  > Please refer to for [hpm_sdk Getting Started](docs/en/get_started.rst) more details about documentation building.
 - Online:
   - http://hpm-sdk.readthedocs.io/
   - http://hpm-sdk-zh.readthedocs.io/
@@ -43,6 +42,7 @@ The HPM SDK Project is a software development kit based on HPMicro's MCUs, which
 ## Repositories
 - hpm_sdk: https://github.com/hpmicro/hpm_sdk
 - sdk_env: https://github.com/hpmicro/sdk_env
+- hpm_apps: https://github.com/hpmicro/hpm_apps
 - sdk extra demo: https://github.com/hpmicro/hpm_sdk_extra
 - openocd (hpmicro patched): https://github.com/hpmicro/riscv-openocd
 - gnu gcc toolchain: https://github.com/hpmicro/riscv-gnu-toolchain

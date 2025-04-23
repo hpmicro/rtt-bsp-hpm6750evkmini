@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 HPMicro
+ * Copyright (c) 2023-2025 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -10,6 +10,17 @@
 
 #include "hpm_soc.h"
 #include "hpm_soc_ip_feature.h"
+
+/*
+ * Cache section
+ */
+#define HPM_L1C_CACHE_SIZE (uint32_t)(16 * SIZE_1KB)
+#define HPM_L1C_ICACHE_SIZE (HPM_L1C_CACHE_SIZE)
+#define HPM_L1C_DCACHE_SIZE (HPM_L1C_CACHE_SIZE)
+#define HPM_L1C_CACHELINE_SIZE (32)
+#define HPM_L1C_CACHELINES_PER_WAY (128)
+#define HPM_L1C_CACHELINE_ALIGN_DOWN(n) ((uint32_t)(n) & ~(HPM_L1C_CACHELINE_SIZE - 1U))
+#define HPM_L1C_CACHELINE_ALIGN_UP(n)   HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)(n) + HPM_L1C_CACHELINE_SIZE - 1U)
 
 /*
  * PLIC feature
@@ -171,6 +182,8 @@
 #define TRGM_SOC_HAS_ADC_MATRIX_SEL (1U)
 #define TRGM_SOC_HAS_DAC_MATRIX_SEL (1U)
 #define TRGM_SOC_HAS_POS_MATRIX_SEL (1U)
+#define TRGM_SOC_TRIM_IN_GROUP_MAX  (3U)
+#define TRGM_SOC_TRIM_OUT_GROUP_MAX (4U)
 
 /*
  * MCAN Section
@@ -185,7 +198,6 @@
  */
 #define EWDG_SOC_CLK_DIV_VAL_MAX        (5U)
 #define EWDG_SOC_OVERTIME_REG_WIDTH     (16U)
-#define EWDG_SOC_SUPPORT_TIMEOUT_INTERRUPT  (1)
 #define EWDG_TIMEOUT_INTERRUPT_REQUIRE_EDGE_TRIGGER (1)
 
 /*
@@ -202,6 +214,14 @@
  * OPAMP
  */
 #define OPAMP_SOC_HAS_MAX_PRESET_CHN_NUM    (7U)
+
+/**
+ * PLB
+ */
+#define PLB_SOC_TYPEA_TRGM_INPUT0         (TRGM_TRGOCFG_PLB_IN_00)
+#define PLB_SOC_TYPEA_TRGM_OUTPUT0        (HPM_TRGM0_INPUT_SRC_PLB_OUT00)
+#define PLB_SOC_TYPEB_TRGM_INPUT0         (TRGM_TRGOCFG_PLB_IN_16)
+#define PLB_SOC_TYPEB_TRGM_OUTPUT0        (HPM_TRGM0_INPUT_SRC_PLB_OUT16)
 
 
 #endif /* HPM_SOC_FEATURE_H */

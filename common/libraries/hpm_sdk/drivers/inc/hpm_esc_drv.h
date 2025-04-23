@@ -197,6 +197,37 @@ static inline void esc_pdi_reset(ESC_Type *ptr)
     ptr->ESC_RST_PDI = 0x53; /* S */
 }
 
+/**
+ * @brief ESC set phy offset
+ *
+ * @param[in] ptr ESC base address
+ * @param[in] offset PHY register offset
+ */
+static inline void esc_set_phy_offset(ESC_Type *ptr, uint8_t offset)
+{
+    ptr->PHY_CFG0 = (ptr->PHY_CFG0 & ~ESC_PHY_CFG0_PHY_OFFSET_VAL_MASK) | (offset << ESC_PHY_CFG0_PHY_OFFSET_VAL_SHIFT);
+}
+
+/**
+ * @brief ESC enable PDI to access MII management
+ *
+ * @param[in] ptr ESC base address
+ */
+static inline void esc_enable_pdi_access_mii_management(ESC_Type *ptr)
+{
+    ptr->MIIM_PDI_ACC_STAT |= ESC_MIIM_PDI_ACC_STAT_ACC_MASK;
+}
+
+/**
+ * @brief ESC disable PDI to access MII management
+ *
+ * @param[in] ptr ESC base address
+ */
+static inline void esc_disable_pdi_access_mii_management(ESC_Type *ptr)
+{
+    ptr->MIIM_PDI_ACC_STAT &= ~ESC_MIIM_PDI_ACC_STAT_ACC_MASK;
+}
+
 /*!
  * @brief ESC read PHY register via ESC MII Management Interface
  *
@@ -205,7 +236,6 @@ static inline void esc_pdi_reset(ESC_Type *ptr)
  * @param[in] reg_addr Register address.
  * @param[in] data PHY data returned.
  */
-
 hpm_stat_t esc_mdio_read(ESC_Type *ptr, uint8_t phy_addr, uint8_t reg_addr, uint16_t *data);
 
 /*!
@@ -336,7 +366,43 @@ static inline void esc_config_latch1_source(ESC_Type *ptr, bool latch0_from_trig
     }
 }
 
+#if defined(HPM_IP_FEATURE_ESC_SYNC_IRQ_MASK) && HPM_IP_FEATURE_ESC_SYNC_IRQ_MASK
+/*!
+ * @brief ESC map sync irq to pdi irq
+ *
+ * Note: this API will change bit3 and bit7 value of 0x151 register
+ *
+ * @param[in] ptr ESC base address
+ * @param[in] sync0_irq true: map sync0 irq to pdi irq in 0x151 register
+ * @param[in] sync1_irq true: map sync1 irq to pdi irq in 0x151 register
+ */
+static inline void esc_enable_sync_irq_to_pdi_irq(ESC_Type *ptr, bool sync0_irq, bool sync1_irq)
+{
+    ptr->GPR_CFG0 = (ptr->GPR_CFG0 & ~(ESC_GPR_CFG0_SYNC0_PDI_IRQEN_MASK | ESC_GPR_CFG0_SYNC1_PDI_IRQEN_MASK))
+                     | (ESC_GPR_CFG0_SYNC0_PDI_IRQEN_SET(sync0_irq))
+                     | (ESC_GPR_CFG0_SYNC1_PDI_IRQEN_SET(sync1_irq));
+}
+#endif
 
+#if defined(HPM_IP_FEATURE_ESC_PORT_DIS) && HPM_IP_FEATURE_ESC_PORT_DIS
+/*!
+ * @brief ESC change port implementation description
+ *
+ * Note: this API will change the value of 0x7 register to change port implementation description
+ *
+ * @param[in] ptr ESC base address
+ * @param[in] port0 true: change port0 to not implemented in port description register
+ * @param[in] port1 true: change port1 to not implemented in port description register
+ * @param[in] port2 true: change port2 to not implemented in port description register
+ */
+static inline void esc_change_port_description(ESC_Type *ptr, bool port0, bool port1, bool port2)
+{
+    ptr->GPR_CFG0 = (ptr->GPR_CFG0 & ~(ESC_GPR_CFG0_PORT0_DIS_MASK | ESC_GPR_CFG0_PORT1_DIS_MASK | ESC_GPR_CFG0_PORT2_DIS_MASK))
+                     | (ESC_GPR_CFG0_PORT0_DIS_SET(port0))
+                     | (ESC_GPR_CFG0_PORT1_DIS_SET(port1))
+                     | (ESC_GPR_CFG0_PORT2_DIS_SET(port2));
+}
+#endif
 
 #ifdef __cplusplus
 }
