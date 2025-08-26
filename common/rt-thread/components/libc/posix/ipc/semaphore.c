@@ -6,12 +6,17 @@
  * Change Logs:
  * Date           Author       Notes
  * 2010-10-26     Bernard      the first version
+ * 2025-06-26     RCSN         fix compatibility issue with Segger Embedded Studio
  */
 
 #include <rtthread.h>
 #include <string.h>
 #include <fcntl.h>
+#ifdef __SES_VERSION
+#include <errno.h>
+#else
 #include <sys/errno.h>
+#endif
 #include "semaphore.h"
 
 static sem_t *posix_sem_list = RT_NULL;

@@ -50,7 +50,7 @@ typedef struct {
     enet_int_config_t int_config;
     enet_frame_t *frame;
     int cnt;
-#if __USE_ENET_PTP
+#if defined(__USE_ENET_PTP) && __USE_ENET_PTP
     bool ptp_enable;
     uint32_t ptp_clk_src;
     enet_ptp_config_t ptp_config;
@@ -76,7 +76,7 @@ typedef struct _hpm_enet
     bool int_refclk;
     enet_frame_t *frame;
     int cnt;
-#if __USE_ENET_PTP
+#if defined(__USE_ENET_PTP) && __USE_ENET_PTP
     bool ptp_enable;
     uint32_t ptp_clk_src;
     enet_ptp_config_t *ptp_config;

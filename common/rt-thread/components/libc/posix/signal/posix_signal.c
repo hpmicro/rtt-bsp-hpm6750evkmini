@@ -6,13 +6,18 @@
  * Change Logs:
  * Date           Author       Notes
  * 2017/10/1      Bernard      The first version
+ * 2025-06-26     RCSN         fix compatibility issue with Segger Embedded Studio
  */
 
 #include <rthw.h>
 #include <rtthread.h>
 
 #include <sys/time.h>
+#ifdef __SES_VERSION
+#include <errno.h>
+#else
 #include <sys/errno.h>
+#endif
 
 #include "posix_signal.h"
 

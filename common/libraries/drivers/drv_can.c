@@ -108,11 +108,11 @@ static hpm_can_t dev_can0 =
 #endif
 };
 
+RTT_DECLARE_EXT_ISR_M(IRQn_CAN0, can0_isr);
 void can0_isr(void)
 {
     hpm_can_isr(&dev_can0);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_CAN0, can0_isr);
 
 #endif
 
@@ -130,11 +130,11 @@ static hpm_can_t dev_can1 =
         .irq_priority = 1,
 #endif
 };
+RTT_DECLARE_EXT_ISR_M(IRQn_CAN1, can1_isr);
 void can1_isr(void)
 {
     hpm_can_isr(&dev_can1);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_CAN1, can1_isr);
 #endif
 
 #if defined(HPM_CAN2_BASE) && defined(BSP_USING_CAN2)
@@ -151,11 +151,11 @@ static hpm_can_t dev_can2 =
         .irq_priority = 1,
 #endif
 };
+RTT_DECLARE_EXT_ISR_M(IRQn_CAN2, can2_isr);
 void can2_isr(void)
 {
     hpm_can_isr(&dev_can2);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_CAN2, can2_isr);
 #endif
 
 #if defined(HPM_CAN3_BASE) && defined(BSP_USING_CAN3)
@@ -172,11 +172,11 @@ static hpm_can_t dev_can3 =
        .irq_priority = 1,
 #endif
 };
+RTT_DECLARE_EXT_ISR_M(IRQn_CAN3, can3_isr);
 void can3_isr(void)
 {
     hpm_can_isr(&dev_can3);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_CAN3, can3_isr);
 #endif
 
 static hpm_can_t *hpm_cans[] = {

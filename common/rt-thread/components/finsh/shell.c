@@ -248,7 +248,7 @@ void finsh_set_device(const char *device_name)
  *
  * @return the finsh shell input device name is returned.
  */
-const char *finsh_get_device()
+const char *finsh_get_device(void)
 {
     RT_ASSERT(shell != RT_NULL);
     return shell->device->parent.name;
@@ -277,7 +277,7 @@ void finsh_set_echo(rt_uint32_t echo)
  *
  * @return the echo mode
  */
-rt_uint32_t finsh_get_echo()
+rt_uint32_t finsh_get_echo(void)
 {
     RT_ASSERT(shell != RT_NULL);
 

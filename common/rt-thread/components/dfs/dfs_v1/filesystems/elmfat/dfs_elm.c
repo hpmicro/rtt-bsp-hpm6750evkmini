@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2025, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -15,6 +15,7 @@
  * 2017-02-13     Hichard      Update Fatfs version to 0.12b, support exFAT.
  * 2017-04-11     Bernard      fix the st_blksize issue.
  * 2017-05-26     Urey         fix f_mount error when mount more fats
+ * 2025-06-17     Fan YANG     fix compatibility issue with Segger Embedded Studio
  */
 
 #include <rtthread.h>
@@ -787,8 +788,10 @@ int dfs_elm_stat(struct dfs_filesystem *fs, const char *path, struct stat *st)
 #endif
     if (result == FR_OK)
     {
+#ifndef __SES_VERSION
         /* convert to dfs stat structure */
         st->st_dev = 0;
+#endif
 
         st->st_mode = S_IFREG | S_IRUSR | S_IRGRP | S_IROTH |
                       S_IWUSR | S_IWGRP | S_IWOTH;
@@ -801,6 +804,7 @@ int dfs_elm_stat(struct dfs_filesystem *fs, const char *path, struct stat *st)
             st->st_mode &= ~(S_IWUSR | S_IWGRP | S_IWOTH);
 
         st->st_size  = file_info.fsize;
+#ifndef __SES_VERSION
         st->st_blksize = f->csize * SS(f);
         if (file_info.fattrib & AM_ARC)
         {
@@ -811,6 +815,7 @@ int dfs_elm_stat(struct dfs_filesystem *fs, const char *path, struct stat *st)
         {
             st->st_blocks = f->csize;
         }
+#endif
         /* get st_mtime. */
         {
             struct tm tm_file;
@@ -838,8 +843,9 @@ int dfs_elm_stat(struct dfs_filesystem *fs, const char *path, struct stat *st)
             tm_file.tm_hour = hour;        /* Hours since midnight: 0-23 */
             tm_file.tm_min  = min;         /* Minutes: 0-59 */
             tm_file.tm_sec  = sec;         /* Seconds: 0-59 */
-
+#ifndef __SES_VERSION
             st->st_mtime = timegm(&tm_file);
+#endif
         } /* get st_mtime. */
     }
 

@@ -3111,8 +3111,8 @@ typedef struct {
  * 3: data register 3
  * ...
  * 29: data register 29
- * 30: value 0 when send, wait 0 in receive
- * 31: value1 when send,  wait 1 in receive
+ * 30: do not set this value
+ * 31: do not set this value
  */
 #define SEI_INSTR_CRC_MASK (0x1F0000UL)
 #define SEI_INSTR_CRC_SHIFT (16U)

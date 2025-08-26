@@ -1,12 +1,14 @@
 /*
- * Copyright (c) 2021 HPMicro
+ * Copyright (c) 2021-2025 HPMicro
  *
  * Change Logs:
  * Date         Author          Notes
  * 2021-08-13   Fan YANG        first version
+ * 2025-06-27   HPMicro         add alarm sample
  *
  */
 
+#include <stdio.h>
 #include <rtthread.h>
 #include <rtdevice.h>
 #include "rtt_board.h"
@@ -15,6 +17,10 @@
 rt_device_t hw_dev;                     /* Timer Device Handler */
 rt_hwtimer_mode_t mode;                 /* Timer Mode */
 rt_hwtimerval_t timeout_s;              /* Timer Value */
+
+#ifdef RT_USING_ALARM
+static rt_alarm_t alarm = RT_NULL;
+#endif
 
 /* Timer timeout callback */
 static rt_err_t timeout_cb(rt_device_t dev, rt_size_t size)
@@ -119,6 +125,85 @@ static int wdt_reset(int argc, char *argv[])
     rt_thread_idle_delhook(idle_hook);
 }
 MSH_CMD_EXPORT(wdt_reset, wdt reset);
+
+#if defined(RT_USING_ALARM) && defined(BSP_USING_RTC)
+void user_alarm_callback(rt_alarm_t alarm, time_t timestamp)
+{
+    struct tm p_tm;
+    time_t now = timestamp;
+
+#ifdef RT_ALARM_USING_LOCAL_TIME
+    localtime_r(&now, &p_tm);
+#else
+    gmtime_r(&now, &p_tm);
+#endif
+    rt_kprintf("user alarm callback function. \r\n");
+    rt_kprintf("current time: %04d-%02d-%02d %02d:%02d:%02d \r\n", p_tm.tm_year + 1900, p_tm.tm_mon + 1, p_tm.tm_mday, p_tm.tm_hour, p_tm.tm_min, p_tm.tm_sec); 
+}
+
+void alarm_sample(int argc, char *argv[])
+{
+    rt_uint32_t offset_time;
+    time_t curr_time;
+    struct tm p_tm;
+    struct rt_alarm_setup setup;
+
+    if (argc < 2) {
+        rt_kprintf("set the alarm time to a specified time after the current time, such as 5 seconds later \r\n");
+        return;
+    }
+
+    if (argc > 2) {
+        rt_kprintf("too many arguments \r\n");
+        return;
+    }
+
+    if (sscanf(argv[1], "%d", &offset_time) != 1) {
+        rt_kprintf("invalid time format \r\n");
+        return;
+    }
+
+    curr_time = time(NULL) + offset_time;
+#ifdef RT_ALARM_USING_LOCAL_TIME
+    localtime_r(&curr_time, &p_tm);
+    rt_kprintf("alarm use local time \r\n");
+#else
+    gmtime_r(&curr_time, &p_tm);
+    rt_kprintf("alarm use UTC time \r\n");
+#endif
+    rt_kprintf("alarm time: %04d-%02d-%02d %02d:%02d:%02d \r\n", p_tm.tm_year + 1900, p_tm.tm_mon + 1, p_tm.tm_mday, p_tm.tm_hour,
+            p_tm.tm_min, p_tm.tm_sec - 5);
+
+    setup.flag = RT_ALARM_ONESHOT;
+    setup.wktime.tm_year = p_tm.tm_year;
+    setup.wktime.tm_mon = p_tm.tm_mon;
+    setup.wktime.tm_mday = p_tm.tm_mday;
+    setup.wktime.tm_wday = p_tm.tm_wday;
+    setup.wktime.tm_hour = p_tm.tm_hour;
+    setup.wktime.tm_min = p_tm.tm_min;
+    setup.wktime.tm_sec = p_tm.tm_sec;
+
+    alarm = rt_alarm_create(user_alarm_callback, &setup);
+    if (RT_NULL != alarm)
+    {
+        rt_alarm_start(alarm);
+    }
+    else
+    {
+        rt_kprintf("rtc alarm create failed");
+    }
+
+}
+MSH_CMD_EXPORT(alarm_sample, alarm sample);
+
+void del_alarm_sample(void)
+{
+    rt_alarm_delete(alarm);
+    rt_kprintf("delete all alarm\r\n");
+}
+MSH_CMD_EXPORT(del_alarm_sample, delete alarm sample);
+
+#endif
 
 int main(void)
 {

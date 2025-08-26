@@ -11,6 +11,7 @@
 #define NO_BOARD_TIMER_SUPPORT 1
 #define RT_USING_LIBC
 #define RT_USING_NEWLIBC
+#define USE_DMA_DECLARE_EXT_ISR_M 1
 #define _POSIX_C_SOURCE 1
 #define _REENT_SMALL
 #define __RTTHREAD__

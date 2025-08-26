@@ -278,7 +278,6 @@ int dfs_romfs_stat(struct dfs_filesystem *fs, const char *path, struct stat *st)
         return -ENOENT;
     }
 
-    st->st_dev = 0;
     st->st_mode = S_IFREG | S_IRUSR | S_IRGRP | S_IROTH |
                   S_IWUSR | S_IWGRP | S_IWOTH;
 
@@ -289,7 +288,11 @@ int dfs_romfs_stat(struct dfs_filesystem *fs, const char *path, struct stat *st)
     }
 
     st->st_size = dirent->size;
+
+#ifndef __SES_VERSION
+    st->st_dev = 0;
     st->st_mtime = 0;
+#endif
 
     return RT_EOK;
 }

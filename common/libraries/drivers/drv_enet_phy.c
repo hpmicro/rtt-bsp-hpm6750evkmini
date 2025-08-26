@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 HPMicro
+ * Copyright (c) 2023-2025 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -10,6 +10,10 @@
  */
 
 #include "rtthread.h"
+
+#if !defined(RT_USING_PHY)
+#error Please enable phy abstraction layer or remove the current file from your project!
+#endif
 
 #ifdef RT_USING_PHY
 #include <rtdevice.h>

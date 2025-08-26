@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2023, RT-Thread Development Team
+ * Copyright (c) 2006-2025, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -7,6 +7,7 @@
  * Date           Author       Notes
  * 2015-09-25     Bernard      the first verion for FinSH
  * 2021-06-09     Meco Man     implement tail command
+ * 2025-06-17     Fan YANG     Fix compatibility issue with Segger Embedded Studio
  */
 
 #include <rtthread.h>
@@ -20,6 +21,12 @@
 #include <fcntl.h>
 #ifdef RT_USING_DFS_V2
 #include <dfs_mnt.h>
+#endif
+
+#ifdef __SES_VERSION
+extern int open(const char *file, int flags, ...);
+extern int stat(const char *file, struct stat *buf);
+extern int mkdir(const char *path, mode_t mode);
 #endif
 
 static int msh_readline(int fd, char *line_buf, int size)

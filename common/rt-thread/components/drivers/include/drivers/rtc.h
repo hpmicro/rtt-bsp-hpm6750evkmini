@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2023, RT-Thread Development Team
+ * Copyright (c) 2006-2025, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -9,13 +9,18 @@
  * 2021-06-11     iysheng      implement RTC framework V2.0
  * 2021-07-30     Meco Man     move rtc_core.h to rtc.h
  * 2022-04-05     tyx          add timestamp function
+ * 2025-06-17     Fan YANG     Fix compatiblity issue with Segger Embedded Studio
  */
 
 #ifndef __RTC_H__
 #define __RTC_H__
 
 #include <rtdef.h>
+#ifndef __SES_VERSION
 #include <sys/time.h>
+#else
+#include <time.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -71,7 +76,7 @@ rt_err_t set_timestamp(time_t timestamp);
 rt_err_t get_timestamp(time_t *timestamp);
 
 #ifdef RT_USING_SYSTEM_WORKQUEUE
-rt_err_t rt_soft_rtc_sync();
+rt_err_t rt_soft_rtc_sync(void);
 rt_err_t rt_soft_rtc_set_source(const char *name);
 #endif
 

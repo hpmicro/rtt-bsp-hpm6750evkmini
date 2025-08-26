@@ -29,6 +29,7 @@ typedef union {
 #endif
 
 /* Preprocessor Definition */
+#if defined(__riscv_flen)
 #if __riscv_flen == 32
 #define ARCH_RISCV_FPU
 #define ARCH_RISCV_FPU_S
@@ -37,6 +38,7 @@ typedef union {
 #if __riscv_flen == 64
 #define ARCH_RISCV_FPU
 #define ARCH_RISCV_FPU_D
+#endif
 #endif
 
 /* bytes of register width  */

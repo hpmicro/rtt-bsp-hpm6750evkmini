@@ -824,9 +824,10 @@ int dfs_elm_stat(struct dfs_dentry *dentry, struct stat *st)
     if (result == FR_OK)
     {
         /* convert to dfs stat structure */
+#ifndef __SES_VERSION
         st->st_dev = (dev_t)(size_t)(dentry->mnt->dev_id);
         st->st_ino = (ino_t)dfs_dentry_full_path_crc32(dentry);
-
+#endif
         st->st_mode = S_IFREG | S_IRUSR | S_IRGRP | S_IROTH |
                       S_IWUSR | S_IWGRP | S_IWOTH;
         if (file_info.fattrib & AM_DIR)
@@ -836,7 +837,7 @@ int dfs_elm_stat(struct dfs_dentry *dentry, struct stat *st)
         }
         if (file_info.fattrib & AM_RDO)
             st->st_mode &= ~(S_IWUSR | S_IWGRP | S_IWOTH);
-
+#ifndef __SES_VERSION
         st->st_size  = file_info.fsize;
         st->st_blksize = fat->csize * SS(fat);
         if (file_info.fattrib & AM_ARC)
@@ -848,6 +849,7 @@ int dfs_elm_stat(struct dfs_dentry *dentry, struct stat *st)
         {
             st->st_blocks = fat->csize;
         }
+#endif
         /* get st_mtime. */
         {
             struct tm tm_file;
@@ -875,8 +877,9 @@ int dfs_elm_stat(struct dfs_dentry *dentry, struct stat *st)
             tm_file.tm_hour = hour;        /* Hours since midnight: 0-23 */
             tm_file.tm_min  = min;         /* Minutes: 0-59 */
             tm_file.tm_sec  = sec;         /* Seconds: 0-59 */
-
+#ifndef __SES_VERSION
             st->st_mtime = timegm(&tm_file);
+#endif
         } /* get st_mtime. */
     }
 

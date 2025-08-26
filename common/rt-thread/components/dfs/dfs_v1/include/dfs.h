@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2025, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
  * Change Logs:
  * Date           Author       Notes
  * 2005-02-22     Bernard      The first version.
+ * 2025-06-17     Fan YANG     Fix compatibility issue with Segger Embedded Studio
  */
 
 #ifndef __DFS_H__
@@ -21,6 +22,9 @@
 #include <sys/statfs.h>
 #include <sys/time.h>
 #include <rtdevice.h>
+#ifdef __SES_VERSION
+#include <errno.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

@@ -28,6 +28,7 @@ struct rt_event test_evt;
 
 static volatile bool is_busy = false;
 
+extern int open(const char *path, int oflag, ... );
 extern int write(int fd, const void *buf, size_t len);
 extern int read(int fd, void *buf, size_t len);
 extern int close(int fd);

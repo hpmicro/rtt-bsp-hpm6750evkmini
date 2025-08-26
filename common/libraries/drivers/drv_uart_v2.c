@@ -101,156 +101,156 @@ int hpm_uart_dma_register_channel(struct rt_serial_device *serial,
 
 #if defined(BSP_USING_UART0)
 struct rt_serial_device serial0;
+RTT_DECLARE_EXT_ISR_M(IRQn_UART0,uart0_isr)
 void uart0_isr(void)
 {
     hpm_uart_isr(&serial0);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_UART0,uart0_isr)
 #endif
 
 
 #if defined(BSP_USING_UART1)
 struct rt_serial_device serial1;
+RTT_DECLARE_EXT_ISR_M(IRQn_UART1,uart1_isr)
 void uart1_isr(void)
 {
     hpm_uart_isr(&serial1);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_UART1,uart1_isr)
 #endif
 
 
 #if defined(BSP_USING_UART2)
 struct rt_serial_device serial2;
+RTT_DECLARE_EXT_ISR_M(IRQn_UART2,uart2_isr)
 void uart2_isr(void)
 {
     hpm_uart_isr(&serial2);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_UART2,uart2_isr)
 #endif
 
 
 #if defined(BSP_USING_UART3)
 struct rt_serial_device serial3;
+RTT_DECLARE_EXT_ISR_M(IRQn_UART3,uart3_isr)
 void uart3_isr(void)
 {
     hpm_uart_isr(&serial3);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_UART3,uart3_isr)
 #endif
 
 
 #if defined(BSP_USING_UART4)
 struct rt_serial_device serial4;
+RTT_DECLARE_EXT_ISR_M(IRQn_UART4,uart4_isr)
 void uart4_isr(void)
 {
     hpm_uart_isr(&serial4);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_UART4,uart4_isr)
 #endif
 
 
 #if defined(BSP_USING_UART5)
 struct rt_serial_device serial5;
+RTT_DECLARE_EXT_ISR_M(IRQn_UART5,uart5_isr)
 void uart5_isr(void)
 {
     hpm_uart_isr(&serial5);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_UART5,uart5_isr)
 #endif
 
 
 #if defined(BSP_USING_UART6)
 struct rt_serial_device serial6;
+RTT_DECLARE_EXT_ISR_M(IRQn_UART6,uart6_isr)
 void uart6_isr(void)
 {
     hpm_uart_isr(&serial6);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_UART6,uart6_isr)
 #endif
 
 
 #if defined(BSP_USING_UART7)
 struct rt_serial_device serial7;
+RTT_DECLARE_EXT_ISR_M(IRQn_UART7,uart7_isr)
 void uart7_isr(void)
 {
     hpm_uart_isr(&serial7);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_UART7,uart7_isr)
 #endif
 
 
 #if defined(BSP_USING_UART8)
 struct rt_serial_device serial8;
+RTT_DECLARE_EXT_ISR_M(IRQn_UART8,uart8_isr)
 void uart8_isr(void)
 {
     hpm_uart_isr(&serial8);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_UART8,uart8_isr)
 #endif
 
 
 #if defined(BSP_USING_UART9)
 struct rt_serial_device serial9;
+RTT_DECLARE_EXT_ISR_M(IRQn_UART9,uart9_isr)
 void uart9_isr(void)
 {
     hpm_uart_isr(&serial9);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_UART9,uart9_isr)
 #endif
 
 
 #if defined(BSP_USING_UART10)
 struct rt_serial_device serial10;
+RTT_DECLARE_EXT_ISR_M(IRQn_UART10,uart10_isr)
 void uart10_isr(void)
 {
     hpm_uart_isr(&serial10);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_UART10,uart10_isr)
 #endif
 
 #if defined(BSP_USING_UART11)
 struct rt_serial_device serial11;
+RTT_DECLARE_EXT_ISR_M(IRQn_UART11,uart11_isr)
 void uart11_isr(void)
 {
     hpm_uart_isr(&serial11);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_UART11,uart11_isr)
 #endif
 
 #if defined(BSP_USING_UART12)
 struct rt_serial_device serial12;
+RTT_DECLARE_EXT_ISR_M(IRQn_UART12,uart12_isr)
 void uart12_isr(void)
 {
     hpm_uart_isr(&serial12);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_UART12,uart12_isr)
 #endif
 
 #if defined(BSP_USING_UART13)
 struct rt_serial_device serial13;
+RTT_DECLARE_EXT_ISR_M(IRQn_UART13,uart13_isr)
 void uart13_isr(void)
 {
     hpm_uart_isr(&serial13);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_UART13,uart13_isr)
 #endif
 
 #if defined(BSP_USING_UART14)
 struct rt_serial_device serial14;
+RTT_DECLARE_EXT_ISR_M(IRQn_UART14,uart14_isr)
 void uart14_isr(void)
 {
     hpm_uart_isr(&serial14);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_UART14,uart14_isr)
 #endif
 
 #if defined(BSP_USING_UART15)
 struct rt_serial_device serial15;
+RTT_DECLARE_EXT_ISR_M(IRQn_UART15,uart15_isr)
 void uart15_isr(void)
 {
     hpm_uart_isr(&serial15);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_UART15,uart15_isr)
 #endif
 
 static struct hpm_uart uarts[] =
@@ -782,7 +782,10 @@ static void hpm_uart_isr(struct rt_serial_device *serial)
     }
  #if defined(HPM_IP_FEATURE_UART_RX_IDLE_DETECT) && (HPM_IP_FEATURE_UART_RX_IDLE_DETECT == 1) && defined(RT_SERIAL_USING_DMA)
     if (uart_is_rxline_idle(uart->uart_base)) {
-        uart_rx_done(serial);
+        if ((uart->rx_chn_ctx.resource.base != RT_NULL) && (dma_get_remaining_transfer_size(uart->rx_chn_ctx.resource.base, uart->rx_chn_ctx.resource.channel) > 0)) {
+            /* if the rxline is idle, but the dma transfer is not finished, it means that the rxline idle interrupt is triggered before the dma transfer is finished */
+            uart_rx_done(serial);
+        }
         uart_clear_rxline_idle_flag(uart->uart_base);
         uart_flush(uart->uart_base);
     }
@@ -902,9 +905,8 @@ static int hpm_uart_dma_config(struct rt_serial_device *serial, void *arg)
         dma_mgr_enable_channel(&uart->rx_chn_ctx.resource);
         dma_mgr_enable_chn_irq(&uart->rx_chn_ctx.resource, DMA_MGR_INTERRUPT_MASK_TC);
         dma_mgr_enable_dma_irq_with_priority(&uart->rx_chn_ctx.resource, 1);
-#if !defined(HPM_IP_FEATURE_UART_RX_IDLE_DETECT) || (HPM_IP_FEATURE_UART_RX_IDLE_DETECT == 0)
         hpm_uart_dma_register_channel(serial, false, uart_rx_done, RT_NULL, RT_NULL);
-#else
+#if defined(HPM_IP_FEATURE_UART_RX_IDLE_DETECT) && (HPM_IP_FEATURE_UART_RX_IDLE_DETECT == 1)
         intc_m_enable_irq_with_priority(uart->irq_num, uart->irq_priority);
 #endif
     } else if (ctrl_arg == RT_DEVICE_FLAG_DMA_TX) {

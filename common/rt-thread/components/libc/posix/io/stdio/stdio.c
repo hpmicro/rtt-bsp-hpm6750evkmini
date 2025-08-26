@@ -7,6 +7,7 @@
  * Date           Author       Notes
  * 2017/10/15     bernard      the first version
  * 2023/08/07     Meco Man     rename as posix/stdio.c
+ * 2025-06-26     RCSN         fix compatibility issue with Segger Embedded Studio
  */
 
 #include <rtthread.h>
@@ -17,7 +18,11 @@
 #include <limits.h>
 #include <fcntl.h>
 #include <sys/time.h>
+#ifdef __SES_VERSION
+#include <errno.h>
+#else
 #include <sys/errno.h>
+#endif
 #include "posix/stdio.h"
 
 #define STDIO_DEVICE_NAME_MAX   32

@@ -275,91 +275,91 @@ static void hpm_gpio_isr(uint32_t gpio_idx, GPIO_Type *base)
 }
 
 #ifdef GPIO_DO_GPIOA
+RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_A, gpioa_isr)
 void gpioa_isr(void)
 {
     hpm_gpio_isr(GPIO_IF_GPIOA, HPM_GPIO0);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_A, gpioa_isr)
 #endif
 
 #ifdef GPIO_DO_GPIOB
+RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_B, gpiob_isr)
 void gpiob_isr(void)
 {
     hpm_gpio_isr(GPIO_IF_GPIOB, HPM_GPIO0);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_B, gpiob_isr)
 #endif
 
 #ifdef GPIO_DO_GPIOC
+RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_C, gpioc_isr)
 void gpioc_isr(void)
 {
     hpm_gpio_isr(GPIO_IF_GPIOC, HPM_GPIO0);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_C, gpioc_isr)
 #endif
 
 #ifdef GPIO_DO_GPIOD
+RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_D, gpiod_isr)
 void gpiod_isr(void)
 {
     hpm_gpio_isr(GPIO_IF_GPIOD, HPM_GPIO0);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_D, gpiod_isr)
 #endif
 
 #ifdef GPIO_DO_GPIOE
+RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_E, gpioe_isr)
 void gpioe_isr(void)
 {
     hpm_gpio_isr(GPIO_IF_GPIOE, HPM_GPIO0);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_E, gpioe_isr)
 #endif
 
 #ifdef GPIO_DO_GPIOF
+RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_F, gpiof_isr)
 void gpiof_isr(void)
 {
     hpm_gpio_isr(GPIO_IF_GPIOF, HPM_GPIO0);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_F, gpiof_isr)
 #endif
 
 #ifdef GPIO_DO_GPIOV
+RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_V, gpiov_isr)
 void gpiov_isr(void)
 {
     hpm_gpio_isr(GPIO_IF_GPIOV, HPM_GPIO0);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_V, gpiov_isr)
 #endif
 
 #ifdef GPIO_DO_GPIOW
+RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_W, gpiow_isr)
 void gpiow_isr(void)
 {
     hpm_gpio_isr(GPIO_IF_GPIOW, HPM_GPIO0);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_W, gpiow_isr)
 #endif
 
 #ifdef GPIO_DO_GPIOX
+RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_X, gpiox_isr)
 void gpiox_isr(void)
 {
     hpm_gpio_isr(GPIO_IF_GPIOX, HPM_GPIO0);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_X, gpiox_isr)
 #endif
 
 #ifdef GPIO_DO_GPIOY
+RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_Y, gpioy_isr)
 void gpioy_isr(void)
 {
     hpm_gpio_isr(GPIO_IF_GPIOY, HPM_GPIO0);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_Y, gpioy_isr)
 #endif
 
 #ifdef GPIO_DO_GPIOZ
+RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_Z, gpioz_isr)
 void gpioz_isr(void)
 {
     hpm_gpio_isr(GPIO_IF_GPIOZ, HPM_GPIO0);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_GPIO0_Z, gpioz_isr)
 #endif
 
 /**

@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2024 HPMicro
+ * Copyright (c) 2024-2025 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Change Logs:
  * Date           Author       Notes
  * 2024-02-24     HPMicro      the first version
+ * 2025-08-06     HPMicro      corrected the nested interrupt checking logic
  */
 #include "board.h"
 #include "rtt_board.h"
@@ -52,13 +53,14 @@ void rt_hw_context_switch_interrupt(rt_ubase_t from, rt_ubase_t to, rt_thread_t 
     rt_trigger_software_interrupt();
 }
 
-void rtt_context_switch_init()
+void rtt_context_switch_init(void)
 {
     intc_m_enable_irq_with_priority(IRQn_PendSV, 1);
 }
 rt_uint32_t rt_context_switch_flag;
 rt_uint32_t sp_before_addr;
 rt_uint32_t sp_from_addr;
+RTT_DECLARE_EXT_ISR_M(IRQn_PendSV, debug0_isr);
 void debug0_isr(void)
 {
     rt_base_t level;
@@ -73,13 +75,12 @@ void debug0_isr(void)
             rt_context_switch_flag = 1;
         }
         else {
-            printf("sp not matched with from_stack,sp:%d,from_satck_addr:%d,from_stack_size:%d\n",sp_before_addr,stack_addr,stack_size);
+            rt_kprintf("sp not matched with from_stack,sp:%d,from_satck_addr:%d,from_stack_size:%d\n",sp_before_addr,stack_addr,stack_size);
         }
     }
-    rt_thread_switch_interrupt_flag = 0;
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_PendSV, debug0_isr);
 
+RTT_DECLARE_EXT_ISR_M(BOARD_OS_TIMER_IRQ, os_gtimer_isr);
 void os_gtimer_isr(void)
 {
     if (gptmr_check_status(BOARD_OS_TIMER, GPTMR_CH_RLD_STAT_MASK(BOARD_OS_TIMER_CH))) {
@@ -87,7 +88,6 @@ void os_gtimer_isr(void)
         gptmr_clear_status(BOARD_OS_TIMER, GPTMR_CH_RLD_STAT_MASK(BOARD_OS_TIMER_CH));
     }
 }
-RTT_DECLARE_EXT_ISR_M(BOARD_OS_TIMER_IRQ, os_gtimer_isr);
 #endif
 
 void os_tick_config(void)
@@ -104,7 +104,7 @@ void os_tick_config(void)
     gptmr_start_counter(BOARD_OS_TIMER, BOARD_OS_TIMER_CH);
 
     gptmr_enable_irq(BOARD_OS_TIMER, GPTMR_CH_RLD_IRQ_MASK(BOARD_OS_TIMER_CH));
-    intc_m_enable_irq_with_priority(BOARD_OS_TIMER_IRQ, 1);
+    intc_m_enable_irq_with_priority(BOARD_OS_TIMER_IRQ, 2);
 #else
     sysctl_config_clock(HPM_SYSCTL, clock_node_mchtmr0, clock_source_osc0_clk0, 1);
     sysctl_add_resource_to_cpu0(HPM_SYSCTL, sysctl_resource_mchtmr0);

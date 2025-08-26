@@ -30,6 +30,8 @@ struct dfs_filesystem filesystem_table[DFS_FILESYSTEMS_MAX];
 static struct rt_mutex fslock;
 static struct rt_mutex fdlock;
 
+extern int mkdir(const char *path, mode_t mode);
+
 #ifdef DFS_USING_WORKDIR
 char working_directory[DFS_PATH_MAX] = {"/"};
 #endif

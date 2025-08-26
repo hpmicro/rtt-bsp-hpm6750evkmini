@@ -13,12 +13,12 @@ src += ['ptpd/src/arith.c',
         'ptpd/src/bmc.c',
         'ptpd/src/protocol.c',
         'ptpd/src/ptpd.c',
-        'ptpd/src/dep/msg.c',
-        'ptpd/src/dep/net.c',
-        'ptpd/src/dep/servo.c',
-        'ptpd/src/dep/startup.c',
-        'ptpd/src/dep/sys.c',
-        'ptpd/src/dep/timer.c'
+        'ptpd/src/dep/ptpd_msg.c',
+        'ptpd/src/dep/ptpd_net.c',
+        'ptpd/src/dep/ptpd_servo.c',
+        'ptpd/src/dep/ptpd_startup.c',
+        'ptpd/src/dep/ptpd_sys.c',
+        'ptpd/src/dep/ptpd_timer.c'
         ]
 
 group = DefineGroup('Applications', src, depend = [''], CPPPATH = path, CPPDEFINES=CPPDEFINES)

@@ -50,7 +50,7 @@ static const mcan_filter_elem_t k_default_std_id_filter = {
     .filter_type = MCAN_FILTER_TYPE_CLASSIC_FILTER,
     /* Store message into RXFIFO0 if matching */
     .filter_config = MCAN_FILTER_ELEM_CFG_STORE_IN_RX_FIFO0_IF_MATCH,
-    /* For Standard Identify only */
+    /* For Standard ID only */
     .can_id_type = MCAN_CAN_ID_TYPE_STANDARD,
     /* Sync Message, only evaluated when "CCCR.UTSU" is set */
     .sync_message = 0U,
@@ -65,7 +65,7 @@ static const mcan_filter_elem_t k_default_ext_id_filter = {
     .filter_type = MCAN_FILTER_TYPE_CLASSIC_FILTER,
     /* Store message into RXFIFO0 if matching */
     .filter_config = MCAN_FILTER_ELEM_CFG_STORE_IN_RX_FIFO0_IF_MATCH,
-    /* For Standard Identify only */
+    /* For Extended ID only */
     .can_id_type = MCAN_CAN_ID_TYPE_EXTENDED,
     /* Sync Message, only evaluated when "CCCR.UTSU" is set */
     .sync_message = 0,
@@ -105,7 +105,7 @@ static rt_err_t hpm_mcan_control(struct rt_can_device *can, int cmd, void *arg);
  * @retval -RT_ETIMEOUT timeout happened
  * @retval -RT_EFULL Transmission buffer is full
  */
-static int hpm_mcan_sendmsg(struct rt_can_device *can, const void *buf, rt_uint32_t boxno);
+static rt_ssize_t hpm_mcan_sendmsg(struct rt_can_device *can, const void *buf, rt_uint32_t boxno);
 
 /**
  * @brief Receive message from CAN
@@ -116,7 +116,7 @@ static int hpm_mcan_sendmsg(struct rt_can_device *can, const void *buf, rt_uint3
  * @retval -RT_ERROR Error happened during reading receive FIFO
  * @retval -RT_EMPTY no data in receive FIFO
  */
-static int hpm_mcan_recvmsg(struct rt_can_device *can, void *buf, rt_uint32_t boxno);
+static rt_ssize_t hpm_mcan_recvmsg(struct rt_can_device *can, void *buf, rt_uint32_t boxno);
 
 /**
  * @brief Common Interrupt Service routine
@@ -792,7 +792,7 @@ static rt_err_t hpm_mcan_control(struct rt_can_device *can, int cmd, void *arg)
     return err;
 }
 
-static int hpm_mcan_sendmsg(struct rt_can_device *can, const void *buf, rt_uint32_t boxno)
+static rt_ssize_t hpm_mcan_sendmsg(struct rt_can_device *can, const void *buf, rt_uint32_t boxno)
 {
     RT_ASSERT(can);
 
@@ -861,7 +861,7 @@ static int hpm_mcan_sendmsg(struct rt_can_device *can, const void *buf, rt_uint3
     return RT_EOK;
 }
 
-static int hpm_mcan_recvmsg(struct rt_can_device *can, void *buf, rt_uint32_t boxno)
+static rt_ssize_t hpm_mcan_recvmsg(struct rt_can_device *can, void *buf, rt_uint32_t boxno)
 {
     RT_ASSERT(can);
 

@@ -6,6 +6,7 @@
  * Change Logs:
  * Date           Author       Notes
  * 2017/11/30     Bernard      The first version.
+ * 2025-06-26     RCSN         fix compatibility issue with Segger Embedded Studio
  */
 
 #include <stdint.h>
@@ -16,7 +17,11 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/statfs.h>
+#ifdef __SES_VERSION
+#include <errno.h>
+#else
 #include <sys/errno.h>
+#endif
 
 #include "sys/mman.h"
 

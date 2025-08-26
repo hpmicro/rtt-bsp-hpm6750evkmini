@@ -12,7 +12,7 @@
 typedef struct {
     struct {
         __RW uint32_t PIN[32];                 /* 0x0 - 0x7C: GPIO mananger */
-    } ASSIGN[16];
+    } ASSIGN[15];
 } GPIOM_Type;
 
 
@@ -98,9 +98,10 @@ typedef struct {
 #define GPIOM_ASSIGN_GPIOD (3UL)
 #define GPIOM_ASSIGN_GPIOE (4UL)
 #define GPIOM_ASSIGN_GPIOF (5UL)
+#define GPIOM_ASSIGN_GPIOV (11UL)
+#define GPIOM_ASSIGN_GPIOW (12UL)
 #define GPIOM_ASSIGN_GPIOX (13UL)
 #define GPIOM_ASSIGN_GPIOY (14UL)
-#define GPIOM_ASSIGN_GPIOZ (15UL)
 
 
 #endif /* HPM_GPIOM_H */

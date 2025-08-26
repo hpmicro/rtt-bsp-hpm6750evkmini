@@ -289,7 +289,9 @@ int dfs_device_fs_stat(struct dfs_filesystem *fs, const char *path, struct stat 
     /* stat root directory */
     if ((path[0] == '/') && (path[1] == '\0'))
     {
+#ifndef __SES_VERSION
         st->st_dev = 0;
+#endif
 
         st->st_mode = S_IFREG | S_IRUSR | S_IRGRP | S_IROTH |
                       S_IWUSR | S_IWGRP | S_IWOTH;
@@ -297,7 +299,9 @@ int dfs_device_fs_stat(struct dfs_filesystem *fs, const char *path, struct stat 
         st->st_mode |= S_IFDIR | S_IXUSR | S_IXGRP | S_IXOTH;
 
         st->st_size  = 0;
+#ifndef __SES_VERSION
         st->st_mtime = 0;
+#endif
 
         return RT_EOK;
     }
@@ -308,7 +312,9 @@ int dfs_device_fs_stat(struct dfs_filesystem *fs, const char *path, struct stat 
         dev_id = rt_device_find(&path[1]);
         if (dev_id != RT_NULL)
         {
+#ifndef __SES_VERSION
             st->st_dev = 0;
+#endif
 
             st->st_mode = S_IRUSR | S_IRGRP | S_IROTH |
                           S_IWUSR | S_IWGRP | S_IWOTH;
@@ -325,7 +331,9 @@ int dfs_device_fs_stat(struct dfs_filesystem *fs, const char *path, struct stat 
                 st->st_mode |= S_IFREG;
 
             st->st_size  = 0;
+#ifndef __SES_VERSION
             st->st_mtime = 0;
+#endif
 
             return RT_EOK;
         }

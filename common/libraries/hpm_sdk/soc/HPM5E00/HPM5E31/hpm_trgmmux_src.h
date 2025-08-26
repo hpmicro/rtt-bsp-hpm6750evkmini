@@ -16,8 +16,8 @@
 #define HPM_TRGM0_INPUT_SRC_PTPC_CMP1                      (0x3UL)   /* PTPC compare output1 */
 #define HPM_TRGM0_INPUT_SRC_USB0_SOF                       (0x4UL)   /* USB0 start of frame marker */
 #define HPM_TRGM0_INPUT_SRC_DEBUG_FLAG                     (0x5UL)   /* debug mode flag */
-#define HPM_TRGM0_INPUT_SRC_ESC_SYNC0                      (0x6UL)   /* ethercat sync0 event */
-#define HPM_TRGM0_INPUT_SRC_ESC_SYNC1                      (0x7UL)   /* ethercat sync1 event */
+#define HPM_TRGM0_INPUT_SRC_ESC_SYNC1                      (0x6UL)   /* ethercat sync1 event */
+#define HPM_TRGM0_INPUT_SRC_ESC_SYNC0                      (0x7UL)   /* ethercat sync0 event */
 #define HPM_TRGM0_INPUT_SRC_SYNT_CH00                      (0x8UL)   /* SYNT channel0 pulse output */
 #define HPM_TRGM0_INPUT_SRC_SYNT_CH01                      (0x9UL)   /* SYNT channel1 pulse output */
 #define HPM_TRGM0_INPUT_SRC_SYNT_CH02                      (0xAUL)   /* SYNT channel2 pulse output */

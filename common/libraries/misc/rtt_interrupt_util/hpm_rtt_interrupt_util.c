@@ -54,6 +54,10 @@ uint32_t hpm_rtt_interrupt_get(void)
 {
     uint32_t interrupt_id = HPM_INT_ID_NO_VALID;
     uint32_t mcause = read_csr(CSR_MCAUSE);
+#ifdef HPM_USING_VECTOR_PREEMPTED_MODE
+    /* Interrupt source lD when a vector interrupt occurs */
+    interrupt_id = mcause;
+#else
     uint32_t exception_code = mcause & CSR_MCAUSE_EXCEPTION_CODE_MASK;
     if (mcause & CSR_MCAUSE_INTERRUPT_MASK) {
         if (exception_code == IRQ_M_EXT) {
@@ -71,7 +75,7 @@ uint32_t hpm_rtt_interrupt_get(void)
 
     /* Workaround for the ISR is triggerred before registering the interrupt hook */
     hpm_rtt_get_int_in_trap = hpm_rtt_get_active_interrupt;
-
+#endif
     return interrupt_id;
 }
 

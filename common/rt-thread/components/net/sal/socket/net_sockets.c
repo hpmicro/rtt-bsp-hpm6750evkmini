@@ -13,7 +13,11 @@
 #include <dfs_file.h>
 #include <poll.h>
 #include <dfs_net.h>
+#ifndef __SES_VERSION
 #include <sys/errno.h>
+#else
+#include <errno.h>
+#endif
 #include <sys/socket.h>
 
 int accept(int s, struct sockaddr *addr, socklen_t *addrlen)

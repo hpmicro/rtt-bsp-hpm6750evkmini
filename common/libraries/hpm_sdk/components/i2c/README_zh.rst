@@ -1011,8 +1011,25 @@ DMA配置
 - 由于I2C组件使用了DMA管理器组件，DMA的通道等配置由DMA管理器分配，在使用DMA时分配的DMA通道避免与I2C组件使用的DMA通道冲突。
 - I2C组件使用的DMA通道可以调用``hpm_i2c_get_dma_mgr_resource``API 获取。
 
-  - ``hpm_i2c_get_dma_mgr_resource`` API函数原型:
+    - ``hpm_i2c_get_dma_mgr_resource`` API函数原型:
 
+        .. code-block:: c
+
+            dma_resource_t *hpm_i2c_get_dma_mgr_resource(hpm_i2c_context_t *context)
+
+- **举例** : 如何使用 hpm_i2c_get_dma_mgr_resource 函数获取DMA通道资源以及获取到DMA通道资源后如何使用DMA通道资源
     .. code-block:: c
 
-        dma_resource_t *hpm_i2c_get_dma_mgr_resource(hpm_i2c_context_t *context)
+            hpm_i2c_context_t context;
+            /* 初始化I2C... 不做列举 */
+            /* 获取DMA通道资源 */
+            dma_resource_t *i2c_dma_resource = hpm_i2c_get_dma_mgr_resource(&context);
+            if (i2c_dma_resource != NULL) {
+                /* 成功获取DMA通道资源 */
+                printf("I2C DMA channel resource obtained successfully.\n");
+                /* 打印获取到的DMA通道资源占用的DMA实例以及DMA通道 */
+                printf("i2c DMA instance: %d, i2c DMA channel: %d\n", i2c_dma_resource->dma_instance, i2c_dma_resource->dma_channel);
+                /* 改变DMA资源的中断优先级为1*/
+                dma_mgr_enable_dma_irq_with_priority(i2c_dma_resource, 1);
+            }
+

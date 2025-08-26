@@ -57,23 +57,20 @@
 
 #include <rtconfig.h>
 
-#ifdef RT_USING_LIBC
-#if !defined(RT_USING_LIBC_ISO_ONLY) && !defined(RT_VER_NUM)
-#define RT_USING_LIBC_ISO_ONLY  (1)
-#else
-#define RT_USING_LIBC_ISO_ONLY  (0)
-#endif /* !defined(RT_USING_LIBC_ISO_ONLY) && !defined(RT_VER_NUM) */
 #include <stdint.h>
 #include <stddef.h>
 #include <stdarg.h>
-#if !RT_USING_LIBC_ISO_ONLY
+#ifndef RT_USING_NANO
 #include <sys/types.h>
+#ifdef __SES_VERSION
+#include <errno.h>
+#else
 #include <sys/errno.h>
+#endif
 #if defined(RT_USING_SIGNALS) || defined(RT_USING_SMART)
 #include <sys/signal.h>
 #endif /* defined(RT_USING_SIGNALS) || defined(RT_USING_SMART) */
-#endif /* !RT_USING_LIBC_ISO_ONLY */
-#endif /* RT_USING_LIBC */
+#endif /* RT_USING_NANO */
 
 #ifdef __cplusplus
 extern "C" {
@@ -129,7 +126,7 @@ typedef unsigned long long              rt_uint64_t;    /**< 64bit unsigned inte
 #endif /* RT_USING_LIBC */
 #endif /* RT_USING_ARCH_DATA_TYPE */
 
-#if defined(RT_USING_LIBC) && !RT_USING_LIBC_ISO_ONLY
+#if (defined(RT_USING_LIBC) && !RT_USING_LIBC_ISO_ONLY) || defined(__SES_VERSION) || defined(__zcc__)
 typedef size_t                          rt_size_t;      /**< Type for size number */
 typedef ssize_t                         rt_ssize_t;     /**< Used for a count of bytes or an error indication */
 #else
@@ -219,6 +216,16 @@ typedef rt_base_t                       rt_off_t;       /**< Type for offset */
 #define rt_align(n)                    PRAGMA(data_alignment=n)
 #define rt_weak                     __weak
 #define rt_inline                   static inline
+#define RTT_API
+#elif defined (__zcc__) || defined(__SES_VERSION)
+#define __RT_STRINGIFY(x...)        #x
+#define RT_STRINGIFY(x...)          __RT_STRINGIFY(x)
+#define rt_section(x)               __attribute__((section(x)))
+#define rt_used                     __attribute__((used))
+#define rt_align(n)                 __attribute__((aligned(n)))
+#define rt_weak                     __attribute__((weak))
+#define rt_noreturn                 __attribute__ ((noreturn))
+#define rt_inline                   static __inline
 #define RTT_API
 #elif defined (__GNUC__)                /* GNU GCC Compiler */
 #ifndef RT_USING_LIBC

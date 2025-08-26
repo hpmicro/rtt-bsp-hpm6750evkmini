@@ -23,6 +23,13 @@ uint32_t dao_buff[BUFF_SIZE];
 #define PDM_DEV_NAME              "pdm"
 #define RECORD_TIME_MS            10000
 
+#define DAO_VOLUME_SCALE          (0.5)
+
+extern int open(const char *path, int oflag, ... );
+extern int write(int fd, const void *buf, size_t len);
+extern int read(int fd, void *buf, size_t len);
+extern int close(int fd);
+
 static void wavheader_init(wav_header_t *header, uint32_t sample_rate, uint8_t channels, uint8_t sample_bits, uint32_t datasize)
 {
     memcpy(header->riff_chunk.id, "RIFF", 4);
@@ -231,6 +238,7 @@ static int dao_playwav(int argc, char *argv[])
             }
             /* move audio data to high positionin of 32bit */
             data <<= (dao_caps.udata.config.samplebits - info->fmt_chunk.bit_per_sample);
+            data = (int32_t)data * DAO_VOLUME_SCALE;
             for(uint32_t m = 0; m < channel_multiples; m++) {
                 dao_buff[n++] = data;
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2023, RT-Thread Development Team
+ * Copyright (c) 2006-2025, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -8,6 +8,7 @@
  * 2018/10/28     Bernard      The unify RISC-V porting code.
  * 2020/11/20     BalanceTWK   Add FPU support
  * 2023/01/04     WangShun     Adapt to CH32
+ * 2025/06/17     Fan YANG     Adapt Segger Embedded Studio
  */
 
 #include <rthw.h>
@@ -55,6 +56,12 @@ rt_uint8_t *rt_hw_stack_init(void       *tentry,
     frame->ra      = (rt_ubase_t)texit;
     frame->a0      = (rt_ubase_t)parameter;
     frame->epc     = (rt_ubase_t)tentry;
+#ifdef __SES_VERSION
+    extern uint32_t __thread_pointer$[];
+    frame->tp      = (uint32_t)__thread_pointer$;
+    extern uint32_t __global_pointer$[];
+    frame->gp      = (uint32_t)__global_pointer$;
+#endif
 
     /* force to machine mode(MPP=11) and set MPIE to 1 */
 #ifdef ARCH_RISCV_FPU

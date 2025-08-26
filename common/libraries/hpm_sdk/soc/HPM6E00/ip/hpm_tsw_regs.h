@@ -144,8 +144,8 @@ typedef struct {
     __R  uint8_t  RESERVED34[4];               /* 0x6024 - 0x6027: Reserved */
     __R  uint32_t PTP_EVT_TMR_STS;             /* 0x6028: timer status */
     __RW uint32_t PTP_EVT_PPS_CMD;             /* 0x602C: pps command control */
-    __R  uint32_t PTP_EVT_ATSLO;               /* 0x6030: auxiliray read data sub seconds */
-    __R  uint32_t PTP_EVT_ATSHI;               /* 0x6034: auxiliray read data seconds */
+    __R  uint32_t PTP_EVT_ATSLO;               /* 0x6030: auxiliary read data sub seconds */
+    __R  uint32_t PTP_EVT_ATSHI;               /* 0x6034: auxiliary read data seconds */
     __R  uint8_t  RESERVED35[40];              /* 0x6038 - 0x605F: Reserved */
     __RW uint32_t PTP_EVT_PPS0_INTERVAL;       /* 0x6060: pps0 interval configure */
     __RW uint32_t PTP_EVT_PPS0_WIDTH;          /* 0x6064: pps0 width configure */

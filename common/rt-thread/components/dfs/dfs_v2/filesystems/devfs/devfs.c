@@ -175,6 +175,7 @@ static struct dfs_vnode *dfs_devfs_lookup(struct dfs_dentry *dentry)
                 vnode->mode = _device_to_mode(device);
                 vnode->size = device->ref_count;
                 vnode->nlink = 1;
+#ifdef RT_USING_DEVICE_OPS
                 if (device->fops)
                 {
                     vnode->fops = device->fops;
@@ -183,6 +184,7 @@ static struct dfs_vnode *dfs_devfs_lookup(struct dfs_dentry *dentry)
                 {
                     vnode->fops = &_dev_fops;
                 }
+#endif
                 vnode->data = device;
                 vnode->mnt = dentry->mnt;
                 vnode->type = FT_DEVICE;
@@ -425,19 +427,22 @@ int dfs_devfs_stat(struct dfs_dentry *dentry, struct stat *st)
         /* stat root directory */
         if ((path[0] == '/') && (path[1] == '\0'))
         {
+#ifndef __SES_VERSION
             st->st_dev = 0;
             st->st_gid = vnode->gid;
             st->st_uid = vnode->uid;
             st->st_ino = 0;
-            st->st_mode  = vnode->mode;
             st->st_nlink = vnode->nlink;
-            st->st_size  = vnode->size;
-            st->st_mtim.tv_nsec = vnode->mtime.tv_nsec;
+             st->st_mtim.tv_nsec = vnode->mtime.tv_nsec;
             st->st_mtim.tv_sec  = vnode->mtime.tv_sec;
             st->st_ctim.tv_nsec = vnode->ctime.tv_nsec;
             st->st_ctim.tv_sec  = vnode->ctime.tv_sec;
             st->st_atim.tv_nsec = vnode->atime.tv_nsec;
             st->st_atim.tv_sec  = vnode->atime.tv_sec;
+#endif
+            st->st_mode  = vnode->mode;
+            st->st_size  = vnode->size;
+           
         }
         else
         {
@@ -446,19 +451,21 @@ int dfs_devfs_stat(struct dfs_dentry *dentry, struct stat *st)
             dev_id = rt_device_find(&path[1]);
             if (dev_id != RT_NULL)
             {
+#ifndef __SES_VERSION
                 st->st_dev = 0;
                 st->st_gid = vnode->gid;
                 st->st_uid = vnode->uid;
                 st->st_ino = 0;
-                st->st_mode  = vnode->mode;
-                st->st_nlink = vnode->nlink;
-                st->st_size  = vnode->size;
                 st->st_mtim.tv_nsec = vnode->mtime.tv_nsec;
                 st->st_mtim.tv_sec  = vnode->mtime.tv_sec;
                 st->st_ctim.tv_nsec = vnode->ctime.tv_nsec;
                 st->st_ctim.tv_sec  = vnode->ctime.tv_sec;
                 st->st_atim.tv_nsec = vnode->atime.tv_nsec;
                 st->st_atim.tv_sec  = vnode->atime.tv_sec;
+                st->st_nlink = vnode->nlink;
+#endif
+                st->st_mode  = vnode->mode;
+                st->st_size  = vnode->size;
             }
             else
             {

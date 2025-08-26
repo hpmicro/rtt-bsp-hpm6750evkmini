@@ -229,7 +229,8 @@ rt_inline rt_atomic_t rt_atomic_fetch_add_unless(volatile rt_atomic_t *ptr, rt_a
 
 rt_inline rt_bool_t rt_atomic_add_unless(volatile rt_atomic_t *ptr, rt_atomic_t a, rt_atomic_t u)
 {
-    return rt_atomic_fetch_add_unless(ptr, a, u) != u;
+    rt_atomic_t tmp = rt_atomic_fetch_add_unless(ptr, a, u);
+    return tmp != u;
 }
 
 rt_inline rt_bool_t rt_atomic_inc_not_zero(volatile rt_atomic_t *ptr)

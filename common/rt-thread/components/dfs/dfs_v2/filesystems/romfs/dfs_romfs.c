@@ -300,11 +300,13 @@ static int dfs_romfs_stat(struct dfs_dentry *dentry, struct stat *st)
     rt_err_t ret = dfs_file_lock();
     if (ret == RT_EOK)
     {
+#ifndef __SES_VERSION
         st->st_dev = 0;
-        st->st_mode = dentry->vnode->mode;
-        st->st_size = dentry->vnode->size;
         st->st_nlink = dentry->vnode->nlink;
         st->st_mtime = 0;
+#endif
+        st->st_mode = dentry->vnode->mode;
+        st->st_size = dentry->vnode->size;
 
         dfs_file_unlock();
     }

@@ -70,7 +70,7 @@
 #define BOARD_ENET0_RX_DLY          (0U)
 #endif
 
-#if __USE_ENET_PTP
+#if defined(__USE_ENET_PTP) && __USE_ENET_PTP
 #define BOARD_ENET0_PTP_CLOCK       (clock_ptp0)
 #endif
 
@@ -87,7 +87,7 @@
 #define BOARD_ENET1_RX_DLY          (0U)
 #endif
 
-#if __USE_ENET_PTP
+#if defined(__USE_ENET_PTP) && __USE_ENET_PTP
 #define BOARD_ENET1_PTP_CLOCK       (clock_ptp1)
 #endif
 

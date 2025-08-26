@@ -86,6 +86,8 @@ static rt_phy_status phy_init(void *object, rt_uint32_t phy_addr, rt_uint32_t sr
             return PHY_STATUS_FAIL;
         }
     }
+
+    return -RT_EINVAL;
 }
 
 static rt_size_t phy_read(void *bus, rt_uint32_t addr, rt_uint32_t reg, void *data, rt_uint32_t size)
@@ -109,7 +111,7 @@ static rt_size_t phy_write(void *bus, rt_uint32_t addr, rt_uint32_t reg, void *d
 
     stat = tsw_ep_mdio_write(phy_ins->instance, phy_ins->port, addr, reg, *(uint16_t *)data);
 
-    if (stat = status_success) {
+    if (stat == status_success) {
         return size;
     } else {
         return 0;

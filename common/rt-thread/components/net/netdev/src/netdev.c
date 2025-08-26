@@ -1169,7 +1169,7 @@ int netdev_cmd_ping(char* target_name, char *netdev_name, rt_uint32_t times, rt_
     struct netdev_ping_resp ping_resp;
     rt_uint32_t index;
     int ret = 0;
-
+    rt_bool_t isbind = RT_FALSE;
     if (size == 0)
     {
         size = NETDEV_PING_DATA_SIZE;
@@ -1178,6 +1178,7 @@ int netdev_cmd_ping(char* target_name, char *netdev_name, rt_uint32_t times, rt_
     if (netdev_name != RT_NULL)
     {
         netdev = netdev_get_by_name(netdev_name);
+        isbind = RT_TRUE;
     }
 
     if (netdev == RT_NULL)
@@ -1214,7 +1215,7 @@ int netdev_cmd_ping(char* target_name, char *netdev_name, rt_uint32_t times, rt_
 
         rt_memset(&ping_resp, 0x00, sizeof(struct netdev_ping_resp));
         start_tick = rt_tick_get();
-        ret = netdev->ops->ping(netdev, (const char *)target_name, size, NETDEV_PING_RECV_TIMEO, &ping_resp);
+        ret = netdev->ops->ping(netdev, (const char *)target_name, size, NETDEV_PING_RECV_TIMEO, &ping_resp, isbind);
         if (ret == -RT_ETIMEOUT)
         {
             rt_kprintf("ping: from %s icmp_seq=%d timeout\n",

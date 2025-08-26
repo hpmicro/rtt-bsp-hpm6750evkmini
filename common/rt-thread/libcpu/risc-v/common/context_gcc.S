@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2025, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -20,10 +20,13 @@
 #define rt_hw_interrupt_enable  rt_hw_local_irq_enable
 #endif
 
+    .section .text.context_gcc
+    .align  2
 /*
  * rt_base_t rt_hw_interrupt_disable(void);
  */
     .globl rt_hw_interrupt_disable
+    .type rt_hw_interrupt_disable, function
 rt_hw_interrupt_disable:
     csrrci a0, mstatus, 8
     ret
@@ -32,6 +35,7 @@ rt_hw_interrupt_disable:
  * void rt_hw_interrupt_enable(rt_base_t level);
  */
     .globl rt_hw_interrupt_enable
+    .type rt_hw_interrupt_enable, function
 rt_hw_interrupt_enable:
     csrw mstatus, a0
     ret
@@ -46,6 +50,7 @@ rt_hw_interrupt_enable:
  * a1 --> to_thread
  */
     .globl rt_hw_context_switch_to
+    .type rt_hw_context_switch_to, function
 rt_hw_context_switch_to:
     la t0, __rt_rvstack
     csrw mscratch,t0
@@ -72,6 +77,7 @@ rt_hw_context_switch_to:
  * a2 --> to_thread
  */
     .globl rt_hw_context_switch
+    .type rt_hw_context_switch, function
 rt_hw_context_switch:
     /* saved from thread context
      *     x1/ra       -> sp(0)
@@ -201,6 +207,7 @@ rt_hw_context_switch_interrupt:
 #endif
 
 .global rt_hw_context_switch_exit
+.type rt_hw_context_switch_exit, function
 rt_hw_context_switch_exit:
 #ifdef RT_USING_SMP
 #ifdef RT_USING_SIGNALS

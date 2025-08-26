@@ -123,6 +123,12 @@
 #define HPM_2_PI    (6.28318530717958647692)
 #define HPM_HALF_PI (1.57079632679489661923)
 
+#if defined(__IAR_SYSTEMS_ICC__)
+#define HPM_NAN 0.NaN
+#else
+#define HPM_NAN (0.0 / 0.0)
+#endif
+
 typedef uint32_t hpm_stat_t;
 
 /* @brief Enum definition for the Status group

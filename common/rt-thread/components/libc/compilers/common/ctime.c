@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2023, RT-Thread Development Team
+ * Copyright (c) 2006-2025, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -23,14 +23,20 @@
  * 2023-07-16     Shell        update signal generation routine for lwp
  *                             adapt to new api and do the signal handling in thread context
  * 2023-08-12     Meco Man     re-implement RT-Thread lightweight timezone API
+ * 2025-06-17     Fan YANG     Fixed compatibility issue with Segger Embedded Studio
  */
 
 #include "sys/time.h"
 #include <rthw.h>
 #include <rtdevice.h>
 #include <drivers/rtc.h>
+#ifdef __SES_VERSION
+#include <errno.h>
+#include <sys/unistd.h>
+#else
 #include <sys/errno.h>
 #include <unistd.h>
+#endif
 #ifdef RT_USING_SMART
 #include <lwp.h>
 #endif
@@ -464,27 +470,33 @@ time_t timegm(struct tm * const t)
 }
 RTM_EXPORT(timegm);
 
+#ifdef __SES_VERSION
+int gettimeofday(struct timeval *tv, void *tz)
+#else
 int gettimeofday(struct timeval *tv, struct timezone *tz)
+#endif
 {
+    struct timeval *p_tv = (struct timeval *)tv;
+    struct timezone *p_tz = (struct timezone *)tz;
     /* The use of the timezone structure is obsolete;
      * the tz argument should normally be specified as NULL.
      * The tz_dsttime field has never been used under Linux.
      * Thus, the following is purely of historic interest.
      */
-    if(tz != RT_NULL)
+    if(p_tz != RT_NULL)
     {
-        tz->tz_dsttime = DST_NONE;
+        p_tz->tz_dsttime = DST_NONE;
 #if defined(RT_LIBC_USING_LIGHT_TZ_DST)
-        tz->tz_minuteswest = -(rt_tz_get() / 60);
+        p_tz->tz_minuteswest = -(rt_tz_get() / 60);
 #else
-        tz->tz_minuteswest = 0;
+        p_tz->tz_minuteswest = 0;
 #endif /* RT_LIBC_USING_LIGHT_TZ_DST */
     }
 
-    if (tv != RT_NULL)
+    if (p_tv != RT_NULL)
     {
-        tv->tv_sec  = 0;
-        tv->tv_usec = 0;
+        p_tv->tv_sec  = 0;
+        p_tv->tv_usec = 0;
 
         if (_control_rtc(RT_DEVICE_CTRL_RTC_GET_TIMEVAL, tv) == RT_EOK)
             return 0;

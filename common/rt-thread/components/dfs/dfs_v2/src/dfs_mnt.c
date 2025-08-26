@@ -21,6 +21,8 @@
 
 static struct dfs_mnt *_root_mnt = RT_NULL;
 
+extern int mkdir(const char *path, mode_t mode);
+
 /*
  * mnt tree structure
  *

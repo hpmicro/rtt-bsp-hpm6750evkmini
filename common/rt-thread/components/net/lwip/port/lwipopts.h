@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2024, RT-Thread Development Team
+ * Copyright (c) 2006-2025, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -8,6 +8,7 @@
  * 2022-02-23     Meco Man     integrate v1.4.1 v2.0.3 and v2.1.2 porting layer
  * 2022-02-25     xiangxistu   modify the default config through v1.4.1
  * 2024-10-11     HPMicro      allow overriding PBUF_LINK_HLEN and MEMP_OVERFLOW_CHECK
+ * 2025-06-17     Fan YANG     Fix compatibility issue with Segger Embedded Studio
  */
 
 #ifndef __LWIPOPTS_H__
@@ -21,8 +22,13 @@
 #include <sys/ioctl.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#ifndef __SES_VERSION
 #include <sys/errno.h>
 #define LWIP_ERRNO_INCLUDE "sys/errno.h"
+#else
+#include <errno.h>
+#endif
+
 
 #define LWIP_TIMEVAL_PRIVATE    0
 #define LWIP_NO_UNISTD_H        0

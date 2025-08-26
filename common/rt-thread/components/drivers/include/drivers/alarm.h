@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2023, RT-Thread Development Team
+ * Copyright (c) 2006-2025, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -8,12 +8,17 @@
  * 2012-10-27     heyuanjie87       first version.
  * 2013-05-17     aozima            initial alarm event & mutex in system init.
  * 2020-10-15     zhangsz           add alarm flags hour minute second.
+ * 2025-06-17     Fan YANG 			Fix compatibility issue with Segger Embedded Studio
  */
 
 #ifndef __ALARM_H__
 #define __ALARM_H__
 
+#ifndef __SES_VERSION
 #include <sys/time.h>
+#else
+#include <time.h>
+#endif
 #include <rtdef.h>
 
 #define RT_ALARM_TM_NOW        -1    /* set the alarm tm_day,tm_mon,tm_sec,etc.

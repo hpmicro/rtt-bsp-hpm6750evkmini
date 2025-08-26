@@ -1,0 +1,75 @@
+<!DOCTYPE CrossStudio_Project_File>
+<solution Name="project" target="20" version="2">
+  <configuration
+    Name="flash_debug"
+    c_preprocessor_definitions="DEBUG;FLASH_XIP=1;HPM_SES_USE_SEGGER_LD=1"
+    gcc_debugging_level="Level 3"
+    gcc_omit_frame_pointer="Yes"
+    link_linker_script_file="$(ProjectDir)/board/linker_scripts/segger/flash_rtt.icf"
+    gcc_optimization_level="Debug" />
+  <configuration
+    Name="flash_release"
+    c_preprocessor_definitions="NDEBUG;FLASH_XIP=1;HPM_SES_USE_SEGGER_LD=1"
+    gcc_debugging_level="Level 2"
+    gcc_omit_frame_pointer="Yes"
+    link_linker_script_file="$(ProjectDir)/board/linker_scripts/segger/flash_rtt.icf"
+    gcc_optimization_level="Level 2 balanced" />
+  <configuration
+    Name="ram_debug"
+    c_preprocessor_definitions="DEBUG"
+    gcc_debugging_level="Level 3"
+    gcc_omit_frame_pointer="Yes"
+    link_linker_script_file="$(ProjectDir)/board/linker_scripts/segger/ram_rtt.icf"
+    gcc_optimization_level="Debug" />
+  <configuration
+    Name="ram_release"
+    c_preprocessor_definitions="NDEBUG"
+    gcc_debugging_level="Level 2"
+    gcc_omit_frame_pointer="Yes"
+    link_linker_script_file="$(ProjectDir)/board/linker_scripts/segger/ram_rtt.icf"
+    gcc_optimization_level="Level 2 balanced" />
+  <project Name="can_example">
+    <configuration
+      LIBRARY_IO_TYPE="RTT"
+      Name="Common"
+      Target="HPM6750xVMx"
+      arm_compiler_variant="SEGGER"
+      arm_linker_variant="SEGGER"
+      c_include_files_c_only="libraries/misc/ses_stub/ses_libc_stub.h"
+      c_preprocessor_definitions="HPM_SES_USE_SEGGER_LD=1"
+      c_user_include_directories="$(ProjectDir)/libraries/hpm_sdk/drivers/inc;$(ProjectDir)/libraries/hpm_sdk/arch"
+      gcc_entry_point="_start"
+      linker_memory_map_file=""
+      gcc_implicit_function_declaration_warning="Disable"
+
+      gcc_cplusplus_language_standard="c++11"
+      linker_output_format="bin"
+      linker_printf_fmt_level="int"
+      linker_printf_fp_enabled="Float"
+      linker_printf_wchar_enabled="No"
+      linker_printf_width_precision_supported="Yes"
+      linker_scanf_character_group_matching_enabled="No"
+      linker_scanf_fmt_level="int"
+      linker_scanf_fp_enabled="No"
+      post_build_command="&quot;$(OBJDUMP)&quot; -S -d &quot;$(OutDir)/$(ProjectName)$(EXE)&quot; &gt; &quot;$(OutDir)/$(ProjectName).asm&quot;"
+
+      debug_register_definition_file="$(ProjectDir)/libraries/hpm_sdk/soc/HPM6700/HPM6750/hpm_ses_reg.xml"
+      debug_stack_pointer_start="__stack_end__"
+      debug_start_from_entry_point_symbol="Yes"
+      debug_target_connection="GDB Server"
+      gdb_server_autostart_server="Yes"
+      gdb_server_port="3333"
+      gdb_server_reset_command="reset halt"
+      gdb_server_type="Custom"
+      gdb_server_command_line="openocd -f $(ProjectDir)/board/debug_scripts/openocd/probes/ft2232.cfg -f $(ProjectDir)/board/debug_scripts/openocd/soc/hpm6750-single-core.cfg -f $(ProjectDir)/board/debug_scripts/openocd/boards/hpm6750evkmini.cfg"
+
+      project_directory=""
+      project_type="Executable"
+      rv_abi="ilp32"
+      rv_architecture="rv32imac"
+      rv_debug_extensions="CORE-V"
+      stack_size="2048"
+      target_device_name="HPM6750xVMx"
+      target_interface_type="JTAG" />
+  </project>
+</solution>

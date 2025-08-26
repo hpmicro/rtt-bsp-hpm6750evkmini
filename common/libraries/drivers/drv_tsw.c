@@ -262,11 +262,11 @@ void isr_tsw(hpm_tsw_t *obj)
    eth_rx_callback(obj->eth_dev);
 }
 
+RTT_DECLARE_EXT_ISR_M(IRQn_TSW_0, isr_tsw_port_cpu)
 void isr_tsw_port_cpu(void)
 {
     isr_tsw(&tsw);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_TSW_0, isr_tsw_port_cpu)
 
 int rt_hw_tsw_init(void)
 {

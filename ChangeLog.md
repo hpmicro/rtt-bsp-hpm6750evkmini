@@ -1,61 +1,79 @@
 # Change Log
 
+## v1.10.0
+
+- Integrated hpm_sdk v1.10.0
+
+- Updated:
+  - Upgrade `CherryUSB` stack to 1.5.0
+  - RTC driver supports alarm setting and retrieval
+  - RTC driver supports `timeval` setting and retrieval
+
+- Fixed:
+  - Fix the issue of only 32-bit timestamp support in RTC driver, which can support 32-bit and 64-bit timestamp based on `time_t` length
+  - Fix the issue that the vectored interrupt mode may not work properly in some conditions
+  - Fix the issue that WDOG reset failed to work after executing `reset` command in shell
+
+- Added:
+  - Support zcc compiler
+  - Support SEGGER Embedded Studio IDE, version 8.24
+
 ## v1.9.0
 
 - Integrated hpm_sdk v1.9.0
 
 - Updated:
-    - Upgrade `CherryUSB` stack to 1.4.3
-    - `sdio` driver supports configurable IRQ priority
-    - `uart/uart_v2` driver supports configurable IRQ priority
-    - `spi` driver supports for configurable IRQ priority for 
-    - `i2c` driver support for configurable IRQ priority
-    - `gpio` driver support for configurable IRQ priority
-    - `lcd` driver supports for configurable IRQ priority
-    - `can` driver supports configurable IRQ priority
-
+  - Upgrade `CherryUSB` stack to 1.4.3
+  - `sdio` driver supports configurable IRQ priority
+  - `uart/uart_v2` driver supports configurable IRQ priority
+  - `spi` driver supports for configurable IRQ priority for
+  - `i2c` driver support for configurable IRQ priority
+  - `gpio` driver support for configurable IRQ priority
+  - `lcd` driver supports for configurable IRQ priority
+  - `can` driver supports configurable IRQ priority
 
 - Fixed:
-    - Fixed the issue of the same MAC address between the master and slave devices in `thernet_ptp_slave_demo`
+  - Fixed the issue of the same MAC address between the master and slave devices in `ethernet_ptp_slave_demo`
 
 - Added:
-    - The `sdio` driver has added interrupt-driven mode
-    - DSPI/QSPI mode added for `spi` driver
+  - The `sdio` driver has added interrupt-driven mode
+  - DSPI/QSPI mode added for `spi` driver
 
 ## v1.6.0
 
 - Integrated hpm_sdk v1.6.0
 - Updated:
-    - Optimized the control of `BRS` bit in CANFD frame
-    - Upgraded the `cherryUSB` stack to v1.3.1
-    - Added USB descriptor for Full-speed mode to USB examples
-    - Upgraded the SoC Datasheet
-    - Optimized SDIO driver, added new configuration options such as `BUS_WDITH`，Added eMMC HS400 support, Added SD UHS-I speed mode support
+  - Optimized the control of `BRS` bit in CANFD frame
+  - Upgraded the `cherryUSB` stack to v1.3.1
+  - Added USB descriptor for Full-speed mode to USB examples
+  - Upgraded the SoC Datasheet
+  - Optimized SDIO driver, added new configuration options such as `BUS_WDITH`，Added eMMC HS400 support, Added SD UHS-I speed mode support
 - Fixed:
-    - Macro definition errors related to  TX DMA for UART7 & UART7
-    - Memory leakage issue in uart_v2 driver
+  - Macro definition errors related to  TX DMA for UART7 & UART7
+  - Memory leakage issue in uart_v2 driver
 - Added:
-    - SPI CS pin control option
-    - Adapted RT-Thread Cache API
-    - Added performance test command to `sdcard_demo`
+  - SPI CS pin control option
+  - Adapted RT-Thread Cache API
+  - Added performance test command to `sdcard_demo`
 - New Examples:
-    - airoc_wifi_demo (Infinieon AIROC WiFi series)
+  - airoc_wifi_demo (Infinieon AIROC WiFi series)
 
 ## v1.5.0
 
 - Integrated hpm_sdk v1.5.0
 - Updated:
-    - usb stack switched to cherryUSB for usb samples
-    - ETH PHY abstraction layer multi-instance support and optimization
+  - usb stack switched to cherryUSB for usb samples
+  - ETH PHY abstraction layer multi-instance support and optimization
 - Fixed:
-    - CAN sample read data error when enable RT_CAN_USING_HDR
+  - CAN sample read data error when enable RT_CAN_USING_HDR
 - Added:
-    - added interrupt vector mode and preemptive mode
-    - pwm sample
-    - systemView component
-    - rtt lcd driver
+  - added interrupt vector mode and preemptive mode
+  - pwm sample
+  - systemView component
+  - rtt lcd driver
 
 ## 1.4.1
+
 - Fixed:
   - Transmission error while enabling DMA in I2C driver
   - Failed to create template project
@@ -65,26 +83,27 @@
 - Integrated hpm_sdk v1.4.0
 - Upgraded RT-Thread to v5.0.2
 - Updated:
-    - Improved SPI driver
-    - Improved I2C driver
-    - Added multiple SDXC instance support to sdio driver
-    - Added support for `rt_pin_get` API
-    - Unified the ethernet phy driver
-    - Improved the i2s driver
-    - Enabled retention mode for battery domain in RTC driver
+  - Improved SPI driver
+  - Improved I2C driver
+  - Added multiple SDXC instance support to sdio driver
+  - Added support for `rt_pin_get` API
+  - Unified the ethernet phy driver
+  - Improved the i2s driver
+  - Enabled retention mode for battery domain in RTC driver
 - Fixed:
-    - Fixed the mismatch data type issue for return value of API in `pwm` driver
+  - Fixed the mismatch data type issue for return value of API in `pwm` driver
 - Added examples:
-    - web_camera_demo
+  - web_camera_demo
 
 ## v1.3.0
+
 - Integrated hpm_sdk v1.3.0
   - Note:
     - the docs, middleware, scripts, samples folder in SDK root directory were removed
 - Updated:
-    - Added SVD support
-    - Added hardware filter support to `CAN` driver
-    - Disable PWM invert output by default
+  - Added SVD support
+  - Added hardware filter support to `CAN` driver
+  - Disable PWM invert output by default
   - Fixed:
     - elf file generated by RT-Thread Studio cannot be recognized by Ozone properly
     - online package `i2c tools` cannot work
@@ -92,16 +111,18 @@
     - audio channel control may be unexpected if i2s overflow/underflow happened
     - compiling error if `ADC12` is enabled
     - GPIO cannot read back pin level correctly if it is configured as Open-Drain Pull-up mode
+
 ## v1.2.0
+
 - Integrated hpm_sdk v1.2.0
   - Note:
     - the docs, middleware, scripts, samples folder in SDK root directory were removed
 - Updated:
-    - Upgraded rt-thread to v5.0.1
-    - Optimized the performance of LVGL demo
-    - Added `README.md` for all samples
-    - Added UART RXFIFO timeout interrupt support
-    - Added `flash_release` build and `ram_release` build
+  - Upgraded rt-thread to v5.0.1
+  - Optimized the performance of LVGL demo
+  - Added `README.md` for all samples
+  - Added UART RXFIFO timeout interrupt support
+  - Added `flash_release` build and `ram_release` build
   - Fixed:
     - SD card performance is slow
     - Uart lost data when working in low baudrate

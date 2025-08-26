@@ -16,6 +16,8 @@
 static rt_list_t _mqueue_file_list = RT_LIST_OBJECT_INIT(_mqueue_file_list);
 struct rt_spinlock mqueue_lock;
 
+extern int mkdir(const char *path, mode_t mode);
+
 void dfs_mqueue_insert_after(rt_list_t *n) {
     rt_spin_lock(&mqueue_lock);
     rt_list_insert_after(&(_mqueue_file_list), n);
@@ -85,10 +87,12 @@ int dfs_mqueue_open(struct dfs_file *file) {
 }
 
 int dfs_mqueue_stat(struct dfs_filesystem *fs, const char *path, struct stat *st) {
+#ifndef __SES_VERSION
     st->st_dev = 0;
+    st->st_mtime = 0;
+#endif
     st->st_mode = S_IFREG | S_IRUSR | S_IRGRP | S_IROTH | S_IWUSR | S_IWGRP | S_IWOTH;
     st->st_size = 0;
-    st->st_mtime = 0;
     return RT_EOK;
 }
 

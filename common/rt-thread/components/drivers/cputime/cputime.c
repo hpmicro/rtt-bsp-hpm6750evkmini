@@ -6,11 +6,16 @@
  * Change Logs:
  * Date           Author            Notes
  * 2017-12-23     Bernard           first version
+ * 2025-06-26     RCSN              fix compatibility issue with Segger Embedded Studio
  */
 
 #include <rtdevice.h>
 #include <rtthread.h>
+#ifdef __SES_VERSION
+#include <errno.h>
+#else
 #include <sys/errno.h>
+#endif
 
 static const struct rt_clock_cputime_ops *_cputime_ops  = RT_NULL;
 

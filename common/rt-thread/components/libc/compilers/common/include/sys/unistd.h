@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2022, RT-Thread Development Team
+ * Copyright (c) 2006-2025, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -7,6 +7,7 @@
  * Date           Author       Notes
  * 2020-12-16     Meco Man     add usleep
  * 2021-09-11     Meco Man     move functions from dfs_posix.h to unistd.h
+ * 2025-06-17     Fan YANG     Fix compatibility issue with Segger Embedded Studio
  */
 
 #ifndef __SYS_UNISTD_H__
@@ -27,6 +28,13 @@ extern "C" {
 #define X_OK 1
 #define W_OK 2
 #define R_OK 4
+
+#ifdef __SES_VERSION
+typedef size_t uid_t;
+typedef size_t gid_t;
+typedef int pid_t;
+#include <sys/time.h>
+#endif
 
 unsigned alarm(unsigned __secs);
 ssize_t read(int fd, void *buf, size_t len);

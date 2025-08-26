@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2025, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -8,11 +8,17 @@
  * 2009-05-27     Yi.qiu       The first version
  * 2018-02-07     Bernard      Change the 3rd parameter of open/fcntl/ioctl to '...'
  * 2022-01-19     Meco Man     add creat()
+ * 2025-06-17     Fan YANG     Fix compatibility issue with Segger Embedded Studio
  */
 
 #include <dfs_file.h>
 #include <dfs_private.h>
+#ifdef __SES_VERSION
+#include <errno.h>
+extern int stat(const char *file, struct stat *buf);
+#else
 #include <sys/errno.h>
+#endif
 
 #ifdef RT_USING_SMART
 #include <lwp.h>

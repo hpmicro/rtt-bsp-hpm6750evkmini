@@ -6,6 +6,7 @@
  * Change Logs:
  * Date           Author       Notes
  * 2017/12/30     Bernard      The first version.
+ * 2025-06-26     RCSN         fix compatibility issue with Segger Embedded Studio
  */
 
 #include <rtthread.h>
@@ -13,7 +14,11 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <fcntl.h>
+#ifdef __SES_VERSION
+#include <errno.h>
+#else
 #include <sys/errno.h>
+#endif
 #include "aio.h"
 
 struct rt_workqueue* aio_queue = NULL;

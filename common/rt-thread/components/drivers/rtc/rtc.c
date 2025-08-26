@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <rtthread.h>
 #include <drivers/rtc.h>
+#include <sys/time.h>
 
 #ifdef RT_USING_RTC
 

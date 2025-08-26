@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2023, RT-Thread Development Team
+ * Copyright (c) 2006-2025, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -7,6 +7,7 @@
  * Date           Author       Notes
  * 2005-02-22     Bernard      The first version.
  * 2023-05-05     Bernard      change to dfs v2.0
+ * 2025-06-17     Fan YANG     fix compatibility issue with Segger Embedded Studio
  */
 
 #ifndef __DFS_H__
@@ -21,7 +22,11 @@
 #include <sys/stat.h>
 #include <sys/statfs.h>
 #include <sys/time.h>
+#ifndef __SES_VERSION
 #include <sys/errno.h>
+#else
+#include <errno.h>
+#endif
 #include <rtatomic.h>
 #include <rtdevice.h>
 

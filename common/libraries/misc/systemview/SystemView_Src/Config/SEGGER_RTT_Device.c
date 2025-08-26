@@ -85,6 +85,15 @@ static int segger_getc(struct rt_serial_device *serial)
         return -1;
     }
 }
+static rt_ssize_t segger_transmit(struct rt_serial_device *serial,
+    rt_uint8_t *buf,
+    rt_size_t size,
+    rt_uint32_t tx_flag)
+{
+    RT_ASSERT(serial != RT_NULL);
+
+    return SEGGER_RTT_Write(0, buf, size);
+}
 
 int hw_segger_init(void)
 {
@@ -94,6 +103,7 @@ int hw_segger_init(void)
         segger_control,
         segger_putc,
         segger_getc,
+        segger_transmit,
     };
 
     segger_serial.ops = &segger_uart_ops;

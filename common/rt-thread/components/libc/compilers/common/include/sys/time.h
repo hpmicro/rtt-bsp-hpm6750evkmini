@@ -104,7 +104,9 @@ struct itimerspec
 
 int stime(const time_t *t);
 time_t timegm(struct tm * const t);
+#ifndef __SES_VERSION
 int gettimeofday(struct timeval *tv, struct timezone *tz);
+#endif
 int settimeofday(const struct timeval *tv, const struct timezone *tz);
 
 #if defined(__ARMCC_VERSION) || defined (__ICCARM__) || defined(_WIN32)

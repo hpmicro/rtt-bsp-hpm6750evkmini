@@ -21,7 +21,7 @@ __attribute__((weak)) void mswi_isr(void)
 {
 }
 
-__attribute__((weak)) void syscall_handler(uint32_t n, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3)
+__attribute__((weak,used)) void syscall_handler(uint32_t n, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3)
 {
 }
 
@@ -31,7 +31,7 @@ void trap_entry(void)
     uint32_t mepc = read_csr(CSR_MEPC);
     uint32_t mstatus = read_csr(CSR_MSTATUS);
 
-#if SUPPORT_PFT_ARCH
+#if defined(SUPPORT_PFT_ARCH) && SUPPORT_PFT_ARCH
     uint32_t mxstatus = read_csr(CSR_MXSTATUS);
 #endif
 #ifdef __riscv_dsp
@@ -104,7 +104,7 @@ void trap_entry(void)
     /* Restore CSR */
     write_csr(CSR_MSTATUS, mstatus);
     write_csr(CSR_MEPC, mepc);
-#if SUPPORT_PFT_ARCH
+#if defined(SUPPORT_PFT_ARCH) && SUPPORT_PFT_ARCH
     write_csr(CSR_MXSTATUS, mxstatus);
 #endif
 #ifdef __riscv_dsp

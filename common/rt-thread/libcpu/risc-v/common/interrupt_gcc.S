@@ -19,6 +19,7 @@
     .align  2
 #endif 
     .global SW_handler
+    .type SW_handler, function
 
 SW_handler:
     csrci mstatus, 0x8

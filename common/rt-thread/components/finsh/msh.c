@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2022, RT-Thread Development Team
+ * Copyright (c) 2006-2025, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -8,6 +8,7 @@
  * 2013-03-30     Bernard      the first verion for finsh
  * 2014-01-03     Bernard      msh can execute module.
  * 2017-07-19     Aubr.Cool    limit argc to RT_FINSH_ARG_MAX
+ * 2025-06-17     Fan YANG     Fix compatiblity issue with Segger Embedded Studio
  */
 #include <rtthread.h>
 #include <string.h>
@@ -29,6 +30,10 @@
 #ifdef RT_USING_MODULE
 #include <dlmodule.h>
 #endif /* RT_USING_MODULE */
+
+#ifdef __SES_VERSION
+extern int stat(const char *file, struct stat *buf);
+#endif
 
 typedef int (*cmd_function_t)(int argc, char **argv);
 

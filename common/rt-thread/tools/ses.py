@@ -2,12 +2,14 @@
 
 import os
 import sys
+import re
 
 import xml.etree.ElementTree as etree
 from xml.etree.ElementTree import SubElement
 from utils import _make_path_relative
 from utils import xml_indent
 from utils import ProjectInfo
+import rtconfig
 
 def SDKAddGroup(parent, name, files, project_path):
     # don't add an empty group
@@ -43,7 +45,7 @@ def SESProject(env) :
     script = env['project']
 
     root = tree.getroot()
-    out = file(target, 'w')
+    out = open(target, 'w')
     out.write('<!DOCTYPE CrossStudio_Project_File>\n')
 
     CPPPATH = []
@@ -72,10 +74,15 @@ def SESProject(env) :
             else:
                 LINKFLAGS += group['LINKFLAGS']
 
+    # Parse the CDEFINES from the rtconfig.py
+    CDEFINES = re.findall(r'-D(\w+(?:=[^\s]*)?)', rtconfig.CFLAGS)
+
     # write include path, definitions and link flags
     path = ';'.join([_make_path_relative(project_path, os.path.normpath(i)) for i in project['CPPPATH']])
     path = path.replace('\\', '/')
     defines = ';'.join(set(project['CPPDEFINES']))
+    for cdefine in CDEFINES:
+        defines = defines + ";" + cdefine
 
     node = tree.findall('project/configuration')
     for item in node:
@@ -86,7 +93,10 @@ def SESProject(env) :
             item.set('c_user_include_directories', path)
 
     xml_indent(root)
-    out.write(etree.tostring(root, encoding='utf-8'))
+    if sys.version_info[0] == 2:
+        proj_content = str(etree.tostring(root, encoding='utf-8'))
+    else:
+        proj_content = str(etree.tostring(root, encoding='utf-8'), encoding='utf-8')
+    out.write(proj_content)
     out.close()
-
     return

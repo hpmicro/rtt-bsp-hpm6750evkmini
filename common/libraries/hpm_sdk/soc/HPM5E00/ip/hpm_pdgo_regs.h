@@ -1088,9 +1088,14 @@ typedef struct {
 /*
  * SEQ (RW)
  *
- * Sequence Error Check
+ * Change the direction of decoder
  * 0： Disable
  * 1： Enable
+ * If enable：
+ * In PD Mode：modify the positive direction by using high level in D channel as forward .
+ * In UD Mode：modify the positive direction by using pulse in U channel as forward, pulse in D channel as reverse.
+ * In ABZ Mode：modify the positive direction by using B channel's phase lead over A channel as forward.
+ * In UVW Mode：modify the positive direction by using W channel lead as forward.
  */
 #define PDGO_PCNT_CNT_CFG_SEQ_MASK (0x100U)
 #define PDGO_PCNT_CNT_CFG_SEQ_SHIFT (8U)

@@ -239,6 +239,10 @@ config RT_USING_RTC
         config RT_USING_ALARM
             bool "Using RTC alarm"
             default n
+        config RT_ALARM_USING_LOCAL_TIME
+            bool "Using local time for the alarm calculation"
+            default n
+            depends on RT_USING_ALARM
 
         config RT_USING_SOFT_RTC
             bool "Using software simulation RTC device"

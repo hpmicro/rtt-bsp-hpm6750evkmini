@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 HPMicro
+ * Copyright (c) 2022-2025 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -8,12 +8,18 @@
 #include <string.h>
 #include "hpm_dma_mgr.h"
 #include "hpm_soc.h"
+#ifdef USE_DMA_DECLARE_EXT_ISR_M
+#include "rtconfig.h"
+#include "hpm_rtt_interrupt_util.h"
+#endif
 
 /*****************************************************************************************************************
  *
  *  Definitions
  *
  *****************************************************************************************************************/
+
+#define DMA_INSTANCE_MAX_COUNT (2)
 
 typedef struct _dma_instance_info {
     DMA_Type *base;
@@ -24,15 +30,15 @@ typedef struct _dma_instance_info {
  * @brief DMA Channel Context Structure
  */
 typedef struct _dma_channel_context {
-    bool is_allocated;                               /**< Whether DMA channel was allocated */
-    void *tc_cb_data_ptr;                            /**< User data required by transfer complete callback */
-    void *half_tc_cb_data_ptr;                       /**< User data required by half transfer complete callback */
-    void *error_cb_data_ptr;                         /**< User data required by error callback */
-    void *abort_cb_data_ptr;                         /**< User data required by abort callback */
-    dma_mgr_chn_cb_t tc_cb;                          /**< DMA channel transfer complete callback */
-    dma_mgr_chn_cb_t half_tc_cb;                     /**< DMA channel half transfer complete callback */
-    dma_mgr_chn_cb_t error_cb;                       /**< DMA channel error callback */
-    dma_mgr_chn_cb_t abort_cb;                       /**< DMA channel abort callback */
+    bool is_allocated;           /**< Whether DMA channel was allocated */
+    void *tc_cb_data_ptr;        /**< User data required by transfer complete callback */
+    void *half_tc_cb_data_ptr;   /**< User data required by half transfer complete callback */
+    void *error_cb_data_ptr;     /**< User data required by error callback */
+    void *abort_cb_data_ptr;     /**< User data required by abort callback */
+    dma_mgr_chn_cb_t tc_cb;      /**< DMA channel transfer complete callback */
+    dma_mgr_chn_cb_t half_tc_cb; /**< DMA channel half transfer complete callback */
+    dma_mgr_chn_cb_t error_cb;   /**< DMA channel error callback */
+    dma_mgr_chn_cb_t abort_cb;   /**< DMA channel abort callback */
 } dma_chn_context_t;
 
 /**
@@ -40,10 +46,9 @@ typedef struct _dma_channel_context {
  *
  */
 typedef struct _dma_mgr_context {
-    dma_chn_info_t dma_instance[DMA_SOC_MAX_COUNT];                                  /**< DMA instances */
-    dma_chn_context_t channels[DMA_SOC_MAX_COUNT][DMA_SOC_CHANNEL_NUM];              /**< Array of DMA channels */
+    dma_chn_info_t dma_instance[DMA_INSTANCE_MAX_COUNT];                     /**< DMA instances */
+    dma_chn_context_t channels[DMA_INSTANCE_MAX_COUNT][DMA_SOC_CHANNEL_NUM]; /**< Array of DMA channels */
 } dma_mgr_context_t;
-
 
 /*****************************************************************************************************************
  *
@@ -109,19 +114,28 @@ void dma_mgr_isr_handler(DMA_Type *ptr, uint32_t instance)
     }
 }
 
+#ifndef USE_DMA_DECLARE_EXT_ISR_M
 SDK_DECLARE_EXT_ISR_M(IRQn_HDMA, dma0_isr)
+#else
+RTT_DECLARE_EXT_ISR_M(IRQn_HDMA, dma0_isr)
+#endif
 void dma0_isr(void)
 {
     dma_mgr_isr_handler(HPM_HDMA, 0);
 }
 
-#if defined(DMA_SOC_MAX_COUNT) && (DMA_SOC_MAX_COUNT > 1)
+#ifdef HPM_XDMA
+#ifndef USE_DMA_DECLARE_EXT_ISR_M
 SDK_DECLARE_EXT_ISR_M(IRQn_XDMA, dma1_isr)
+#else
+RTT_DECLARE_EXT_ISR_M(IRQn_XDMA, dma1_isr)
+#endif
 void dma1_isr(void)
 {
     dma_mgr_isr_handler(HPM_XDMA, 1);
 }
 #endif
+
 
 static uint32_t dma_mgr_enter_critical(void)
 {
@@ -135,13 +149,12 @@ static void dma_mgr_exit_critical(uint32_t level)
 
 void dma_mgr_init(void)
 {
-    (void) memset(HPM_DMA_MGR, 0, sizeof(*HPM_DMA_MGR));
-    HPM_DMA_MGR->dma_instance[0].base = HPM_HDMA,
+    HPM_DMA_MGR->dma_instance[0].base = HPM_HDMA;
     HPM_DMA_MGR->dma_instance[0].irq_num = IRQn_HDMA;
- #if defined(DMA_SOC_MAX_COUNT) && (DMA_SOC_MAX_COUNT > 1)
+#ifdef HPM_XDMA
     HPM_DMA_MGR->dma_instance[1].base = HPM_XDMA;
     HPM_DMA_MGR->dma_instance[1].irq_num = IRQn_XDMA;
- #endif
+#endif
 }
 
 hpm_stat_t dma_mgr_request_resource(dma_resource_t *resource)
@@ -155,15 +168,17 @@ hpm_stat_t dma_mgr_request_resource(dma_resource_t *resource)
         uint32_t channel;
         bool has_found = false;
         uint32_t level = dma_mgr_enter_critical();
-        for (instance = 0; instance < DMA_SOC_MAX_COUNT; instance++) {
-            for (channel = 0; channel < DMA_SOC_CHANNEL_NUM; channel++) {
-                if (!HPM_DMA_MGR->channels[instance][channel].is_allocated) {
-                    has_found = true;
+        for (instance = 0; instance < DMA_INSTANCE_MAX_COUNT; instance++) {
+            if (HPM_DMA_MGR->dma_instance[instance].base != NULL) {
+                for (channel = 0; channel < DMA_SOC_CHANNEL_NUM; channel++) {
+                    if (!HPM_DMA_MGR->channels[instance][channel].is_allocated) {
+                        has_found = true;
+                        break;
+                    }
+                }
+                if (has_found) {
                     break;
                 }
-            }
-            if (has_found) {
-                break;
             }
         }
 
@@ -176,7 +191,46 @@ hpm_stat_t dma_mgr_request_resource(dma_resource_t *resource)
         } else {
             status = status_dma_mgr_no_resource;
         }
+        dma_mgr_exit_critical(level);
+    }
 
+    return status;
+}
+
+hpm_stat_t dma_mgr_request_specified_resource(dma_resource_t *resource, DMA_Type *base)
+{
+    hpm_stat_t status;
+
+    if (resource == NULL) {
+        status = status_invalid_argument;
+    } else {
+        uint32_t instance;
+        uint32_t channel;
+        bool has_found = false;
+        uint32_t level = dma_mgr_enter_critical();
+        for (instance = 0; instance < DMA_INSTANCE_MAX_COUNT; instance++) {
+            if (HPM_DMA_MGR->dma_instance[instance].base == base) {
+                for (channel = 0; channel < DMA_SOC_CHANNEL_NUM; channel++) {
+                    if (!HPM_DMA_MGR->channels[instance][channel].is_allocated) {
+                        has_found = true;
+                        break;
+                    }
+                }
+                if (has_found) {
+                    break;
+                }
+            }
+        }
+
+        if (has_found) {
+            HPM_DMA_MGR->channels[instance][channel].is_allocated = true;
+            resource->base = HPM_DMA_MGR->dma_instance[instance].base;
+            resource->channel = channel;
+            resource->irq_num = HPM_DMA_MGR->dma_instance[instance].irq_num;
+            status = status_success;
+        } else {
+            status = status_dma_mgr_no_resource;
+        }
         dma_mgr_exit_critical(level);
     }
 
@@ -191,15 +245,15 @@ static dma_chn_context_t *dma_mgr_search_chn_context(const dma_resource_t *resou
         uint32_t instance;
         uint32_t channel;
         bool has_found = false;
-        for (instance = 0; instance < DMA_SOC_MAX_COUNT; instance++) {
+        for (instance = 0; instance < DMA_INSTANCE_MAX_COUNT; instance++) {
             if (resource->base == HPM_DMA_MGR->dma_instance[instance].base) {
                 has_found = true;
                 break;
             }
         }
 
-        channel = resource->channel;
         if (has_found) {
+            channel = resource->channel;
             if (HPM_DMA_MGR->channels[instance][channel].is_allocated) {
                 chn_ctx = &HPM_DMA_MGR->channels[instance][channel];
             }

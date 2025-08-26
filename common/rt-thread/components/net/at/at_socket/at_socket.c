@@ -7,6 +7,7 @@
  * Date           Author       Notes
  * 2018-06-06     chenyong     first version
  * 2022-06-02     xianxistu    add implement about "AT server"
+ * 2025-06-26     RCSN         fix compatibility issue with Segger Embedded Studio
  */
 
 #include <at.h>
@@ -17,7 +18,11 @@
 #include <string.h>
 #include <ctype.h>
 #include <sys/time.h>
+#ifdef __SES_VERSION
+#include <errno.h>
+#else
 #include <sys/errno.h>
+#endif
 
 #include <at_socket.h>
 #include <at_device.h>

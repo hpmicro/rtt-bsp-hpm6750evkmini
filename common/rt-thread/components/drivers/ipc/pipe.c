@@ -9,11 +9,14 @@
  * 2017-11-08     JasonJiaJie  fix memory leak issue when close a pipe.
  * 2023-06-28     shell        return POLLHUP when writer closed its channel on poll()
  *                             fix flag test on pipe_fops_open()
+ * 2025-06-17     Fan YANG     Fix compatibility issue with Segger Embedded Studio
  */
 #include <rthw.h>
 #include <rtdevice.h>
 #include <stdint.h>
+#ifndef __SES_VERSION
 #include <sys/errno.h>
+#endif
 
 #if defined(RT_USING_POSIX_DEVIO) && defined(RT_USING_POSIX_PIPE)
 #include <unistd.h>

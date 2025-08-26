@@ -16,6 +16,7 @@
 #include <rtthread.h>
 #include "hpm_dma_mgr.h"
 #include "hpm_rtt_os_tick.h"
+#include "hpm_rtt_interrupt_util.h"
 #include "hpm_l1c_drv.h"
 
 extern int rt_hw_uart_init(void);
@@ -53,6 +54,7 @@ void rtt_board_init(void)
 
 void app_init_led_pins(void)
 {
+    board_init_led_pins();
     gpio_set_pin_output(APP_LED0_GPIO_CTRL, APP_LED0_GPIO_INDEX, APP_LED0_GPIO_PIN);
     gpio_set_pin_output(APP_LED1_GPIO_CTRL, APP_LED1_GPIO_INDEX, APP_LED1_GPIO_PIN);
     gpio_set_pin_output(APP_LED2_GPIO_CTRL, APP_LED2_GPIO_INDEX, APP_LED2_GPIO_PIN);
@@ -96,7 +98,7 @@ void app_init_usb_pins(void)
 
 void rt_hw_cpu_reset(void)
 {
-    HPM_PPOR->RESET_ENABLE = (1UL << 31);
+    HPM_PPOR->RESET_ENABLE |= (1UL << 31);
     HPM_PPOR->RESET_HOT &= ~(1UL << 31);
     HPM_PPOR->RESET_COLD |= (1UL << 31);
 
@@ -227,3 +229,12 @@ uint32_t rtt_board_init_pwm_clock(PWM_Type *ptr)
     return freq;
 }
 
+#ifdef CONFIG_CHERRYUSB_CUSTOM_IRQ_HANDLER
+extern void hpm_isr_usb0(void);
+RTT_DECLARE_EXT_ISR_M(IRQn_USB0, hpm_isr_usb0)
+
+#ifdef HPM_USB1_BASE
+extern void hpm_isr_usb1(void);
+SDK_DECLARE_EXT_ISR_M(IRQn_USB1, hpm_isr_usb1)
+#endif
+#endif

@@ -6,12 +6,17 @@
  * Change Logs:
  * Date           Author       Notes
  * 2017/08/30     Bernard      The first version
+ * 2025-06-26     RCSN         fix compatibility issue with Segger Embedded Studio
  */
 
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#ifdef __SES_VERSION
+#include <errno.h>
+#else
 #include <sys/errno.h>
+#endif
 #include "termios.h"
 #include <rtthread.h>
 

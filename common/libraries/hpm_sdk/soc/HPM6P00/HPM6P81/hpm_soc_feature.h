@@ -52,10 +52,8 @@
 #define PDM_I2S HPM_I2S0
 #define DAO_I2S HPM_I2S1
 #define PDM_SOC_SAMPLE_RATE_IN_HZ (16000U)
-#define VAD_SOC_SAMPLE_RATE_IN_HZ (16000U)
 #define DAO_SOC_SAMPLE_RATE_IN_HZ (48000U)
 #define DAO_SOC_PDM_SAMPLE_RATE_RATIO (3U)
-#define DAO_SOC_VAD_SAMPLE_RATE_RATIO (3U)
 
 /*
  * PLLCTL Section
@@ -237,6 +235,7 @@
  * Sync Timer Section
  */
 #define SYNT_SOC_HAS_TIMESTAMP             (1U)
+#define SYNT_SOC_HAS_EXTENSION_CMP         (1U)
 
 /**
  * @brief FFA Section

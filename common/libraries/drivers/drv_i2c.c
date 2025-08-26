@@ -214,36 +214,70 @@ static inline void handle_i2c_isr(I2C_Type *ptr)
 }
 
 #if defined(BSP_USING_I2C0)
+RTT_DECLARE_EXT_ISR_M(IRQn_I2C0, i2c0_isr);
 void i2c0_isr(void)
 {
     handle_i2c_isr(HPM_I2C0);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_I2C0, i2c0_isr);
 #endif
 
 #if defined(BSP_USING_I2C1)
+RTT_DECLARE_EXT_ISR_M(IRQn_I2C1, i2c1_isr);
 void i2c1_isr(void)
 {
     handle_i2c_isr(HPM_I2C1);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_I2C1, i2c1_isr);
+
 #endif
 
 #if defined(BSP_USING_I2C2)
+RTT_DECLARE_EXT_ISR_M(IRQn_I2C2, i2c2_isr);
 void i2c2_isr(void)
 {
     handle_i2c_isr(HPM_I2C2);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_I2C2, i2c2_isr);
 #endif
 
 #if defined(BSP_USING_I2C3)
+RTT_DECLARE_EXT_ISR_M(IRQn_I2C3, i2c3_isr);
 void i2c3_isr(void)
 {
     handle_i2c_isr(HPM_I2C3);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_I2C3, i2c3_isr);
 #endif
+
+#if defined(BSP_USING_I2C4)
+RTT_DECLARE_EXT_ISR_M(IRQn_I2C4, i2c4_isr);
+void i2c4_isr(void)
+{
+    handle_i2c_isr(HPM_I2C4);
+}
+#endif
+
+#if defined(BSP_USING_I2C5)
+RTT_DECLARE_EXT_ISR_M(IRQn_I2C5, i2c5_isr);
+void i2c5_isr(void)
+{
+    handle_i2c_isr(HPM_I2C5);
+}
+#endif
+
+#if defined(BSP_USING_I2C6)
+RTT_DECLARE_EXT_ISR_M(IRQn_I2C6, i2c6_isr);
+void i2c6_isr(void)
+{
+    handle_i2c_isr(HPM_I2C6);
+}
+#endif
+
+#if defined(BSP_USING_I2C7)
+RTT_DECLARE_EXT_ISR_M(IRQn_I2C7, i2c7_isr);
+void i2c7_isr(void)
+{
+    handle_i2c_isr(HPM_I2C7);
+}
+#endif
+
 
 static hpm_stat_t i2c_tx_trigger_dma(DMA_Type *dma_ptr, uint8_t ch_num, I2C_Type *i2c_ptr, uint32_t src, uint32_t size)
 {
@@ -329,7 +363,6 @@ static rt_ssize_t hpm_i2c_master_transfer(struct rt_i2c_bus_device *bus, struct 
                 }
                 else
                 {
-                    aligned_buf = (uint8_t*)HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)raw_alloc_buf);
                     /* The allocated pointer is always RT_ALIGN_SIZE aligned */
                     raw_alloc_buf = (uint8_t*)rt_malloc(aligned_len + HPM_L1C_CACHELINE_SIZE - RT_ALIGN_SIZE);
                     RT_ASSERT(raw_alloc_buf != RT_NULL);

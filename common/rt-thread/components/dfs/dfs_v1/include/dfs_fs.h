@@ -13,8 +13,11 @@
 
 #include <dfs.h>
 #include <sys/types.h>
+#ifdef __SES_VERSION
+#include <errno.h>
+#else
 #include <sys/errno.h>
-
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif

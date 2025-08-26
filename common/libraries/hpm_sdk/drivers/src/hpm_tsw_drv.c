@@ -214,7 +214,7 @@ void tsw_init_send(TSW_Type *ptr, tsw_dma_config_t *config)
     ptr->MM2S_DMA_CR |= TSW_MM2S_DMA_CR_MXLEN_SET(config->maxlen);
 
     ptr->MM2S_DMA_CR &= ~TSW_MM2S_DMA_CR_IRQEN_MASK;
-    ptr->MM2S_DMA_CR |= TSW_MM2S_DMA_CR_MXLEN_SET(config->irq);
+    ptr->MM2S_DMA_CR |= TSW_MM2S_DMA_CR_IRQEN_SET(config->irq);
 
     ptr->MM2S_DMA_CR |= TSW_MM2S_DMA_CR_RUN_MASK;
 }
@@ -1221,6 +1221,18 @@ hpm_stat_t tsw_cb_frer_egress_get_count(TSW_Type *ptr, tsw_cb_frer_frame_count_e
     for (uint16_t i = 0; i <= TSW_EGFRCNT_CPU_PORT_EGRESS_FRER_CNT7; i++) {
         count->egess_frame_count[i] = ptr->EGFRCNT[i];
     }
+
+    return status_success;
+}
+
+hpm_stat_t tsw_cb_frer_set_msec_cycles(TSW_Type *ptr, uint32_t msec_cycles)
+{
+    if (msec_cycles > TSW_CENTRAL_CSR_CONFIG_MSEC_CYCLES_MASK) {
+        return status_invalid_argument;
+    }
+
+    ptr->CENTRAL_CSR_CONFIG &= ~TSW_CENTRAL_CSR_CONFIG_MSEC_CYCLES_MASK;
+    ptr->CENTRAL_CSR_CONFIG |= TSW_CENTRAL_CSR_CONFIG_MSEC_CYCLES_SET(msec_cycles);
 
     return status_success;
 }

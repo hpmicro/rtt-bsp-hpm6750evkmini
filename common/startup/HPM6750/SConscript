@@ -5,12 +5,15 @@ cwd = GetCurrentDir()
 
 # add the startup files
 
-src = Glob('*.c')
+src = ['trap.c', 'startup.c']
 
-if rtconfig.PLATFORM == 'gcc':
+if rtconfig.PLATFORM in ['gcc', 'zcc']:
     src += [os.path.join('toolchains', 'gcc', 'start.S')]
     src += [os.path.join('toolchains', 'gcc', 'port_gcc.S')]
-
+elif rtconfig.PLATFORM in ['segger']:
+    src += [os.path.join('toolchains', 'segger', 'start.s')]
+    src += [os.path.join('toolchains', 'gcc', 'port_gcc.S')]
+    src += [os.path.join('toolchains', 'reset.c')]
 CPPPATH = [cwd]
 CPPDEFINES=['D45', rtconfig.CHIP_NAME]
 

@@ -1,22 +1,19 @@
 /*
- * Copyright (c) 2024 HPMicro
+ * Copyright (c) 2024-2025 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Change Logs:
  * Date           Author       Notes
  * 2024-02-24     HPMicro      the first version
+ * 2025-08-06     HPMicro      fixed logic of nested interrupt handling
  */
 
 #ifndef HPM_RTT_INTERRUPT_UTIL_H
 #define HPM_RTT_INTERRUPT_UTIL_H
 
 #include <stdint.h>
-#ifdef HPM_USING_VECTOR_PREEMPTED_MODE
-#include "cpuport.h"
-#include "rtdef.h"
-#include "rtthread.h"
-#endif
+#include <rtthread.h>
 
 #define MCAUSE_INSTR_ADDR_MISALIGNED (0U)       //!< Instruction Address misaligned
 #define MCAUSE_INSTR_ACCESS_FAULT (1U)          //!< Instruction access fault
@@ -30,7 +27,7 @@
 #define MCAUSE_ECALL_FROM_SUPERVISOR_MODE (9U)  //!< Environment call from Supervisor mode
 #define MCAUSE_ECALL_FROM_MACHINE_MODE (11U)    //!< Environment call from machine mode
 #define MCAUSE_INSTR_PAGE_FAULT (12U)           //!< Instruction page fault
-#define MCAUSE_LOAD_PAGE_FAULT (13)             //!< Load page fault
+#define MCAUSE_LOAD_PAGE_FAULT (13U)            //!< Load page fault
 #define MCAUSE_STORE_AMO_PAGE_FAULT (15U)       //!< Store/AMO page fault
 
 #define IRQ_S_SOFT              1
@@ -59,7 +56,7 @@
 #define HPM_INT_ID_EXCEPT_BKPT                  (0x1003)
 #define HPM_INT_ID_EXCEPT_LOAD_ADDR_UNALIGN     (0x1004)
 #define HPM_INT_ID_EXCEPT_LOAD_ACC_FAULT        (0x1005)
-#define HPM_INT_ID_EXCEPT_STORE_ADDR_UNALGIN    (0x1006)
+#define HPM_INT_ID_EXCEPT_STORE_ADDR_UNALIGN    (0x1006)
 #define HPM_INT_ID_EXCEPT_STORE_ACC_FAULT       (0x1007)
 #define HPM_INT_ID_EXCEPT_M_ECALL               (0x100B)
 
@@ -126,6 +123,7 @@ void enable_rtt_plic_feature(void);
 #ifdef HPM_USING_VECTOR_PREEMPTED_MODE
 extern rt_uint32_t rt_context_switch_flag;
 extern rt_uint32_t sp_before_addr;
+extern volatile rt_uint32_t rt_thread_switch_interrupt_flag;
 #ifdef ARCH_RISCV_FPU
 #define RTT_SAVE_FPU_CONTEXT()  { \
     __asm volatile("addi sp, sp, %0" : : "i"(-256) :);\
@@ -241,7 +239,7 @@ extern rt_uint32_t sp_before_addr;
                     c.swsp x30, 30*4(sp) \n\
                     c.swsp x31, 31*4(sp)"); \
     __asm volatile("la t0, rt_interrupt_nest \n\
-                    lw t2, 0(t0)\n\
+                    lb t2, 0(t0)\n\
                     bnez t2, 1f \n");\
     __asm volatile("la t0, sp_before_addr \n\
                     sw sp, 0(t0) \n");\
@@ -255,13 +253,15 @@ extern rt_uint32_t sp_before_addr;
     __asm volatile("la t1, %0\n\t" : : "i" (rt_interrupt_leave) : );\
     __asm volatile("jalr t1\n");\
     __asm volatile("la t0, rt_interrupt_nest \n\
-                    lw t2, 0(t0)\n\
+                    lb t2, 0(t0)\n\
                     bnez t2, 2f \n");\
     __asm volatile("csrrw sp,mscratch,sp\n");\
     __asm volatile("la t0, rt_context_switch_flag \n\
                     lw t2, 0(t0)\n\
                     beqz t2, 2f \n");\
     __asm volatile("sw zero, 0(t0)\n");\
+    __asm volatile("la t0, rt_thread_switch_interrupt_flag \n\
+                    sw zero, 0(t0) \n");\
     __asm volatile("csrr a0, mepc \n\
                     c.swsp a0, 0(sp) \n");\
     __asm volatile("la t0, rt_interrupt_from_thread \n\
@@ -311,9 +311,14 @@ extern rt_uint32_t sp_before_addr;
 }
 
 #define ISR_NAME_M(irq_num) default_isr_##irq_num
+#if !defined(__SES_RISCV) && !defined(__zcc__)
+    #define ISR_NAKED __attribute__((naked))
+#else
+    #define ISR_NAKED
+#endif
 #define RTT_DECLARE_EXT_ISR_M(irq_num, isr) \
 void isr(void) __attribute__((section(".isr_vector")));\
-EXTERN_C void ISR_NAME_M(irq_num)(void) __attribute__((section(".isr_vector")));\
+EXTERN_C void ISR_NAME_M(irq_num)(void) __attribute__((section(".isr_vector"))) ISR_NAKED;\
 void ISR_NAME_M(irq_num)(void) \
 { \
     RTT_SAVE_CALLER_CONTEXT(); \

@@ -1,16 +1,22 @@
 /*
- * Copyright (c) 2006-2022, RT-Thread Development Team
+ * Copyright (c) 2006-2025, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
  * Change Logs:
  * Date           Author       Notes
  * 2023-08-16     Meco Man     first version
+ * 2025-06-17     Fan YANG     Fix compatibility issue with Segger Embedded Studio
  */
 
 #include <rtthread.h>
 #include <unistd.h>
+#ifdef __SES_VERSION
+#include <errno.h>
+
+#else
 #include <sys/errno.h>
+#endif
 
 int isatty(int fd)
 {

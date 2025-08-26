@@ -59,7 +59,7 @@ char *ltoa(long value, char *string, int radix)
     int sign;
     char *sp;
 
-    if (string == NULL)
+    if (string == RT_NULL)
     {
         return 0 ;
     }
@@ -114,7 +114,7 @@ char *ultoa(unsigned long value, char *string, int radix)
     unsigned long v = value;
     char *sp;
 
-    if (string == NULL)
+    if (string == RT_NULL)
     {
         return 0;
     }

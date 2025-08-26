@@ -11,6 +11,13 @@
 * 使用USB Type-C线缆连接PC USB端口和PWR DEBUG端口
 * 使用以太网线缆连接开发板RGMII或者RMII端口和另一个块开发板的RGMII或RMII端口
 
+## 编译设置
+
+* 在双网口的开发板上，默认支持的是RGMII接口
+* 在双网口的开发板上，仅支持一个网口，若需要使用另一个网口，可以通过如下两种方式之一：
+    * RT-Thread Settings->硬件->芯片设备驱动->Enable Ethernet
+    * menuconfig->Hardware Drivers Config->On-chip Peripheral Drivers->Enable Ethernet
+    
 ## 运行示例
 
 * 编译下载程序

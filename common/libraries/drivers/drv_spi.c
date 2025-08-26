@@ -9,6 +9,10 @@
  * 2023-02-15   HPMicro     Add DMA support
  * 2023-07-14   HPMicro     Manage the DMA buffer alignment in driver
  * 2023-12-14   HPMicro     change state blocking wait to interrupt semaphore wait for DMA
+ * 2024-06-10   HPMicro     Add the SPI pin settings
+ * 2025-03-17   HPMicro     Improve SPI driver,support SPI/DSPI/QSPI
+ * 2025-07-14   HPMicro     Check CS pin in xfer API
+ * 2025-08-05   HPMicro     Optimized cache alignment handling for DMA transfers
  */
 #include <rtthread.h>
 
@@ -108,26 +112,6 @@
 #endif
 #endif
 
-#if defined(BSP_USING_SPI8)
-#ifndef BSP_SPI8_USING_QUAD_IO
-#ifndef BSP_SPI8_USING_DUAL_IO
-#ifndef BSP_SPI8_USING_SINGLE_IO
-#define BSP_SPI8_USING_SINGLE_IO
-#endif
-#endif
-#endif
-#endif
-
-#if defined(BSP_USING_SPI9)
-#ifndef BSP_SPI9_USING_QUAD_IO
-#ifndef BSP_SPI9_USING_DUAL_IO
-#ifndef BSP_SPI9_USING_SINGLE_IO
-#define BSP_SPI9_USING_SINGLE_IO
-#endif
-#endif
-#endif
-#endif
-
 
 struct hpm_spi
 {
@@ -151,6 +135,14 @@ struct hpm_spi
     rt_sem_t rxdma_xfer_done_sem;
     void (*spi_pins_init)(SPI_Type *spi_base);
 };
+
+typedef struct {
+    rt_uint8_t *raw_alloc_tx_buf;
+    rt_uint8_t *raw_alloc_rx_buf;
+    rt_uint8_t *aligned_tx_buf;
+    rt_uint8_t *aligned_rx_buf;
+    rt_uint32_t aligned_size;
+} spi_dma_buf_ctx_t;
 
 static rt_err_t hpm_spi_configure(struct rt_spi_device *device, struct rt_spi_configuration *cfg);
 static rt_ssize_t hpm_spi_xfer(struct rt_spi_device *device, struct rt_spi_message *msg);
@@ -429,76 +421,7 @@ static struct hpm_spi hpm_spis[] =
 #endif
     },
 #endif
-#if defined(BSP_USING_SPI8)
-    {
-#if defined(BSP_SPI8_USING_SINGLE_IO)
-        .bus_name = "spi8",
-        .spi_io_mode = spi_single_io_mode,
-#endif
-#if defined(BSP_SPI8_USING_DUAL_IO)
-        .bus_name = "dspi8",
-        .spi_io_mode = spi_dual_io_mode,
-#endif
-#if defined(BSP_SPI8_USING_QUAD_IO)
-        .bus_name = "qspi8",
-        .spi_io_mode = spi_quad_io_mode,
-#endif
-        .spi_base = HPM_SPI8,
-        .clk_name = clock_spi8,
-#if defined(BSP_SPI8_USING_DMA)
-        .enable_dma = RT_TRUE,
-#endif
-        .tx_dmamux = HPM_DMA_SRC_SPI8_TX,
-        .rx_dmamux = HPM_DMA_SRC_SPI8_RX,
-        .spi_irq   = IRQn_SPI7,
-#if defined(BSP_SPI8_IRQ_PRIORITY)
-        .spi_irq_priority = BSP_SPI8_IRQ_PRIORITY,
-#else
-        .spi_irq_priority = 1,
-#endif
-#if !defined BSP_SPI8_USING_HARD_CS
-        .spi_pins_init = init_spi_pins_with_gpio_as_cs,
-#else
-        .spi_pins_init = init_spi_pins,
-#endif
-    },
-#endif
-#if defined(BSP_USING_SPI9)
-    {
-#if defined(BSP_SPI9_USING_SINGLE_IO)
-        .bus_name = "spi9",
-        .spi_io_mode = spi_single_io_mode,
-#endif
-#if defined(BSP_SPI9_USING_DUAL_IO)
-        .bus_name = "dspi9",
-        .spi_io_mode = spi_dual_io_mode,
-#endif
-#if defined(BSP_SPI9_USING_QUAD_IO)
-        .bus_name = "qspi9",
-        .spi_io_mode = spi_quad_io_mode,
-#endif
-        .spi_base = HPM_SPI9,
-        .clk_name = clock_spi9,
-#if defined(BSP_SPI9_USING_DMA)
-        .enable_dma = RT_TRUE,
-#endif
-        .tx_dmamux = HPM_DMA_SRC_SPI9_TX,
-        .rx_dmamux = HPM_DMA_SRC_SPI9_RX,
-        .spi_irq   = IRQn_SPI9,
-#if defined(BSP_SPI9_IRQ_PRIORITY)
-        .spi_irq_priority = BSP_SPI9_IRQ_PRIORITY,
-#else
-         .spi_irq_priority = 1,
-#endif
-#if !defined BSP_SPI9_USING_HARD_CS
-        .spi_pins_init = init_spi_pins_with_gpio_as_cs,
-#else
-        .spi_pins_init = init_spi_pins,
-#endif
-    },
-#endif
 };
-
 static struct rt_spi_ops hpm_spi_ops =
 {
     .configure = hpm_spi_configure,
@@ -528,67 +451,67 @@ static inline void handle_spi_isr(SPI_Type *ptr)
 }
 
 #if defined(BSP_USING_SPI0)
+RTT_DECLARE_EXT_ISR_M(IRQn_SPI0, spi0_isr);
 void spi0_isr(void)
 {
     handle_spi_isr(HPM_SPI0);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_SPI0, spi0_isr);
 #endif
 
 #if defined(BSP_USING_SPI1)
+RTT_DECLARE_EXT_ISR_M(IRQn_SPI1, spi1_isr);
 void spi1_isr(void)
 {
     handle_spi_isr(HPM_SPI1);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_SPI1, spi1_isr);
 #endif
 
 #if defined(BSP_USING_SPI2)
+RTT_DECLARE_EXT_ISR_M(IRQn_SPI2, spi2_isr);
 void spi2_isr(void)
 {
     handle_spi_isr(HPM_SPI2);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_SPI2, spi2_isr);
 #endif
 
 #if defined(BSP_USING_SPI3)
+RTT_DECLARE_EXT_ISR_M(IRQn_SPI3, spi3_isr);
 void spi3_isr(void)
 {
     handle_spi_isr(HPM_SPI3);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_SPI3, spi3_isr);
 #endif
 
 #if defined(BSP_USING_SPI4)
+RTT_DECLARE_EXT_ISR_M(IRQn_SPI4, spi4_isr);
 void spi4_isr(void)
 {
     handle_spi_isr(HPM_SPI4);
 }
-RTT_DECLARE_EXT_ISR_M(HPM_SPI4, spi4_isr);
 #endif
 
 #if defined(BSP_USING_SPI5)
+RTT_DECLARE_EXT_ISR_M(IRQn_SPI5, spi5_isr);
 void spi5_isr(void)
 {
     handle_spi_isr(HPM_SPI5);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_SPI5, spi5_isr);
 #endif
 
 #if defined(BSP_USING_SPI6)
+RTT_DECLARE_EXT_ISR_M(IRQn_SPI6, spi6_isr);
 void spi6_isr(void)
 {
     handle_spi_isr(HPM_SPI6);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_SPI6, spi6_isr);
 #endif
 
 #if defined(BSP_USING_SPI7)
+RTT_DECLARE_EXT_ISR_M(IRQn_SPI7, spi7_isr);
 void spi7_isr(void)
 {
     handle_spi_isr(HPM_SPI7);
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_SPI7, spi7_isr);
 #endif
 
 void spi_dma_channel_tc_callback(DMA_Type *ptr, uint32_t channel, void *user_data)
@@ -835,6 +758,7 @@ bool hpm_qspi_parse_phase_message(struct rt_spi_device *device, struct rt_qspi_m
                     break;
                 case 2:
                     dummy_bytes = (msg->dummy_cycles + 3) / 4;
+                    break;
                 case 4:
                     dummy_bytes = (msg->dummy_cycles + 1) / 2;
                     break;
@@ -1044,6 +968,7 @@ static hpm_stat_t hpm_spi_tx_dma_config(struct rt_spi_device *device, uint8_t *b
     HPM_CHECK_RET(dma_mgr_set_chn_dst_width(resource, transfer_width));
     HPM_CHECK_RET(dma_mgr_set_chn_src_width(resource, transfer_width));
     HPM_CHECK_RET(dma_mgr_set_chn_transize(resource, size / data_len_in_bytes));
+    return stat;
 }
 
 static hpm_stat_t hpm_spi_tx_dma_start(struct rt_spi_device *device)
@@ -1094,8 +1019,7 @@ static hpm_stat_t hpm_spi_rx_dma_start(struct rt_spi_device *device)
     return stat;
 }
 
-static void hpm_spi_transfer_data_cache_handle(struct rt_spi_message *msg, rt_uint8_t **raw_alloc_tx_buf, rt_uint8_t **raw_alloc_rx_buf,
-                                                rt_uint8_t **aligned_tx_buf, rt_uint8_t **aligned_rx_buf, rt_uint32_t *aligned_len)
+static void hpm_spi_transfer_data_cache_handle(struct rt_spi_message *msg, spi_dma_buf_ctx_t *ctx, rt_uint32_t len)
 {
     rt_uint32_t transfer_len;
     rt_uint8_t *tx_buf = RT_NULL;
@@ -1105,38 +1029,42 @@ static void hpm_spi_transfer_data_cache_handle(struct rt_spi_message *msg, rt_ui
     uint32_t aligned_size = 0;
     if (msg->send_buf != RT_NULL) {
         if (l1c_dc_is_enabled() == true) {
-            if ((rt_uint32_t)msg->send_buf % HPM_L1C_CACHELINE_SIZE) {
-                /* The allocated pointer is always RT_ALIGN_SIZE aligned */
-                transfer_len = (*aligned_len) + HPM_L1C_CACHELINE_SIZE - RT_ALIGN_SIZE;
-                (*raw_alloc_tx_buf) = (uint8_t*)rt_malloc(transfer_len);
-                RT_ASSERT((*raw_alloc_tx_buf) != RT_NULL);
-                (*aligned_tx_buf) = (uint8_t*)HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)(*raw_alloc_tx_buf));
-                rt_memcpy((*aligned_tx_buf), msg->send_buf, msg->length);
-                l1c_dc_flush((uint32_t) (*aligned_tx_buf), (*aligned_len));
+            if (((rt_uint32_t)msg->send_buf % HPM_L1C_CACHELINE_SIZE) || (len % HPM_L1C_CACHELINE_SIZE)) {
+                ctx->aligned_size = (len + HPM_L1C_CACHELINE_SIZE - 1U) & ~(HPM_L1C_CACHELINE_SIZE - 1U);
+                ctx->raw_alloc_tx_buf = (rt_uint8_t*)rt_malloc_align(ctx->aligned_size, HPM_L1C_CACHELINE_SIZE);
+                RT_ASSERT(ctx->raw_alloc_tx_buf != RT_NULL);
+                ctx->aligned_tx_buf = ctx->raw_alloc_tx_buf;
+                rt_memcpy(ctx->aligned_tx_buf, msg->send_buf, len);
+                l1c_dc_flush((uint32_t) (ctx->aligned_tx_buf), ctx->aligned_size);
             } else {
-                (*aligned_tx_buf) = (uint8_t*) msg->send_buf;
-                aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)(*aligned_tx_buf));
-                aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)(*aligned_tx_buf) + msg->length);
+                ctx->aligned_tx_buf = (uint8_t*) msg->send_buf;
+                aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)(ctx->aligned_tx_buf));
+                aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)(ctx->aligned_tx_buf) + msg->length);
                 aligned_size = aligned_end - aligned_start;
+                ctx->aligned_size = aligned_size;
                 l1c_dc_writeback(aligned_start, aligned_size);
             }
         } else {
-            (*aligned_tx_buf) = (uint8_t*) msg->send_buf;
+            ctx->aligned_tx_buf = (uint8_t*) msg->send_buf;
+            ctx->aligned_size = len;
         }
 
     }
     if (msg->recv_buf != RT_NULL) {
         if (l1c_dc_is_enabled() == true) {
-            if ((rt_uint32_t)msg->recv_buf % HPM_L1C_CACHELINE_SIZE) {
-                /* The allocated pointer is always RT_ALIGN_SIZE aligned */
-                (*raw_alloc_rx_buf) = (uint8_t*)rt_malloc((*aligned_len) + HPM_L1C_CACHELINE_SIZE - RT_ALIGN_SIZE);
-                RT_ASSERT((*raw_alloc_rx_buf) != RT_NULL);
-                (*aligned_rx_buf) = (uint8_t*)HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)(*raw_alloc_rx_buf));
+            if (((rt_uint32_t)msg->recv_buf % HPM_L1C_CACHELINE_SIZE) || (len % HPM_L1C_CACHELINE_SIZE)) {
+                ctx->aligned_size = (len + HPM_L1C_CACHELINE_SIZE - 1U) & ~(HPM_L1C_CACHELINE_SIZE - 1U);
+                ctx->raw_alloc_rx_buf = (uint8_t*)rt_malloc_align(ctx->aligned_size, HPM_L1C_CACHELINE_SIZE);
+                RT_ASSERT(ctx->raw_alloc_rx_buf != RT_NULL);
+                ctx->aligned_rx_buf = ctx->raw_alloc_rx_buf;
+                l1c_dc_invalidate((uint32_t)(ctx->aligned_rx_buf), ctx->aligned_size);
             } else {
-                (*aligned_rx_buf) = (uint8_t*) msg->recv_buf;
+                ctx->aligned_rx_buf = (uint8_t*)msg->recv_buf;
+                ctx->aligned_size = len;
             }
         } else {
-            (*aligned_rx_buf) = (uint8_t*) msg->recv_buf;
+            ctx->aligned_rx_buf = (uint8_t*) msg->recv_buf;
+            ctx->aligned_size = len;
         }
     }
 }
@@ -1185,10 +1113,7 @@ static hpm_stat_t hpm_spi_transmit_use_fifo(struct rt_spi_device *device, struct
 
 static rt_ssize_t hpm_spi_xfer_dma(struct rt_spi_device *device, struct rt_spi_message *msg)
 {
-    rt_uint8_t *raw_alloc_tx_buf = RT_NULL;
-    rt_uint8_t *raw_alloc_rx_buf = RT_NULL;
-    rt_uint8_t *aligned_tx_buf = RT_NULL;
-    rt_uint8_t *aligned_rx_buf = RT_NULL;
+    spi_dma_buf_ctx_t dma_buf_ctx = {0};
     rt_uint8_t cmd = 0;
     rt_uint32_t addr = 0, aligned_len = 0;
     rt_uint32_t remaining_size = msg->length;
@@ -1230,10 +1155,9 @@ static rt_ssize_t hpm_spi_xfer_dma(struct rt_spi_device *device, struct rt_spi_m
                     _msg = _msg->next;
                     continue;
                 }
-                aligned_len = (_msg->length + HPM_L1C_CACHELINE_SIZE - 1U) & ~(HPM_L1C_CACHELINE_SIZE - 1U);
-                hpm_spi_transfer_data_cache_handle(_msg, &raw_alloc_tx_buf, &raw_alloc_rx_buf, &aligned_tx_buf, &aligned_rx_buf, &aligned_len);
-                tx_buf = aligned_tx_buf;
-                rx_buf = aligned_rx_buf;
+                hpm_spi_transfer_data_cache_handle(_msg, &dma_buf_ctx, msg->length);
+                tx_buf = dma_buf_ctx.aligned_tx_buf;
+                rx_buf = dma_buf_ctx.aligned_rx_buf;
                 dma_mgr_disable_chn_irq(&spi->rx_dma, DMA_MGR_INTERRUPT_MASK_TC);
                 dma_mgr_disable_chn_irq(&spi->tx_dma, DMA_MGR_INTERRUPT_MASK_TC);
             }
@@ -1349,22 +1273,20 @@ static rt_ssize_t hpm_spi_xfer_dma(struct rt_spi_device *device, struct rt_spi_m
             index++;
         }
         if (l1c_dc_is_enabled() && (_msg->length > 0)) {
-            if ((rt_uint32_t)msg->send_buf % HPM_L1C_CACHELINE_SIZE) {
-                if (aligned_tx_buf != RT_NULL) {
-                    rt_free(raw_alloc_tx_buf);
-                    raw_alloc_tx_buf = RT_NULL;
-                    aligned_tx_buf = RT_NULL;
+            if (((rt_uint32_t)msg->send_buf % HPM_L1C_CACHELINE_SIZE) || (_msg->length % HPM_L1C_CACHELINE_SIZE)) {
+                if (dma_buf_ctx.aligned_tx_buf != RT_NULL) {
+                    rt_free_align(dma_buf_ctx.raw_alloc_tx_buf);
+                    dma_buf_ctx.raw_alloc_tx_buf = RT_NULL;
+                    dma_buf_ctx.aligned_tx_buf = RT_NULL;
                 }
             }
-            if ((rt_uint32_t)msg->recv_buf % HPM_L1C_CACHELINE_SIZE) {
-                if (aligned_rx_buf != RT_NULL) {
-                    __asm volatile("fence rw, rw");
-                    l1c_dc_invalidate((uint32_t) aligned_rx_buf, aligned_len);
-                    __asm volatile("fence rw, rw");
-                    rt_memcpy(_msg->recv_buf, aligned_rx_buf, _msg->length);
-                    rt_free(raw_alloc_rx_buf);
-                    raw_alloc_rx_buf = RT_NULL;
-                    aligned_rx_buf = RT_NULL;
+            if ((l1c_dc_is_enabled() == true) && (_msg->recv_buf != RT_NULL) && (dma_buf_ctx.aligned_rx_buf != RT_NULL)) {
+                l1c_dc_invalidate((uint32_t) dma_buf_ctx.aligned_rx_buf, dma_buf_ctx.aligned_size);
+                if (((rt_uint32_t)msg->recv_buf % HPM_L1C_CACHELINE_SIZE) || (_msg->length % HPM_L1C_CACHELINE_SIZE)) {
+                    rt_memcpy(_msg->recv_buf, dma_buf_ctx.aligned_rx_buf, _msg->length);
+                    rt_free_align(dma_buf_ctx.raw_alloc_rx_buf);
+                    dma_buf_ctx.raw_alloc_rx_buf = RT_NULL;
+                    dma_buf_ctx.aligned_rx_buf = RT_NULL;
                 }
             }
         }
@@ -1391,10 +1313,19 @@ static rt_ssize_t hpm_spi_xfer(struct rt_spi_device *device, struct rt_spi_messa
     struct hpm_spi *spi = (struct hpm_spi *) (device->bus->parent.user_data);
 
     hpm_stat_t spi_stat = status_success;
-
-    if ((cs_pin_control != NULL) && msg->cs_take)
-    {
-        cs_pin_control(SPI_CS_TAKE);
+    if (device->cs_pin == PIN_NONE) {
+        if ((cs_pin_control != NULL) && msg->cs_take) {
+            cs_pin_control(SPI_CS_TAKE);
+        }
+    } else {
+        if (msg->cs_take && !(device->config.mode & RT_SPI_NO_CS)) {
+            if (device->config.mode & RT_SPI_CS_HIGH) {
+                rt_pin_write(device->cs_pin, PIN_HIGH);
+            } else {
+                rt_pin_write(device->cs_pin, PIN_LOW);
+            }
+        }
+    
     }
 
     if (spi->enable_dma) {
@@ -1403,11 +1334,19 @@ static rt_ssize_t hpm_spi_xfer(struct rt_spi_device *device, struct rt_spi_messa
         len = hpm_spi_xfer_polling(device,  msg);
     }
 
-    if ((cs_pin_control != NULL) && msg->cs_release)
-    {
-        cs_pin_control(SPI_CS_RELEASE);
+    if (device->cs_pin == PIN_NONE) {
+        if ((cs_pin_control != NULL) && msg->cs_release) {
+            cs_pin_control(SPI_CS_RELEASE);
+        }
+    } else {
+        if (msg->cs_release && !(device->config.mode & RT_SPI_NO_CS)) {
+            if (device->config.mode & RT_SPI_CS_HIGH) {
+                rt_pin_write(device->cs_pin, PIN_LOW);
+            } else {
+                rt_pin_write(device->cs_pin, PIN_HIGH);
+            }
+        }
     }
-
     return len;
 }
 
