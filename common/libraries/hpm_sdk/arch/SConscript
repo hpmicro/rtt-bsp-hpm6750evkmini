@@ -1,0 +1,21 @@
+Import('rtconfig')
+from building import *
+
+#get current directory
+cwd = GetCurrentDir()
+
+# Update include path
+path = [ cwd, cwd + '/riscv', cwd + '/riscv/l1c', cwd + '/riscv/intc']
+
+# The set of source files associated with this SConscript file.
+src = []
+
+CPPDEFINES=[]
+
+src += ['riscv/l1c/hpm_l1c_drv.c']
+
+CPPDEFINES += ['HPM_SDK_L1C_NO_REENTRANT=1']
+
+group = DefineGroup('Libraries', src, depend = [''], CPPPATH = path, CPPDEFINES=CPPDEFINES)
+
+Return ('group')

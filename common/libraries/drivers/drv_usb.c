@@ -112,6 +112,16 @@ int rt_hw_usb_init(void)
         LOG_E("rt device %s failed, status=%d\n", "usb", err);
         return err;
     }
+    
+#ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+    /* Register usb device to irq table */
+    extern void hpm_isr_usb0(void);
+    rt_hw_interrupt_install(IRQn_USB0, (rt_isr_handler_t)hpm_isr_usb0, HPM_USB0, "usb0");
+#ifdef HPM_USB1_BASE
+    extern void hpm_isr_usb1(void);
+    rt_hw_interrupt_install(IRQn_USB1, (rt_isr_handler_t)hpm_isr_usb1, HPM_USB1, "usb1");
+#endif
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 
     return err;
 }

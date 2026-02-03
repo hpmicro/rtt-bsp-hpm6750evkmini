@@ -199,6 +199,16 @@ SECTIONS
         . = ALIGN(8);
     } > DLM
 
+    
+    .fast_ram.bss (NOLOAD) : {
+        . = ALIGN(8);
+        __fast_ram_bss_start__ = .;
+        *(.fast_ram.bss)
+        *(.fast_ram.bss.*)
+        __fast_ram_bss_end__ = .;
+        . = ALIGN(8);
+    } > DLM
+
     .bss(NOLOAD) : {
         . = ALIGN(8);
         __bss_start__ = .;
@@ -290,7 +300,7 @@ SECTIONS
         PROVIDE (_edata = .);
         PROVIDE (edata = .);
     } > AXI_SRAM
-    __fast_load_addr__ = etext + SIZEOF(.data) + SIZEOF(.tdata);
+    __fast_load_addr__ = etext + SIZEOF(.data) + SIZEOF(.tdata) + SIZEOF(.fast);
 
     __fw_size__ = SIZEOF(.start) + SIZEOF(.vectors) + SIZEOF(.rel) + SIZEOF(.text) + SIZEOF(.data) + SIZEOF(.fast) + SIZEOF(.tdata) + SIZEOF(.noncacheable.init) + SIZEOF(.fast_ram.init) + SIZEOF(.eh_frame) + SIZEOF(.eh_frame_hdr);
 
@@ -317,7 +327,7 @@ SECTIONS
         PROVIDE( __rt_rvstack = . );
     } > AXI_SRAM
 
-    __noncacheable_init_load_addr__ = etext + SIZEOF(.data) + SIZEOF(.fast) + SIZEOF(.tdata) + SIZEOF(.fast);
+    __noncacheable_init_load_addr__ = etext + SIZEOF(.data) + SIZEOF(.tdata) + SIZEOF(.fast);
     .noncacheable.init : AT(__noncacheable_init_load_addr__) {
         . = ALIGN(8);
         __noncacheable_init_start__ = .;

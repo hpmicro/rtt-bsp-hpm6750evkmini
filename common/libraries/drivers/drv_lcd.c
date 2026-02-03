@@ -78,6 +78,7 @@ static struct hpm_lcd hpm_lcds[] =
     },
 };
 
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
 void isr_lcd_d0(void)
 {
     lcdc_disable_interrupt(hpm_lcds[0].lcd_base, LCDC_INT_EN_VSYNC_MASK);
@@ -85,6 +86,14 @@ void isr_lcd_d0(void)
     lcdc_clear_status(hpm_lcds[0].lcd_base, LCDC_ST_VSYNC_MASK);
 }
 RTT_DECLARE_EXT_ISR_M(BOARD_LCD_IRQ, isr_lcd_d0)
+#else
+void isr_lcd_d(int vector, hpm_lcd *hpm_lcds_pram)
+{
+    lcdc_disable_interrupt(hpm_lcds_pram->lcd_base, LCDC_INT_EN_VSYNC_MASK);
+    rt_sem_release(&hpm_lcds_pram->lcd_lock);
+    lcdc_clear_status(hpm_lcds_pram->lcd_base, LCDC_ST_VSYNC_MASK);
+}
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 
 static rt_err_t hpm_lcd_init(struct rt_device *device)
 {
@@ -240,6 +249,10 @@ int drv_lcd_hw_init(void)
             result = -RT_ERROR;
             goto __exit;
         }
+#ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+        /* Register LCD device to irq table */
+        rt_hw_interrupt_install(hpm_lcds[i].lcd_irq, (rt_isr_handler_t)isr_lcd_d, hpm_lcds[i], hpm_lcds[i].bus_name);
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 __exit:
         if (result != RT_EOK)
         {

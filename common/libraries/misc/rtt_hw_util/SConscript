@@ -1,0 +1,13 @@
+import os
+from building import *
+
+cwd = GetCurrentDir()
+src = []
+path = []
+
+src += ['hpm_rtt_hw_util.c']
+path = [cwd]
+
+group = DefineGroup('rtt_hw_util', src, depend=[''], CPPPATH=path)
+
+Return('group')

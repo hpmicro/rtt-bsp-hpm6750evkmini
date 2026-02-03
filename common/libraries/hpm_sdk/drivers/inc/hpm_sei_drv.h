@@ -9,9 +9,17 @@
 #define HPM_SEI_DRV_H
 
 #include "hpm_common.h"
-#include "hpm_sei_regs.h"
 #include "hpm_soc_feature.h"
-#include "hpm_soc_ip_feature.h"
+#include "hpm_sei_regs.h"
+
+/**
+ *
+ * @brief SEI driver APIs
+ * @defgroup sei_interface SEI driver APIs
+ * @ingroup io_interfaces
+ * @{
+ */
+
 
 /**
  * @brief sei arming action
@@ -445,6 +453,42 @@ static inline void sei_set_engine_enable(SEI_Type *ptr, uint8_t idx, bool enable
 static inline void sei_set_engine_rewind(SEI_Type *ptr, uint8_t idx)
 {
     ptr->CTRL[idx].ENGINE.CTRL |= SEI_CTRL_ENGINE_CTRL_REWIND_MASK;
+}
+
+/**
+ * @brief Set the SEI instruction index which engine start execution
+ * @param [in] ptr SEI base address
+ * @param [in] idx SEI ctrl index, such as SEI_CTRL_0, SEI_CTRL_1, etc.
+ * @param [in] init_instr_idx instruction index which engine start execution
+ */
+static inline void sei_set_engine_init_instr_idx(SEI_Type *ptr, uint8_t idx, uint8_t init_instr_idx)
+{
+    ptr->CTRL[idx].ENGINE.PTR_CFG = (ptr->CTRL[idx].ENGINE.PTR_CFG & ~SEI_CTRL_ENGINE_PTR_CFG_POINTER_INIT_MASK)
+                                    | SEI_CTRL_ENGINE_PTR_CFG_POINTER_INIT_SET(init_instr_idx);
+}
+
+/**
+ * @brief Set the SEI instruction index which engine execution when watchdog active
+ * @param [in] ptr SEI base address
+ * @param [in] idx SEI ctrl index, such as SEI_CTRL_0, SEI_CTRL_1, etc.
+ * @param [in] wdg_instr_idx instruction index which engine execution when watchdog active
+ */
+static inline void sei_set_engine_wdg_instr_idx(SEI_Type *ptr, uint8_t idx, uint8_t wdg_instr_idx)
+{
+    ptr->CTRL[idx].ENGINE.PTR_CFG = (ptr->CTRL[idx].ENGINE.PTR_CFG & ~SEI_CTRL_ENGINE_PTR_CFG_POINTER_WDOG_MASK)
+                                    | SEI_CTRL_ENGINE_PTR_CFG_POINTER_WDOG_SET(wdg_instr_idx);
+}
+
+/**
+ * @brief Set the SEI bias for data register access
+ * @param [in] ptr SEI base address
+ * @param [in] idx SEI ctrl index, such as SEI_CTRL_0, SEI_CTRL_1, etc.
+ * @param [in] data_base_idx Bias for data register access
+ */
+static inline void sei_set_engine_data_base_idx(SEI_Type *ptr, uint8_t idx, uint8_t data_base_idx)
+{
+    ptr->CTRL[idx].ENGINE.PTR_CFG = (ptr->CTRL[idx].ENGINE.PTR_CFG & ~SEI_CTRL_ENGINE_PTR_CFG_DAT_BASE_MASK)
+                                    | SEI_CTRL_ENGINE_PTR_CFG_DAT_BASE_SET(data_base_idx);
 }
 
 /**
@@ -1105,9 +1149,18 @@ hpm_stat_t sei_engine_config_init(SEI_Type *ptr, uint8_t idx, sei_engine_config_
  */
 void sei_set_instr(SEI_Type *ptr, uint8_t idx, uint8_t op, uint8_t ck, uint8_t crc, uint8_t data, uint8_t opr);
 
+/**
+ * @brief Get the SEI crc value
+ * @param [in] ptr SEI base address
+ * @param [in] idx SEI crc index, such as SEI_DAT_2, SEI_DAT_3, etc.
+ * @retval crc value
+ */
+uint32_t sei_get_crc_value(SEI_Type *ptr, uint8_t idx);
 
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus */
-
+/**
+ * @}
+ */
 #endif

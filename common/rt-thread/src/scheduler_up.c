@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2023, RT-Thread Development Team
+ * Copyright (c) 2006-2025 RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -30,8 +30,12 @@
  * 2022-01-07     Gabriel      Moving __on_rt_xxxxx_hook to scheduler.c
  * 2023-03-27     rose_man     Split into scheduler upc and scheduler_mp.c
  * 2023-10-17     ChuShicheng  Modify the timing of clearing RT_THREAD_STAT_YIELD flag bits
+ * 2025-08-04     Pillar       Add rt_scheduler_critical_switch_flag
+ * 2025-08-20     RyanCW       rt_scheduler_lock_nest use atomic operations
+ * 2025-09-20     wdfk_prog    fix scheduling exception caused by interrupt preemption in rt_schedule
  */
 
+#define __RT_IPC_SOURCE__
 #include <rtthread.h>
 #include <rthw.h>
 
@@ -46,24 +50,21 @@ rt_uint32_t rt_thread_ready_priority_group;
 rt_uint8_t rt_thread_ready_table[32];
 #endif /* RT_THREAD_PRIORITY_MAX > 32 */
 
-extern volatile rt_uint8_t rt_interrupt_nest;
-static rt_int16_t rt_scheduler_lock_nest;
-struct rt_thread *rt_current_thread = RT_NULL;
+extern volatile rt_atomic_t rt_interrupt_nest;
+static rt_atomic_t rt_scheduler_lock_nest;
 rt_uint8_t rt_current_priority;
 
-#ifndef __on_rt_scheduler_hook
-    #define __on_rt_scheduler_hook(from, to)        __ON_HOOK_ARGS(rt_scheduler_hook, (from, to))
-#endif
-#ifndef __on_rt_scheduler_switch_hook
-    #define __on_rt_scheduler_switch_hook(tid)      __ON_HOOK_ARGS(rt_scheduler_switch_hook, (tid))
-#endif
+static rt_int8_t rt_scheduler_critical_switch_flag;
+#define IS_CRITICAL_SWITCH_PEND()  (rt_scheduler_critical_switch_flag == 1)
+#define SET_CRITICAL_SWITCH_FLAG() (rt_scheduler_critical_switch_flag = 1)
+#define CLR_CRITICAL_SWITCH_FLAG() (rt_scheduler_critical_switch_flag = 0)
 
 #if defined(RT_USING_HOOK) && defined(RT_HOOK_USING_FUNC_PTR)
 static void (*rt_scheduler_hook)(struct rt_thread *from, struct rt_thread *to);
 static void (*rt_scheduler_switch_hook)(struct rt_thread *tid);
 
 /**
- * @addtogroup Hook
+ * @addtogroup group_hook
  */
 
 /**@{*/
@@ -93,55 +94,13 @@ void rt_scheduler_switch_sethook(void (*hook)(struct rt_thread *tid))
 /**@}*/
 #endif /* RT_USING_HOOK */
 
-#ifdef RT_USING_OVERFLOW_CHECK
-static void _scheduler_stack_check(struct rt_thread *thread)
-{
-    RT_ASSERT(thread != RT_NULL);
-
-#ifdef RT_USING_SMART
-#ifndef ARCH_MM_MMU
-    struct rt_lwp *lwp = thread ? (struct rt_lwp *)thread->lwp : 0;
-
-    /* if stack pointer locate in user data section skip stack check. */
-    if (lwp && ((rt_uint32_t)thread->sp > (rt_uint32_t)lwp->data_entry &&
-    (rt_uint32_t)thread->sp <= (rt_uint32_t)lwp->data_entry + (rt_uint32_t)lwp->data_size))
-    {
-        return;
-    }
-#endif /* not defined ARCH_MM_MMU */
-#endif /* RT_USING_SMART */
-
-#ifdef ARCH_CPU_STACK_GROWS_UPWARD
-    if (*((rt_uint8_t *)((rt_ubase_t)thread->stack_addr + thread->stack_size - 1)) != '#' ||
-#else
-    if (*((rt_uint8_t *)thread->stack_addr) != '#' ||
-#endif /* ARCH_CPU_STACK_GROWS_UPWARD */
-        (rt_ubase_t)thread->sp <= (rt_ubase_t)thread->stack_addr ||
-        (rt_ubase_t)thread->sp >
-        (rt_ubase_t)thread->stack_addr + (rt_ubase_t)thread->stack_size)
-    {
-        rt_base_t level;
-
-        rt_kprintf("thread:%s stack overflow\n", thread->parent.name);
-
-        level = rt_hw_interrupt_disable();
-        while (level);
-    }
-#ifdef ARCH_CPU_STACK_GROWS_UPWARD
-    else if ((rt_ubase_t)thread->sp > ((rt_ubase_t)thread->stack_addr + thread->stack_size))
-    {
-        rt_kprintf("warning: %s stack is close to the top of stack address.\n",
-                   thread->parent.name);
-    }
-#else
-    else if ((rt_ubase_t)thread->sp <= ((rt_ubase_t)thread->stack_addr + 32))
-    {
-        rt_kprintf("warning: %s stack is close to end of stack address.\n",
-                   thread->parent.name);
-    }
-#endif /* ARCH_CPU_STACK_GROWS_UPWARD */
-}
-#endif /* RT_USING_OVERFLOW_CHECK */
+/**
+ * @addtogroup group_thread_management
+ *
+ * @cond
+ *
+ * @{
+ */
 
 static struct rt_thread* _scheduler_get_highest_priority_thread(rt_ubase_t *highest_prio)
 {
@@ -158,9 +117,7 @@ static struct rt_thread* _scheduler_get_highest_priority_thread(rt_ubase_t *high
 #endif /* RT_THREAD_PRIORITY_MAX > 32 */
 
     /* get highest ready priority thread */
-    highest_priority_thread = rt_list_entry(rt_thread_priority_table[highest_ready_priority].next,
-                              struct rt_thread,
-                              tlist);
+    highest_priority_thread = RT_THREAD_LIST_NODE_ENTRY(rt_thread_priority_table[highest_ready_priority].next);
 
     *highest_prio = highest_ready_priority;
 
@@ -168,7 +125,88 @@ static struct rt_thread* _scheduler_get_highest_priority_thread(rt_ubase_t *high
 }
 
 /**
- * @brief This function will initialize the system scheduler.
+ * @brief Lock the scheduler and save the interrupt level
+ *
+ * @param plvl Pointer to store the interrupt level before locking
+ *
+ * @return rt_err_t
+ *   - RT_EOK on success
+ *   - -RT_EINVAL if plvl is NULL
+ *
+ * @details This function:
+ *   - Disables interrupts to prevent preemption
+ *   - Saves the previous interrupt level in plvl
+ *   - Must be paired with rt_sched_unlock() to restore interrupts
+ *
+ * @note The lock is implemented by disabling interrupts
+ *       Caller must ensure plvl is valid
+ */
+rt_err_t rt_sched_lock(rt_sched_lock_level_t *plvl)
+{
+    rt_base_t level;
+    if (!plvl)
+        return -RT_EINVAL;
+
+    level = rt_hw_interrupt_disable();
+    *plvl = level;
+
+    return RT_EOK;
+}
+
+/**
+ * @brief Unlock the scheduler and restore the interrupt level
+ *
+ * @param level The interrupt level to restore (previously saved by rt_sched_lock)
+ * @return rt_err_t Always returns RT_EOK
+ *
+ * @details This function:
+ *   - Restores the interrupt level that was saved when locking the scheduler
+ *   - Must be called to match each rt_sched_lock() call
+ *
+ * @note Must be called with the same interrupt level that was saved by rt_sched_lock()
+ *       Should not be called without a corresponding rt_sched_lock() first
+ */
+rt_err_t rt_sched_unlock(rt_sched_lock_level_t level)
+{
+    rt_hw_interrupt_enable(level);
+
+    return RT_EOK;
+}
+
+/**
+ * @brief Unlock scheduler and trigger a reschedule if needed
+ *
+ * @param level The interrupt level to restore (previously saved by rt_sched_lock)
+ * @return rt_err_t Always returns RT_EOK
+ *
+ * @details This function:
+ *   - Restores the interrupt level that was saved when locking the scheduler
+ *   - Triggers a reschedule if the scheduler is available (rt_thread_self() != NULL)
+ *   - Combines the functionality of rt_sched_unlock() and rt_schedule()
+ */
+rt_err_t rt_sched_unlock_n_resched(rt_sched_lock_level_t level)
+{
+    if (rt_thread_self())
+    {
+        /* if scheduler is available */
+        rt_schedule();
+    }
+    rt_hw_interrupt_enable(level);
+
+    return RT_EOK;
+}
+
+/**
+ * @brief Initialize the system scheduler for single-core systems
+ *
+ * @details This function performs the following initialization tasks:
+ *   - Resets the scheduler lock nest counter to 0
+ *   - Initializes the priority table for all priority levels
+ *   - Clears the ready priority group bitmap
+ *   - For systems with >32 priority levels, initializes the ready table
+ *
+ * @note This function must be called before any thread scheduling can occur.
+ *       It prepares the scheduler data structures for single-core operation
  */
 void rt_system_scheduler_init(void)
 {
@@ -193,8 +231,17 @@ void rt_system_scheduler_init(void)
 }
 
 /**
- * @brief This function will startup the scheduler. It will select one thread
- *        with the highest priority level, then switch to it.
+ * @brief Start the system scheduler and switch to the highest priority thread
+ *
+ * @details This function:
+ *   - Gets the highest priority ready thread using _scheduler_get_highest_priority_thread()
+ *   - Sets it as the current thread for the CPU
+ *   - Removes the thread from ready queue and sets its status to RUNNING
+ *   - Performs a context switch to the selected thread using rt_hw_context_switch_to()
+ *
+ * @note This function does not return as it switches to the first thread to run.
+ *       Must be called after rt_system_scheduler_init().
+ *       The selected thread will begin execution immediately
  */
 void rt_system_scheduler_start(void)
 {
@@ -203,37 +250,47 @@ void rt_system_scheduler_start(void)
 
     to_thread = _scheduler_get_highest_priority_thread(&highest_ready_priority);
 
-    rt_current_thread = to_thread;
+    rt_cpu_self()->current_thread = to_thread;
 
-    rt_schedule_remove_thread(to_thread);
-    to_thread->stat = RT_THREAD_RUNNING;
+    /* flush critical switch flag */
+    CLR_CRITICAL_SWITCH_FLAG();
+
+    rt_sched_remove_thread(to_thread);
+    RT_SCHED_CTX(to_thread).stat = RT_THREAD_RUNNING;
 
     /* switch to new thread */
 
-    rt_hw_context_switch_to((rt_ubase_t)&to_thread->sp);
+    rt_hw_context_switch_to((rt_uintptr_t)&to_thread->sp);
 
     /* never come back */
 }
 
 /**
- * @addtogroup Thread
- * @cond
- */
-
-/**@{*/
-
-/**
- * @brief This function will perform scheduling once. It will select one thread
- *        with the highest priority, and switch to it immediately.
+ * @brief Perform thread scheduling once. Select the highest priority thread and switch to it.
+ *
+ * @details This function:
+ *   - Disables interrupts to prevent preemption during scheduling
+ *   - Checks if scheduler is enabled (lock_nest == 0)
+ *   - Gets the highest priority ready thread
+ *   - Determines if current thread should continue running or be preempted
+ *   - Performs context switch if needed:
+ *     * From current thread to new thread (normal case)
+ *     * Handles special cases like interrupt context switches
+ *   - Manages thread states (READY/RUNNING) and priority queues
+ *   - Handles thread yield flags and signal processing
  */
 void rt_schedule(void)
 {
     rt_base_t level;
     struct rt_thread *to_thread;
     struct rt_thread *from_thread;
+    struct rt_thread *curr_thread;
 
     /* disable interrupt */
     level = rt_hw_interrupt_disable();
+
+    /* using local variable to avoid unnecessary function call */
+    curr_thread = rt_thread_self();
 
     /* check the scheduler is enabled or not */
     if (rt_scheduler_lock_nest == 0)
@@ -247,15 +304,16 @@ void rt_schedule(void)
 
             to_thread = _scheduler_get_highest_priority_thread(&highest_ready_priority);
 
-            if ((rt_current_thread->stat & RT_THREAD_STAT_MASK) == RT_THREAD_RUNNING)
+            if ((RT_SCHED_CTX(curr_thread).stat & RT_THREAD_STAT_MASK) == RT_THREAD_RUNNING)
             {
-                if (rt_current_thread->current_priority < highest_ready_priority)
+                if (RT_SCHED_PRIV(curr_thread).current_priority < highest_ready_priority)
                 {
-                    to_thread = rt_current_thread;
+                    to_thread = curr_thread;
                 }
-                else if (rt_current_thread->current_priority == highest_ready_priority && (rt_current_thread->stat & RT_THREAD_STAT_YIELD_MASK) == 0)
+                else if (RT_SCHED_PRIV(curr_thread).current_priority == highest_ready_priority
+                         && (RT_SCHED_CTX(curr_thread).stat & RT_THREAD_STAT_YIELD_MASK) == 0)
                 {
-                    to_thread = rt_current_thread;
+                    to_thread = curr_thread;
                 }
                 else
                 {
@@ -263,27 +321,27 @@ void rt_schedule(void)
                 }
             }
 
-            if (to_thread != rt_current_thread)
+            if (to_thread != curr_thread)
             {
                 /* if the destination thread is not the same as current thread */
                 rt_current_priority = (rt_uint8_t)highest_ready_priority;
-                from_thread         = rt_current_thread;
-                rt_current_thread   = to_thread;
+                from_thread                   = curr_thread;
+                rt_cpu_self()->current_thread = to_thread;
 
                 RT_OBJECT_HOOK_CALL(rt_scheduler_hook, (from_thread, to_thread));
 
                 if (need_insert_from_thread)
                 {
-                    rt_schedule_insert_thread(from_thread);
+                    rt_sched_insert_thread(from_thread);
                 }
 
-                if ((from_thread->stat & RT_THREAD_STAT_YIELD_MASK) != 0)
+                if ((RT_SCHED_CTX(from_thread).stat & RT_THREAD_STAT_YIELD_MASK) != 0)
                 {
-                    from_thread->stat &= ~RT_THREAD_STAT_YIELD_MASK;
+                    RT_SCHED_CTX(from_thread).stat &= ~RT_THREAD_STAT_YIELD_MASK;
                 }
 
-                rt_schedule_remove_thread(to_thread);
-                to_thread->stat = RT_THREAD_RUNNING | (to_thread->stat & ~RT_THREAD_STAT_MASK);
+                rt_sched_remove_thread(to_thread);
+                RT_SCHED_CTX(to_thread).stat = RT_THREAD_RUNNING | (RT_SCHED_CTX(to_thread).stat & ~RT_THREAD_STAT_MASK);
 
                 /* switch to new thread */
                 LOG_D("[%d]switch to priority#%d "
@@ -293,9 +351,7 @@ void rt_schedule(void)
                          RT_NAME_MAX, to_thread->parent.name, to_thread->sp,
                          RT_NAME_MAX, from_thread->parent.name, from_thread->sp);
 
-#ifdef RT_USING_OVERFLOW_CHECK
-                _scheduler_stack_check(to_thread);
-#endif /* RT_USING_OVERFLOW_CHECK */
+                RT_SCHEDULER_STACK_CHECK(to_thread);
 
                 if (rt_interrupt_nest == 0)
                 {
@@ -303,8 +359,8 @@ void rt_schedule(void)
 
                     RT_OBJECT_HOOK_CALL(rt_scheduler_switch_hook, (from_thread));
 
-                    rt_hw_context_switch((rt_ubase_t)&from_thread->sp,
-                            (rt_ubase_t)&to_thread->sp);
+                    rt_hw_context_switch((rt_uintptr_t)&from_thread->sp,
+                            (rt_uintptr_t)&to_thread->sp);
 
                     /* enable interrupt */
                     rt_hw_interrupt_enable(level);
@@ -312,11 +368,11 @@ void rt_schedule(void)
 #ifdef RT_USING_SIGNALS
                     /* check stat of thread for signal */
                     level = rt_hw_interrupt_disable();
-                    if (rt_current_thread->stat & RT_THREAD_STAT_SIGNAL_PENDING)
+                    if (RT_SCHED_CTX(curr_thread).stat & RT_THREAD_STAT_SIGNAL_PENDING)
                     {
                         extern void rt_thread_handle_sig(rt_bool_t clean_state);
 
-                        rt_current_thread->stat &= ~RT_THREAD_STAT_SIGNAL_PENDING;
+                        RT_SCHED_CTX(curr_thread).stat &= ~RT_THREAD_STAT_SIGNAL_PENDING;
 
                         rt_hw_interrupt_enable(level);
 
@@ -334,16 +390,20 @@ void rt_schedule(void)
                 {
                     LOG_D("switch in interrupt");
 
-                    rt_hw_context_switch_interrupt((rt_ubase_t)&from_thread->sp,
-                            (rt_ubase_t)&to_thread->sp, from_thread, to_thread);
+                    rt_hw_context_switch_interrupt((rt_uintptr_t)&from_thread->sp,
+                            (rt_uintptr_t)&to_thread->sp, from_thread, to_thread);
                 }
             }
             else
             {
-                rt_schedule_remove_thread(rt_current_thread);
-                rt_current_thread->stat = RT_THREAD_RUNNING | (rt_current_thread->stat & ~RT_THREAD_STAT_MASK);
+                rt_sched_remove_thread(curr_thread);
+                RT_SCHED_CTX(curr_thread).stat = RT_THREAD_RUNNING | (RT_SCHED_CTX(curr_thread).stat & ~RT_THREAD_STAT_MASK);
             }
         }
+    }
+    else
+    {
+        SET_CRITICAL_SWITCH_FLAG();
     }
 
     /* enable interrupt */
@@ -354,6 +414,72 @@ __exit:
 }
 
 /**
+ * @brief Initialize thread scheduling attributes for startup
+ *
+ * @param thread The thread to be initialized
+ *
+ * @details This function:
+ *   - For systems with >32 priority levels:
+ *     * Sets the thread's priority group number (5 bits)
+ *     * Creates number mask for the priority group
+ *     * Creates high mask for the specific priority (3 bits)
+ *   - For systems with <=32 priority levels:
+ *     * Creates a simple number mask for the priority
+ *   - Sets thread state to SUSPEND to prepare for later activation
+ *
+ * @note This function must be called before a thread can be scheduled.
+ *       It prepares the thread's priority-related data structures.
+ *       Normally, there isn't anyone racing with us so this operation is lockless
+ */
+void rt_sched_thread_startup(struct rt_thread *thread)
+{
+#if RT_THREAD_PRIORITY_MAX > 32
+    RT_SCHED_PRIV(thread).number = RT_SCHED_PRIV(thread).current_priority >> 3;            /* 5bit */
+    RT_SCHED_PRIV(thread).number_mask = 1L << RT_SCHED_PRIV(thread).number;
+    RT_SCHED_PRIV(thread).high_mask = 1L << (RT_SCHED_PRIV(thread).current_priority & 0x07);  /* 3bit */
+#else
+    RT_SCHED_PRIV(thread).number_mask = 1L << RT_SCHED_PRIV(thread).current_priority;
+#endif /* RT_THREAD_PRIORITY_MAX > 32 */
+
+    /* change thread stat, so we can resume it */
+    RT_SCHED_CTX(thread).stat = RT_THREAD_SUSPEND;
+}
+
+/**
+ * @brief Initialize thread's scheduling private data
+ *
+ * @param thread Pointer to the thread control block
+ * @param tick Initial time slice value for the thread
+ * @param priority Initial priority of the thread
+ *
+ * @details This function:
+ *   - Initializes the thread's list node
+ *   - Sets initial and current priority (must be < RT_THREAD_PRIORITY_MAX)
+ *   - Initializes priority masks (number_mask, number, high_mask for >32 priorities)
+ *   - Sets initial and remaining time slice ticks
+ */
+void rt_sched_thread_init_priv(struct rt_thread *thread, rt_uint32_t tick, rt_uint8_t priority)
+{
+    rt_list_init(&RT_THREAD_LIST_NODE(thread));
+
+    /* priority init */
+    RT_ASSERT(priority < RT_THREAD_PRIORITY_MAX);
+    RT_SCHED_PRIV(thread).init_priority    = priority;
+    RT_SCHED_PRIV(thread).current_priority = priority;
+
+    /* don't add to scheduler queue as init thread */
+    RT_SCHED_PRIV(thread).number_mask = 0;
+#if RT_THREAD_PRIORITY_MAX > 32
+    RT_SCHED_PRIV(thread).number = 0;
+    RT_SCHED_PRIV(thread).high_mask = 0;
+#endif /* RT_THREAD_PRIORITY_MAX > 32 */
+
+    /* tick init */
+    RT_SCHED_PRIV(thread).init_tick = tick;
+    RT_SCHED_PRIV(thread).remaining_tick = tick;
+}
+
+/**
  * @brief This function will insert a thread to the system ready queue. The state of
  *        thread will be set as READY and the thread will be removed from suspend queue.
  *
@@ -361,7 +487,7 @@ __exit:
  *
  * @note  Please do not invoke this function in user application.
  */
-void rt_schedule_insert_thread(struct rt_thread *thread)
+void rt_sched_insert_thread(struct rt_thread *thread)
 {
     rt_base_t level;
 
@@ -373,33 +499,33 @@ void rt_schedule_insert_thread(struct rt_thread *thread)
     /* it's current thread, it should be RUNNING thread */
     if (thread == rt_current_thread)
     {
-        thread->stat = RT_THREAD_RUNNING | (thread->stat & ~RT_THREAD_STAT_MASK);
+        RT_SCHED_CTX(thread).stat = RT_THREAD_RUNNING | (RT_SCHED_CTX(thread).stat & ~RT_THREAD_STAT_MASK);
         goto __exit;
     }
 
     /* READY thread, insert to ready queue */
-    thread->stat = RT_THREAD_READY | (thread->stat & ~RT_THREAD_STAT_MASK);
+    RT_SCHED_CTX(thread).stat = RT_THREAD_READY | (RT_SCHED_CTX(thread).stat & ~RT_THREAD_STAT_MASK);
     /* there is no time slices left(YIELD), inserting thread before ready list*/
-    if((thread->stat & RT_THREAD_STAT_YIELD_MASK) != 0)
+    if((RT_SCHED_CTX(thread).stat & RT_THREAD_STAT_YIELD_MASK) != 0)
     {
-        rt_list_insert_before(&(rt_thread_priority_table[thread->current_priority]),
-                              &(thread->tlist));
+        rt_list_insert_before(&(rt_thread_priority_table[RT_SCHED_PRIV(thread).current_priority]),
+                              &RT_THREAD_LIST_NODE(thread));
     }
     /* there are some time slices left, inserting thread after ready list to schedule it firstly at next time*/
     else
     {
-        rt_list_insert_after(&(rt_thread_priority_table[thread->current_priority]),
-                              &(thread->tlist));
+        rt_list_insert_after(&(rt_thread_priority_table[RT_SCHED_PRIV(thread).current_priority]),
+                              &RT_THREAD_LIST_NODE(thread));
     }
 
     LOG_D("insert thread[%.*s], the priority: %d",
-          RT_NAME_MAX, thread->parent.name, thread->current_priority);
+          RT_NAME_MAX, thread->parent.name, RT_SCHED_PRIV(rt_current_thread).current_priority);
 
     /* set priority mask */
 #if RT_THREAD_PRIORITY_MAX > 32
-    rt_thread_ready_table[thread->number] |= thread->high_mask;
+    rt_thread_ready_table[RT_SCHED_PRIV(thread).number] |= RT_SCHED_PRIV(thread).high_mask;
 #endif /* RT_THREAD_PRIORITY_MAX > 32 */
-    rt_thread_ready_priority_group |= thread->number_mask;
+    rt_thread_ready_priority_group |= RT_SCHED_PRIV(thread).number_mask;
 
 __exit:
     /* enable interrupt */
@@ -413,7 +539,7 @@ __exit:
  *
  * @note  Please do not invoke this function in user application.
  */
-void rt_schedule_remove_thread(struct rt_thread *thread)
+void rt_sched_remove_thread(struct rt_thread *thread)
 {
     rt_base_t level;
 
@@ -424,20 +550,20 @@ void rt_schedule_remove_thread(struct rt_thread *thread)
 
     LOG_D("remove thread[%.*s], the priority: %d",
           RT_NAME_MAX, thread->parent.name,
-          thread->current_priority);
+          RT_SCHED_PRIV(rt_current_thread).current_priority);
 
     /* remove thread from ready list */
-    rt_list_remove(&(thread->tlist));
-    if (rt_list_isempty(&(rt_thread_priority_table[thread->current_priority])))
+    rt_list_remove(&RT_THREAD_LIST_NODE(thread));
+    if (rt_list_isempty(&(rt_thread_priority_table[RT_SCHED_PRIV(thread).current_priority])))
     {
 #if RT_THREAD_PRIORITY_MAX > 32
-        rt_thread_ready_table[thread->number] &= ~thread->high_mask;
-        if (rt_thread_ready_table[thread->number] == 0)
+        rt_thread_ready_table[RT_SCHED_PRIV(thread).number] &= ~RT_SCHED_PRIV(thread).high_mask;
+        if (rt_thread_ready_table[RT_SCHED_PRIV(thread).number] == 0)
         {
-            rt_thread_ready_priority_group &= ~thread->number_mask;
+            rt_thread_ready_priority_group &= ~RT_SCHED_PRIV(thread).number_mask;
         }
 #else
-        rt_thread_ready_priority_group &= ~thread->number_mask;
+        rt_thread_ready_priority_group &= ~RT_SCHED_PRIV(thread).number_mask;
 #endif /* RT_THREAD_PRIORITY_MAX > 32 */
     }
 
@@ -445,29 +571,112 @@ void rt_schedule_remove_thread(struct rt_thread *thread)
     rt_hw_interrupt_enable(level);
 }
 
+#ifdef RT_DEBUGING_CRITICAL
+
+static volatile int _critical_error_occurred = 0;
+
 /**
- * @brief This function will lock the thread scheduler.
+ * @brief Safely exit critical section with level checking
+ *
+ * @param critical_level The expected critical level to match current lock nest
+ *
+ * @details This function:
+ *   - Disables interrupts to prevent preemption during check
+ *   - Verifies the provided critical_level matches current rt_scheduler_lock_nest
+ *   - If mismatch detected (debug mode only):
+ *     * Sets error flag
+ *     * Prints debug information including backtrace
+ *     * Enters infinite loop to halt system
+ *   - Always calls rt_exit_critical() to perform actual exit
+ *
+ * @note This is a debug version that adds safety checks for critical section exit.
  */
-void rt_enter_critical(void)
+void rt_exit_critical_safe(rt_base_t critical_level)
 {
     rt_base_t level;
-
     /* disable interrupt */
     level = rt_hw_interrupt_disable();
 
-    /*
-     * the maximal number of nest is RT_UINT16_MAX, which is big
-     * enough and does not check here
-     */
-    rt_scheduler_lock_nest ++;
+    if (!_critical_error_occurred)
+    {
+        if (critical_level != rt_scheduler_lock_nest)
+        {
+            int dummy = 1;
+            _critical_error_occurred = 1;
 
-    /* enable interrupt */
+            rt_kprintf("%s: un-compatible critical level\n" \
+                       "\tCurrent %d\n\tCaller %d\n",
+                       __func__, rt_scheduler_lock_nest,
+                       critical_level);
+            rt_backtrace();
+
+            while (dummy) ;
+        }
+    }
     rt_hw_interrupt_enable(level);
+
+    rt_exit_critical();
+}
+
+#else /* !RT_DEBUGING_CRITICAL */
+
+/**
+ * @brief Safely exit critical section (non-debug version)
+ *        If the scheduling function is called before exiting, it will be scheduled in this function.
+ *
+ * @param critical_level The expected critical level (unused in non-debug build)
+ *
+ * @details This is the non-debug version that simply calls rt_exit_critical().
+ *          The critical_level parameter is ignored in this implementation.
+ */
+void rt_exit_critical_safe(rt_base_t critical_level)
+{
+    rt_exit_critical();
+}
+
+#endif/* RT_DEBUGING_CRITICAL */
+RTM_EXPORT(rt_exit_critical_safe);
+
+/**
+ * @brief Enter critical section and lock the scheduler
+ *
+ * @return rt_base_t The current critical level (nesting count)
+ *
+ * @details This function:
+ *   - Disables interrupts to prevent preemption
+ *   - Increments the scheduler lock nesting count
+ *   - Returns the new nesting count as critical level
+ *   - Re-enables interrupts while maintaining the lock
+ *
+ * @note The nesting count can go up to RT_UINT16_MAX.
+ *       Must be paired with rt_exit_critical().
+ *       Interrupts are only disabled during the lock operation.
+ */
+rt_base_t rt_enter_critical(void)
+{
+    rt_base_t critical_level;
+
+    critical_level = rt_atomic_add(&rt_scheduler_lock_nest, 1) + 1;
+    return critical_level;
 }
 RTM_EXPORT(rt_enter_critical);
 
 /**
- * @brief This function will unlock the thread scheduler.
+ * @brief Exit critical section and unlock scheduler
+ *        If the scheduling function is called before exiting, it will be scheduled in this function.
+ *
+ * @details This function:
+ *   - Decrements the scheduler lock nesting count
+ *   - If nesting count reaches zero:
+ *     * Resets the nesting count
+ *     * Re-enables interrupts
+ *     * Triggers a scheduler run if current thread exists
+ *   - If nesting count still positive:
+ *     * Just re-enables interrupts while maintaining lock
+ *
+ * @note Must be paired with rt_enter_critical().
+ *       Interrupts are only disabled during the lock operation.
+ *       Scheduling only occurs when fully unlocked (nest=0)
  */
 void rt_exit_critical(void)
 {
@@ -483,9 +692,10 @@ void rt_exit_critical(void)
         /* enable interrupt */
         rt_hw_interrupt_enable(level);
 
-        if (rt_current_thread)
+        if (IS_CRITICAL_SWITCH_PEND())
         {
-            /* if scheduler is started, do a schedule */
+            CLR_CRITICAL_SWITCH_FLAG();
+            /* if scheduler is started and needs to be scheduled, do a schedule */
             rt_schedule();
         }
     }
@@ -504,9 +714,17 @@ RTM_EXPORT(rt_exit_critical);
  */
 rt_uint16_t rt_critical_level(void)
 {
-    return rt_scheduler_lock_nest;
+    return (rt_uint16_t)rt_atomic_load(&rt_scheduler_lock_nest);
 }
 RTM_EXPORT(rt_critical_level);
 
-/**@}*/
-/**@endcond*/
+rt_err_t rt_sched_thread_bind_cpu(struct rt_thread *thread, int cpu)
+{
+    return -RT_EINVAL;
+}
+
+/**
+ * @} group_thread_management
+ *
+ * @endcond
+ */

@@ -11,6 +11,7 @@
 ; * 2013-06-18     aozima       add restore MSP feature.
 ; * 2013-06-23     aozima       support lazy stack optimized.
 ; * 2018-07-24     aozima       enhancement hard fault exception handler.
+; * 2024-08-13     Evlers       allows rewrite to interrupt enable/disable api to support independent interrupts management
 ; */
 
 ;/**
@@ -36,7 +37,8 @@ NVIC_PENDSVSET  EQU     0x10000000               ; value to trigger PendSV excep
 ;/*
 ; * rt_base_t rt_hw_interrupt_disable();
 ; */
-    EXPORT rt_hw_interrupt_disable
+    PUBWEAK rt_hw_interrupt_disable
+    SECTION .text:CODE:REORDER:NOROOT(2)
 rt_hw_interrupt_disable:
     MRS     r0, PRIMASK
     CPSID   I
@@ -45,7 +47,8 @@ rt_hw_interrupt_disable:
 ;/*
 ; * void rt_hw_interrupt_enable(rt_base_t level);
 ; */
-    EXPORT  rt_hw_interrupt_enable
+    PUBWEAK  rt_hw_interrupt_enable
+    SECTION .text:CODE:REORDER:NOROOT(2)
 rt_hw_interrupt_enable:
     MSR     PRIMASK, r0
     BX      LR
@@ -208,6 +211,10 @@ rt_hw_context_switch_to:
     CPSIE   F
     CPSIE   I
 
+    ; clear the BASEPRI register to disable masking priority
+    MOV     r0, #0x00
+    MSR     BASEPRI, r0
+
     ; ensure PendSV exception taken place before subsequent operation
     DSB
     ISB
@@ -230,14 +237,28 @@ HardFault_Handler:
     MRS     r0, psp                 ; get fault context from thread.
 _get_sp_done
 
-    STMFD   r0!, {r4 - r11}         ; push r4 - r11 register
-    ;STMFD   r0!, {lr}               ; push exec_return register
 #if defined ( __ARMVFP__ )
-    SUB     r0, r0, #0x04           ; push dummy for flag
-    STR     lr, [r0]
+    TST     lr, #0x10               ; if(!EXC_RETURN[4])
+    BNE     skip_push_fpu_hd
+    VSTMDB  r0!, {d8 - d15}         ; push FPU register s16~s31
+skip_push_fpu_hd
 #endif
+
+    STMFD   r0!, {r4 - r11}         ; push r4 - r11 register
+
+#if defined ( __ARMVFP__ )
+    MOV     r4, #0x00               ; flag = 0
+
+    TST     lr, #0x10               ; if(!EXC_RETURN[4])
+    BNE     push_flag_hd
+    MOV     r4, #0x01               ; flag = 1
+push_flag_hd
     SUB     r0, r0, #0x04
-    STR     lr, [r0]
+    STR     r4, [r0]                ; push flag
+#endif
+
+    SUB     r0, r0, #0x04
+    STR     lr, [r0]                ; push exec_return register
 
     TST     lr, #0x04               ; if(!EXC_RETURN[2])
     BEQ     _update_msp

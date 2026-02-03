@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2022, RT-Thread Development Team
+ * Copyright (c) 2006-2024, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -8,9 +8,9 @@
  * 2022-08-25     GuEe-GUI     first version
  */
 
+#include <rthw.h>
 #include <rtthread.h>
 
-#include <string.h>
 #include <drivers/ofw.h>
 #include <drivers/ofw_io.h>
 #include <drivers/ofw_fdt.h>
@@ -28,7 +28,7 @@ struct rt_ofw_node *ofw_node_chosen = RT_NULL;
 struct rt_ofw_node *ofw_node_aliases = RT_NULL;
 struct rt_ofw_node *ofw_node_reserved_memory = RT_NULL;
 
-static rt_phandle _phandle_range[2] = { 1, 1 };
+static rt_phandle _phandle_range[2] = { 1, 1 }, _phandle_next = 1;
 static struct rt_ofw_node **_phandle_hash = RT_NULL;
 
 static rt_list_t _aliases_nodes = RT_LIST_OBJECT_INIT(_aliases_nodes);
@@ -36,6 +36,7 @@ static rt_list_t _aliases_nodes = RT_LIST_OBJECT_INIT(_aliases_nodes);
 rt_err_t ofw_phandle_hash_reset(rt_phandle min, rt_phandle max)
 {
     rt_err_t err = RT_EOK;
+    rt_phandle next = max;
     struct rt_ofw_node **hash_ptr = RT_NULL;
 
     max = RT_ALIGN(max, OFW_NODE_MIN_HASH);
@@ -69,7 +70,7 @@ rt_err_t ofw_phandle_hash_reset(rt_phandle min, rt_phandle max)
             _phandle_range[0] = min;
         }
         _phandle_range[1] = max;
-
+        _phandle_next = next + 1;
         _phandle_hash = hash_ptr;
     }
     else
@@ -80,6 +81,39 @@ rt_err_t ofw_phandle_hash_reset(rt_phandle min, rt_phandle max)
     return err;
 }
 
+static rt_phandle ofw_phandle_next(void)
+{
+    rt_phandle next;
+    static RT_DEFINE_SPINLOCK(op_lock);
+
+    rt_hw_spin_lock(&op_lock.lock);
+
+    RT_ASSERT(_phandle_next != OFW_PHANDLE_MAX);
+
+    if (_phandle_next <= _phandle_range[1])
+    {
+        next = _phandle_next++;
+    }
+    else
+    {
+        rt_err_t err = ofw_phandle_hash_reset(_phandle_range[0], _phandle_next);
+
+        if (!err)
+        {
+            next = _phandle_next++;
+        }
+        else
+        {
+            next = 0;
+            LOG_E("Expanded phandle hash[%u, %u] fail error = %s",
+                    _phandle_range[0], _phandle_next + 1, rt_strerror(err));
+        }
+    }
+
+    rt_hw_spin_unlock(&op_lock.lock);
+
+    return next;
+}
 static void ofw_prop_destroy(struct rt_ofw_prop *prop)
 {
     struct rt_ofw_prop *next;
@@ -230,6 +264,7 @@ static void ofw_node_release(struct rt_ref *r)
     struct rt_ofw_node *np = rt_container_of(r, struct rt_ofw_node, ref);
 
     LOG_E("%s is release", np->full_name);
+    (void)np;
 
     RT_ASSERT(0);
 }
@@ -298,8 +333,6 @@ static int ofw_prop_index_of_string(struct rt_ofw_prop *prop, const char *string
 
 static rt_int32_t ofw_strcasecmp(const char *cs, const char *ct)
 {
-    extern rt_int32_t strcasecmp(const char *cs, const char *ct);
-
     return rt_strcasecmp(cs, ct);
 }
 
@@ -610,7 +643,7 @@ struct rt_ofw_node *rt_ofw_find_node_by_path(const char *path)
                     break;
                 }
 
-                path += len;
+                path += len + !!*next;
             }
 
             np = tmp;
@@ -835,7 +868,7 @@ struct rt_ofw_node *rt_ofw_get_cpu_node(int cpu, int *thread, rt_bool_t (*match_
 
     rt_ofw_foreach_cpu_node(cpu_np)
     {
-        rt_ssize_t prop_len;
+        rt_ssize_t prop_len = 0;
         rt_bool_t is_end = RT_FALSE;
         int tid, addr_cells = rt_ofw_io_addr_cells(cpu_np);
         const fdt32_t *cell = rt_ofw_prop_read_raw(cpu_np, propname, &prop_len);
@@ -1016,9 +1049,9 @@ rt_err_t ofw_alias_scan(void)
 
     rt_ofw_foreach_prop(np, prop)
     {
-        int id = 0, rate = 1;
+        int id = 0;
         struct alias_info *info;
-        const char *name = prop->name, *end;
+        const char *name = prop->name, *end, *id_start;
 
         /* Maybe the bootloader will set the name, or other nodes reference the aliases */
         if (!rt_strcmp(name, "name") || !rt_strcmp(name, "phandle"))
@@ -1033,17 +1066,18 @@ rt_err_t ofw_alias_scan(void)
 
         end = name + rt_strlen(name);
 
-        while (*end && !(*end >= '0' && *end <= '9'))
+        while (*(end - 1) && (*(end - 1) >= '0' && *(end - 1) <= '9') && end > name)
         {
             --end;
         }
 
-        while (*end && (*end >= '0' && *end <= '9'))
+        id_start = end;
+        while (*id_start && (*id_start >= '0' && *id_start <= '9'))
         {
-            id += (*end - '0') * rate;
-            rate *= 10;
+            id *= 10;
+            id += (*id_start - '0');
 
-            --end;
+            ++id_start;
         }
 
         info = rt_malloc(sizeof(*info));
@@ -1074,22 +1108,53 @@ struct rt_ofw_node *rt_ofw_get_alias_node(const char *tag, int id)
 
     if (tag && id >= 0)
     {
-        rt_list_for_each_entry(info, &_aliases_nodes, list)
+        if (!rt_list_isempty(&_aliases_nodes))
         {
-            if (rt_strncmp(info->tag, tag, info->tag_len))
+            rt_list_for_each_entry(info, &_aliases_nodes, list)
             {
-                continue;
-            }
+                if (rt_strncmp(info->tag, tag, info->tag_len))
+                {
+                    continue;
+                }
 
-            if (info->id == id)
-            {
-                np = info->np;
-                break;
+                if (info->id == id)
+                {
+                    np = info->np;
+                    break;
+                }
             }
         }
     }
 
     return np;
+}
+
+int ofw_alias_node_id(struct rt_ofw_node *np)
+{
+    int id;
+    struct alias_info *info = RT_NULL;
+
+    if (np)
+    {
+        id = -1;
+        if (!rt_list_isempty(&_aliases_nodes))
+        {
+            rt_list_for_each_entry(info, &_aliases_nodes, list)
+            {
+                if (info->np == np)
+                {
+                    id = info->id;
+                    break;
+                }
+            }
+        }
+    }
+    else
+    {
+        id = -RT_EINVAL;
+    }
+
+    return id;
 }
 
 int rt_ofw_get_alias_id(struct rt_ofw_node *np, const char *tag)
@@ -1100,18 +1165,20 @@ int rt_ofw_get_alias_id(struct rt_ofw_node *np, const char *tag)
     if (np && tag)
     {
         id = -1;
-
-        rt_list_for_each_entry(info, &_aliases_nodes, list)
+        if (!rt_list_isempty(&_aliases_nodes))
         {
-            if (rt_strncmp(info->tag, tag, info->tag_len))
+            rt_list_for_each_entry(info, &_aliases_nodes, list)
             {
-                continue;
-            }
+                if (rt_strncmp(info->tag, tag, info->tag_len))
+                {
+                    continue;
+                }
 
-            if (info->np == np)
-            {
-                id = info->id;
-                break;
+                if (info->np == np)
+                {
+                    id = info->id;
+                    break;
+                }
             }
         }
     }
@@ -1131,17 +1198,19 @@ int rt_ofw_get_alias_last_id(const char *tag)
     if (tag)
     {
         id = -1;
-
-        rt_list_for_each_entry(info, &_aliases_nodes, list)
+        if (!rt_list_isempty(&_aliases_nodes))
         {
-            if (rt_strncmp(info->tag, tag, info->tag_len))
+            rt_list_for_each_entry(info, &_aliases_nodes, list)
             {
-                continue;
-            }
+                if (rt_strncmp(info->tag, tag, info->tag_len))
+                {
+                    continue;
+                }
 
-            if (info->id > id)
-            {
-                id = info->id;
+                if (info->id > id)
+                {
+                    id = info->id;
+                }
             }
         }
     }
@@ -1151,6 +1220,241 @@ int rt_ofw_get_alias_last_id(const char *tag)
     }
 
     return id;
+}
+
+static rt_err_t ofw_map_id(struct rt_ofw_node *np, rt_uint32_t id, const char *map_name, const char *map_mask_name,
+        const fdt32_t *map, rt_ssize_t map_len, struct rt_ofw_node **ref_np, rt_uint32_t *out_id)
+{
+    rt_err_t err = RT_EOK;
+    rt_uint32_t masked_id, map_mask;
+
+    /* Select all bits default */
+    map_mask = 0xffffffff;
+
+    if (map_mask_name)
+    {
+        rt_ofw_prop_read_u32(np, map_mask_name, &map_mask);
+    }
+
+    masked_id = map_mask & id;
+
+    for (; map_len > 0; map_len -= 4 * sizeof(*map), map += 4)
+    {
+        struct rt_ofw_node *phandle_node;
+        rt_uint32_t id_base = fdt32_to_cpu(*(map + 0));
+        rt_uint32_t phandle = fdt32_to_cpu(*(map + 1));
+        rt_uint32_t out_base = fdt32_to_cpu(*(map + 2));
+        rt_uint32_t id_len = fdt32_to_cpu(*(map + 3));
+
+        if (id_base & ~map_mask)
+        {
+            LOG_E("%s: Invalid %s translation - %s(0x%x) for id-base = 0x%x",
+                    np->full_name, map_name, map_mask_name, map_mask, id_base);
+
+            err = -RT_ERROR;
+            break;
+        }
+
+        if (masked_id < id_base || masked_id >= id_base + id_len)
+        {
+            continue;
+        }
+
+        phandle_node = rt_ofw_find_node_by_phandle((rt_phandle)phandle);
+
+        if (!phandle_node)
+        {
+            err = -RT_EEMPTY;
+            break;
+        }
+
+        if (ref_np)
+        {
+            if (*ref_np)
+            {
+                rt_ofw_node_put(phandle_node);
+            }
+            else
+            {
+                *ref_np = phandle_node;
+            }
+
+            if (*ref_np != phandle_node)
+            {
+                continue;
+            }
+        }
+
+        if (out_id)
+        {
+            *out_id = masked_id - id_base + out_base;
+        }
+
+        LOG_D("%s: Get %s translation - %s(0x%x) for id-base = 0x%x, out-base = 0x%x, length = %d, id: 0x%x -> 0x%x",
+                np->full_name, map_name, map_mask_name, map_mask,
+                id_base, out_base, id_len, id, masked_id - id_base + out_base);
+
+        break;
+    }
+
+    if (map_len <= 0)
+    {
+        LOG_I("%s: No %s translation for id(0x%x) on %s", np->full_name, map_name,
+                id, ref_np && *ref_np ? *ref_np : RT_NULL);
+
+        /* Bypasses translation */
+        if (out_id)
+        {
+            *out_id = id;
+        }
+    }
+
+    return err;
+}
+
+rt_err_t rt_ofw_map_id(struct rt_ofw_node *np, rt_uint32_t id, const char *map_name, const char *map_mask_name,
+        struct rt_ofw_node **ref_np, rt_uint32_t *out_id)
+{
+    rt_err_t err;
+
+    if (np && map_name && (ref_np || out_id))
+    {
+        rt_ssize_t map_len;
+        const fdt32_t *map = rt_ofw_prop_read_raw(np, map_name, &map_len);
+
+        if (!map)
+        {
+            if (ref_np)
+            {
+                err = -RT_EEMPTY;
+            }
+            else
+            {
+                *out_id = id;
+            }
+
+            err = RT_EOK;
+        }
+        else if (!map_len || map_len % (4 * sizeof(*map)))
+        {
+            LOG_E("%s: Invalid %s length = %u", np->full_name, map_name, map_len);
+
+            err = -RT_EINVAL;
+        }
+        else
+        {
+            err = ofw_map_id(np, id, map_name, map_mask_name, map, map_len, ref_np, out_id);
+        }
+    }
+    else
+    {
+        err = -RT_EINVAL;
+    }
+
+    return err;
+}
+
+struct rt_ofw_node *rt_ofw_append_child(struct rt_ofw_node *parent, const char *full_name)
+{
+    rt_phandle phandle;
+    rt_err_t err = RT_EOK;
+    fdt32_t *phandle_value;
+    struct rt_ofw_node *np = RT_NULL, *child;
+
+    if (full_name)
+    {
+        if ((phandle = ofw_phandle_next()))
+        {
+            np = rt_calloc(1, sizeof(*np) + sizeof(*phandle_value));
+        }
+    }
+
+    if (np)
+    {
+        parent = parent ? : ofw_node_root;
+
+        np->full_name = full_name;
+        np->phandle = phandle;
+        np->parent = parent;
+
+        rt_ref_init(&np->ref);
+
+        phandle_value = (void *)np + sizeof(*np);
+        *phandle_value = cpu_to_fdt32(phandle);
+
+        err = rt_ofw_append_prop(np, "phandle", sizeof(*phandle_value), phandle_value);
+
+        if (!err)
+        {
+            if (parent->child)
+            {
+                rt_ofw_foreach_child_node(parent, child)
+                {
+                    if (!child->sibling)
+                    {
+                        child->sibling = np;
+                        rt_ofw_node_put(child);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                parent->child = np;
+            }
+        }
+        else
+        {
+            rt_free(np);
+            np = RT_NULL;
+        }
+    }
+
+    return rt_ofw_node_get(np);
+}
+
+rt_err_t rt_ofw_append_prop(struct rt_ofw_node *np, const char *name, int length, void *value)
+{
+    rt_err_t err = RT_EOK;
+
+    if (np && name && ((length && value) || (!length && !value)))
+    {
+        struct rt_ofw_prop *prop = rt_malloc(sizeof(*prop)), *last_prop;
+
+        if (prop)
+        {
+            prop->name = name;
+            prop->length = length;
+            prop->value = value;
+            prop->next = RT_NULL;
+
+            if (np->props)
+            {
+                rt_ofw_foreach_prop(np, last_prop)
+                {
+                    if (!last_prop->next)
+                    {
+                        last_prop->next = prop;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                np->props = prop;
+            }
+        }
+        else
+        {
+            err = -RT_ENOMEM;
+        }
+    }
+    else
+    {
+        err = -RT_EINVAL;
+    }
+
+    return err;
 }
 
 struct rt_ofw_node *rt_ofw_parse_phandle(const struct rt_ofw_node *np, const char *phandle_name, int index)
@@ -1295,6 +1599,170 @@ int rt_ofw_count_phandle_cells(const struct rt_ofw_node *np, const char *list_na
 
     return count;
 }
+
+static const char *ofw_get_prop_fuzzy_name(const struct rt_ofw_node *np, const char *name)
+{
+    char *sf, split_field[64];
+    rt_size_t len = 0, max_ak = 0;
+    const char *str, *result = RT_NULL;
+    RT_BITMAP_DECLARE(ak, sizeof(split_field)) = {0};
+    struct rt_ofw_prop *prop;
+
+    /*
+     * List:
+     *
+     *      node {
+     *          property;
+     *          front-prop-rear;
+     *          front-prop;
+     *          prop-rear;
+     *      };
+     *
+     * if call:
+     *  ofw_get_prop_fuzzy_name(node, name):
+     *      ["prop"] => property
+     *      ["-prop"] => front-prop-rear
+     *      ["prop-"] => front-prop-rear
+     *      ["-prop$"] => front-prop
+     *      ["^prop-"] => prop-rear
+     *      ["-prop-"] => front-prop-rear
+     *      ["front-*-rear"] => front-prop-rear
+     */
+
+    str = name;
+    sf = split_field;
+
+    if (str[0] != '^')
+    {
+        /* As '*' */
+        *sf++ = '\0';
+        rt_bitmap_set_bit(ak, len++);
+    }
+    else
+    {
+        ++str;
+    }
+
+    for (; *str && len < sizeof(split_field); ++str, ++sf, ++len)
+    {
+        if (*str != '*')
+        {
+            *sf = *str;
+            rt_bitmap_clear_bit(ak, len);
+        }
+        else
+        {
+            max_ak = len;
+            *sf = '\0';
+            rt_bitmap_set_bit(ak, len);
+        }
+    }
+    *sf = '\0';
+
+    if (str[-1] != '$')
+    {
+        /* As '*' */
+        max_ak = len;
+        rt_bitmap_set_bit(ak, len++);
+    }
+    else
+    {
+        sf[-1] = '\0';
+        --len;
+    }
+
+    sf = split_field;
+
+    if (len >= sizeof(split_field))
+    {
+        LOG_W("%s fuzzy name = %s len is %d out of %d", np->full_name, name, rt_strlen(name), sizeof(split_field));
+    }
+
+    rt_ofw_foreach_prop(np, prop)
+    {
+        int prep_ak = 0, next_ak, field;
+        rt_bool_t match = RT_TRUE;
+        const char *propname = prop->name, *fuzzy_name = sf;
+
+        if (!rt_bitmap_test_bit(ak, prep_ak))
+        {
+            next_ak = rt_bitmap_next_set_bit(ak, prep_ak + 1, max_ak) ? : len;
+            field = next_ak - prep_ak;
+
+            if (rt_strncmp(propname, fuzzy_name, field))
+            {
+                continue;
+            }
+
+            propname += field;
+            fuzzy_name += field;
+            prep_ak = next_ak;
+        }
+
+        rt_bitmap_for_each_set_bit_from(ak, prep_ak, next_ak, max_ak)
+        {
+            /* Skip the '*' */
+            if (prep_ak == next_ak)
+            {
+                ++fuzzy_name;
+
+                next_ak = rt_bitmap_next_set_bit(ak, prep_ak + 1, max_ak);
+            }
+
+            if (!(str = rt_strstr(propname, fuzzy_name)))
+            {
+                match = RT_FALSE;
+                break;
+            }
+
+            field = next_ak - prep_ak;
+            propname = str + field - 1;
+            fuzzy_name += field;
+            prep_ak = next_ak;
+        }
+
+        if (match)
+        {
+            if ((max_ak || !split_field[0]) && next_ak >= max_ak && len - max_ak > 1)
+            {
+                if (next_ak == max_ak)
+                {
+                    /* Skip the last '*' */
+                    ++fuzzy_name;
+                }
+
+                if (!(propname = rt_strstr(propname, fuzzy_name)))
+                {
+                    continue;
+                }
+
+                /* Check end flag */
+                if (propname[len - max_ak - 1] != '\0')
+                {
+                    continue;
+                }
+            }
+
+            result = prop->name;
+            break;
+        }
+    }
+
+    return result;
+}
+
+const char *rt_ofw_get_prop_fuzzy_name(const struct rt_ofw_node *np, const char *name)
+{
+    const char *propname = RT_NULL;
+
+    if (np && name)
+    {
+        propname = ofw_get_prop_fuzzy_name(np, name);
+    }
+
+    return propname;
+}
+
 
 struct rt_ofw_prop *rt_ofw_get_prop(const struct rt_ofw_node *np, const char *name, rt_ssize_t *out_length)
 {

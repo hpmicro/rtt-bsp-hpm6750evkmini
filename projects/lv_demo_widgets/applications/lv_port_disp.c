@@ -94,6 +94,11 @@ struct lv_adapter {
 };
 
 static struct lv_adapter lv_adapter_ctx;
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+void lvgl_pdma_isr(void);
+#else
+static void lvgl_pdma_isr(int vector, void *param);
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 
 #ifdef BSP_USING_RTT_LCD_DRIVER
 struct rt_device *g_lcd_dev = RT_NULL;
@@ -123,8 +128,12 @@ static void lvgl_pdma_init(struct lv_adapter *ctx)
     pdma_get_default_plane_config(LVGL_PDMA_BASE, plane_src_cfg, pixel_format);
     pdma_get_default_yuv2rgb_coef_config(LVGL_PDMA_BASE, yuv2rgb_coef, pixel_format);
     pdma_get_default_output_config(LVGL_PDMA_BASE, output_cfg, pixel_format);
-
+    /* Register lcd device to irq table */
+#ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+    rt_hw_interrupt_install(LVGL_PDMA_IRQ_NUM, (rt_isr_handler_t)lvgl_pdma_isr, NULL, "PDMA");
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
     intc_m_enable_irq_with_priority(LVGL_PDMA_IRQ_NUM, LVGL_PDMA_IRQ_PRIORITY);
+
 }
 
 static void lvgl_pdma_blit(struct lv_adapter *ctx, void *dst, uint16_t dst_stride, void *src, uint16_t src_stride,
@@ -259,19 +268,32 @@ static void lv_flush_display_direct(lv_disp_drv_t *disp_drv, const lv_area_t *ar
 
     lvgl_pdma_start(ctx);
 }
-
-static void lvgl_pdma_isr(void)
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+RTT_DECLARE_EXT_ISR_M(LVGL_PDMA_IRQ_NUM, lvgl_pdma_isr)
+void lvgl_pdma_isr(void)
 {
+#else
+static void lvgl_pdma_isr(int vector, void *param)
+{
+    (void)param;
+    (void)vector;
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
     pdma_enable_irq(LVGL_PDMA_BASE, PDMA_CTRL_PDMA_DONE_IRQ_EN_MASK, false);
     pdma_stop(LVGL_PDMA_BASE);
     lvgl_pdma_done(&lv_adapter_ctx);
 }
 
-RTT_DECLARE_EXT_ISR_M(LVGL_PDMA_IRQ_NUM, lvgl_pdma_isr);
-
 #ifndef BSP_USING_RTT_LCD_DRIVER
-static void hpm_lcdc_isr(void)
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+RTT_DECLARE_EXT_ISR_M(LCD_IRQ_NUM, hpm_lcdc_isr)
+void hpm_lcdc_isr(void)
 {
+#else
+static void hpm_lcdc_isr(int vector, void *param)
+{
+    (void)param;
+    (void)vector;
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
     volatile uint32_t s = lcdc_get_dma_status(LCD_CONTROLLER);
     lcdc_clear_dma_status(LCD_CONTROLLER, s);
 
@@ -279,7 +301,6 @@ static void hpm_lcdc_isr(void)
         lv_adapter_ctx.direct_vsync = 1;
     }
 }
-RTT_DECLARE_EXT_ISR_M(LCD_IRQ_NUM, hpm_lcdc_isr)
 #endif
 
 #else
@@ -314,8 +335,16 @@ static void lv_flush_display_full(lv_disp_drv_t *disp_drv, const lv_area_t *area
 }
 
 #ifndef BSP_USING_RTT_LCD_DRIVER
-static void hpm_lcdc_isr(void)
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+RTT_DECLARE_EXT_ISR_M(LCD_IRQ_NUM, hpm_lcdc_isr)
+void hpm_lcdc_isr(void)
 {
+#else
+static void hpm_lcdc_isr(int vector, void *param)
+{
+    (void)vector;
+    (void)param;
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
     volatile uint32_t s = lcdc_get_dma_status(LCD_CONTROLLER);
     lcdc_clear_dma_status(LCD_CONTROLLER, s);
 
@@ -327,7 +356,6 @@ static void hpm_lcdc_isr(void)
         lv_disp_flush_ready(&lv_adapter_ctx.disp_drv);
     }
 }
-RTT_DECLARE_EXT_ISR_M(LCD_IRQ_NUM, hpm_lcdc_isr)
 #endif
 
 #endif/*LVGL_CONFIG_FLUSH_DIRECT_MODE_ENABLE*/
@@ -371,6 +399,10 @@ static void hpm_lcdc_init(void)
     lcdc_enable_interrupt(LCD_CONTROLLER, LCD_LAYER_DONE_MASK << 16);
     intc_m_enable_irq_with_priority(LCD_IRQ_NUM, HPM_LCD_IRQ_PRIORITY);
     lv_adapter_ctx.lcdc_buffer = layer.buffer;
+    /* Register lcd device to irq table */
+#ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+    rt_hw_interrupt_install(LCD_IRQ_NUM, (rt_isr_handler_t)hpm_lcdc_isr, NULL, "LCDC");
+#endif
 }
 #endif
 

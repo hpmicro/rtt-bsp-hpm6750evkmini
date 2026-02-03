@@ -10,6 +10,7 @@
 #include "hpm_soc.h"
 #include "hpm_rtt_interrupt_util.h"
 #include <rtthread.h>
+#include <rthw.h>
 #include "rt_hw_stack_frame.h"
 #include "rtt_board.h"
 
@@ -20,7 +21,6 @@
 #endif
 
 void rt_show_stack_frame(rt_hw_stack_frame_t *stack_frame);
-
 
 uint32_t hpm_claim_ext_interrupt(void);
 
@@ -83,6 +83,127 @@ uint32_t hpm_rtt_get_active_interrupt(void)
 {
     return g_ext_irq_id;
 }
+
+#ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+extern rt_weak void rt_hw_rv32_interrupt_service(int vector);
+__attribute((weak)) void mchtmr_isr(void)
+{
+}
+
+__attribute__((weak)) void mswi_isr(void)
+{
+}
+
+__attribute__((weak)) void syscall_handler(void)
+{
+}
+
+/* none-vector mode isr */
+void trap_entry(void)
+{
+    uint32_t mcause = read_csr(CSR_MCAUSE);
+    uint32_t mepc = read_csr(CSR_MEPC);
+    uint32_t mstatus = read_csr(CSR_MSTATUS);
+
+#if defined(SUPPORT_PFT_ARCH) && (SUPPORT_PFT_ARCH == 1)
+    uint32_t mxstatus = read_csr(CSR_MXSTATUS);
+#endif
+#ifdef __riscv_dsp
+    int ucode = read_csr(CSR_UCODE);
+#endif
+#ifdef __riscv_flen
+    int fcsr = read_fcsr();
+#endif
+
+    /* clobbers list for ecall */
+#ifdef __riscv_32e
+    __asm volatile("" : : :"t0", "a0", "a1", "a2", "a3");
+#else
+    __asm volatile("" : : :"a7", "a0", "a1", "a2", "a3");
+#endif
+
+    /* Do your trap handling */
+    uint32_t cause_type = mcause & CSR_MCAUSE_EXCEPTION_CODE_MASK;
+    uint32_t irq_index;
+    if (mcause & CSR_MCAUSE_INTERRUPT_MASK)
+    {
+        switch (cause_type)
+        {
+        /* Machine timer interrupt */
+        case IRQ_M_TIMER:
+            mchtmr_isr();
+            break;
+            /* Machine EXT interrupt */
+        case IRQ_M_EXT:
+            /* Claim interrupt */
+            irq_index = HPM_GET_INT_ID_IN_TRAP();
+            /* Execute EXT interrupt handler */
+            if (irq_index != HPM_INT_ID_NO_VALID)
+            {
+                rt_hw_rv32_interrupt_service(irq_index);
+                /* Complete interrupt */
+                __plic_complete_irq(HPM_PLIC_BASE, HPM_PLIC_TARGET_M_MODE, irq_index);
+            }
+            break;
+            /* Machine SWI interrupt */
+        case IRQ_M_SOFT:
+            mswi_isr();
+            intc_m_complete_swi();
+            break;
+        }
+    }
+    else if (cause_type == MCAUSE_ECALL_FROM_MACHINE_MODE)
+    {
+        /* Machine Syscal call */
+        __asm volatile(
+                "mv a4, a3\n"
+                "mv a3, a2\n"
+                "mv a2, a1\n"
+                "mv a1, a0\n"
+#ifdef __riscv_32e
+                "mv a0, t0\n"
+#else
+                "mv a0, a7\n"
+#endif
+                "call syscall_handler\n"
+                : : : "a4"
+        );
+        mepc += 4;
+    }
+    else
+    {
+        mepc = hpm_rtt_exception_handler(mcause, mepc);
+    }
+
+    /* Restore CSR */
+    write_csr(CSR_MSTATUS, mstatus);
+    write_csr(CSR_MEPC, mepc);
+#if defined(SUPPORT_PFT_ARCH) && (SUPPORT_PFT_ARCH == 1)
+    write_csr(CSR_MXSTATUS, mxstatus);
+#endif
+#ifdef __riscv_dsp
+    write_csr(CSR_UCODE, ucode);
+#endif
+#ifdef __riscv_flen
+    write_fcsr(fcsr);
+#endif
+}
+#ifndef HPM_USING_VECTOR_PREEMPTED_MODE
+rt_weak void handle_trap(rt_uint32_t mcause, rt_uint32_t mepc, rt_uint32_t sp)
+{
+}
+#else
+extern void handle_trap(void);
+void hpm_hw_interrupt_init(void)
+{
+    rt_hw_interrupt_init();
+
+    for (uint32_t i = 0; i <= RT_HW_ISR_NUM; i++) {
+        __vector_table[i] = (int)handle_trap;
+    }
+}
+#endif /* HPM_USING_VECTOR_PREEMPTED_MODE */
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 
 ATTR_WEAK uint32_t hpm_rtt_exception_handler(uint32_t mcause, uint32_t epc)
 {
@@ -211,9 +332,37 @@ ATTR_WEAK uint32_t hpm_rtt_exception_handler(uint32_t mcause, uint32_t epc)
     }
 
     rt_kprintf("cause=0x%08x, epc=0x%08x, ra=0x%08x\n", cause, epc, stack_frame->ra);
-    while(1) {
+#ifdef HPM_USE_RTTHREAD_BACKTRACE_IN_EXCEPTION_HANDLER
+    /* Print backtrace from exception context */
+    rt_kprintf("please use: addr2line -e rtthread.elf -a -f\n");
+    rt_kprintf(" 0x%08x", epc);  /* Current PC at exception */
+    rt_kprintf(" 0x%08x", stack_frame->ra);  /* Return address */
+    
+    /* Try to unwind stack frames from exception context */
+    struct rt_hw_backtrace_frame frame;
+    rt_thread_t thread = rt_thread_self();
+    
+    /* Get frame pointer from exception stack (s0_fp is the frame pointer register) */
+    frame.fp = stack_frame->s0_fp;
+    frame.pc = stack_frame->ra;
+    
+    /* Unwind additional frames */
+    long nesting = 0;
+    while (nesting < RT_BACKTRACE_LEVEL_MAX_NR && frame.fp)
+    {
+        if (rt_hw_backtrace_frame_unwind(thread, &frame))
+        {
+            break;
+        }
+        rt_kprintf(" 0x%08x", (rt_ubase_t)frame.pc);
+        nesting++;
+    }
+    rt_kprintf("\n");
+#endif /* HPM_USE_RTTHREAD_BACKTRACE_IN_EXCEPTION_HANDLER */
+    while (1) {
     }
 }
+
 
 void rt_show_stack_frame(rt_hw_stack_frame_t *stack_frame)
 {

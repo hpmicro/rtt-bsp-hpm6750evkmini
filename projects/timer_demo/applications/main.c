@@ -19,7 +19,14 @@ rt_hwtimer_mode_t mode;                 /* Timer Mode */
 rt_hwtimerval_t timeout_s;              /* Timer Value */
 
 #ifdef RT_USING_ALARM
-static rt_alarm_t alarm = RT_NULL;
+/* Define alarm node structure */
+struct alarm_node {
+    rt_list_t list;
+    rt_alarm_t alarm;
+};
+
+/* Alarm list head */
+static rt_list_t alarm_list = RT_LIST_OBJECT_INIT(alarm_list);
 #endif
 
 /* Timer timeout callback */
@@ -138,13 +145,13 @@ void user_alarm_callback(rt_alarm_t alarm, time_t timestamp)
     gmtime_r(&now, &p_tm);
 #endif
     rt_kprintf("user alarm callback function. \r\n");
-    rt_kprintf("current time: %04d-%02d-%02d %02d:%02d:%02d \r\n", p_tm.tm_year + 1900, p_tm.tm_mon + 1, p_tm.tm_mday, p_tm.tm_hour, p_tm.tm_min, p_tm.tm_sec); 
+    rt_kprintf("current time: %04d-%02d-%02d %02d:%02d:%02d \r\n", p_tm.tm_year + 1900, p_tm.tm_mon + 1, p_tm.tm_mday, p_tm.tm_hour, p_tm.tm_min, p_tm.tm_sec);
 }
 
 void alarm_sample(int argc, char *argv[])
 {
     rt_uint32_t offset_time;
-    time_t curr_time;
+    time_t curr_time, now;
     struct tm p_tm;
     struct rt_alarm_setup setup;
 
@@ -163,7 +170,17 @@ void alarm_sample(int argc, char *argv[])
         return;
     }
 
-    curr_time = time(NULL) + offset_time;
+    now = time(NULL);
+
+    curr_time = now + offset_time;
+
+#ifdef RT_ALARM_USING_LOCAL_TIME
+    localtime_r(&now, &p_tm);
+#else
+    gmtime_r(&now, &p_tm);
+#endif
+    rt_kprintf("current time: %04d-%02d-%02d %02d:%02d:%02d \r\n", p_tm.tm_year + 1900, p_tm.tm_mon + 1, p_tm.tm_mday, p_tm.tm_hour, p_tm.tm_min, p_tm.tm_sec); 
+
 #ifdef RT_ALARM_USING_LOCAL_TIME
     localtime_r(&curr_time, &p_tm);
     rt_kprintf("alarm use local time \r\n");
@@ -171,8 +188,8 @@ void alarm_sample(int argc, char *argv[])
     gmtime_r(&curr_time, &p_tm);
     rt_kprintf("alarm use UTC time \r\n");
 #endif
-    rt_kprintf("alarm time: %04d-%02d-%02d %02d:%02d:%02d \r\n", p_tm.tm_year + 1900, p_tm.tm_mon + 1, p_tm.tm_mday, p_tm.tm_hour,
-            p_tm.tm_min, p_tm.tm_sec - 5);
+    rt_kprintf("set alarm time: %04d-%02d-%02d %02d:%02d:%02d \r\n", p_tm.tm_year + 1900, p_tm.tm_mon + 1, p_tm.tm_mday, p_tm.tm_hour,
+            p_tm.tm_min, p_tm.tm_sec);
 
     setup.flag = RT_ALARM_ONESHOT;
     setup.wktime.tm_year = p_tm.tm_year;
@@ -183,14 +200,26 @@ void alarm_sample(int argc, char *argv[])
     setup.wktime.tm_min = p_tm.tm_min;
     setup.wktime.tm_sec = p_tm.tm_sec;
 
-    alarm = rt_alarm_create(user_alarm_callback, &setup);
+    rt_alarm_t alarm = rt_alarm_create(user_alarm_callback, &setup);
     if (RT_NULL != alarm)
     {
         rt_alarm_start(alarm);
+        
+        /* Create and add alarm node to list */
+        struct alarm_node *node = (struct alarm_node *)rt_malloc(sizeof(struct alarm_node));
+        if (node != RT_NULL)
+        {
+            node->alarm = alarm;
+            rt_list_insert_before(&alarm_list, &node->list);
+        }
+        else
+        {
+            rt_kprintf("malloc alarm node failed\r\n");
+        }
     }
     else
     {
-        rt_kprintf("rtc alarm create failed");
+        rt_kprintf("rtc alarm create failed\r\n");
     }
 
 }
@@ -198,8 +227,20 @@ MSH_CMD_EXPORT(alarm_sample, alarm sample);
 
 void del_alarm_sample(void)
 {
-    rt_alarm_delete(alarm);
-    rt_kprintf("delete all alarm\r\n");
+    rt_list_t *node = RT_NULL, *temp = RT_NULL;
+    
+    rt_list_for_each_safe(node, temp, &alarm_list)
+    {
+        struct alarm_node *alarm_node = rt_list_entry(node, struct alarm_node, list);
+        if (alarm_node != RT_NULL && alarm_node->alarm != RT_NULL)
+        {
+            rt_alarm_delete(alarm_node->alarm);
+            rt_list_remove(&alarm_node->list);
+            rt_free(alarm_node);
+            rt_kprintf("alarm deleted\r\n");
+        }
+    }
+    rt_kprintf("all alarms deleted\r\n");
 }
 MSH_CMD_EXPORT(del_alarm_sample, delete alarm sample);
 

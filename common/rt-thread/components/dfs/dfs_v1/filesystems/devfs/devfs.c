@@ -286,6 +286,9 @@ int dfs_device_fs_unlink(struct dfs_filesystem *fs, const char *path)
 
 int dfs_device_fs_stat(struct dfs_filesystem *fs, const char *path, struct stat *st)
 {
+#ifndef __SES_VERSION
+    st->st_dev = (dev_t)((size_t)dfs_filesystem_lookup(fs->path));
+#endif
     /* stat root directory */
     if ((path[0] == '/') && (path[1] == '\0'))
     {

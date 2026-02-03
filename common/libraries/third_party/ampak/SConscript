@@ -1,0 +1,416 @@
+from building import *
+import os
+import rtconfig
+import re
+import subprocess
+import sys
+
+cwd = GetCurrentDir()
+
+drv_src = Glob('*.c')
+src  = []
+lib  = 'mhd43xxx'
+libs = []
+path = []
+
+libpath = []
+modules = '/modules/'
+
+chip  = []
+group = []
+
+if GetDepend('RT_WIFI_AP6212A'):
+   chip = 'ap6212a'
+if GetDepend('RT_WIFI_AP6236'):
+   chip = 'ap6236'
+if GetDepend('RT_WIFI_AP6256'):
+   chip = 'ap6256'
+if GetDepend('RT_WIFI_AP6201BM'):
+   chip = 'ap6201bm'
+if GetDepend('RT_WIFI_AP6203BM'):
+   chip = 'ap6203bm'
+if GetDepend('RT_WIFI_AP6303BH'):
+   chip = 'ap6303bh'
+if GetDepend('RT_WIFI_AP6275S'):
+   chip = 'ap6275s'
+if GetDepend('RT_WIFI_AP6281'):
+   chip = 'ap6281'
+if GetDepend('RT_WIFI_AP6611S'):
+   chip = 'ap6611s'
+if GetDepend('RT_WIFI_AP6XXX'):
+   chip = 'ap6xxx'
+
+if GetDepend('RT_WIFI_AP6212A_SEL'):
+   path += [cwd + modules + 'ap6212a']
+if GetDepend('RT_WIFI_AP6236_SEL'):
+   path += [cwd + modules + 'ap6236']
+if GetDepend('RT_WIFI_AP6256_SEL'):
+   path += [cwd + modules + 'ap6256']
+if GetDepend('RT_WIFI_AP6201BM_SEL'):
+   path += [cwd + modules + 'ap6201bm']
+if GetDepend('RT_WIFI_AP6203BM_SEL'):
+   path += [cwd + modules + 'ap6201bm']
+   path += [cwd + modules + 'ap6203bm']
+if GetDepend('RT_WIFI_AP6303BH_SEL'):
+   path += [cwd + modules + 'ap6201bm']
+   path += [cwd + modules + 'ap6303bh']
+if GetDepend('RT_WIFI_AP6275S_SEL'):
+   path += [cwd + modules + 'ap6275s']
+if GetDepend('RT_WIFI_AP6281_SEL'):
+   path += [cwd + modules + 'ap6281']
+if GetDepend('RT_WIFI_AP6611S_SEL'):
+   path += [cwd + modules + 'ap6611s']
+
+lwip = ''
+if GetDepend('RT_USING_LWIP141'):
+    lwip = '_lwip1.4.1'
+if GetDepend('RT_USING_LWIP203'):
+    lwip = '_lwip2.0.3'
+if GetDepend('RT_USING_LWIP212'):
+    lwip = '_lwip2.1.2'
+if GetDepend('RT_USING_LWIP_LATEST'):
+    lwip = '_lwip2.1.2'
+
+
+def detect_parent_process():
+    """
+    Detect the parent process that invoked scons.
+    Returns a dict with process information.
+    """
+    parent_info = {
+        'name': 'unknown',
+        'pid': None,
+        'ppid': None,
+        'is_eclipse': False,
+        'is_vscode': False,
+        'is_studio': False,
+        'is_terminal': False,
+        'is_conemu': False
+    }
+    
+    try:
+        current_pid = os.getpid()
+        parent_pid = None
+        parent_name = None
+        
+        if os.name == 'nt':  # Windows
+            # Try using psutil if available
+            try:
+                import psutil
+                current_process = psutil.Process(current_pid)
+                parent_process = current_process.parent()
+                if parent_process:
+                    parent_pid = parent_process.pid
+                    parent_name = parent_process.name().lower()
+                    parent_info['name'] = parent_name
+                    parent_info['pid'] = current_pid
+                    parent_info['ppid'] = parent_pid
+                    
+                    # Walk up the process tree to find the ultimate parent
+                    ancestor = parent_process
+                    depth = 0
+                    max_depth = 10
+                    while ancestor and depth < max_depth:
+                        ancestor_name = ancestor.name().lower()
+                        
+                        # Check for known IDEs/tools
+                        # Note: ConEmu is checked BEFORE Studio to prioritize it
+                        if 'conemu' in ancestor_name or 'console emulator' in ancestor_name.replace('_', ' '):
+                            # ConEmu detected - treat it as the parent, don't look further
+                            parent_info['is_conemu'] = True
+                            parent_info['name'] = f'Console Emulator (ConEmu) ({parent_name})'
+                            # Stop here - don't continue to RT-Thread Studio
+                            break
+                        elif 'eclipse' in ancestor_name:
+                            parent_info['is_eclipse'] = True
+                            parent_info['name'] = f'Eclipse (via {parent_name})'
+                        elif 'code' in ancestor_name or 'vscode' in ancestor_name:
+                            parent_info['is_vscode'] = True
+                            parent_info['name'] = f'VSCode (via {parent_name})'
+                        elif 'studio' in ancestor_name or 'rtthread' in ancestor_name:
+                            parent_info['is_studio'] = True
+                            parent_info['name'] = f'RT-Thread Studio (via {parent_name})'
+                        elif any(term in ancestor_name for term in ['cmd', 'powershell', 'bash', 'sh', 'terminal', 'conhost']):
+                            parent_info['is_terminal'] = True
+                            if parent_info['name'] == parent_name:  # Only set if not already identified
+                                parent_info['name'] = f'Terminal/{ancestor_name}'
+                        
+                        try:
+                            ancestor = ancestor.parent()
+                            depth += 1
+                        except (psutil.NoSuchProcess, psutil.AccessDenied):
+                            break
+                            
+            except ImportError:
+                # psutil not available, try WMIC
+                try:
+                    result = subprocess.run(
+                        ['wmic', 'process', 'where', f'ProcessId={current_pid}', 'get', 'ParentProcessId'],
+                        capture_output=True,
+                        text=True,
+                        timeout=2
+                    )
+                    if result.returncode == 0:
+                        lines = result.stdout.strip().split('\n')
+                        if len(lines) > 1:
+                            parent_pid = int(lines[1].strip())
+                            parent_info['ppid'] = parent_pid
+                            
+                            # Get parent name
+                            result2 = subprocess.run(
+                                ['wmic', 'process', 'where', f'ProcessId={parent_pid}', 'get', 'Name'],
+                                capture_output=True,
+                                text=True,
+                                timeout=2
+                            )
+                            if result2.returncode == 0:
+                                lines2 = result2.stdout.strip().split('\n')
+                                if len(lines2) > 1:
+                                    parent_name = lines2[1].strip().lower()
+                                    parent_info['name'] = parent_name
+                                    
+                                    # Check ConEmu first (priority over Studio)
+                                    if 'conemu' in parent_name or 'console' in parent_name:
+                                        parent_info['is_conemu'] = True
+                                        parent_info['name'] = f'Console Emulator (ConEmu) ({parent_name})'
+                                    elif 'eclipse' in parent_name:
+                                        parent_info['is_eclipse'] = True
+                                    elif 'code' in parent_name or 'vscode' in parent_name:
+                                        parent_info['is_vscode'] = True
+                                    elif 'studio' in parent_name or 'rtthread' in parent_name:
+                                        parent_info['is_studio'] = True
+                                    elif any(term in parent_name for term in ['cmd', 'powershell', 'bash']):
+                                        parent_info['is_terminal'] = True
+                except Exception:
+                    pass
+        else:  # Linux/Unix
+            try:
+                with open(f'/proc/{current_pid}/stat', 'r') as f:
+                    stat = f.read()
+                    # Parent PID is the 4th field
+                    parent_pid = int(stat.split()[3])
+                    parent_info['ppid'] = parent_pid
+                    
+                with open(f'/proc/{parent_pid}/comm', 'r') as f:
+                    parent_name = f.read().strip().lower()
+                    parent_info['name'] = parent_name
+                    
+                    # Check ConEmu first (priority over Studio)
+                    if 'conemu' in parent_name or 'console' in parent_name:
+                        parent_info['is_conemu'] = True
+                        parent_info['name'] = f'Console Emulator (ConEmu) ({parent_name})'
+                    elif 'eclipse' in parent_name:
+                        parent_info['is_eclipse'] = True
+                    elif 'code' in parent_name or 'vscode' in parent_name:
+                        parent_info['is_vscode'] = True
+                    elif 'studio' in parent_name or 'rtthread' in parent_name:
+                        parent_info['is_studio'] = True
+                    elif any(term in parent_name for term in ['bash', 'sh', 'zsh', 'fish', 'terminal']):
+                        parent_info['is_terminal'] = True
+            except Exception:
+                pass
+    
+    except Exception as e:
+        parent_info['error'] = str(e)
+    
+    return parent_info
+
+def extract_abi_from_compiler(parent_process_info=None):
+    """
+    Extract the RISC-V ABI from compiler settings.
+    Works with both Eclipse CDT and command-line builds.
+    
+    Priority:
+    1. Environment variable RISCV_ABI (Eclipse can set this)
+    2. Parse -mabi from CFLAGS
+    3. Parse -mabi from ARCH_ABI
+    4. Query compiler for default ABI
+    5. Fall back to rtconfig.RV_ABI
+    """
+    abi = 'ilp32'  # Default fallback
+    
+    # Method 0: Check Eclipse/environment variable
+    env_abi = os.getenv('RISCV_ABI') or os.getenv('RV_ABI')
+    if env_abi:
+        abi = env_abi
+        source = "environment variable"
+        if parent_process_info and parent_process_info.get('is_eclipse'):
+            source = "Eclipse environment variable"
+        print(f"[AMPAK] Detected ABI from {source}: {abi}")
+        return abi
+    
+    # Check Eclipse-specific environment variables
+    if parent_process_info and parent_process_info.get('is_eclipse'):
+        # Eclipse CDT may set these
+        eclipse_abi = os.getenv('CDT_CROSS_TOOLS_ABI') or os.getenv('CROSS_ABI')
+        if eclipse_abi:
+            abi = eclipse_abi
+            print(f"[AMPAK] Detected ABI from Eclipse CDT variable: {abi}")
+            return abi
+
+    # Method for RT-Thread Studio: Parse .cproject file
+    if parent_process_info and parent_process_info.get('is_studio'):
+        try:
+            import xml.etree.ElementTree as ET
+            cproject_path = os.path.join(cwd, '..', '..', '..', '.cproject')
+            
+            if os.path.exists(cproject_path):
+                tree = ET.parse(cproject_path)
+                root = tree.getroot()
+                
+                # Track what we find for debugging
+                found_abi_fp = None
+                found_isa_fp = None
+                
+                # Find options related to floating point
+                for option in root.iter('option'):
+                    opt_id = option.get('id', '')
+                    superclass = option.get('superClass', '')
+                    value = option.get('value', '')
+                    name = option.get('name', '')
+                    
+                    # Check for Floating point ABI option (most direct)
+                    if 'target.abi.fp' in superclass:
+                        found_abi_fp = value
+                        # Extract ABI from value
+                        if 'abi.fp.single' in value:
+                            abi = 'ilp32f'
+                            print(f"[AMPAK] Eclipse .cproject: Floating point ABI = single-precision")
+                            print(f"[AMPAK] Detected ABI from Eclipse .cproject: {abi}")
+                            return abi
+                        elif 'abi.fp.double' in value:
+                            abi = 'ilp32d'
+                            print(f"[AMPAK] Eclipse .cproject: Floating point ABI = double-precision")
+                            print(f"[AMPAK] Detected ABI from Eclipse .cproject: {abi}")
+                            return abi
+                        elif 'abi.fp.none' in value:
+                            abi = 'ilp32'
+                            print(f"[AMPAK] Eclipse .cproject: Floating point ABI = none")
+                            print(f"[AMPAK] Detected ABI from Eclipse .cproject: {abi}")
+                            return abi
+                    
+                    # Also check the ISA floating point option (as backup)
+                    if 'target.isa.fp' in superclass or 'option.target.isa.fp.2086917901' in opt_id:
+                        found_isa_fp = value
+                
+                # If we found ISA FP but not ABI FP, infer from ISA
+                if found_isa_fp and not found_abi_fp:
+                    if 'isa.fp.single' in found_isa_fp:
+                        abi = 'ilp32f'
+                        print(f"[AMPAK] Eclipse .cproject: ISA FP = single-precision")
+                        print(f"[AMPAK] Detected ABI from Eclipse .cproject (via ISA): {abi}")
+                        return abi
+                    elif 'isa.fp.double' in found_isa_fp:
+                        abi = 'ilp32d'
+                        print(f"[AMPAK] Eclipse .cproject: ISA FP = double-precision")
+                        print(f"[AMPAK] Detected ABI from Eclipse .cproject (via ISA): {abi}")
+                        return abi
+                    elif 'isa.fp.none' in found_isa_fp:
+                        abi = 'ilp32'
+                        print(f"[AMPAK] Eclipse .cproject: ISA FP = none")
+                        print(f"[AMPAK] Detected ABI from Eclipse .cproject (via ISA): {abi}")
+                        return abi
+                
+                print("[AMPAK] Info: .cproject found but no FP ABI/ISA setting detected")
+            else:
+                print(f"[AMPAK] Info: .cproject not found at {cproject_path}")
+        except Exception as e:
+            print(f"[AMPAK] Warning: Could not parse .cproject file: {e}")
+    
+    # Method 1: Parse from rtconfig CFLAGS
+    if hasattr(rtconfig, 'CFLAGS'):
+        cflags = rtconfig.CFLAGS
+        abi_match = re.search(r'-mabi=(\S+)', cflags)
+        if abi_match:
+            abi = abi_match.group(1)
+            print(f"[AMPAK] Detected ABI from CFLAGS: {abi}")
+            return abi
+    
+    # Method 2: Parse from ARCH_ABI
+    if hasattr(rtconfig, 'ARCH_ABI'):
+        arch_abi = rtconfig.ARCH_ABI
+        abi_match = re.search(r'-mabi=(\S+)', arch_abi)
+        if abi_match:
+            abi = abi_match.group(1)
+            print(f"[AMPAK] Detected ABI from ARCH_ABI: {abi}")
+            return abi
+    
+    # Method 3: Query compiler directly
+    try:
+        if hasattr(rtconfig, 'CC') and hasattr(rtconfig, 'EXEC_PATH'):
+            compiler = os.path.join(rtconfig.EXEC_PATH, rtconfig.CC)
+            if os.name == 'nt' and not compiler.endswith('.exe'):
+                compiler += '.exe'
+            
+            if os.path.exists(compiler):
+                # Query compiler for default ABI
+                result = subprocess.run(
+                    [compiler, '-print-multi-lib'],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                if result.returncode == 0:
+                    # Parse multilib output for ABI hints
+                    for line in result.stdout.splitlines():
+                        if 'ilp32d' in line.lower():
+                            abi = 'ilp32d'
+                            break
+                        elif 'ilp32f' in line.lower():
+                            abi = 'ilp32f'
+                            break
+    except Exception as e:
+        print(f"[AMPAK] Warning: Could not query compiler for ABI: {e}")
+    
+    # Method 4: Fall back to rtconfig.RV_ABI
+    if hasattr(rtconfig, 'RV_ABI'):
+        abi = rtconfig.RV_ABI
+        print(f"[AMPAK] Using ABI from rtconfig.RV_ABI: {abi}")
+    else:
+        print(f"[AMPAK] Using default ABI: {abi}")
+    
+    return abi
+
+
+if GetDepend('RT_USING_MHD'):
+    # Detect parent process (IDE or terminal)
+    parent_process = detect_parent_process()
+    print(f"[AMPAK] Build invoked by: {parent_process['name']}")
+    if parent_process.get('ppid'):
+        print(f"[AMPAK] Parent PID: {parent_process['ppid']}")
+
+    # Show helpful hints based on parent process
+    if parent_process.get('is_conemu'):
+        print("[AMPAK] Console Emulator (ConEmu) detected - Set RISCV_ABI environment variable")
+    elif parent_process.get('is_eclipse'):
+        print("[AMPAK] Eclipse detected - Set RISCV_ABI in C/C++ Build > Environment")
+    elif parent_process.get('is_studio'):
+        print("[AMPAK] RT-Thread Studio detected - Set RISCV_ABI in C/C++ Build > Environment")
+    elif parent_process.get('is_vscode'):
+        print("[AMPAK] VSCode detected - Set RISCV_ABI in tasks.json or settings")
+    elif parent_process.get('is_terminal'):
+        print("[AMPAK] Command-line build - ABI from rtconfig.py or set RV_ABI env var")
+
+    # Detect ABI and select appropriate library suffix
+    # Pass parent process info for IDE-specific detection
+    detected_abi = extract_abi_from_compiler(parent_process)
+
+    if detected_abi == 'ilp32':
+        abi = '_ilp32'
+    elif detected_abi == 'ilp32f':
+        abi = '_ilp32f'
+    elif detected_abi == 'ilp32d':
+        abi = '_ilp32d'
+    else:
+        print(f"[AMPAK] Warning: Unknown ABI '{detected_abi}', defaulting to ilp32")
+        abi = '_ilp32'
+
+    print(f"[AMPAK] Selected library variant: libmhd43xxx{lwip}{abi}.a")
+    chip_src = [cwd + modules + chip + '/chip_resource.c']
+    libpath  = [cwd + modules]
+    libs     = [lib + lwip + abi ]
+    path    += [cwd]
+    src      = drv_src + chip_src
+    group    = DefineGroup('mhd_drv', src, depend = ['RT_USING_LWIP'], CPPPATH = path, LIBS = libs, LIBPATH = libpath)
+
+Return('group')

@@ -14917,6 +14917,24 @@ Note: user should configure pair bit and this bitfield before PWM output is enab
           </fields>
         </register>
         <register>
+          <name>cap_en_neg</name>
+          <description>Capture irq mode</description>
+          <addressOffset>0x228</addressOffset>
+          <size>32</size>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0x00FFFFFF</resetMask>
+          <fields>
+            <field>
+              <name>CAP_EN_NEG</name>
+              <description>In capture mode, those bits setting for generate capture irq when capture falling edge.
+Default those bits is 0, generate capture irq when capture rising edge.</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>24</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
           <name>dmaen</name>
           <description>DMA request enable register</description>
           <addressOffset>0x22c</addressOffset>
@@ -17013,7 +17031,7 @@ Note: user should configure pair bit and this bitfield before PWM output is enab
               <field>
                 <name>MODE</name>
                 <description>Transceiver mode
-0: synchronous maaster
+0: synchronous master
 1: synchronous slave
 2: asynchronous mode
 3: asynchronous mode</description>
@@ -19627,11 +19645,18 @@ Note: CRC register will be cleared automatically by UPDATE if select the DATA re
             </field>
             <field>
               <name>CK</name>
-              <description>clock
+              <description>clock state configure
+a. In synchronous master mode:
 0: low
 1: rise-fall
 2: fall-rise
-3: high</description>
+3: high
+b. In synchronous slave mode:
+0：Use TX_POINT and RX_POINT as the timing for data transmission and reception. Disable the TIMEOUT function in the communication protocol( this is not WDG).
+1：Switch the timing for data transmission and reception (e.g., switching edges for receive/transmit in an EnDat Encoder communication cycle). Disable the TIMEOUT function in the communication protocol.
+2：Use TX_POINT and RX_POINT as the timing for data transmission and reception；Enable the TIMEOUT function in the communication protocol.
+3：Switch the timing for data transmission and reception. Enable the TIMEOUT function in the communication protocol.
+c.  In asynchronous mode: please keep 0.</description>
               <bitOffset>24</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
@@ -25096,7 +25121,7 @@ should set to (21-convert_clock_number+1).</description>
           <addressOffset>0x0</addressOffset>
           <size>32</size>
           <resetValue>0x00000000</resetValue>
-          <resetMask>0x0FFF03FF</resetMask>
+          <resetMask>0x0FFF037F</resetMask>
           <fields>
             <field>
               <name>SW_DAC_DATA</name>
@@ -25120,14 +25145,6 @@ Should only be used in buffer mode.</description>
 0: async dac clock and ahb_clock
   all HW trigger signals should be level and should be more than one dac clock cycle,  used to get accurate output frequency(which may not be divided from AHB clock)</description>
               <bitOffset>8</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>write-only</access>
-            </field>
-            <field>
-              <name>TRIG_MODE</name>
-              <description>0: single mode, one trigger pulse will send one 12bit data to DAC analog;
-1: continual mode, if trigger signal(either  or HW) is set, DAC will send data if FIFO is not empty, if trigger signal is clear, DAC will stop send data.</description>
-              <bitOffset>7</bitOffset>
               <bitWidth>1</bitWidth>
               <access>write-only</access>
             </field>
@@ -26049,22 +26066,10 @@ if clr, use dac_cfg value</description>
                 <access>read-write</access>
               </field>
               <field>
-                <name>FLTLEN_SHIFT</name>
-                <description>this field is to extend filter length.
-0: filter length = fltlen
-1: filter length = fltlen * 2
-2: filter length = fltlen * 4
-7: filter length = fltlen * 128
-When the clock frequency is 200MHz, the maximum filter length is about 300uS.</description>
-                <bitOffset>9</bitOffset>
-                <bitWidth>3</bitWidth>
-                <access>read-write</access>
-              </field>
-              <field>
                 <name>FLTLEN</name>
                 <description>This bitfield define the ACMP output digital filter length. The unit is ACMP clock cycle.</description>
                 <bitOffset>0</bitOffset>
-                <bitWidth>9</bitWidth>
+                <bitWidth>12</bitWidth>
                 <access>read-write</access>
               </field>
             </fields>

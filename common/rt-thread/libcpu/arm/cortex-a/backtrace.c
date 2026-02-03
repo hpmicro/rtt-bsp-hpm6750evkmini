@@ -489,7 +489,7 @@ void unwind_backtrace(struct pt_regs *regs, const struct unwind_idx exidx_start[
     arm_get_current_stackframe(regs, &frame);
 
 #ifndef RT_BACKTRACE_FUNCTION_NAME
-    rt_kprintf("please use: addr2line -e rtthread.elf -a -f %08x", frame.pc);
+    rt_kprintf("please use: addr2line -e rtthread.elf -a -f %08x\n", frame.pc);
 #endif
     LOG_D("pc = %08x, sp = %08x", frame.pc, frame.sp);
 
@@ -530,7 +530,7 @@ void rt_unwind(struct rt_hw_exp_stack *regs, unsigned int pc_adj)
     unwind_backtrace(&e_regs, __exidx_start, __exidx_end);
 }
 
-void rt_backtrace(void)
+rt_err_t rt_backtrace(void)
 {
     struct rt_hw_exp_stack regs;
 
@@ -539,4 +539,5 @@ void rt_backtrace(void)
     asm volatile ("mov %0, lr":"=r"(regs.lr));
     asm volatile ("mov %0, pc":"=r"(regs.pc));
     rt_unwind(&regs, 8);
+    return RT_EOK;
 }

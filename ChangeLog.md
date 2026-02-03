@@ -1,5 +1,26 @@
 # Change Log
 
+## v1.11.0
+
+- Integrated hpm_sdk v1.11.0
+- Upgraded RT-Thread to v5.2.2
+- Added RT-Thread standard dynamic interrupt registration mechanism, supporting flexible switching between static binding and dynamic management modes
+- Added support for generic startup files, while maintaining compatibility with existing startup methods
+
+- Updated:
+  - Switched CherryUSB stack from package support to RT-Thread component driver support
+  - Enhanced UART V2 driver
+  - Enhanced MCAN driver
+  - Enhanced CAN driver
+  - Enhanced ENET driver
+  - Enhanced ENET PHY driver
+
+- Added:
+  - Added Software I2C driver
+  - Added Software SPI driver
+  - UART V2 driver added PUART support
+  - TMR driver added PTMR support
+
 ## v1.10.0
 
 - Integrated hpm_sdk v1.10.0

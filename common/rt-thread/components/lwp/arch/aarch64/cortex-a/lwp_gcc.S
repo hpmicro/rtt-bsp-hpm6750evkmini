@@ -7,16 +7,19 @@
  * Date           Author       Notes
  * 2021-05-18     Jesven       first version
  * 2023-07-16     Shell        Move part of the codes to C from asm in signal handling
+ * 2023-08-03     Shell        Support of syscall restart (SA_RESTART)
  */
 
 #ifndef __ASSEMBLY__
 #define __ASSEMBLY__
 #endif
 
-#include "rtconfig.h"
-#include "asm-generic.h"
-#include "asm-fpu.h"
-#include "armv8.h"
+#include <rtconfig.h>
+#include <asm-generic.h>
+#include <asm-fpu.h>
+#include <vector_gcc.h>
+#include <armv8.h>
+#include <lwp_arch.h>
 
 /*********************
  *      SPSR BIT     *
@@ -50,10 +53,12 @@
 arch_start_umode:
     mov sp, x3
     mov x4, #(SPSR_Mode(0) | SPSR_A64)
-    mov x3, x2 ;/* user stack top */
     msr daifset, #3
     dsb sy
     mrs x30, sp_el0
+    /* user stack top */
+    msr sp_el0, x2
+    mov x3, x2
     msr spsr_el1, x4
     msr elr_el1, x1
     eret
@@ -92,21 +97,6 @@ arch_crt_start_umode:
     msr elr_el1, x1
     eret
 
-/*
-void arch_set_thread_context(void *exit_addr, void *new_thread_stack, void *user_stack, void **thread_sp);
-*/
-.global arch_set_thread_context
-arch_set_thread_context:
-    sub x1, x1, #CONTEXT_SIZE
-    str x2, [x1, #CONTEXT_OFFSET_SP_EL0]
-    sub x1, x1, #CONTEXT_SIZE
-    str xzr, [x1, #CONTEXT_OFFSET_X0]       /* new thread return 0 */
-    mov x4, #((3 << 6) | 0x4 | 0x1)         /* el1h, disable interrupt */
-    str x4, [x1, #CONTEXT_OFFSET_SPSR_EL1]
-    str x0, [x1, #CONTEXT_OFFSET_ELR_EL1]
-    str x1, [x3]
-    ret
-
 .global arch_get_user_sp
 arch_get_user_sp:
     mrs x0, sp_el0
@@ -116,6 +106,7 @@ arch_get_user_sp:
 .global arch_clone_exit
 arch_fork_exit:
 arch_clone_exit:
+    mov x0, xzr
     b  arch_syscall_exit
 
 /*
@@ -136,15 +127,37 @@ lwp_exec_user:
  * since this routine reset the SP, we take it as a start point
  */
 START_POINT(SVC_Handler)
+    mov fp, xzr
+    mov lr, xzr
+
     /* x0 is initial sp */
     mov sp, x0
 
+    bl _SVC_Handler
+
+    /* jump explictly, make this code position independant */
+    b arch_syscall_exit
+START_POINT_END(SVC_Handler)
+
+TRACE_SYMBOL(_SVC_Handler)
+#define FRAME_REG x19
+
+/**
+ * x0 -> frame_addr
+ */
+_SVC_Handler:
+    .local _SVC_Handler
+
+    stp fp, lr, [sp, -16]!
+    mov fp, sp
+
+    mov FRAME_REG, x0   /* save the value of frame address */
     msr daifclr, #3  /* enable interrupt */
 
-    bl  rt_thread_self
+    GET_THREAD_SELF x0
     bl  lwp_user_setting_save
 
-    ldp x8, x9, [sp, #(CONTEXT_OFFSET_X8)]
+    ldp x8, x9, [FRAME_REG, #(CONTEXT_OFFSET_X8)]
     and x0, x8, #0xf000
     cmp x0, #0xe000
     beq arch_signal_quit
@@ -157,66 +170,46 @@ START_POINT(SVC_Handler)
     cmp x0, xzr
     mov x30, x0
     beq arch_syscall_exit
-    ldp x0, x1, [sp, #(CONTEXT_OFFSET_X0)]
-    ldp x2, x3, [sp, #(CONTEXT_OFFSET_X2)]
-    ldp x4, x5, [sp, #(CONTEXT_OFFSET_X4)]
-    ldp x6, x7, [sp, #(CONTEXT_OFFSET_X6)]
+    ldp x0, x1, [FRAME_REG, #(CONTEXT_OFFSET_X0)]
+    ldp x2, x3, [FRAME_REG, #(CONTEXT_OFFSET_X2)]
+    ldp x4, x5, [FRAME_REG, #(CONTEXT_OFFSET_X4)]
+    ldp x6, x7, [FRAME_REG, #(CONTEXT_OFFSET_X6)]
     blr x30
-    /* jump explictly, make this code position independant */
-    b arch_syscall_exit
-START_POINT_END(SVC_Handler)
 
-.global arch_syscall_exit
+    ldp fp, lr, [sp], 16
+    ret
+
+/**
+ * void arch_syscall_exit(long rc)
+ */
 arch_syscall_exit:
+    .global arch_syscall_exit
+
+    /**
+     * backup former x0 which is required to restart syscall, then setup
+     * syscall return value in stack frame
+     */
+    mov x1, sp
+    bl arch_syscall_prepare_signal
+
+    /**
+     * disable local irq so we don't messup with the spsr_el1 witch is not saved
+     * for kernel space IRQ/EXCEPTION
+     */
     msr daifset, #3
 
-    ldp x2, x3, [sp], #0x10  /* SPSR and ELR. */
-    msr spsr_el1, x3
-    msr elr_el1, x2
-
-    ldp x29, x30, [sp], #0x10
-    msr sp_el0, x29
-    ldp x28, x29, [sp], #0x10
-    msr fpcr, x28
-    msr fpsr, x29
-    ldp x28, x29, [sp], #0x10
-    ldp x26, x27, [sp], #0x10
-    ldp x24, x25, [sp], #0x10
-    ldp x22, x23, [sp], #0x10
-    ldp x20, x21, [sp], #0x10
-    ldp x18, x19, [sp], #0x10
-    ldp x16, x17, [sp], #0x10
-    ldp x14, x15, [sp], #0x10
-    ldp x12, x13, [sp], #0x10
-    ldp x10, x11, [sp], #0x10
-    ldp x8, x9, [sp], #0x10
-    add sp, sp, #0x40
-    RESTORE_FPU sp
+    b arch_ret_to_user
 
 /* the sp is reset to the outer most level, irq and fiq are disabled */
 START_POINT(arch_ret_to_user)
-    /* save exception frame */
-    SAVE_FPU sp
-    stp x0, x1, [sp, #-0x10]!
-    stp x2, x3, [sp, #-0x10]!
-    stp x4, x5, [sp, #-0x10]!
-    stp x6, x7, [sp, #-0x10]!
-    stp x8, x9, [sp, #-0x10]!
-    stp x10, x11, [sp, #-0x10]!
-    stp x12, x13, [sp, #-0x10]!
-    stp x14, x15, [sp, #-0x10]!
-    stp x16, x17, [sp, #-0x10]!
-    stp x18, x19, [sp, #-0x10]!
-    stp x20, x21, [sp, #-0x10]!
-    stp x22, x23, [sp, #-0x10]!
-    stp x24, x25, [sp, #-0x10]!
-    stp x26, x27, [sp, #-0x10]!
-    stp x28, x29, [sp, #-0x10]!
+    msr daifset, #3
 
-    mrs x0, fpcr
-    mrs x1, fpsr
-    stp x0, x1, [sp, #-0x10]!
-    stp x29, x30, [sp, #-0x10]!
+    ldr x2, [sp, #CONTEXT_OFFSET_SP_EL0]
+    msr sp_el0, x2
+    ldr x2, [sp, #CONTEXT_OFFSET_ELR_EL1]
+    msr elr_el1, x2
+    ldr x3, [sp, #CONTEXT_OFFSET_SPSR_EL1]
+    msr spsr_el1, x3
 
     /* pre-action */
     bl lwp_check_debug
@@ -224,9 +217,11 @@ START_POINT(arch_ret_to_user)
     bl lwp_check_exit_request
     cbz w0, 1f
     /* exit on event */
+    msr daifclr, #3
     mov x0, xzr
     b sys_exit
-1:
+
+1:  /* handling dbg */
     /* check if dbg ops exist */
     ldr x0, =rt_dbg_ops
     ldr x0, [x0]
@@ -238,104 +233,42 @@ START_POINT(arch_ret_to_user)
     orr x2, x2, x1
     msr spsr_el1, x2
     b 3f
-2:
+2:  /* clear software step */
     bic x2, x2, x1
     msr spsr_el1, x2
-3:
+3:  /* handling signal */
 
     /**
-     * push 2 dummy words to simulate a exception frame of interrupt
-     * @note in kernel state, the context switch dont saved the context
+     * push updated spsr & elr to exception frame.
+     * Note: these 2 maybe updated after handling dbg
      */
     mrs x0, spsr_el1
+    str x0, [sp, #CONTEXT_OFFSET_SPSR_EL1]
     mrs x1, elr_el1
-    stp x1, x0, [sp, #-0x10]!
+    str x1, [sp, #CONTEXT_OFFSET_ELR_EL1]
     mov x0, sp
+
+    /* restore the thread execution environment */
     msr daifclr, #3
     bl lwp_thread_signal_catch
+
+    /* restore the exception-return exec-flow */
     msr daifset, #3
-    ldp x1, x0, [sp], #0x10
-    msr spsr_el1, x0
-    msr elr_el1, x1
 
     /* check debug */
-    /* restore exception frame */
-    ldp x29, x30, [sp], #0x10
-    ldp x0, x1, [sp], #0x10
-    msr fpcr, x0
-    msr fpsr, x1
 
-    ldp x28, x29, [sp], #0x10
-    ldp x26, x27, [sp], #0x10
-    ldp x24, x25, [sp], #0x10
-    ldp x22, x23, [sp], #0x10
-    ldp x20, x21, [sp], #0x10
-    ldp x18, x19, [sp], #0x10
-    ldp x16, x17, [sp], #0x10
-    ldp x14, x15, [sp], #0x10
-    ldp x12, x13, [sp], #0x10
-    ldp x10, x11, [sp], #0x10
-    ldp x8, x9, [sp], #0x10
-    ldp x6, x7, [sp], #0x10
-    ldp x4, x5, [sp], #0x10
-    ldp x2, x3, [sp], #0x10
-    ldp x0, x1, [sp], #0x10
-    RESTORE_FPU sp
-
-    stp x0, x1, [sp, #-0x10]!
     ldr x0, =rt_dbg_ops
     ldr x0, [x0]
     cmp x0, xzr
-    ldp x0, x1, [sp], #0x10
+
     beq 1f
 
-    /* save */
-    SAVE_FPU sp
-    stp x0, x1, [sp, #-0x10]!
-    stp x2, x3, [sp, #-0x10]!
-    stp x4, x5, [sp, #-0x10]!
-    stp x6, x7, [sp, #-0x10]!
-    stp x8, x9, [sp, #-0x10]!
-    stp x10, x11, [sp, #-0x10]!
-    stp x12, x13, [sp, #-0x10]!
-    stp x14, x15, [sp, #-0x10]!
-    stp x16, x17, [sp, #-0x10]!
-    stp x18, x19, [sp, #-0x10]!
-    stp x20, x21, [sp, #-0x10]!
-    stp x22, x23, [sp, #-0x10]!
-    stp x24, x25, [sp, #-0x10]!
-    stp x26, x27, [sp, #-0x10]!
-    stp x28, x29, [sp, #-0x10]!
-    mrs x0, fpcr
-    mrs x1, fpsr
-    stp x0, x1, [sp, #-0x10]!
-    stp x29, x30, [sp, #-0x10]!
-
-    mrs x0, elr_el1
+    ldr x0, [sp, #CONTEXT_OFFSET_ELR_EL1]
     bl dbg_attach_req
 
-    /* restore */
-    ldp x29, x30, [sp], #0x10
-    ldp x0, x1, [sp], #0x10
-    msr fpcr, x0
-    msr fpsr, x1
-    ldp x28, x29, [sp], #0x10
-    ldp x26, x27, [sp], #0x10
-    ldp x24, x25, [sp], #0x10
-    ldp x22, x23, [sp], #0x10
-    ldp x20, x21, [sp], #0x10
-    ldp x18, x19, [sp], #0x10
-    ldp x16, x17, [sp], #0x10
-    ldp x14, x15, [sp], #0x10
-    ldp x12, x13, [sp], #0x10
-    ldp x10, x11, [sp], #0x10
-    ldp x8, x9, [sp], #0x10
-    ldp x6, x7, [sp], #0x10
-    ldp x4, x5, [sp], #0x10
-    ldp x2, x3, [sp], #0x10
-    ldp x0, x1, [sp], #0x10
-    RESTORE_FPU sp
 1:
+    RESTORE_IRQ_CONTEXT_NO_SPEL0
+
     eret
 START_POINT_END(arch_ret_to_user)
 
@@ -394,47 +327,47 @@ lwp_check_debug_quit:
     ldp x29, x30, [sp], #0x10
     ret
 
-arch_signal_quit:
-    msr daifset, #3
+.global arch_syscall_restart
+arch_syscall_restart:
+    msr daifset, 3
 
-    /* drop current exception frame */
-    add sp, sp, #CONTEXT_SIZE
-    mrs x0, sp_el0
-    bl  arch_signal_ucontext_restore
-    add x0, x0, #-CONTEXT_SIZE
+    mov sp, x1
+    /* drop exception frame in user stack */
     msr sp_el0, x0
 
     /* restore previous exception frame */
     msr spsel, #0
 
-    ldp x2, x3, [sp], #0x10
-    msr elr_el1, x2
-    msr spsr_el1, x3
-
-    ldp x29, x30, [sp], #0x10
-
-    ldp x28, x29, [sp], #0x10
-    msr fpcr, x28
-    msr fpsr, x29
-
-    ldp x28, x29, [sp], #0x10
-    ldp x26, x27, [sp], #0x10
-    ldp x24, x25, [sp], #0x10
-    ldp x22, x23, [sp], #0x10
-    ldp x20, x21, [sp], #0x10
-    ldp x18, x19, [sp], #0x10
-    ldp x16, x17, [sp], #0x10
-    ldp x14, x15, [sp], #0x10
-    ldp x12, x13, [sp], #0x10
-    ldp x10, x11, [sp], #0x10
-    ldp x8, x9, [sp], #0x10
-    ldp x6, x7, [sp], #0x10
-    ldp x4, x5, [sp], #0x10
-    ldp x2, x3, [sp], #0x10
-    ldp x0, x1, [sp], #0x10
-    RESTORE_FPU sp
+    RESTORE_IRQ_CONTEXT_NO_SPEL0
 
     msr spsel, #1
+
+    b vector_exception
+
+arch_signal_quit:
+
+    /* drop current exception frame & sigreturn */
+    add sp, sp, #(CONTEXT_SIZE + 0x10)
+    mov x1, sp
+    mrs x0, sp_el0
+    bl  arch_signal_ucontext_restore
+    add x0, x0, #-CONTEXT_SIZE
+    msr sp_el0, x0
+
+    /**
+     * Note: Since we will reset spsr, but the reschedule will
+     * corrupt the spsr, we diable irq for a short period here
+     */
+    msr daifset, #3
+
+    /* restore previous exception frame */
+    msr spsel, #0
+
+    RESTORE_IRQ_CONTEXT_NO_SPEL0
+
+    msr spsel, #1
+
+    SAVE_IRQ_CONTEXT
 
     b arch_ret_to_user
 
@@ -462,6 +395,11 @@ arch_thread_signal_enter:
 
     /* arch_signal_ucontext_save(user_sp, psiginfo, exp_frame, save_sig_mask); */
     bl arch_signal_ucontext_save
+    mov x22, x0
+    /* get and saved pointer to uframe */
+    bl arch_signal_ucontext_get_frame
+    mov x2, x0
+    mov x0, x22
 
     dc cvau, x0
     dsb sy
@@ -469,14 +407,14 @@ arch_thread_signal_enter:
     dsb sy
 
     /**
-     * @brief Prepare the environment for signal handler
+     * Brief: Prepare the environment for signal handler
      */
 
-    /** 
+    /**
      * reset the cpsr
      * and drop exp frame on kernel stack, reset kernel sp
      *
-     * @note Since we will reset spsr, but the reschedule will
+     * Note: Since we will reset spsr, but the reschedule will
      * corrupt the spsr, we diable irq for a short period here
      */
     msr daifset, #3
@@ -489,16 +427,20 @@ arch_thread_signal_enter:
     /** set the return address to the sigreturn */
     mov x30, x0
 
+    cbnz x21, 1f
+    mov x21, x30
+1:
     /** set the entry address of signal handler */
     msr elr_el1, x21
 
     /* siginfo is above the return address */
-    add x2, x30, 16
-    add x1, x2, #CONTEXT_SIZE
+    add x1, x30, UCTX_ABI_OFFSET_TO_SI
+    /* uframe is saved in x2 */
     mov x0, x19
 
     /**
      * handler(signo, psi, ucontext);
+     *
      */
     eret
 

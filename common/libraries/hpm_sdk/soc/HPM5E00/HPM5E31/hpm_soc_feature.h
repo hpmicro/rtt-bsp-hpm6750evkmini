@@ -8,7 +8,8 @@
 #ifndef HPM_SOC_FEATURE_H
 #define HPM_SOC_FEATURE_H
 
-#include "hpm_soc.h"
+#include "riscv/riscv_core.h"
+#include "hpm_soc_ip.h"
 #include "hpm_soc_ip_feature.h"
 
 
@@ -61,6 +62,7 @@
 #define PWM_SOC_PWM_MAX_COUNT (8U)
 #define PWM_SOC_CMP_MAX_COUNT (24U)
 #define PWM_SOC_OUTPUT_TO_PWM_MAX_COUNT (8U)
+#define PWM_SOC_CALCULATE_MAX_COUNT (16U) /**< Number of general purpose calculate units */
 
 /*
  * DMA Section
@@ -107,7 +109,7 @@
 */
 #define ENET_SOC_RGMII_EN                          (0U)
 #define ENET_SOC_DESC_ADDR_ALIGNMENT               (32U)
-#define ENET_SOC_BUFF_ADDR_ALIGNMENT               (4U)
+#define ENET_SOC_BUFF_ADDR_ALIGNMENT               (8U)
 #define ENET_SOC_ADDR_MAX_COUNT                    (5U)
 #define ENET_SOC_ALT_EHD_DES_MIN_LEN               (4U)
 #define ENET_SOC_ALT_EHD_DES_MAX_LEN               (8U)

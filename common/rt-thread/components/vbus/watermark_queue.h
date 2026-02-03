@@ -64,12 +64,13 @@ rt_inline rt_err_t rt_wm_que_inc(struct rt_watermark_queue *wg,
         thread = rt_thread_self();
         thread->error = RT_EOK;
         rt_thread_suspend(thread);
-        rt_list_insert_after(&wg->suspended_threads, &thread->tlist);
+        rt_list_insert_after(&wg->suspended_threads, &RT_THREAD_LIST_NODE(thread));
         if (timeout > 0)
         {
+            rt_tick_t timeout_tick = timeout;
             rt_timer_control(&(thread->thread_timer),
                              RT_TIMER_CTRL_SET_TIME,
-                             &timeout);
+                             &timeout_tick);
             rt_timer_start(&(thread->thread_timer));
         }
         rt_hw_interrupt_enable(level);
@@ -116,9 +117,7 @@ rt_inline void rt_wm_que_dec(struct rt_watermark_queue *wg)
         {
             rt_thread_t thread;
 
-            thread = rt_list_entry(wg->suspended_threads.next,
-                                   struct rt_thread,
-                                   tlist);
+            thread = RT_THREAD_LIST_NODE_ENTRY(wg->suspended_threads.next);
             rt_thread_resume(thread);
             need_sched = 1;
         }

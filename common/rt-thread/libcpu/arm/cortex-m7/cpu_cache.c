@@ -17,6 +17,8 @@
 /* The L1-caches on all CortexÂ®-M7s are divided into lines of 32 bytes. */
 #define L1CACHE_LINESIZE_BYTE       (32)
 
+#ifdef RT_USING_CACHE
+
 void rt_hw_cpu_icache_enable(void)
 {
     SCB_EnableICache();
@@ -74,18 +76,21 @@ void rt_hw_cpu_dcache_ops(int ops, void* addr, int size)
 
     if ((ops & clean_invalid) == clean_invalid)
     {
-        SCB_CleanInvalidateDCache_by_Addr((rt_uint32_t *)startAddr, size_byte);
+        SCB_CleanInvalidateDCache_by_Addr((void *)startAddr, size_byte);
     }
     else if (ops & RT_HW_CACHE_FLUSH)
     {
-        SCB_CleanDCache_by_Addr((rt_uint32_t *)startAddr, size_byte);
+        SCB_CleanDCache_by_Addr((void *)startAddr, size_byte);
     }
     else if (ops & RT_HW_CACHE_INVALIDATE)
     {
-        SCB_InvalidateDCache_by_Addr((rt_uint32_t *)startAddr, size_byte);
+        SCB_InvalidateDCache_by_Addr((void *)startAddr, size_byte);
     }
     else
     {
         RT_ASSERT(0);
     }
 }
+
+#endif /* RT_USING_CACHE */
+

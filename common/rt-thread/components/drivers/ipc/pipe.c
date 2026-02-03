@@ -9,6 +9,7 @@
  * 2017-11-08     JasonJiaJie  fix memory leak issue when close a pipe.
  * 2023-06-28     shell        return POLLHUP when writer closed its channel on poll()
  *                             fix flag test on pipe_fops_open()
+ * 2023-12-02     shell        Make read pipe operation interruptable.
  * 2025-06-17     Fan YANG     Fix compatibility issue with Segger Embedded Studio
  */
 #include <rthw.h>
@@ -17,6 +18,7 @@
 #ifndef __SES_VERSION
 #include <sys/errno.h>
 #endif
+#include <ipc/condvar.h>
 
 #if defined(RT_USING_POSIX_DEVIO) && defined(RT_USING_POSIX_PIPE)
 #include <unistd.h>
@@ -72,12 +74,12 @@ static int pipe_fops_open(struct dfs_file *fd)
 
     if ((fd->flags & O_ACCMODE) == O_RDONLY)
     {
-        pipe->reader = 1;
+        pipe->reader += 1;
     }
 
     if ((fd->flags & O_ACCMODE) == O_WRONLY)
     {
-        pipe->writer = 1;
+        pipe->writer += 1;
     }
     if (fd->vnode->ref_count == 1)
     {
@@ -87,6 +89,21 @@ static int pipe_fops_open(struct dfs_file *fd)
             rc = -RT_ENOMEM;
             goto __exit;
         }
+    }
+
+    if ((fd->flags & O_ACCMODE) == O_RDONLY && !pipe->writer)
+    {
+        /* wait for partner */
+        rc = rt_condvar_timedwait(&pipe->waitfor_parter, &pipe->lock,
+                                  RT_INTERRUPTIBLE, RT_WAITING_FOREVER);
+        if (rc != 0)
+        {
+            pipe->reader--;
+        }
+    }
+    else if ((fd->flags & O_ACCMODE) == O_WRONLY)
+    {
+        rt_condvar_broadcast(&pipe->waitfor_parter);
     }
 
 __exit:
@@ -120,12 +137,12 @@ static int pipe_fops_close(struct dfs_file *fd)
 
     if ((fd->flags & O_RDONLY) == O_RDONLY)
     {
-        pipe->reader = 0;
+        pipe->reader -= 1;
     }
 
     if ((fd->flags & O_WRONLY) == O_WRONLY)
     {
-        pipe->writer = 0;
+        pipe->writer -= 1;
         while (!rt_list_isempty(&pipe->reader_queue.waiting_list))
         {
             rt_wqueue_wakeup(&pipe->reader_queue, (void*)POLLIN);
@@ -176,7 +193,7 @@ static int pipe_fops_ioctl(struct dfs_file *fd, int cmd, void *args)
 
     pipe = (rt_pipe_t *)fd->vnode->data;
 
-    switch (cmd)
+    switch ((rt_ubase_t)cmd)
     {
     case FIONREAD:
         *((int*)args) = rt_ringbuffer_data_len(pipe->fifo);
@@ -237,7 +254,8 @@ static ssize_t pipe_fops_read(struct dfs_file *fd, void *buf, size_t count)
 
             rt_mutex_release(&pipe->lock);
             rt_wqueue_wakeup(&pipe->writer_queue, (void*)POLLOUT);
-            rt_wqueue_wait(&pipe->reader_queue, 0, -1);
+            if (rt_wqueue_wait_interruptible(&pipe->reader_queue, 0, -1) == -RT_EINTR)
+                return -EINTR;
             rt_mutex_take(&pipe->lock, RT_WAITING_FOREVER);
         }
     }
@@ -312,7 +330,8 @@ static ssize_t pipe_fops_write(struct dfs_file *fd, const void *buf, size_t coun
         rt_mutex_release(&pipe->lock);
         rt_wqueue_wakeup(&pipe->reader_queue, (void*)POLLIN);
         /* pipe full, waiting on suspended write list */
-        rt_wqueue_wait(&pipe->writer_queue, 0, -1);
+        if (rt_wqueue_wait_interruptible(&pipe->writer_queue, 0, -1) == -RT_EINTR)
+            return -EINTR;
         rt_mutex_take(&pipe->lock, -1);
     }
     rt_mutex_release(&pipe->lock);
@@ -541,7 +560,7 @@ rt_ssize_t rt_pipe_write(rt_device_t device, rt_off_t pos, const void *buffer, r
     }
 
     pbuf = (uint8_t*)buffer;
-    rt_mutex_take(&pipe->lock, -1);
+    rt_mutex_take(&pipe->lock, RT_WAITING_FOREVER);
 
     while (write_bytes < count)
     {
@@ -603,6 +622,14 @@ rt_pipe_t *rt_pipe_create(const char *name, int bufsz)
     rt_pipe_t *pipe;
     rt_device_t dev;
 
+    RT_ASSERT(name != RT_NULL);
+    RT_ASSERT(bufsz < 0xFFFF);
+
+    if (rt_device_find(name) != RT_NULL)
+    {
+        /* pipe device has been created */
+        return RT_NULL;
+    }
     pipe = (rt_pipe_t *)rt_malloc(sizeof(rt_pipe_t));
     if (pipe == RT_NULL) return RT_NULL;
 
@@ -614,10 +641,11 @@ rt_pipe_t *rt_pipe_create(const char *name, int bufsz)
     rt_mutex_init(&pipe->lock, name, RT_IPC_FLAG_FIFO);
     rt_wqueue_init(&pipe->reader_queue);
     rt_wqueue_init(&pipe->writer_queue);
+    rt_condvar_init(&pipe->waitfor_parter, "piwfp");
+
     pipe->writer = 0;
     pipe->reader = 0;
 
-    RT_ASSERT(bufsz < 0xFFFF);
     pipe->bufsz = bufsz;
 
     dev = &pipe->parent;
@@ -636,15 +664,8 @@ rt_pipe_t *rt_pipe_create(const char *name, int bufsz)
     dev->rx_indicate = RT_NULL;
     dev->tx_complete = RT_NULL;
 
-    if (rt_device_register(&pipe->parent, name, RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_REMOVABLE) != 0)
-    {
-        rt_mutex_detach(&pipe->lock);
-#if defined(RT_USING_POSIX_DEVIO) && defined(RT_USING_POSIX_PIPE)
-        resource_id_put(&id_mgr, pipe->pipeno);
-#endif
-        rt_free(pipe);
-        return RT_NULL;
-    }
+    rt_device_register(&pipe->parent, name, RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_REMOVABLE);
+
 #if defined(RT_USING_POSIX_DEVIO) && defined(RT_USING_POSIX_PIPE)
     dev->fops = (void *)&pipe_fops;
 #endif
@@ -677,6 +698,7 @@ int rt_pipe_delete(const char *name)
 
             pipe = (rt_pipe_t *)device;
 
+            rt_condvar_detach(&pipe->waitfor_parter);
             rt_mutex_detach(&pipe->lock);
 #if defined(RT_USING_POSIX_DEVIO) && defined(RT_USING_POSIX_PIPE)
             resource_id_put(&id_mgr, pipe->pipeno);
@@ -739,16 +761,19 @@ int pipe(int fildes[2])
     pipe->is_named = RT_FALSE; /* unamed pipe */
     pipe->pipeno = pipeno;
     rt_snprintf(dev_name, sizeof(dev_name), "/dev/%s", dname);
-    fildes[0] = open(dev_name, O_RDONLY, 0);
-    if (fildes[0] < 0)
-    {
-        return -1;
-    }
 
     fildes[1] = open(dev_name, O_WRONLY, 0);
     if (fildes[1] < 0)
     {
-        close(fildes[0]);
+        rt_pipe_delete(dname);
+        return -1;
+    }
+
+    fildes[0] = open(dev_name, O_RDONLY, 0);
+    if (fildes[0] < 0)
+    {
+        close(fildes[1]);
+        rt_pipe_delete(dname);
         return -1;
     }
 

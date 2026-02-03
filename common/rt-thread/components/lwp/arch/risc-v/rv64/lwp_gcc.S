@@ -35,12 +35,12 @@ arch_start_umode:
     // load kstack for user process
     csrw sscratch, a3
     li t0, SSTATUS_SPP | SSTATUS_SIE    // set as user mode, close interrupt
-    csrc sstatus, t0 
+    csrc sstatus, t0
     li t0, SSTATUS_SPIE // enable interrupt when return to user mode
     csrs sstatus, t0
 
     csrw sepc, a1
-    mv a3, a2
+    mv sp, a2
     sret//enter user mode
 
 /*
@@ -75,12 +75,20 @@ arch_crt_start_umode:
  * we handle following things here:
  * 1. restoring user mode debug state (not support yet)
  * 2. handling thread's exit request
- * 3. handling POSIX signal
+ * 3. handling POSIX signal (skipped for signal quit path)
  * 4. restoring user context
  * 5. jump to user mode
  */
 .global arch_ret_to_user
 arch_ret_to_user:
+    li s0, 1   // flag=1 (normal path)
+    j arch_ret_to_user_impl
+
+.global arch_signal_quit_ret_to_user
+arch_signal_quit_ret_to_user:
+    li s0, 0   // flag=0 (signal quit path)
+
+arch_ret_to_user_impl:
     // TODO: we don't support kernel gdb server in risc-v yet
     // so we don't check debug state here and handle debugging bussiness
 
@@ -90,6 +98,8 @@ arch_ret_to_user:
     call sys_exit
 
 1:
+    // Skip signal handling if coming from arch_signal_quit
+    beqz s0, ret_to_user_exit
     mv a0, sp
     call lwp_thread_signal_catch
 
@@ -107,18 +117,19 @@ arch_signal_quit:
     call arch_signal_ucontext_restore
 
     /* reset kernel sp to the stack */
+    addi sp, sp, CTX_REG_NR * REGBYTES
     STORE sp, FRAME_OFF_SP(a0)
     /* return value is user sp */
     mv sp, a0
 
     /* restore user sp before enter trap */
-    addi a0, sp, CTX_REG_NR * REGBYTES 
+    addi a0, sp, CTX_REG_NR * REGBYTES
     csrw sscratch, a0
 
 
     RESTORE_ALL
     SAVE_ALL
-    j arch_ret_to_user
+    j arch_signal_quit_ret_to_user
 
 /**
  * rt_noreturn
@@ -173,6 +184,12 @@ arch_thread_signal_enter:
     add a1, sp, 16
     /* dummy a2 */
     mv a2, a1
+
+    /* restore user GP */
+    LOAD gp, FRAME_OFF_GP(s3)
+
+    /* restore user TP */
+    LOAD tp, FRAME_OFF_TP(s3)
 
     /**
      * handler(signo, psi, ucontext);
@@ -234,8 +251,7 @@ __restore_sp_from_sscratch: // from kernel
     j __move_stack_context
 
 __restore_sp_from_tcb: // from user
-    la a0, rt_current_thread
-    LOAD a0, 0(a0)
+    jal rt_thread_self
     jal get_thread_kernel_stack_top
     mv t0, a0
 
@@ -272,13 +288,13 @@ copy_context_loop:
     call syscall_handler
     j arch_syscall_exit
 START_POINT_END(syscall_entry)
-    
+
 .global arch_syscall_exit
 arch_syscall_exit:
     CLOSE_INTERRUPT
 
     #if defined(ARCH_MM_MMU)
-        LOAD s0, 2 * REGBYTES(sp)
+        LOAD s0, FRAME_OFF_SSTATUS(sp)
         andi s0, s0, 0x100
         bnez s0, dont_ret_to_user
         j arch_ret_to_user

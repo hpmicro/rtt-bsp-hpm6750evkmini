@@ -281,8 +281,8 @@ int dfs_elm_mkfs(rt_device_t dev_id, const char *fs_name)
     /* check flag status, we need clear the temp driver stored in disk[] */
     if (flag == FSM_STATUS_USE_TEMP_DRIVER)
     {
-        rt_free(fat);
         f_mount(RT_NULL, logic_nbr, (BYTE)index);
+        rt_free(fat);
         disk[index] = RT_NULL;
         /* close device */
         rt_device_close(dev_id);
@@ -350,7 +350,6 @@ int dfs_elm_open(struct dfs_file *file)
             return -ENOENT;
         }
         file->pos = 0;
-        return 0;
     }
 
     if (fs == NULL)
@@ -675,7 +674,7 @@ int dfs_elm_getdents(struct dfs_file *file, struct dirent *dirp, uint32_t count)
 
         d->d_namlen = (rt_uint8_t)rt_strlen(fn);
         d->d_reclen = (rt_uint16_t)sizeof(struct dirent);
-        rt_strncpy(d->d_name, fn, DFS_PATH_MAX);
+        rt_strncpy(d->d_name, fn, DIRENT_NAME_MAX);
 
         index ++;
         if (index * sizeof(struct dirent) >= count)

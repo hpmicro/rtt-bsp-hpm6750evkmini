@@ -40,143 +40,151 @@ struct hpm_i2c
     rt_uint8_t irq_priority;
 };
 
+/* Macros to reduce repetitive I2C configuration code */
+#define HPM_I2C_CONFIG(idx) \
+    { \
+        .base = HPM_I2C##idx, \
+        .bus_name = "i2c"#idx, \
+        .clk_name = clock_i2c##idx, \
+        HPM_I2C_DMA_CONFIG_##idx \
+        .dmamux = HPM_DMA_SRC_I2C##idx, \
+        .i2c_irq = IRQn_I2C##idx, \
+        HPM_I2C_IRQ_PRIORITY_##idx \
+    }
+
+/* DMA configuration per instance */
+#if defined(BSP_I2C0_USING_DMA)
+#define HPM_I2C_DMA_CONFIG_0 .enable_dma = RT_TRUE,
+#else
+#define HPM_I2C_DMA_CONFIG_0 .enable_dma = RT_FALSE,
+#endif
+
+#if defined(BSP_I2C1_USING_DMA)
+#define HPM_I2C_DMA_CONFIG_1 .enable_dma = RT_TRUE,
+#else
+#define HPM_I2C_DMA_CONFIG_1
+#endif
+
+#if defined(BSP_I2C2_USING_DMA)
+#define HPM_I2C_DMA_CONFIG_2 .enable_dma = RT_TRUE,
+#else
+#define HPM_I2C_DMA_CONFIG_2 .enable_dma = RT_FALSE,
+#endif
+
+#if defined(BSP_I2C3_USING_DMA)
+#define HPM_I2C_DMA_CONFIG_3 .enable_dma = RT_TRUE,
+#else
+#define HPM_I2C_DMA_CONFIG_3 .enable_dma = RT_FALSE,
+#endif
+
+#if defined(BSP_I2C4_USING_DMA)
+#define HPM_I2C_DMA_CONFIG_4 .enable_dma = RT_TRUE,
+#else
+#define HPM_I2C_DMA_CONFIG_4
+#endif
+
+#if defined(BSP_I2C5_USING_DMA)
+#define HPM_I2C_DMA_CONFIG_5 .enable_dma = RT_TRUE,
+#else
+#define HPM_I2C_DMA_CONFIG_5 .enable_dma = RT_FALSE,
+#endif
+
+#if defined(BSP_I2C6_USING_DMA)
+#define HPM_I2C_DMA_CONFIG_6 .enable_dma = RT_TRUE,
+#else
+#define HPM_I2C_DMA_CONFIG_6 .enable_dma = RT_FALSE,
+#endif
+
+#if defined(BSP_I2C7_USING_DMA)
+#define HPM_I2C_DMA_CONFIG_7 .enable_dma = RT_TRUE,
+#else
+#define HPM_I2C_DMA_CONFIG_7
+#endif
+
+/* IRQ priority configuration per instance */
+#if defined(BSP_I2C0_IRQ_PRIORITY)
+#define HPM_I2C_IRQ_PRIORITY_0 .irq_priority = BSP_I2C0_IRQ_PRIORITY,
+#else
+#define HPM_I2C_IRQ_PRIORITY_0 .irq_priority = 1,
+#endif
+
+#if defined(BSP_I2C1_IRQ_PRIORITY)
+#define HPM_I2C_IRQ_PRIORITY_1 .irq_priority = BSP_I2C1_IRQ_PRIORITY,
+#else
+#define HPM_I2C_IRQ_PRIORITY_1 .irq_priority = 1,
+#endif
+
+#if defined(BSP_I2C2_IRQ_PRIORITY)
+#define HPM_I2C_IRQ_PRIORITY_2 .irq_priority = BSP_I2C2_IRQ_PRIORITY,
+#else
+#define HPM_I2C_IRQ_PRIORITY_2 .irq_priority = 1,
+#endif
+
+#if defined(BSP_I2C3_IRQ_PRIORITY)
+#define HPM_I2C_IRQ_PRIORITY_3 .irq_priority = BSP_I2C3_IRQ_PRIORITY,
+#else
+#define HPM_I2C_IRQ_PRIORITY_3 .irq_priority = 1,
+#endif
+
+#if defined(BSP_I2C4_IRQ_PRIORITY)
+#define HPM_I2C_IRQ_PRIORITY_4 .irq_priority = BSP_I2C4_IRQ_PRIORITY,
+#else
+#define HPM_I2C_IRQ_PRIORITY_4 .irq_priority = 1,
+#endif
+
+#if defined(BSP_I2C5_IRQ_PRIORITY)
+#define HPM_I2C_IRQ_PRIORITY_5 .irq_priority = BSP_I2C5_IRQ_PRIORITY,
+#else
+#define HPM_I2C_IRQ_PRIORITY_5 .irq_priority = 1,
+#endif
+
+#if defined(BSP_I2C6_IRQ_PRIORITY)
+#define HPM_I2C_IRQ_PRIORITY_6 .irq_priority = BSP_I2C6_IRQ_PRIORITY,
+#else
+#define HPM_I2C_IRQ_PRIORITY_6 .irq_priority = 1,
+#endif
+
+#if defined(BSP_I2C7_IRQ_PRIORITY)
+#define HPM_I2C_IRQ_PRIORITY_7 .irq_priority = BSP_I2C7_IRQ_PRIORITY,
+#else
+#define HPM_I2C_IRQ_PRIORITY_7 .irq_priority = 1,
+#endif
+
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+/* Macro for ISR handler declaration and implementation */
+#define HPM_I2C_ISR_HANDLER(idx) \
+    RTT_DECLARE_EXT_ISR_M(IRQn_I2C##idx, i2c##idx##_isr); \
+    void i2c##idx##_isr(void) \
+    { \
+        handle_i2c_isr(HPM_I2C##idx); \
+    }
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
+
 static struct hpm_i2c hpm_i2cs[] =
 {
 #if defined(BSP_USING_I2C0)
-    {
-        .base = HPM_I2C0,
-        .bus_name = "i2c0",
-        .clk_name = clock_i2c0,
-#if defined(BSP_I2C0_USING_DMA)
-        .enable_dma = RT_TRUE,
-#endif
-        .dmamux = HPM_DMA_SRC_I2C0,
-        .i2c_irq = IRQn_I2C0,
-#if defined(BSP_I2C0_IRQ_PRIORITY)
-        .irq_priority = BSP_I2C0_IRQ_PRIORITY,
-#else
-        .irq_priority = 1,
-#endif
-    },
+    HPM_I2C_CONFIG(0),
 #endif
 #if defined(BSP_USING_I2C1)
-    {
-        .base = HPM_I2C1,
-        .bus_name = "i2c1",
-        .clk_name = clock_i2c1,
-#if defined(BSP_I2C1_USING_DMA)
-        .enable_dma = RT_TRUE,
-#endif
-        .dmamux = HPM_DMA_SRC_I2C1,
-        .i2c_irq = IRQn_I2C1,
-#if defined(BSP_I2C1_IRQ_PRIORITY)
-       .irq_priority = BSP_I2C1_IRQ_PRIORITY,
-#else
-       .irq_priority = 1,
-#endif
-    },
+    HPM_I2C_CONFIG(1),
 #endif
 #if defined(BSP_USING_I2C2)
-    {
-        .base = HPM_I2C2,
-        .bus_name = "i2c2",
-        .clk_name = clock_i2c2,
-#if defined(BSP_I2C2_USING_DMA)
-        .enable_dma = RT_TRUE,
-#endif
-        .dmamux = HPM_DMA_SRC_I2C2,
-        .i2c_irq = IRQn_I2C2,
-#if defined(BSP_I2C2_IRQ_PRIORITY)
-        .irq_priority = BSP_I2C2_IRQ_PRIORITY,
-#else
-        .irq_priority = 1,
-#endif
-    },
+    HPM_I2C_CONFIG(2),
 #endif
 #if defined(BSP_USING_I2C3)
-    {
-        .base = HPM_I2C3,
-        .bus_name = "i2c3",
-        .clk_name = clock_i2c3,
-#if defined(BSP_I2C3_USING_DMA)
-        .enable_dma = RT_TRUE,
-#endif
-        .dmamux = HPM_DMA_SRC_I2C3,
-        .i2c_irq = IRQn_I2C3,
-#if defined(BSP_I2C3_IRQ_PRIORITY)
-        .irq_priority = BSP_I2C3_IRQ_PRIORITY,
-#else
-        .irq_priority = 1,
-#endif
-    },
+    HPM_I2C_CONFIG(3),
 #endif
 #if defined(BSP_USING_I2C4)
-    {
-        .base = HPM_I2C4,
-        .bus_name = "i2c4",
-        .clk_name = clock_i2c4,
-#if defined(BSP_I2C4_USING_DMA)
-        .enable_dma = RT_TRUE,
-#endif
-        .dmamux = HPM_DMA_SRC_I2C4,
-        .i2c_irq = IRQn_I2C4,
-#if defined(BSP_I2C4_IRQ_PRIORITY)
-        .irq_priority = BSP_I2C4_IRQ_PRIORITY,
-#else
-        .irq_priority = 1,
-#endif
-    },
+    HPM_I2C_CONFIG(4),
 #endif
 #if defined(BSP_USING_I2C5)
-    {
-        .base = HPM_I2C5,
-        .bus_name = "i2c5",
-        .clk_name = clock_i2c5,
-#if defined(BSP_I2C5_USING_DMA)
-        .enable_dma = RT_TRUE,
-#endif
-        .dmamux = HPM_DMA_SRC_I2C5,
-        .i2c_irq = IRQn_I2C5,
-#if defined(BSP_I2C5_IRQ_PRIORITY)
-        .irq_priority = BSP_I2C5_IRQ_PRIORITY,
-#else
-        .irq_priority = 1,
-#endif
-    },
+    HPM_I2C_CONFIG(5),
 #endif
 #if defined(BSP_USING_I2C6)
-    {
-        .base = HPM_I2C6,
-        .bus_name = "i2c6",
-        .clk_name = clock_i2c6,
-#if defined(BSP_I2C6_USING_DMA)
-        .enable_dma = RT_TRUE,
-#endif
-        .dmamux = HPM_DMA_SRC_I2C6,
-        .i2c_irq = IRQn_I2C6,
-#if defined(BSP_I2C6_IRQ_PRIORITY)
-        .irq_priority = BSP_I2C6_IRQ_PRIORITY,
-#else
-        .irq_priority = 1,
-#endif
-    },
+    HPM_I2C_CONFIG(6),
 #endif
 #if defined(BSP_USING_I2C7)
-    {
-        .base = HPM_I2C7,
-        .bus_name = "i2c7",
-        .clk_name = clock_i2c7,
-#if defined(BSP_I2C7_USING_DMA)
-        .enable_dma = RT_TRUE,
-#endif
-        .dmamux = HPM_DMA_SRC_I2C7,
-        .i2c_irq = IRQn_I2C7,
-#if defined(BSP_I2C7_IRQ_PRIORITY)
-        .irq_priority = BSP_I2C7_IRQ_PRIORITY,
-#else
-        .irq_priority = 1,
-#endif
-    },
+    HPM_I2C_CONFIG(7),
 #endif
 };
 
@@ -191,7 +199,11 @@ struct rt_i2c_bus_device_ops hpm_i2c_ops =
     RT_NULL
 };
 
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
 static inline void handle_i2c_isr(I2C_Type *ptr)
+#else
+static inline void handle_i2c_isr(int vector, I2C_Type *ptr)
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 {
     volatile uint32_t irq_status;
     RT_ASSERT(ptr != RT_NULL);
@@ -213,71 +225,39 @@ static inline void handle_i2c_isr(I2C_Type *ptr)
     rt_hw_interrupt_enable(level);
 }
 
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
 #if defined(BSP_USING_I2C0)
-RTT_DECLARE_EXT_ISR_M(IRQn_I2C0, i2c0_isr);
-void i2c0_isr(void)
-{
-    handle_i2c_isr(HPM_I2C0);
-}
+HPM_I2C_ISR_HANDLER(0)
 #endif
 
 #if defined(BSP_USING_I2C1)
-RTT_DECLARE_EXT_ISR_M(IRQn_I2C1, i2c1_isr);
-void i2c1_isr(void)
-{
-    handle_i2c_isr(HPM_I2C1);
-}
-
+HPM_I2C_ISR_HANDLER(1)
 #endif
 
 #if defined(BSP_USING_I2C2)
-RTT_DECLARE_EXT_ISR_M(IRQn_I2C2, i2c2_isr);
-void i2c2_isr(void)
-{
-    handle_i2c_isr(HPM_I2C2);
-}
+HPM_I2C_ISR_HANDLER(2)
 #endif
 
 #if defined(BSP_USING_I2C3)
-RTT_DECLARE_EXT_ISR_M(IRQn_I2C3, i2c3_isr);
-void i2c3_isr(void)
-{
-    handle_i2c_isr(HPM_I2C3);
-}
+HPM_I2C_ISR_HANDLER(3)
 #endif
 
 #if defined(BSP_USING_I2C4)
-RTT_DECLARE_EXT_ISR_M(IRQn_I2C4, i2c4_isr);
-void i2c4_isr(void)
-{
-    handle_i2c_isr(HPM_I2C4);
-}
+HPM_I2C_ISR_HANDLER(4)
 #endif
 
 #if defined(BSP_USING_I2C5)
-RTT_DECLARE_EXT_ISR_M(IRQn_I2C5, i2c5_isr);
-void i2c5_isr(void)
-{
-    handle_i2c_isr(HPM_I2C5);
-}
+HPM_I2C_ISR_HANDLER(5)
 #endif
 
 #if defined(BSP_USING_I2C6)
-RTT_DECLARE_EXT_ISR_M(IRQn_I2C6, i2c6_isr);
-void i2c6_isr(void)
-{
-    handle_i2c_isr(HPM_I2C6);
-}
+HPM_I2C_ISR_HANDLER(6)
 #endif
 
 #if defined(BSP_USING_I2C7)
-RTT_DECLARE_EXT_ISR_M(IRQn_I2C7, i2c7_isr);
-void i2c7_isr(void)
-{
-    handle_i2c_isr(HPM_I2C7);
-}
+HPM_I2C_ISR_HANDLER(7)
 #endif
-
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 
 static hpm_stat_t i2c_tx_trigger_dma(DMA_Type *dma_ptr, uint8_t ch_num, I2C_Type *i2c_ptr, uint32_t src, uint32_t size)
 {
@@ -515,7 +495,11 @@ int rt_hw_i2c_init(void)
     char sem_name[RT_NAME_MAX];
 
     for (uint32_t i = 0; i < sizeof(hpm_i2cs) / sizeof(hpm_i2cs[0]); i++) {
-        init_i2c_pins(hpm_i2cs[i].base);
+        if (init_i2c_pins(hpm_i2cs[i].base) != status_success) {
+            LOG_E("Failed to initialize I2C%u pins. Please check board configuration", i);
+            ret = -RT_ERROR;
+            continue;
+        }
         clock_add_to_group(hpm_i2cs[i].clk_name, BOARD_RUNNING_CORE & 0x1);
         clock_set_source_divider(hpm_i2cs[i].clk_name, clk_src_osc24m, 1U);
 
@@ -551,6 +535,10 @@ int rt_hw_i2c_init(void)
         if (ret != RT_EOK) {
             LOG_E("rt i2c device %s register failed, status=%d\n", hpm_i2cs[i].bus_name, ret);
         }
+#ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+        /* Register I2C device to irq table */
+        rt_hw_interrupt_install(hpm_i2cs[i].i2c_irq, (rt_isr_handler_t)handle_i2c_isr, hpm_i2cs[i].base, hpm_i2cs[i].bus_name);
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
     }
 
     return ret;

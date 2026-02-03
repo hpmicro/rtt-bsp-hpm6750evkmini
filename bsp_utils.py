@@ -13,7 +13,7 @@ This script provides command-line utilities for managing HPMicro RT-Thread BSP p
 - Display version information
 
 Author: HPMicro
-Version: 0.3.0
+Version: 0.4.0
 """
 
 import os
@@ -22,7 +22,7 @@ import argparse
 import shutil
 
 # Version information for the utility
-util_version = '0.3.0'
+util_version = '0.4.0'
 
 
 def show_version():
@@ -319,10 +319,13 @@ def export_bsp_proj(proj_name, output_dir):
             src_common_dir = os.path.join(bsp_root, 'common')
             for file_or_dir in os.listdir(src_common_dir):
                 # Skip bsp_utils.py to avoid copying the utility itself
-                if os.path.isdir(os.path.join(src_common_dir, file_or_dir)):
+                if file_or_dir != 'bsp_utils.py':
                     src_dir_path = os.path.join(src_common_dir, file_or_dir)
                     dst_dir_path = os.path.join(dst_proj_root, file_or_dir)
-                    shutil.copytree(src_dir_path, dst_dir_path)
+                    if os.path.isfile(src_dir_path):
+                        shutil.copy(src_dir_path, dst_dir_path)
+                    else:
+                        shutil.copytree(src_dir_path, dst_dir_path)
 
             # Copy project-specific files
             # This includes the main application code, build files, and project configurations

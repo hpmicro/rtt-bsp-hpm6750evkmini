@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2021-2024 HPMicro
+ * Copyright (c) 2021-2025 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
+#include <stdio.h>
 
 #ifndef __ICCRISCV__
 #include <sys/stat.h>
@@ -18,6 +19,10 @@ static UART_Type* g_console_uart = NULL;
 hpm_stat_t console_init(console_config_t *cfg)
 {
     hpm_stat_t stat = status_fail;
+
+    /* disable buffer in standard library */
+    setvbuf(stdin, NULL, _IONBF, 0);
+    setvbuf(stdout, NULL, _IONBF, 0);
 
     if (cfg->type == CONSOLE_TYPE_UART) {
         uart_config_t config = {0};
@@ -72,7 +77,7 @@ __attribute__((used)) FILE *stdin  = &__SEGGER_RTL_stdin_file;  /* NOTE: Provide
 __attribute__((used)) FILE *stdout = &__SEGGER_RTL_stdout_file; /* NOTE: Provide implementation of stdout for RTL. */
 __attribute__((used)) FILE *stderr = &__SEGGER_RTL_stderr_file; /* NOTE: Provide implementation of stderr for RTL. */
 
-__attribute__((used)) int __SEGGER_RTL_X_file_write(__SEGGER_RTL_FILE *file, const char *data, unsigned int size)
+__attribute__((weak, used)) int __SEGGER_RTL_X_file_write(__SEGGER_RTL_FILE *file, const char *data, unsigned int size)
 {
     unsigned int count;
     (void)file;
@@ -90,7 +95,7 @@ __attribute__((used)) int __SEGGER_RTL_X_file_write(__SEGGER_RTL_FILE *file, con
 
 }
 
-__attribute__((used)) int __SEGGER_RTL_X_file_read(__SEGGER_RTL_FILE *file, char *s, unsigned int size)
+__attribute__((weak, used)) int __SEGGER_RTL_X_file_read(__SEGGER_RTL_FILE *file, char *s, unsigned int size)
 {
     (void)file;
     (void) size;
@@ -99,19 +104,19 @@ __attribute__((used)) int __SEGGER_RTL_X_file_read(__SEGGER_RTL_FILE *file, char
     return 1;
 }
 
-__attribute__((used)) int __SEGGER_RTL_X_file_stat(__SEGGER_RTL_FILE *stream)
+__attribute__((weak, used)) int __SEGGER_RTL_X_file_stat(__SEGGER_RTL_FILE *stream)
 {
     (void) stream;
     return 0;
 }
 
-__attribute__((used)) int __SEGGER_RTL_X_file_bufsize(__SEGGER_RTL_FILE *stream)
+__attribute__((weak, used)) int __SEGGER_RTL_X_file_bufsize(__SEGGER_RTL_FILE *stream)
 {
     (void) stream;
     return 1;
 }
 
-__attribute__((used)) int __SEGGER_RTL_X_file_unget(__SEGGER_RTL_FILE *stream, int c)
+__attribute__((weak, used)) int __SEGGER_RTL_X_file_unget(__SEGGER_RTL_FILE *stream, int c)
 {
     if (stream == stdin) {
         if (c != EOF && _stdin_ungot == EOF) {
@@ -125,7 +130,7 @@ __attribute__((used)) int __SEGGER_RTL_X_file_unget(__SEGGER_RTL_FILE *stream, i
     return c;
 }
 
-__attribute__((used)) int  __SEGGER_RTL_X_file_flush(__SEGGER_RTL_FILE *__stream)
+__attribute__((weak, used)) int  __SEGGER_RTL_X_file_flush(__SEGGER_RTL_FILE *__stream)
 {
     (void) __stream;
     return 1;
@@ -199,14 +204,14 @@ __attribute__((used)) FILE *stdin  = &__SEGGER_RTL_stdin_file;  /* NOTE: Provide
 __attribute__((used)) FILE *stdout = &__SEGGER_RTL_stdout_file; /* NOTE: Provide implementation of stdout for RTL. */
 __attribute__((used)) FILE *stderr = &__SEGGER_RTL_stderr_file; /* NOTE: Provide implementation of stderr for RTL. */
 
-__attribute__((used)) int __SEGGER_RTL_X_file_write(__SEGGER_RTL_FILE *file, const char *data, unsigned int size)
+__attribute__((weak, used)) int __SEGGER_RTL_X_file_write(__SEGGER_RTL_FILE *file, const char *data, unsigned int size)
 {
     (void) file;
     (void) data;
     return size;
 }
 
-__attribute__((used)) int __SEGGER_RTL_X_file_read(__SEGGER_RTL_FILE *file, char *s, unsigned int size)
+__attribute__((weak, used)) int __SEGGER_RTL_X_file_read(__SEGGER_RTL_FILE *file, char *s, unsigned int size)
 {
     (void) file;
     (void) size;
@@ -214,7 +219,7 @@ __attribute__((used)) int __SEGGER_RTL_X_file_read(__SEGGER_RTL_FILE *file, char
     return 1;
 }
 
-__attribute__((used)) int __SEGGER_RTL_X_file_stat(__SEGGER_RTL_FILE *stream)
+__attribute__((weak, used)) int __SEGGER_RTL_X_file_stat(__SEGGER_RTL_FILE *stream)
 {
     (void) stream;
     return 0;
@@ -226,14 +231,14 @@ __attribute__((used)) int __SEGGER_RTL_X_file_bufsize(__SEGGER_RTL_FILE *stream)
     return 1;
 }
 
-__attribute__((used)) int __SEGGER_RTL_X_file_unget(__SEGGER_RTL_FILE *stream, int c)
+__attribute__((weak, used)) int __SEGGER_RTL_X_file_unget(__SEGGER_RTL_FILE *stream, int c)
 {
     (void) stream;
     (void) c;
     return EOF;
 }
 
-__attribute__((used)) int  __SEGGER_RTL_X_file_flush(__SEGGER_RTL_FILE *__stream)
+__attribute__((weak, used)) int  __SEGGER_RTL_X_file_flush(__SEGGER_RTL_FILE *__stream)
 {
     (void) __stream;
     return 1;

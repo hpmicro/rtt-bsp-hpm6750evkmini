@@ -26,7 +26,7 @@
 #include "hpm_dma_mgr.h"
 
 #include "drv_i2s.h"
-#include "drivers/audio.h"
+#include "drivers/dev_audio.h"
 
 extern uint32_t rtt_board_init_i2s_clock(I2S_Type *ptr);
 
@@ -419,11 +419,11 @@ static rt_err_t hpm_i2s_configure(struct rt_audio_device* audio, struct rt_audio
     {
         if (hpm_audio->i2s_state == hpm_i2s_state_read)
         {
-            dma_abort_channel(hpm_audio->rx_dma_resource.base, 1u << hpm_audio->rx_dma_resource.channel);
+            dma_mgr_abort_chn_transfer(&(hpm_audio->rx_dma_resource));
         }
         if (hpm_audio->i2s_state == hpm_i2s_state_write)
         {
-            dma_abort_channel(hpm_audio->tx_dma_resource.base, 1u << hpm_audio->tx_dma_resource.channel);
+            dma_mgr_abort_chn_transfer(&(hpm_audio->tx_dma_resource));
         }
     }
     if (status_success != i2s_config_transfer(hpm_audio->base, clock_get_frequency(hpm_audio->clk_name), &hpm_audio->transfer))
@@ -513,12 +513,12 @@ static rt_err_t hpm_i2s_stop(struct rt_audio_device* audio, int stream)
 
     if (stream == AUDIO_STREAM_REPLAY) {
         dma_resource_t *dma_resource = &hpm_audio->tx_dma_resource;
-        dma_abort_channel(dma_resource->base, 1u << dma_resource->channel);
+        dma_mgr_abort_chn_transfer(dma_resource);
         dma_mgr_release_resource(dma_resource);
     } else if (stream == AUDIO_STREAM_RECORD)
     {
         dma_resource_t *dma_resource = &hpm_audio->rx_dma_resource;
-        dma_abort_channel(dma_resource->base, 1u << dma_resource->channel);
+        dma_mgr_abort_chn_transfer(dma_resource);
         dma_mgr_release_resource(dma_resource);
     } else {
         return -RT_ERROR;
@@ -559,6 +559,7 @@ static rt_ssize_t hpm_i2s_transmit(struct rt_audio_device* audio, const void* wr
         ch_config.size_in_byte = size;
         ch_config.dst_mode = DMA_HANDSHAKE_MODE_HANDSHAKE;
         ch_config.src_burst_size = DMA_NUM_TRANSFER_PER_BURST_1T;
+        ch_config.interrupt_mask = DMA_INTERRUPT_MASK_ABORT;
 
         if (l1c_dc_is_enabled()) {
             /* cache writeback for sent buff */
@@ -583,6 +584,7 @@ static rt_ssize_t hpm_i2s_transmit(struct rt_audio_device* audio, const void* wr
         ch_config.size_in_byte = size;
         ch_config.src_mode = DMA_HANDSHAKE_MODE_HANDSHAKE;
         ch_config.src_burst_size = DMA_NUM_TRANSFER_PER_BURST_1T;
+        ch_config.interrupt_mask = DMA_INTERRUPT_MASK_ABORT;
 
         hpm_audio->i2s_state = hpm_i2s_state_read;
         if (status_success != dma_setup_channel(dma_resource->base, dma_resource->channel, &ch_config, true)) {

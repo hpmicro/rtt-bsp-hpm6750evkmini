@@ -40,7 +40,10 @@ static char *const sensor_name_str[] =
     "spo2_",     /* SpO2 sensor       */
     "iaq_",      /* IAQ sensor        */
     "etoh_",     /* EtOH sensor       */
-    "bp_"        /* Blood Pressure    */
+    "bp_",       /* Blood Pressure    */
+    "volt_",     /* Voltage sensor    */
+    "curr_",     /* Current sensor    */
+    "pow_"       /* Power sensor      */
 };
 
 /* Sensor interrupt correlation function */
@@ -127,7 +130,7 @@ static rt_err_t rt_sensor_irq_init(rt_sensor_t sensor)
 
 // local rt_sensor_ops
 
-static rt_size_t local_fetch_data(struct rt_sensor_device *sensor, void *buf, rt_size_t len)
+static rt_ssize_t local_fetch_data(struct rt_sensor_device *sensor, void *buf, rt_size_t len)
 {
     LOG_D("Undefined fetch_data");
     return 0;
@@ -135,7 +138,7 @@ static rt_size_t local_fetch_data(struct rt_sensor_device *sensor, void *buf, rt
 static rt_err_t local_control(struct rt_sensor_device *sensor, int cmd, void *arg)
 {
     LOG_D("Undefined control");
-    return RT_ERROR;
+    return -RT_ERROR;
 }
 static struct rt_sensor_ops local_ops =
 {

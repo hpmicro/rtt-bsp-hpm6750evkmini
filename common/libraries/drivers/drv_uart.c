@@ -39,7 +39,7 @@ static rt_err_t hpm_uart_control(struct rt_serial_device *serial, int cmd, void 
 static int hpm_uart_putc(struct rt_serial_device *serial, char ch);
 static int hpm_uart_getc(struct rt_serial_device *serial);
 
-
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
 #if defined(BSP_USING_UART0)
 struct rt_serial_device serial0;
 void uart0_isr(void)
@@ -193,6 +193,7 @@ void uart15_isr(void)
 }
 RTT_DECLARE_EXT_ISR_M(IRQn_UART15,uart15_isr)
 #endif
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 
 static const struct hpm_uart uarts[] = {
 #if defined(BSP_USING_UART0)
@@ -442,7 +443,11 @@ static const struct hpm_uart uarts[] = {
  *
  * @param serial Serial device
  */
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
 static void hpm_uart_isr(struct rt_serial_device *serial)
+#else
+static void hpm_uart_isr(int vector, struct rt_serial_device *serial)
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 {
     struct hpm_uart *uart;
 
@@ -559,6 +564,10 @@ int rt_hw_uart_init(void)
                             uarts[i].device_name,
                             RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX,
                             (void*)&uarts[i]);
+#ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+        /* Register UART device to irq table */
+        rt_hw_interrupt_install(uarts[i].irq_num, (rt_isr_handler_t)hpm_uart_isr, uarts[i].serial, uarts[i].device_name);
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
     }
 
     return err;

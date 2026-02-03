@@ -3,6 +3,7 @@ menuconfig RT_USING_OFW
     select RT_USING_ADT
     select RT_USING_ADT_REF
     select RT_USING_ADT_BITMAP
+    select RT_USING_MEMBLOCK
     depends on RT_USING_DM
     default n
 
@@ -20,3 +21,9 @@ config RT_FDT_EARLYCON_MSG_SIZE
     int "Earlycon message buffer size (KB)"
     depends on RT_USING_OFW
     default 128
+
+config RT_USING_OFW_BUS_RANGES_NUMBER
+    int "Max bus ranges number"
+    depends on RT_USING_OFW
+    default 8 if ARCH_CPU_64BIT
+    default 4

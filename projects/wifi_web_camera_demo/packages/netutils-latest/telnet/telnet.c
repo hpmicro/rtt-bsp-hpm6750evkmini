@@ -28,7 +28,12 @@
 #endif /* defined(RT_USING_POSIX_STDIO) */
 
 #if defined(RT_USING_POSIX_STDIO) || defined(RT_USING_POSIX)
+#if RT_VER_NUM >= 0x50100
+#include <unistd.h>
+#include <posix/stdio.h>
+#else
 #include <libc.h>
+#endif /* RT_VER_NUM >= 0x50100 */
 static int dev_old_flag;
 #endif /* defined(RT_USING_POSIX_STDIO) || defined(RT_USING_POSIX) */
 
@@ -58,6 +63,9 @@ static int dev_old_flag;
 #define TELNET_DO           253
 #define TELNET_DONT         254
 
+#define TELNET_OPT_ECHO     1
+#define TELNET_OPT_SGA      3
+
 struct telnet_session
 {
     struct rt_ringbuffer rx_ringbuffer;
@@ -72,7 +80,7 @@ struct telnet_session
 
     /* telnet protocol */
     rt_uint8_t state;
-    rt_uint8_t echo_mode;
+    rt_uint8_t finsh_saved_echo_mode;
 
     rt_sem_t read_notice;
 };
@@ -162,17 +170,45 @@ static void process_rx(struct telnet_session* telnet, rt_uint8_t *data, rt_size_
             }
             break;
 
-            /* don't option */
         case STATE_WILL:
+            if (*data == TELNET_OPT_ECHO || *data == TELNET_OPT_SGA)
+            {
+                send_option_to_client(telnet, TELNET_DO, *data);
+            }
+            else
+            {
+                send_option_to_client(telnet, TELNET_DONT, *data);
+            }
+            telnet->state = STATE_NORMAL;
+            break;
         case STATE_WONT:
-            send_option_to_client(telnet, TELNET_DONT, *data);
+            if (*data == TELNET_OPT_ECHO)
+            {
+                finsh_set_echo(0);
+            }
             telnet->state = STATE_NORMAL;
             break;
 
-            /* won't option */
         case STATE_DO:
+            if (*data == TELNET_OPT_ECHO || *data == TELNET_OPT_SGA)
+            {
+                if (*data == TELNET_OPT_ECHO)
+                {
+                    finsh_set_echo(1);
+                }
+                send_option_to_client(telnet, TELNET_WILL, *data);
+            }
+            else
+            {
+                send_option_to_client(telnet, TELNET_WONT, *data);
+            }
+            telnet->state = STATE_NORMAL;
+            break;
         case STATE_DONT:
-            send_option_to_client(telnet, TELNET_WONT, *data);
+            if (*data == TELNET_OPT_ECHO)
+            {
+                finsh_set_echo(0);
+            }
             telnet->state = STATE_NORMAL;
             break;
 
@@ -180,6 +216,20 @@ static void process_rx(struct telnet_session* telnet, rt_uint8_t *data, rt_size_
             if (*data == TELNET_IAC)
             {
                 telnet->state = STATE_IAC;
+            }
+            else if (*data == '\r')
+            {
+                /*
+                 * telnet client(not busybox's telnet) will send 0d00 if not toggle crlf by default,
+                 * change them to 0d0a, so we don't have to toggle
+                 */
+                if ((index + 1) <= length)
+                {
+                    if (data[1] == 0)
+                    {
+                        data[1] = '\n';
+                    }
+                }
             }
             else if (*data != '\r') /* ignore '\r' */
             {
@@ -218,8 +268,13 @@ static void client_close(struct telnet_session* telnet)
     rt_console_set_device(RT_CONSOLE_DEVICE_NAME);
     /* set finsh device */
 #if defined(RT_USING_POSIX_STDIO) || defined(RT_USING_POSIX)
+#if RT_VER_NUM >= 0x50100
+    ioctl(rt_posix_stdio_get_console(), F_SETFL, (void *) dev_old_flag);
+    rt_posix_stdio_set_console(RT_CONSOLE_DEVICE_NAME, O_RDWR);
+#else
     ioctl(libc_stdio_get_console(), F_SETFL, (void *) dev_old_flag);
     libc_stdio_set_console(RT_CONSOLE_DEVICE_NAME, O_RDWR);
+#endif /* RT_VER_NUM >= 0x50100 */
 #else
     finsh_set_device(RT_CONSOLE_DEVICE_NAME);
 #endif /* defined(RT_USING_POSIX_STDIO) || defined(RT_USING_POSIX) */
@@ -230,7 +285,7 @@ static void client_close(struct telnet_session* telnet)
     closesocket(telnet->client_fd);
 
     /* restore shell option */
-    finsh_set_echo(telnet->echo_mode);
+    finsh_set_echo(telnet->finsh_saved_echo_mode);
 
     rt_kprintf("telnet: resume console to %s\n", RT_CONSOLE_DEVICE_NAME);
 }
@@ -251,9 +306,9 @@ static rt_err_t telnet_close(rt_device_t dev)
     return RT_EOK;
 }
 
-static rt_size_t telnet_read(rt_device_t dev, rt_off_t pos, void* buffer, rt_size_t size)
+static rt_ssize_t telnet_read(rt_device_t dev, rt_off_t pos, void* buffer, rt_size_t size)
 {
-    rt_size_t result;
+    rt_size_t result = 0;
 
     rt_sem_take(telnet->read_notice, RT_WAITING_FOREVER);
 
@@ -274,7 +329,7 @@ static rt_size_t telnet_read(rt_device_t dev, rt_off_t pos, void* buffer, rt_siz
     return result;
 }
 
-static rt_size_t telnet_write (rt_device_t dev, rt_off_t pos, const void* buffer, rt_size_t size)
+static rt_ssize_t telnet_write (rt_device_t dev, rt_off_t pos, const void* buffer, rt_size_t size)
 {
     const rt_uint8_t *ptr;
 
@@ -314,6 +369,75 @@ static rt_err_t telnet_control(rt_device_t dev, int cmd, void *args)
         telnet_control
     };
 #endif /* RT_USING_DEVICE_OPS */
+
+#ifdef RT_USING_POSIX_STDIO
+#include <dfs_file.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <poll.h>
+#include <sys/ioctl.h>
+
+#ifdef RT_USING_POSIX_TERMIOS
+#include <termios.h>
+#endif
+
+/* it's possible the 'getc/putc' is defined by stdio.h in gcc/newlib. */
+#ifdef getc
+#undef getc
+#endif
+
+#ifdef putc
+#undef putc
+#endif
+
+#ifdef RT_USING_DFS_V2
+static ssize_t telnet_fops_read(struct dfs_file *fd, void *buf, size_t count, off_t *pos)
+#else
+static ssize_t telnet_fops_read(struct dfs_file *fd, void *buf, size_t count)
+#endif
+{
+    int size = 0;
+    rt_device_t device;
+    int wait_ret;
+
+    device = &telnet->device;
+
+    do
+    {
+        size = rt_device_read(device, -1,  buf, count);
+        if (size <= 0)
+        {
+            if (fd->flags & O_NONBLOCK)
+            {
+                size = -EAGAIN;
+                break;
+            }
+
+            wait_ret = rt_wqueue_wait_interruptible(&(device->wait_queue), 0, RT_WAITING_FOREVER);
+            if (wait_ret != RT_EOK)
+            {
+                break;
+            }
+        }
+    }while (size <= 0);
+
+    if (size < 0)
+    {
+        size = 0;
+    }
+    return size;
+}
+static const struct dfs_file_ops telnet_fops =
+{
+    .open   = NULL,
+    .close  = NULL,
+    .ioctl  = NULL,
+    .read   = telnet_fops_read,
+    .write  = NULL,
+    .poll   = NULL,
+};
+#endif /* RT_USING_POSIX_STDIO */
+
 
 /* telnet server thread entry */
 static void telnet_thread(void* parameter)
@@ -366,6 +490,10 @@ static void telnet_thread(void* parameter)
     telnet->device.control  = telnet_control;
 #endif /* RT_USING_DEVICE_OPS */
 
+#ifdef RT_USING_POSIX_STDIO
+    telnet->device.fops = &telnet_fops;
+#endif
+
     /* no private */
     telnet->device.user_data = RT_NULL;
 
@@ -391,11 +519,19 @@ static void telnet_thread(void* parameter)
         /* set finsh device */
 #if defined(RT_USING_POSIX_STDIO) || defined(RT_USING_POSIX)
         /* backup flag */
+#if RT_VER_NUM >= 0x50100
+        dev_old_flag = ioctl(rt_posix_stdio_get_console(), F_GETFL, (void *) RT_NULL);
+        /* add non-block flag */
+        ioctl(rt_posix_stdio_get_console(), F_SETFL, (void *) (dev_old_flag | O_NONBLOCK));
+        /* set tcp shell device for console */
+        rt_posix_stdio_set_console("telnet", O_RDWR);
+#else
         dev_old_flag = ioctl(libc_stdio_get_console(), F_GETFL, (void *) RT_NULL);
         /* add non-block flag */
         ioctl(libc_stdio_get_console(), F_SETFL, (void *) (dev_old_flag | O_NONBLOCK));
         /* set tcp shell device for console */
         libc_stdio_set_console("telnet", O_RDWR);
+#endif /* RT_VER_NUM >= 0x50100 */
         /* resume finsh thread, make sure it will unblock from last device receive */
         rt_thread_t tid = rt_thread_find(FINSH_THREAD_NAME);
         if (tid)
@@ -411,9 +547,9 @@ static void telnet_thread(void* parameter)
         /* set init state */
         telnet->state = STATE_NORMAL;
 
-        telnet->echo_mode = finsh_get_echo();
-        /* disable echo mode */
-        finsh_set_echo(0);
+        telnet->finsh_saved_echo_mode = finsh_get_echo();
+        send_option_to_client(telnet, TELNET_WILL, TELNET_OPT_ECHO);
+
         /* output RT-Thread version and shell prompt */
 #ifdef FINSH_USING_MSH
         msh_exec("version", rt_strlen("version"));

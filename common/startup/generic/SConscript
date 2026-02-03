@@ -1,0 +1,26 @@
+import os
+Import('rtconfig')
+from building import *
+
+cwd = GetCurrentDir()
+
+# add the startup files
+
+src = ['startup.c']
+
+if rtconfig.PLATFORM in ['gcc', 'zcc']:
+    src += [os.path.join('toolchains', 'gcc', 'start.S')]
+elif rtconfig.PLATFORM in ['segger']:
+    src += [os.path.join('toolchains', 'segger', 'start.s')]
+    src += [os.path.join('toolchains', 'reset.c')]
+CPPPATH = [cwd]
+
+core_arch_def = 'D45'
+if 'HPM53' in rtconfig.CHIP_NAME:
+    core_arch_def = 'D25'
+
+CPPDEFINES=[core_arch_def, rtconfig.CHIP_NAME]
+
+group = DefineGroup('Startup', src, depend = [''], CPPPATH = CPPPATH, CPPDEFINES = CPPDEFINES)
+
+Return('group')

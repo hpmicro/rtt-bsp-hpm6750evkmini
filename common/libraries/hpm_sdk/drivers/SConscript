@@ -1,0 +1,242 @@
+Import('rtconfig')
+from building import *
+
+#get current directory
+cwd = GetCurrentDir()
+
+# Update include path
+path = [ cwd + "/inc" ]
+
+# The set of source files associated with this SConscript file.
+src = []
+
+CPPDEFINES=[]
+
+src += ['src/hpm_pmp_drv.c']
+src += ['src/hpm_pcfg_drv.c']
+
+if rtconfig.SOC_FAMILY == "HPM6700":
+    src += ['src/hpm_pllctl_drv.c']
+else:
+    src += ['src/hpm_pllctlv2_drv.c']
+
+if rtconfig.SOC_FAMILY == "HPM6700" or rtconfig.SOC_FAMILY == "HPM6300" or rtconfig.SOC_FAMILY == "HPM6200":
+    src += ['src/hpm_dma_drv.c']
+else:
+    src += ['src/hpm_dmav2_drv.c']
+    CPPDEFINES += ['HPMSOC_HAS_HPMSDK_DMAV2']
+
+if GetDepend(['BSP_USING_GPIO']):
+    src += ['src/hpm_gpio_drv.c']
+
+if GetDepend(['BSP_USING_UART']):
+    src += ['src/hpm_uart_drv.c']
+
+if GetDepend(['BSP_USING_I2C']):
+    src += ['src/hpm_i2c_drv.c']
+
+if GetDepend(['BSP_USING_SPI']):
+    src += ['src/hpm_spi_drv.c']
+
+if GetDepend(['BSP_USING_RTC']):
+    src += ['src/hpm_rtc_drv.c']
+
+if GetDepend(['BSP_USING_WDG']):
+    src += ['src/hpm_wdg_drv.c']
+
+if GetDepend(['BSP_USING_EWDG']):
+    src += ['src/hpm_ewdg_drv.c']
+
+if GetDepend(['BSP_USING_ADC']):
+    if GetDepend(['BSP_USING_ADC12']):
+        src += ['src/hpm_adc12_drv.c']
+    if GetDepend(['BSP_USING_ADC16']):
+        src += ['src/hpm_adc16_drv.c']
+
+if GetDepend(['BSP_USING_CAN']):
+    src += ['src/hpm_can_drv.c']
+
+if GetDepend(['BSP_USING_MCAN']):
+    src += ['src/hpm_mcan_drv.c']
+
+if GetDepend(['BSP_USING_ETH']):
+    src += ['src/hpm_enet_drv.c']
+
+if GetDepend(['BSP_USING_DMA']):
+    src += ['src/hpm_dma_drv.c']
+
+if GetDepend(['BSP_USING_SDXC']):
+    src += ['src/hpm_sdxc_drv.c']
+
+if GetDepend(['BSP_USING_LCD']):
+    src += ['src/hpm_lcdc_drv.c']
+
+if GetDepend(['BSP_USING_GPTMR']) or GetDepend('HPM_USING_VECTOR_PREEMPTED_MODE'):
+    src += ['src/hpm_gptmr_drv.c']
+    CPPDEFINES += ['NO_BOARD_TIMER_SUPPORT=1']
+
+if GetDepend(['BSP_USING_FEMC']):
+    src += ['src/hpm_femc_drv.c']
+
+if GetDepend(['BSP_USING_PWM']):
+    src += ['src/hpm_pwm_drv.c']
+
+if GetDepend(['BSP_USING_PWMV2']):
+    src += ['src/hpm_pwmv2_drv.c']
+
+if GetDepend(['BSP_USING_USB']):
+    src += ['src/hpm_usb_drv.c']
+
+if GetDepend(['BSP_USING_I2S']):
+    src += ['src/hpm_i2s_drv.c']
+
+if GetDepend(['BSP_USING_PDM']):
+    src += ['src/hpm_pdm_drv.c']
+    src += ['src/hpm_i2s_drv.c']
+
+if GetDepend(['BSP_USING_DAO']):
+    src += ['src/hpm_dao_drv.c']
+    src += ['src/hpm_i2s_drv.c']
+
+if GetDepend(['BSP_USING_PDMA']):
+    src += ['src/hpm_pdma_drv.c']
+
+if GetDepend(['BSP_USING_JPEG']):
+    src += ['src/hpm_jpeg_drv.c']
+
+if GetDepend(['BSP_USING_CAM']):
+    src += ['src/hpm_cam_drv.c']
+
+if GetDepend(['BSP_USING_PIXELMUX']):
+    src += ['src/hpm_pixelmux_drv.c']
+
+if GetDepend(['BSP_USING_MIPI_CSI']):
+    src += ['src/hpm_mipi_csi_drv.c']
+    src += ['src/hpm_mipi_csi_phy_drv.c']
+
+if GetDepend(['BSP_USING_MIPI_DSI']):
+    src += ['src/hpm_mipi_dsi_drv.c']
+    src += ['src/hpm_mipi_dsi_phy_drv.c']
+
+if GetDepend(['BSP_USING_LVB']):
+    src += ['src/hpm_lvb_drv.c']
+
+if GetDepend(['BSP_USING_LCB']):
+    src += ['src/hpm_lcb_drv.c']
+
+if GetDepend(['BSP_USING_CLC']):
+    src += ['src/hpm_clc_drv.c']
+
+if GetDepend(['BSP_USING_DAC']):
+    src += ['src/hpm_dac_drv.c']
+
+if GetDepend(['BSP_USING_QEIV2']):
+    src += ['src/hpm_qeiv2_drv.c']
+    src += ['src/hpm_enc_pos_drv.c']
+
+if GetDepend(['BSP_USING_QEI']):
+    src += ['src/hpm_qei_drv.c']
+
+if GetDepend(['BSP_USING_QEO']):
+    src += ['src/hpm_qeo_drv.c']
+
+if GetDepend(['BSP_USING_QEOV2']):
+    src += ['src/hpm_qeov2_drv.c']
+
+if GetDepend(['BSP_USING_ESC']):
+    src += ['src/hpm_esc_drv.c']
+
+if GetDepend(['BSP_USING_TSW']):
+    src += ['src/hpm_tsw_drv.c']
+    src += ['../utils/hpm_swap.c']
+
+if GetDepend(['BSP_USING_PTPC']):
+    src += ['src/hpm_ptpc_drv.c']
+
+if GetDepend(['BSP_USING_RNG']):
+    src += ['src/hpm_rng_drv.c']
+
+if GetDepend(['BSP_USING_CRC']):
+    src += ['src/hpm_crc_drv.c']
+
+if GetDepend(['BSP_USING_ACMP']):
+    src += ['src/hpm_acmp_drv.c']
+
+if GetDepend(['BSP_USING_OPAMP']):
+    src += ['src/hpm_opamp_drv.c']
+
+if GetDepend(['BSP_USING_LIN']):
+    src += ['src/hpm_lin_drv.c']
+
+if GetDepend(['BSP_USING_TSNS']):
+    src += ['src/hpm_tsns_drv.c']
+
+if GetDepend(['BSP_USING_SEI']):
+    src += ['src/hpm_sei_drv.c']
+
+if GetDepend(['BSP_USING_RDC']):
+    src += ['src/hpm_rdc_drv.c']
+
+if GetDepend(['BSP_USING_MTG']):
+    src += ['src/hpm_mtg_drv.c']
+
+if GetDepend(['BSP_USING_MTGV2']):
+    src += ['src/hpm_mtgv2_drv.c']
+
+if GetDepend(['BSP_USING_SMIX']):
+    src += ['src/hpm_smix_drv.c']
+
+if GetDepend(['BSP_USING_VAD']):
+    src += ['src/hpm_vad_drv.c']
+
+if GetDepend(['BSP_USING_TAMP']):
+    src += ['src/hpm_tamp_drv.c']
+
+if GetDepend(['BSP_USING_SDP']):
+    src += ['src/hpm_sdp_drv.c']
+
+if GetDepend(['BSP_USING_SDM']):
+    src += ['src/hpm_sdm_drv.c']
+
+if GetDepend(['BSP_USING_MMC']):
+    src += ['src/hpm_mmc_drv.c']
+
+if GetDepend(['BSP_USING_FFA']):
+    src += ['src/hpm_ffa_drv.c']
+
+if GetDepend(['BSP_USING_GWC']):
+    src += ['src/hpm_gwc_drv.c']
+
+if GetDepend(['BSP_USING_LOBS']):
+    src += ['src/hpm_lobs_drv.c']
+
+if GetDepend(['BSP_USING_PLA']):
+    src += ['src/hpm_pla_drv.c']
+
+if GetDepend(['BSP_USING_PLB']):
+    src += ['src/hpm_plb_drv.c']
+
+if GetDepend(['BSP_USING_PPI']):
+    src += ['src/hpm_ppi_drv.c']
+
+if GetDepend(['BSP_USING_OWR']):
+    src += ['src/hpm_owr_drv.c']
+
+if GetDepend(['BSP_USING_PDMLITE']):
+    src += ['src/hpm_pdmlite_drv.c']
+
+if GetDepend(['BSP_USING_VSC']):
+    src += ['src/hpm_vsc_drv.c']
+
+if GetDepend(['BSP_USING_EUI']):
+    src += ['src/hpm_eui_drv.c']
+
+if GetDepend(['BSP_USING_MCHTMR']):
+    src += ['src/hpm_mchtmr_drv.c']
+
+if GetDepend(['BSP_USING_TFA']):
+    src += ['src/hpm_tfa_drv.S']
+
+group = DefineGroup('Libraries', src, depend = [''], CPPPATH = path, CPPDEFINES=CPPDEFINES)
+
+Return ('group')

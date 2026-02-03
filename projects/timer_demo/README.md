@@ -37,19 +37,20 @@ date             - get date and time or set (local timezone) [year month day hou
 - wdt_reset 停止看门狗，看门狗会在约1秒后复位
 
 - alarm_sample RTC闹钟例子
-  - 比如需要开启一个5S的闹钟，执行命令：
+  - 比如需要开启一个10S的闹钟，执行命令：
   ```console
-    alarm_sample 5
+    alarm_sample 10
   ```
-  - 开启后会显示：
+  - 开启后会显示设置闹钟时间时的当前时间和设置的闹钟时间
   ```console
+    current time: 2026-01-01 08:42:44
     alarm use local time
-    alarm time: 2025-06-04 15:36:04
+    set alarm time: 2026-01-01 08:42:54
   ```
-  - 执行后会在5S后打印：
+  - 执行后会在10S后打印，可以看到打印的时间跟设置的闹钟时间一致
   ```console
     user alarm callback function.
-    current time: 2025-06-04 15:36:09
+    current time: 2026-01-01 08:42:54
   ```
 - del_alarm_sample 删除全部闹钟
 

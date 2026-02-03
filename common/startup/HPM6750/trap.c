@@ -4,7 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
+#include "hpm_common.h"
 #include "hpm_soc.h"
+#include <rtthread.h>
 #include "hpm_rtt_interrupt_util.h"
 
 
@@ -113,4 +115,8 @@ void trap_entry(void)
 #ifdef __riscv_flen
     write_fcsr(fcsr);
 #endif
+}
+
+rt_weak void handle_trap(rt_uint32_t mcause, rt_uint32_t mepc, rt_uint32_t sp)
+{
 }

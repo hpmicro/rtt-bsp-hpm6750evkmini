@@ -48,8 +48,10 @@ static void iperf_udp_client(void *thread_param)
     rt_uint32_t *buffer;
     struct sockaddr_in server;
     rt_uint32_t packet_count = 0;
-    rt_uint32_t tick;
+    rt_uint32_t tick, tick1, tick2;
     int send_size;
+    int ret;
+    rt_uint64_t sentlen = 0;
 
     send_size = IPERF_BUFSZ > 1470 ? 1470 : IPERF_BUFSZ;
     buffer = rt_malloc(IPERF_BUFSZ);
@@ -61,13 +63,15 @@ static void iperf_udp_client(void *thread_param)
     sock = socket(PF_INET, SOCK_DGRAM, 0);
     if(sock < 0)
     {
-        LOG_E("can't create socket! exit!");
+        LOG_E("can't create socket!");
+        rt_free(buffer);
         return;
     }
     server.sin_family = PF_INET;
     server.sin_port = htons(param.port);
     server.sin_addr.s_addr = inet_addr(param.host);
     LOG_I("iperf udp mode run...");
+    tick1 = rt_tick_get();
     while (param.mode != IPERF_MODE_STOP)
     {
         packet_count++;
@@ -75,7 +79,28 @@ static void iperf_udp_client(void *thread_param)
         buffer[0] = htonl(packet_count);
         buffer[1] = htonl(tick / RT_TICK_PER_SECOND);
         buffer[2] = htonl((tick % RT_TICK_PER_SECOND) * 1000);
-        sendto(sock, buffer, send_size, 0, (struct sockaddr *)&server, sizeof(struct sockaddr_in));
+        ret = sendto(sock, buffer, send_size, 0, (struct sockaddr *)&server, sizeof(struct sockaddr_in));
+        if (ret > 0)
+        {
+            sentlen += ret;
+        }
+        if (ret < 0) break;
+
+        tick2 = rt_tick_get();
+        if (tick2 - tick1 >= RT_TICK_PER_SECOND * 5)
+        {
+            long data;
+            int integer, decimal;
+            rt_thread_t tid;
+
+            tid = rt_thread_self();
+            data = sentlen * RT_TICK_PER_SECOND / 125 / (tick2 - tick1);
+            integer = data/1000;
+            decimal = data%1000;
+            LOG_I("%s: %d.%03d0 Mbps!", IPERF_GET_THREAD_NAME(tid), integer, decimal);
+            tick1 = tick2;
+            sentlen = 0;
+        }
     }
     closesocket(sock);
     rt_free(buffer);
@@ -162,7 +187,7 @@ static void iperf_udp_server(void *thread_param)
             data = sentlen * RT_TICK_PER_SECOND / 125 / (tick2 - tick1);
             integer = data/1000;
             decimal = data%1000;
-            LOG_I("%s: %d.%03d0 Mbps! lost:%d total:%d\n", IPERF_GET_THREAD_NAME(tid), integer, decimal, lost, total);
+            LOG_I("%s: %d.%03d0 Mbps! lost:%d total:%d", IPERF_GET_THREAD_NAME(tid), integer, decimal, lost, total);
         }
     }
     rt_free(buffer);
@@ -388,7 +413,7 @@ void iperf_usage(void)
     rt_kprintf("  -h           print this message and quit\n");
     rt_kprintf("  --stop       stop iperf program\n");
     rt_kprintf("  -u           testing UDP protocol\n");
-    rt_kprintf("  -m <time>    the number of multi-threaded ");
+    rt_kprintf("  -m <time>    the number of multi-threaded\n");
     return;
 }
 
@@ -505,7 +530,7 @@ int iperf(int argc, char **argv)
                 }
             }
 
-            tid = rt_thread_create(tid_name, function, RT_NULL, 2048, 20, 100);
+            tid = rt_thread_create(tid_name, function, RT_NULL, IPERF_THREAD_STACK_SIZE, 20, 100);
             if (tid) rt_thread_startup(tid);
         }
     }

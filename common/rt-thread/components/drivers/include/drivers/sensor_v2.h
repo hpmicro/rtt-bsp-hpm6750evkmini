@@ -13,7 +13,7 @@
 #define __SENSOR_H__
 
 #include <rtthread.h>
-#include "pin.h"
+#include "dev_pin.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -398,6 +398,7 @@ int rt_hw_sensor_register(rt_sensor_t     sensor,
                           const char     *name,
                           rt_uint32_t     flag,
                           void           *data);
+rt_sensor_t rt_sensor_device_find(const char *name);
 
 #ifdef __cplusplus
 }

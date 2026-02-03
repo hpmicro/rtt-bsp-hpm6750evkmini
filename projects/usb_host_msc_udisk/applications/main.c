@@ -33,7 +33,7 @@ int main(void)
 
 void thread_entry(void *arg)
 {
-    while(1){
+    while(1) {
 #ifdef APP_LED0
         app_led_write(APP_LED0, APP_LED_ON);
         rt_thread_mdelay(500);

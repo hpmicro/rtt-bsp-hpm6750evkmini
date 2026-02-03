@@ -21,7 +21,7 @@
       Target="HPM6750xVMx"
       arm_compiler_variant="SEGGER"
       arm_linker_variant="SEGGER"
-      c_include_files_c_only="libraries/misc/ses_stub/ses_libc_stub.h"
+      c_include_files_c_only="libraries/misc/toolchain_stub/ses_libc_stub.h"
       c_preprocessor_definitions="HPM_SES_USE_SEGGER_LD=1"
       c_user_include_directories="$(ProjectDir)/libraries/hpm_sdk/drivers/inc;$(ProjectDir)/libraries/hpm_sdk/arch"
       gcc_entry_point="_start"
@@ -48,7 +48,7 @@
       gdb_server_reset_command="reset halt"
       gdb_server_type="Custom"
       gdb_server_command_line="openocd -f $(ProjectDir)/board/debug_scripts/openocd/probes/ft2232.cfg -f $(ProjectDir)/board/debug_scripts/openocd/soc/hpm6750-single-core.cfg -f $(ProjectDir)/board/debug_scripts/openocd/boards/hpm6750evkmini.cfg"
-
+      rv_arch_ext="_xv5"
       project_directory=""
       project_type="Executable"
       rv_abi="ilp32"

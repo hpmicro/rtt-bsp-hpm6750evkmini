@@ -26,8 +26,6 @@
 #define APP_LED_ON (0)
 #define APP_LED_OFF (1)
 
-
-
 /* mchtimer section */
 #define BOARD_MCHTMR_FREQ_IN_HZ (24000000UL)
 

@@ -84,10 +84,16 @@ struct tftp_client *tftp_client_create(const char *ip_addr, int port)
 void tftp_client_destroy(struct tftp_client *client)
 {
     struct tftp_client_private *_private;
-
+    if (client == NULL)
+    {
+        return;
+    }
     _private = client->_private;
     /* Release connection objects */
-    tftp_xfer_destroy(_private->xfer);
+    if (_private && _private->xfer)
+    {
+        tftp_xfer_destroy(_private->xfer);
+    }
     /* Free memory */
     free(client);
 }
@@ -152,7 +158,7 @@ int tftp_client_push(struct tftp_client *client, const char *local_name, const c
         return res;
     }
     /* Open file */
-    fp = tftp_file_open(local_name, _private->xfer->mode, 1);
+    fp = tftp_file_open(local_name, _private->xfer->mode, 0);
     if (fp == NULL)
     {
         tftp_printf("open file \"%s\" error.\n", local_name);

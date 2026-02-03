@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2023, RT-Thread Development Team
+ * Copyright (c) 2006-2024 RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -14,6 +14,24 @@
 #define DBG_TAG "hwtimer"
 #define DBG_LVL DBG_INFO
 #include <rtdbg.h>
+
+#ifdef RT_USING_DM
+void (*rt_device_hwtimer_us_delay)(rt_uint32_t us) = RT_NULL;
+
+void rt_hw_us_delay(rt_uint32_t us)
+{
+    if (rt_device_hwtimer_us_delay)
+    {
+        rt_device_hwtimer_us_delay(us);
+    }
+    else
+    {
+        LOG_E("Implemented at least in the libcpu");
+
+        RT_ASSERT(0);
+    }
+}
+#endif /* RT_USING_DM */
 
 rt_inline rt_uint32_t timeout_calc(rt_hwtimer_t *timer, rt_hwtimerval_t *tv)
 {
@@ -302,7 +320,14 @@ static rt_err_t rt_hwtimer_control(struct rt_device *dev, int cmd, void *args)
     break;
     default:
     {
-        result = -RT_ENOSYS;
+        if (timer->ops->control != RT_NULL)
+        {
+            result = timer->ops->control(timer, cmd, args);
+        }
+        else
+        {
+            result = -RT_ENOSYS;
+        }
     }
     break;
     }

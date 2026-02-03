@@ -1,0 +1,93 @@
+
+menuconfig RT_USING_MHD
+    bool "Enable WiFi MHD Driver"
+        default n
+    select RT_USING_NETDEV
+    select RT_WLAN_PROT_LWIP_ENABLE
+    select RT_WLAN_PROT_LWIP_PBUF_FORCE
+    select RT_WLAN_JOIN_SCAN_BY_MGNT
+    select RT_USING_LWIP
+    select RT_USING_SAL
+    select RT_USING_WIFI
+    select RT_USING_DFS
+    help
+        Enable MHD WiFi driver for AMPAK WiFi modules.
+        This driver requires lwIP v2.1.2, select it manually if not selected.
+
+if RT_USING_MHD
+    choice
+        prompt "WiFi Module Selection"
+        default RT_WIFI_AP6212A
+
+        config RT_WIFI_AP6212A
+             bool "AP6212/AP6212A"
+        config RT_WIFI_AP6236
+             bool "AP6236"
+        config RT_WIFI_AP6256
+            bool "AP6256"
+        config RT_WIFI_AP6201BM
+            bool "AP6201BM"
+        config RT_WIFI_AP6203BM
+            bool "AP6203BM"
+        config RT_WIFI_AP6303BH
+            bool "AP6303BH"
+        config RT_WIFI_AP6275S
+            bool "AP6275S"
+        config RT_WIFI_AP6281
+            bool "AP6281"
+        config RT_WIFI_AP6611S
+            bool "AP6611S/AP12611_M2"
+        config RT_WIFI_AP6XXX
+            bool "AP6XXX"
+    endchoice
+
+if RT_WIFI_AP6XXX
+        config RT_WIFI_AP6212A_SEL
+             bool "AP6212/AP6212A"
+        config RT_WIFI_AP6236_SEL
+             bool "AP6236"
+        config RT_WIFI_AP6256_SEL
+            bool "AP6256"
+        config RT_WIFI_AP6201BM_SEL
+            bool "AP6201BM"
+        config RT_WIFI_AP6203BM_SEL
+            bool "AP6203BM"
+        config RT_WIFI_AP6303BH_SEL
+            bool "AP6303BH"
+        config RT_WIFI_AP6275S_SEL
+            bool "AP6275S"
+        config RT_WIFI_AP6281_SEL
+            bool "AP6281"
+        config RT_WIFI_AP6611S_SEL
+            bool "AP6611S/AP12611_M2"
+endif
+
+    config RT_WIFI_WL_REGON_PIN
+        default "PD19"
+        string "Set the WiFi WL_REG_ON pin name"
+    config RT_WIFI_WL_HWAKE_PIN
+        default "PD24"
+        string "Set the WiFi WL_HWAKE pin name"
+
+    config RT_MHD_THREAD_PRIORITY
+            int "The priority level value for MHD thread"
+            default 11
+    config RT_MHD_THREAD_STACKSIZE
+            int "The stack size for MHD thread"
+            default 2048
+
+    config RT_MHD_MFG_TEST
+        bool "Select MFG FW Test Feature"
+        default n
+
+    config MEMP_OVERFLOW_CHECK
+        int "Enable MEMP_OVERFLOW_CHECK"
+        default 1
+    config PBUF_LINK_HLEN
+        int "PBUF_LINK_HLEN"
+        default 48
+    config LWIP_NETIF_TX_SINGLE_PBUF
+        int "Enable LWIP_NETIF_TX_SINGLE_PBUF"
+        default 1
+
+endif

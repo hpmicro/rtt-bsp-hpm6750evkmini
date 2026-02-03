@@ -101,6 +101,8 @@ struct netdev
     netdev_callback_fn status_callback;                /* network interface device flags change callback */
     netdev_callback_fn addr_callback;                  /* network interface device address information change callback */
 
+    int ifindex;                                       /* network interface device ifindex */
+
 #ifdef RT_USING_SAL
     void *sal_user_data;                               /* user-specific data for SAL */
 #endif /* RT_USING_SAL */
@@ -111,7 +113,6 @@ struct netdev
 extern struct netdev *netdev_list;
 /* The default network interface device */
 extern struct netdev *netdev_default;
-
 /* The network interface device ping response object */
 struct netdev_ping_resp
 {
@@ -136,7 +137,7 @@ struct netdev_ops
 
 #ifdef RT_USING_FINSH
     /* set network interface device common network interface device operations */
-    int (*ping)(struct netdev *netdev, const char *host, size_t data_len, uint32_t timeout, struct netdev_ping_resp *ping_resp, rt_bool_t bind);
+    int (*ping)(struct netdev *netdev, const char *host, size_t data_len, uint32_t timeout, struct netdev_ping_resp *ping_resp, rt_bool_t isbind);
     void (*netstat)(struct netdev *netdev);
 #endif
 
@@ -152,10 +153,14 @@ int netdev_unregister(struct netdev *netdev);
 struct netdev *netdev_get_first_by_flags(uint16_t flags);
 struct netdev *netdev_get_by_ipaddr(ip_addr_t *ip_addr);
 struct netdev *netdev_get_by_name(const char *name);
+struct netdev *netdev_get_by_ifindex(int ifindex);
 #ifdef RT_USING_SAL
 struct netdev *netdev_get_by_family(int family);
 int netdev_family_get(struct netdev *netdev);
 #endif /* RT_USING_SAL */
+#if defined(SAL_USING_AF_NETLINK)
+int netdev_getnetdev(struct msg_buf *msg, int (*cb)(struct msg_buf *m_buf, struct netdev *nd, int nd_num, int index, int ipvx));
+#endif
 
 /* Set default network interface device in list */
 void netdev_set_default(struct netdev *netdev);
@@ -176,7 +181,9 @@ int netdev_dhcp_enabled(struct netdev *netdev, rt_bool_t is_enabled);
 int netdev_set_ipaddr(struct netdev *netdev, const ip_addr_t *ipaddr);
 int netdev_set_netmask(struct netdev *netdev, const ip_addr_t *netmask);
 int netdev_set_gw(struct netdev *netdev, const ip_addr_t *gw);
-int netdev_set_dns_server(struct netdev *netdev, uint8_t dns_num, const ip_addr_t *dns_server);
+void netdev_set_dns(char *netdev_name, uint8_t dns_num, char *dns_server);
+int  netdev_set_dns_server(struct netdev *netdev, uint8_t dns_num, const ip_addr_t *dns_server);
+void netdev_set_if(char *netdev_name, char *ip_addr, char *gw_addr, char *nm_addr);
 
 /* Set network interface device callback, it can be called when the status or address changed */
 void netdev_set_register_callback(netdev_callback_fn status_callback);

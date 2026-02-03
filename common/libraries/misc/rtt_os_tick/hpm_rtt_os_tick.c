@@ -16,11 +16,10 @@
 #include <rthw.h>
 #include <rtthread.h>
 #ifdef HPM_USING_VECTOR_PREEMPTED_MODE
-#include "hpm_gptmr_drv.h"
 #include <rtdevice.h>
-#include "drv_hwtimer.h"
 #include "hpm_rtt_interrupt_util.h"
 #include "hpm_rtt_os_tick.h"
+#include "hpm_gptmr_drv.h"
 #else
 #include "hpm_mchtmr_drv.h"
 #endif
@@ -33,6 +32,7 @@ extern volatile rt_ubase_t  rt_interrupt_to_thread;
 extern volatile rt_uint32_t rt_thread_switch_interrupt_flag;
 volatile rt_thread_t  rt_interrupt_from_thread_thread = 0;
 volatile rt_thread_t  rt_interrupt_to_thread_thread   = 0;
+void debug0_isr(void);
 
 void rt_trigger_software_interrupt(void)
 {
@@ -56,11 +56,18 @@ void rt_hw_context_switch_interrupt(rt_ubase_t from, rt_ubase_t to, rt_thread_t 
 void rtt_context_switch_init(void)
 {
     intc_m_enable_irq_with_priority(IRQn_PendSV, 1);
+#ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+    /* Register debug0_isr device to irq table */
+    rt_hw_interrupt_install(IRQn_PendSV, (rt_isr_handler_t)debug0_isr, NULL, "OS_DEBUG0");
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 }
+
 rt_uint32_t rt_context_switch_flag;
 rt_uint32_t sp_before_addr;
 rt_uint32_t sp_from_addr;
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
 RTT_DECLARE_EXT_ISR_M(IRQn_PendSV, debug0_isr);
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 void debug0_isr(void)
 {
     rt_base_t level;
@@ -80,14 +87,19 @@ void debug0_isr(void)
     }
 }
 
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
 RTT_DECLARE_EXT_ISR_M(BOARD_OS_TIMER_IRQ, os_gtimer_isr);
 void os_gtimer_isr(void)
+#else
+void os_gtimer_isr(int vector, void *param)
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 {
     if (gptmr_check_status(BOARD_OS_TIMER, GPTMR_CH_RLD_STAT_MASK(BOARD_OS_TIMER_CH))) {
         rt_tick_increase();
         gptmr_clear_status(BOARD_OS_TIMER, GPTMR_CH_RLD_STAT_MASK(BOARD_OS_TIMER_CH));
     }
 }
+
 #endif
 
 void os_tick_config(void)
@@ -105,6 +117,10 @@ void os_tick_config(void)
 
     gptmr_enable_irq(BOARD_OS_TIMER, GPTMR_CH_RLD_IRQ_MASK(BOARD_OS_TIMER_CH));
     intc_m_enable_irq_with_priority(BOARD_OS_TIMER_IRQ, 2);
+#ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+    /* Register GPTMR device to irq table */
+    rt_hw_interrupt_install(BOARD_OS_TIMER_IRQ, (rt_isr_handler_t)os_gtimer_isr, NULL, "OS_TICK_GPTMR");
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 #else
     sysctl_config_clock(HPM_SYSCTL, clock_node_mchtmr0, clock_source_osc0_clk0, 1);
     sysctl_add_resource_to_cpu0(HPM_SYSCTL, sysctl_resource_mchtmr0);

@@ -1,0 +1,19 @@
+Import('rtconfig')
+from building import *
+
+#get current directory
+cwd = GetCurrentDir()
+
+# Update include path
+path = [ cwd ]
+
+# The set of source files associated with this SConscript file.
+src = []
+
+CPPDEFINES=[]
+
+src += ['hpm_sbrk.c']
+
+group = DefineGroup('Libraries', src, depend = [''], CPPPATH = path, CPPDEFINES=CPPDEFINES)
+
+Return ('group')

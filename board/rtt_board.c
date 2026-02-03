@@ -96,30 +96,7 @@ void app_init_usb_pins(void)
     board_init_usb(HPM_USB0);
 }
 
-void rt_hw_cpu_reset(void)
-{
-    HPM_PPOR->RESET_ENABLE |= (1UL << 31);
-    HPM_PPOR->RESET_HOT &= ~(1UL << 31);
-    HPM_PPOR->RESET_COLD |= (1UL << 31);
-
-    HPM_PPOR->SOFTWARE_RESET = 1000U;
-    while(1) {
-
-    }
-}
-
 MSH_CMD_EXPORT_ALIAS(rt_hw_cpu_reset, reset, reset the board);
-
-#ifdef RT_USING_CACHE
-void rt_hw_cpu_dcache_ops(int ops, void *addr, int size)
-{
-    if (ops == RT_HW_CACHE_FLUSH) {
-        l1c_dc_flush((uint32_t)addr, size);
-    } else {
-        l1c_dc_invalidate((uint32_t)addr, size);
-    }
-}
-#endif
 
 uint32_t rtt_board_init_adc12_clock(ADC12_Type *ptr, bool clk_src_ahb)
 {
@@ -229,12 +206,28 @@ uint32_t rtt_board_init_pwm_clock(PWM_Type *ptr)
     return freq;
 }
 
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
 #ifdef CONFIG_CHERRYUSB_CUSTOM_IRQ_HANDLER
 extern void hpm_isr_usb0(void);
 RTT_DECLARE_EXT_ISR_M(IRQn_USB0, hpm_isr_usb0)
 
 #ifdef HPM_USB1_BASE
 extern void hpm_isr_usb1(void);
-SDK_DECLARE_EXT_ISR_M(IRQn_USB1, hpm_isr_usb1)
+RTT_DECLARE_EXT_ISR_M(IRQn_USB1, hpm_isr_usb1)
 #endif
 #endif
+#else
+#ifdef CONFIG_CHERRYUSB_CUSTOM_IRQ_HANDLER
+int rt_hw_usb_interrupt_init(void)
+{
+    /* Register usb device to irq table */
+    extern void hpm_isr_usb0(void);
+    rt_hw_interrupt_install(IRQn_USB0, (rt_isr_handler_t)hpm_isr_usb0, HPM_USB0, "usb0");
+#ifdef HPM_USB1_BASE
+    extern void hpm_isr_usb1(void);
+    rt_hw_interrupt_install(IRQn_USB1, (rt_isr_handler_t)hpm_isr_usb1, HPM_USB1, "usb1");
+#endif
+}
+INIT_BOARD_EXPORT(rt_hw_usb_interrupt_init);
+#endif
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */

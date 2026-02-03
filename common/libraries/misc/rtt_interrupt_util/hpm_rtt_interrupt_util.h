@@ -14,6 +14,9 @@
 
 #include <stdint.h>
 #include <rtthread.h>
+#include "hpm_interrupt.h"
+#include "hpm_soc_irq.h"
+#include "cpuport.h"
 
 #define MCAUSE_INSTR_ADDR_MISALIGNED (0U)       //!< Instruction Address misaligned
 #define MCAUSE_INSTR_ACCESS_FAULT (1U)          //!< Instruction access fault
@@ -120,84 +123,163 @@ void enable_rtt_plic_feature(void);
 #endif
 
 /* used for vector mode gptmr context switch */
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
 #ifdef HPM_USING_VECTOR_PREEMPTED_MODE
 extern rt_uint32_t rt_context_switch_flag;
 extern rt_uint32_t sp_before_addr;
 extern volatile rt_uint32_t rt_thread_switch_interrupt_flag;
 #ifdef ARCH_RISCV_FPU
+#ifdef ARCH_RISCV_FPU_S
 #define RTT_SAVE_FPU_CONTEXT()  { \
-    __asm volatile("addi sp, sp, %0" : : "i"(-256) :);\
+    __asm volatile("addi sp, sp, -128"); \
     __asm volatile("\n\
              c.fswsp ft0,  0*4(sp)\n\
-             c.fswsp ft1,  1*4(sp) \n\
-             c.fswsp ft2,  2*4(sp) \n\
-             c.fswsp ft3,  3*4(sp) \n\
-             c.fswsp ft4,  4*4(sp) \n\
-             c.fswsp ft5,  5*4(sp) \n\
-             c.fswsp ft6,  6*4(sp) \n\
-             c.fswsp ft7,  7*4(sp) \n\
-             c.fswsp fs0,  8*4(sp) \n\
-             c.fswsp fs1,  9*4(sp) \n\
-             c.fswsp fa0,  10*4(sp) \n\
-             c.fswsp fa1,  11*4(sp) \n\
-             c.fswsp fa2,  12*4(sp) \n\
-             c.fswsp fa3,  13*4(sp) \n\
-             c.fswsp fa4,  14*4(sp) \n\
-             c.fswsp fa5,  15*4(sp) \n\
-             c.fswsp fa6,  16*4(sp) \n\
-             c.fswsp fa7,  17*4(sp) \n\
-             c.fswsp fs2,  18*4(sp) \n\
-             c.fswsp fs3,  19*4(sp) \n\
+             c.fswsp ft1,  1*4(sp)\n\
+             c.fswsp ft2,  2*4(sp)\n\
+             c.fswsp ft3,  3*4(sp)\n\
+             c.fswsp ft4,  4*4(sp)\n\
+             c.fswsp ft5,  5*4(sp)\n\
+             c.fswsp ft6,  6*4(sp)\n\
+             c.fswsp ft7,  7*4(sp)\n\
+             c.fswsp fs0,  8*4(sp)\n\
+             c.fswsp fs1,  9*4(sp)\n\
+             c.fswsp fa0,  10*4(sp)\n\
+             c.fswsp fa1,  11*4(sp)\n\
+             c.fswsp fa2,  12*4(sp)\n\
+             c.fswsp fa3,  13*4(sp)\n\
+             c.fswsp fa4,  14*4(sp)\n\
+             c.fswsp fa5,  15*4(sp)\n\
+             c.fswsp fa6,  16*4(sp)\n\
+             c.fswsp fa7,  17*4(sp)\n\
+             c.fswsp fs2,  18*4(sp)\n\
+             c.fswsp fs3,  19*4(sp)\n\
              c.fswsp fs4,  20*4(sp)\n\
-             c.fswsp fs5,  21*4(sp) \n\
-             c.fswsp fs6,  22*4(sp) \n\
-             c.fswsp fs7,  23*4(sp) \n\
-             c.fswsp fs8,  24*4(sp) \n\
-             c.fswsp fs9,  25*4(sp) \n\
-             c.fswsp fs10, 26*4(sp) \n\
-             c.fswsp fs11, 27*4(sp) \n\
-             c.fswsp ft8,  28*4(sp) \n\
-             c.fswsp ft9,  29*4(sp) \n\
-             c.fswsp ft10, 30*4(sp) \n\
-             c.fswsp ft11, 31*4(sp) \n"); \
+             c.fswsp fs5,  21*4(sp)\n\
+             c.fswsp fs6,  22*4(sp)\n\
+             c.fswsp fs7,  23*4(sp)\n\
+             c.fswsp fs8,  24*4(sp)\n\
+             c.fswsp fs9,  25*4(sp)\n\
+             c.fswsp fs10, 26*4(sp)\n\
+             c.fswsp fs11, 27*4(sp)\n\
+             c.fswsp ft8,  28*4(sp)\n\
+             c.fswsp ft9,  29*4(sp)\n\
+             c.fswsp ft10, 30*4(sp)\n\
+             c.fswsp ft11, 31*4(sp)\n" : : : "memory"); \
 }
 
 #define RTT_RESTORE_FPU_CONTEXT() { \
     __asm volatile("\n\
              c.flwsp ft0,  0*4(sp)\n\
-             c.flwsp ft1,  1*4(sp) \n\
-             c.flwsp ft2,  2*4(sp) \n\
-             c.flwsp ft3,  3*4(sp) \n\
-             c.flwsp ft4,  4*4(sp) \n\
-             c.flwsp ft5,  5*4(sp) \n\
-             c.flwsp ft6,  6*4(sp) \n\
-             c.flwsp ft7,  7*4(sp) \n\
-             c.flwsp fs0,  8*4(sp) \n\
-             c.flwsp fs1,  9*4(sp) \n\
-             c.flwsp fa0,  10*4(sp) \n\
-             c.flwsp fa1,  11*4(sp) \n\
-             c.flwsp fa2,  12*4(sp) \n\
-             c.flwsp fa3,  13*4(sp) \n\
-             c.flwsp fa4,  14*4(sp) \n\
-             c.flwsp fa5,  15*4(sp) \n\
-             c.flwsp fa6,  16*4(sp) \n\
-             c.flwsp fa7,  17*4(sp) \n\
-             c.flwsp fs2,  18*4(sp) \n\
-             c.flwsp fs3,  19*4(sp) \n\
+             c.flwsp ft1,  1*4(sp)\n\
+             c.flwsp ft2,  2*4(sp)\n\
+             c.flwsp ft3,  3*4(sp)\n\
+             c.flwsp ft4,  4*4(sp)\n\
+             c.flwsp ft5,  5*4(sp)\n\
+             c.flwsp ft6,  6*4(sp)\n\
+             c.flwsp ft7,  7*4(sp)\n\
+             c.flwsp fs0,  8*4(sp)\n\
+             c.flwsp fs1,  9*4(sp)\n\
+             c.flwsp fa0,  10*4(sp)\n\
+             c.flwsp fa1,  11*4(sp)\n\
+             c.flwsp fa2,  12*4(sp)\n\
+             c.flwsp fa3,  13*4(sp)\n\
+             c.flwsp fa4,  14*4(sp)\n\
+             c.flwsp fa5,  15*4(sp)\n\
+             c.flwsp fa6,  16*4(sp)\n\
+             c.flwsp fa7,  17*4(sp)\n\
+             c.flwsp fs2,  18*4(sp)\n\
+             c.flwsp fs3,  19*4(sp)\n\
              c.flwsp fs4,  20*4(sp)\n\
-             c.flwsp fs5,  21*4(sp) \n\
-             c.flwsp fs6,  22*4(sp) \n\
-             c.flwsp fs7,  23*4(sp) \n\
-             c.flwsp fs8,  24*4(sp) \n\
-             c.flwsp fs9,  25*4(sp) \n\
-             c.flwsp fs10, 26*4(sp) \n\
-             c.flwsp fs11, 27*4(sp) \n\
-             c.flwsp ft8,  28*4(sp) \n\
-             c.flwsp ft9,  29*4(sp) \n\
-             c.flwsp ft10, 30*4(sp) \n\
-             c.flwsp ft11, 31*4(sp) \n"); \
-    __asm volatile("addi sp, sp, %0" : : "i"(256) :);\
+             c.flwsp fs5,  21*4(sp)\n\
+             c.flwsp fs6,  22*4(sp)\n\
+             c.flwsp fs7,  23*4(sp)\n\
+             c.flwsp fs8,  24*4(sp)\n\
+             c.flwsp fs9,  25*4(sp)\n\
+             c.flwsp fs10, 26*4(sp)\n\
+             c.flwsp fs11, 27*4(sp)\n\
+             c.flwsp ft8,  28*4(sp)\n\
+             c.flwsp ft9,  29*4(sp)\n\
+             c.flwsp ft10, 30*4(sp)\n\
+             c.flwsp ft11, 31*4(sp)\n"); \
+    __asm volatile("addi sp, sp, 128" : : : "memory"); \
 }
+
+#else
+
+#define RTT_SAVE_FPU_CONTEXT()  { \
+    __asm volatile("addi sp, sp, -256"); \
+    __asm volatile("\n\
+             c.fsdsp ft0,  0*8(sp)\n\
+             c.fsdsp ft1,  1*8(sp)\n\
+             c.fsdsp ft2,  2*8(sp)\n\
+             c.fsdsp ft3,  3*8(sp)\n\
+             c.fsdsp ft4,  4*8(sp)\n\
+             c.fsdsp ft5,  5*8(sp)\n\
+             c.fsdsp ft6,  6*8(sp)\n\
+             c.fsdsp ft7,  7*8(sp)\n\
+             c.fsdsp fs0,  8*8(sp)\n\
+             c.fsdsp fs1,  9*8(sp)\n\
+             c.fsdsp fa0,  10*8(sp)\n\
+             c.fsdsp fa1,  11*8(sp)\n\
+             c.fsdsp fa2,  12*8(sp)\n\
+             c.fsdsp fa3,  13*8(sp)\n\
+             c.fsdsp fa4,  14*8(sp)\n\
+             c.fsdsp fa5,  15*8(sp)\n\
+             c.fsdsp fa6,  16*8(sp)\n\
+             c.fsdsp fa7,  17*8(sp)\n\
+             c.fsdsp fs2,  18*8(sp)\n\
+             c.fsdsp fs3,  19*8(sp)\n\
+             c.fsdsp fs4,  20*8(sp)\n\
+             c.fsdsp fs5,  21*8(sp)\n\
+             c.fsdsp fs6,  22*8(sp)\n\
+             c.fsdsp fs7,  23*8(sp)\n\
+             c.fsdsp fs8,  24*8(sp)\n\
+             c.fsdsp fs9,  25*8(sp)\n\
+             c.fsdsp fs10, 26*8(sp)\n\
+             c.fsdsp fs11, 27*8(sp)\n\
+             c.fsdsp ft8,  28*8(sp)\n\
+             c.fsdsp ft9,  29*8(sp)\n\
+             c.fsdsp ft10, 30*8(sp)\n\
+             c.fsdsp ft11, 31*8(sp)\n" : : : "memory"); \
+}
+
+#define RTT_RESTORE_FPU_CONTEXT() { \
+    __asm volatile("\n\
+             c.fldsp ft0,  0*8(sp)\n\
+             c.fldsp ft1,  1*8(sp)\n\
+             c.fldsp ft2,  2*8(sp)\n\
+             c.fldsp ft3,  3*8(sp)\n\
+             c.fldsp ft4,  4*8(sp)\n\
+             c.fldsp ft5,  5*8(sp)\n\
+             c.fldsp ft6,  6*8(sp)\n\
+             c.fldsp ft7,  7*8(sp)\n\
+             c.fldsp fs0,  8*8(sp)\n\
+             c.fldsp fs1,  9*8(sp)\n\
+             c.fldsp fa0,  10*8(sp)\n\
+             c.fldsp fa1,  11*8(sp)\n\
+             c.fldsp fa2,  12*8(sp)\n\
+             c.fldsp fa3,  13*8(sp)\n\
+             c.fldsp fa4,  14*8(sp)\n\
+             c.fldsp fa5,  15*8(sp)\n\
+             c.fldsp fa6,  16*8(sp)\n\
+             c.fldsp fa7,  17*8(sp)\n\
+             c.fldsp fs2,  18*8(sp)\n\
+             c.fldsp fs3,  19*8(sp)\n\
+             c.fldsp fs4,  20*8(sp)\n\
+             c.fldsp fs5,  21*8(sp)\n\
+             c.fldsp fs6,  22*8(sp)\n\
+             c.fldsp fs7,  23*8(sp)\n\
+             c.fldsp fs8,  24*8(sp)\n\
+             c.fldsp fs9,  25*8(sp)\n\
+             c.fldsp fs10, 26*8(sp)\n\
+             c.fldsp fs11, 27*8(sp)\n\
+             c.fldsp ft8,  28*8(sp)\n\
+             c.fldsp ft9,  29*8(sp)\n\
+             c.fldsp ft10, 30*8(sp)\n\
+             c.fldsp ft11, 31*8(sp)\n"); \
+    __asm volatile("addi sp, sp, 256" : : : "memory"); \
+}
+#endif
 #else
 #define RTT_SAVE_FPU_CONTEXT()
 #define RTT_RESTORE_FPU_CONTEXT()
@@ -339,6 +421,8 @@ void ISR_NAME_M(irq_num)(void) {           \
     isr();                                            \
 }
 #endif
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
+
 
 #ifdef __cplusplus
 }

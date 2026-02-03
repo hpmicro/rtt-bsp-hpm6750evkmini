@@ -1,0 +1,76 @@
+menuconfig RT_USING_RTI
+    bool "RT-Thread Insight: probe tool for RT-Thread"
+    select RT_USING_HOOK
+    select RT_USING_CPUTIME
+    select BSP_USING_MCHTMR
+    default n
+
+if RT_USING_RTI
+
+    config BOARD_SYSTICK_FREQ_IN_HZ
+        int "CPU frequency (Hz)"
+        default 480000000
+        help
+            Required for v2.0.0+ version: CPU clock frequency, used for timestamp calculation.
+
+    config RT_RTI_SCHEDULER_HOOK
+        bool "Use scheduler hook"
+        default y
+        help
+            Enable RT-Thread scheduler hook for thread switch events.
+
+    config RT_RTI_THREAD_RESUME_HOOK
+        bool "Use thread resume hook"
+        default y
+        help
+            Enable RT-Thread thread resume hook.
+
+    config RT_RTI_THREAD_SUSPEND_HOOK
+        bool "Use thread suspend hook"
+        default y
+        help
+            Enable RT-Thread thread suspend hook.
+
+    config RT_RTI_INTERRUPT_ENTER_HOOK
+        bool "Use interrupt enter hook"
+        default y
+        help
+            Enable RT-Thread interrupt enter hook.
+
+    config RT_RTI_INTERRUPT_LEAVE_HOOK
+        bool "Use interrupt leave hook"
+        default y
+        help
+            Enable RT-Thread interrupt leave hook.
+
+    config RT_RTI_OBJECT_TAKE_HOOK
+        bool "Use object take hook"
+        default y
+        help
+            Enable RT-Thread object take hook for semaphore, mutex, event, etc.
+
+    config RT_RTI_OBJECT_TRYTAKE_HOOK
+        bool "Use object try-take hook"
+        default y
+        help
+            Enable RT-Thread object try-take hook (non-blocking).
+
+    config RT_RTI_OBJECT_RELEASE_HOOK
+        bool "Use object release hook"
+        default y
+        help
+            Enable RT-Thread object release hook.
+
+    config RT_RTI_TIMER_ENTER_HOOK
+        bool "Use timer enter hook"
+        default y
+        help
+            Enable RT-Thread timer enter hook.
+
+    config RT_RTI_TIMER_EXIT_HOOK
+        bool "Use timer exit hook"
+        default y
+        help
+            Enable RT-Thread timer exit hook.
+
+endif

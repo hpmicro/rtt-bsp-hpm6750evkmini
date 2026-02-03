@@ -53,14 +53,14 @@ Incluye:
 
 | Name          | Descripción                                             |
 | ------------- | ------------------------------------------------------- |
-| BSP          | Board Support Package basado en la portación de varias placas de desarrollo |
+| bsp        | Board Support Package basado en la portación de varias placas de desarrollo |
 | componentes    | Componentes, como finsh shell, sistema de archivos, pila de protocolos, etc.|
-| documentación | Documentos relacionados, como el estilo de codificación, doxygen, etc.       |
-| ejemplos      | Código de ejemplo relacionado                            |
-| incluir       | Archivos de cabecera del kernel RT-Thread.                |
-| libcpu        | Código de portabilidad de CPUs como ARM/MIPS/RISC-V, etc.|
+| documentation | Documentos relacionados, como el estilo de codificación, doxygen, etc.       |
+| examples | Código de ejemplo relacionado                            |
+| include | Archivos de cabecera del kernel RT-Thread.                |
+| libcpu  | Código de portabilidad de CPUs como ARM/MIPS/RISC-V, etc.|
 | src           | Los archivos fuente del kernel RT-Thread. |
-| herramientas  | Los archivos de script para la herramienta de construcción de comandos de RT-Thread. |
+| tools | Los archivos de script para la herramienta de construcción de comandos de RT-Thread. |
 
 RT-Thread ha sido portado para casi 200 placas de desarrollo, la mayoría de los BSPs soportan el MDK, el entorno de desarrollo IAR y el compilador GCC, y han proporcionado un proyecto MDK e IAR por defecto, que permite a los usuarios añadir su propio código de aplicación directamente basado en el proyecto. Cada BSP tiene una estructura de directorio similar, y la mayoría de los BSPs proporcionan un archivo README.md, que es un archivo con formato markdown que contiene la introducción básica del BSP, y presenta cómo empezar a usar el BSP de forma sencilla.
 
@@ -121,7 +121,7 @@ Basado en [STM32F103 BluePill](https://github.com/RT-Thread/rt-thread/tree/maste
 
 ## Simulator
 
-El BSP de RT-Thread puede compilarse directamente y descargarse en la placa de desarrollo correspondiente para su uso. Además, RT-Thread también proporciona el BSP qemu-vexpress-a9, que puede utilizarse sin plataforma de hardware. Consulte la guía de inicio más abajo para más detalles. [Windows](documentation/quick-start/quick_start_qemu/quick_start_qemu.md) | [Linux Ubuntu](documentation/quick-start/quick_start_qemu/quick_start_qemu_linux.md) | [Mac OS](documentation/quick-start/quick_start_qemu/quick_start_qemu_macos.md)
+El BSP de RT-Thread puede compilarse directamente y descargarse en la placa de desarrollo correspondiente para su uso. Además, RT-Thread también proporciona el BSP qemu-vexpress-a9, que puede utilizarse sin plataforma de hardware. Consulte la guía de inicio más abajo para más detalles. [Windows](documentation/2.quick-start/quick_start_qemu/quick_start_qemu_windows.md) | [Linux Ubuntu](documentation/2.quick-start/quick_start_qemu/quick_start_qemu_linux.md) | [Mac OS](documentation/2.quick-start/quick_start_qemu/quick_start_qemu_macos.md)
 
 # Licencia
 
@@ -143,4 +143,4 @@ RT-Thread está muy agradecido por el apoyo de todos los desarrolladores de la c
 
 # Contribución
 
-Si estás interesado en RT-Thread y quieres unirte al desarrollo de RT-Thread y convertirte en un contribuidor de código, por favor consulta la [Guía de Contribución de Código.](documentation/contribution_guide/contribution_guide.md).
+Si estás interesado en RT-Thread y quieres unirte al desarrollo de RT-Thread y convertirte en un contribuidor de código, por favor consulta la [Guía de Contribución de Código.](.github/CONTRIBUTING.md).

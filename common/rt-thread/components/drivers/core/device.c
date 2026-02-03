@@ -13,6 +13,8 @@
  * 2013-07-09     Grissiom     add ref_count support
  * 2016-04-02     Bernard      fix the open_flag initialization issue.
  * 2021-03-19     Meco Man     remove rt_device_init_all()
+ * 2024-09-15     milo         fix log format issue
+ *                             fix reopen with a different oflag issue
  */
 
 #include <rtthread.h>
@@ -29,15 +31,19 @@
 #include <rtdevice.h> /* for wqueue_init */
 #endif /* RT_USING_POSIX_DEVIO */
 
+#if defined (RT_USING_DFS_V2) && defined (RT_USING_DFS_DEVFS)
+#include <devfs.h>
+#endif /* RT_USING_DFS_V2  RT_USING_DFS_DEVFS */
+
 #ifdef RT_USING_DEVICE
 
 #ifdef RT_USING_DEVICE_OPS
-#define device_init     (dev->ops->init)
-#define device_open     (dev->ops->open)
-#define device_close    (dev->ops->close)
-#define device_read     (dev->ops->read)
-#define device_write    (dev->ops->write)
-#define device_control  (dev->ops->control)
+#define device_init     (dev->ops ? dev->ops->init : RT_NULL)
+#define device_open     (dev->ops ? dev->ops->open : RT_NULL)
+#define device_close    (dev->ops ? dev->ops->close : RT_NULL)
+#define device_read     (dev->ops ? dev->ops->read : RT_NULL)
+#define device_write    (dev->ops ? dev->ops->write : RT_NULL)
+#define device_control  (dev->ops ? dev->ops->control : RT_NULL)
 #else
 #define device_init     (dev->init)
 #define device_open     (dev->open)
@@ -77,6 +83,10 @@ rt_err_t rt_device_register(rt_device_t dev,
     dev->fops = RT_NULL;
     rt_wqueue_init(&(dev->wait_queue));
 #endif /* RT_USING_POSIX_DEVIO */
+
+#if defined (RT_USING_DFS_V2) && defined (RT_USING_DFS_DEVFS)
+    dfs_devfs_device_add(dev);
+#endif /* RT_USING_DFS_V2 */
 
     return RT_EOK;
 }
@@ -155,7 +165,7 @@ void rt_device_destroy(rt_device_t dev)
 {
     /* parameter check */
     RT_ASSERT(dev != RT_NULL);
-    RT_ASSERT(rt_object_get_type(&dev->parent) == RT_Object_Class_Device);
+    RT_ASSERT(rt_object_get_type(&dev->parent) == RT_Object_Class_Null);
     RT_ASSERT(rt_object_is_systemobject(&dev->parent) == RT_FALSE);
 
     rt_object_detach(&(dev->parent));
@@ -187,8 +197,8 @@ rt_err_t rt_device_init(rt_device_t dev)
             result = device_init(dev);
             if (result != RT_EOK)
             {
-                LOG_E("To initialize device:%s failed. The error code is %d",
-                      dev->parent.name, result);
+                LOG_E("To initialize device:%.*s failed. The error code is %d",
+                      RT_NAME_MAX, dev->parent.name, result);
             }
             else
             {
@@ -225,8 +235,8 @@ rt_err_t rt_device_open(rt_device_t dev, rt_uint16_t oflag)
             result = device_init(dev);
             if (result != RT_EOK)
             {
-                LOG_E("To initialize device:%s failed. The error code is %d",
-                      dev->parent.name, result);
+                LOG_E("To initialize device:%.*s failed. The error code is %d",
+                      RT_NAME_MAX, dev->parent.name, result);
 
                 return result;
             }
@@ -244,7 +254,7 @@ rt_err_t rt_device_open(rt_device_t dev, rt_uint16_t oflag)
 
     /* device is not opened or opened by other oflag, call device_open interface */
     if (!(dev->open_flag & RT_DEVICE_OFLAG_OPEN) ||
-         ((dev->open_flag & RT_DEVICE_OFLAG_MASK) != (oflag & RT_DEVICE_OFLAG_MASK)))
+         ((dev->open_flag & RT_DEVICE_OFLAG_MASK) != ((oflag & RT_DEVICE_OFLAG_MASK) | RT_DEVICE_OFLAG_OPEN)))
     {
         if (device_open != RT_NULL)
         {

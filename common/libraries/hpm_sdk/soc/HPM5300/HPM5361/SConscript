@@ -7,7 +7,9 @@ from building import *
 cwd = GetCurrentDir()
 
 # Update include path
-path = [ cwd, cwd + '/boot' ]
+path = [ cwd, cwd + '/boot', os.path.join(cwd, "..", "ip") ]
+
+CPPDEFINES=['HPM_SOC_ISR_NUM=73']
 
 # The set of source files associated with this SConscript file.
 src = Split('''
@@ -18,6 +20,7 @@ src = Split('''
     boot/hpm_bootheader.c
 ''')
 
-group = DefineGroup('SoC', src, depend = [''], CPPPATH = path)
+
+group = DefineGroup('SoC', src, depend = [''], CPPPATH = path, CPPDEFINES = CPPDEFINES)
 
 Return ('group')

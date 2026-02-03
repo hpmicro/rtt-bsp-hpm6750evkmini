@@ -8,10 +8,7 @@
 #include <string.h>
 #include "hpm_dma_mgr.h"
 #include "hpm_soc.h"
-#ifdef USE_DMA_DECLARE_EXT_ISR_M
-#include "rtconfig.h"
 #include "hpm_rtt_interrupt_util.h"
-#endif
 
 /*****************************************************************************************************************
  *
@@ -72,7 +69,7 @@ static void dma_mgr_exit_critical(uint32_t level);
  *  Variables
  *
  *****************************************************************************************************************/
-static dma_mgr_context_t s_dma_mngr_ctx;
+ATTR_PLACE_AT_FAST_RAM_BSS static dma_mgr_context_t s_dma_mngr_ctx;
 #define HPM_DMA_MGR (&s_dma_mngr_ctx)
 
 /*****************************************************************************************************************
@@ -80,45 +77,56 @@ static dma_mgr_context_t s_dma_mngr_ctx;
  *  Codes
  *
  *****************************************************************************************************************/
-void dma_mgr_isr_handler(DMA_Type *ptr, uint32_t instance)
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+ATTR_RAMFUNC void dma_mgr_isr_handler(DMA_Type *ptr, uint32_t instance)
+#else
+ATTR_RAMFUNC void dma_mgr_isr_handler(int vector, dma_mgr_isr_param *param)
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 {
     uint32_t int_disable_mask;
     uint32_t chn_int_stat;
     dma_chn_context_t *chn_ctx;
+#ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+    DMA_Type *ptr = param->ptr;
+    uint32_t instance = param->instance;
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 
     for (uint8_t channel = 0; channel < DMA_SOC_CHANNEL_NUM; channel++) {
-        int_disable_mask = dma_check_channel_interrupt_mask(ptr, channel);
-        chn_int_stat = dma_check_transfer_status(ptr, channel);
         chn_ctx = &HPM_DMA_MGR->channels[instance][channel];
+        if (chn_ctx->is_allocated) {
+            int_disable_mask = dma_check_channel_interrupt_mask(ptr, channel);
+            chn_int_stat = dma_check_transfer_status(ptr, channel);
 
-        if (((int_disable_mask & DMA_MGR_INTERRUPT_MASK_TC) == 0) && ((chn_int_stat & DMA_MGR_CHANNEL_STATUS_TC) != 0)) {
-            if (chn_ctx->tc_cb != NULL) {
-                chn_ctx->tc_cb(ptr, channel, chn_ctx->tc_cb_data_ptr);
+            if (((int_disable_mask & DMA_MGR_INTERRUPT_MASK_TC) == 0) && ((chn_int_stat & DMA_MGR_CHANNEL_STATUS_TC) != 0)) {
+                if (chn_ctx->tc_cb != NULL) {
+                    chn_ctx->tc_cb(ptr, channel, chn_ctx->tc_cb_data_ptr);
+                }
             }
-        }
-        if (((int_disable_mask & DMA_MGR_INTERRUPT_MASK_HALF_TC) == 0) && ((chn_int_stat & DMA_MGR_CHANNEL_STATUS_HALF_TC) != 0)) {
-            if (chn_ctx->half_tc_cb != NULL) {
-                chn_ctx->half_tc_cb(ptr, channel, chn_ctx->half_tc_cb_data_ptr);
+            if (((int_disable_mask & DMA_MGR_INTERRUPT_MASK_HALF_TC) == 0) && ((chn_int_stat & DMA_MGR_CHANNEL_STATUS_HALF_TC) != 0)) {
+                if (chn_ctx->half_tc_cb != NULL) {
+                    chn_ctx->half_tc_cb(ptr, channel, chn_ctx->half_tc_cb_data_ptr);
+                }
             }
-        }
-        if (((int_disable_mask & DMA_MGR_INTERRUPT_MASK_ERROR) == 0) && ((chn_int_stat & DMA_MGR_CHANNEL_STATUS_ERROR) != 0)) {
-            if (chn_ctx->error_cb != NULL) {
-                chn_ctx->error_cb(ptr, channel, chn_ctx->error_cb_data_ptr);
+            if (((int_disable_mask & DMA_MGR_INTERRUPT_MASK_ERROR) == 0) && ((chn_int_stat & DMA_MGR_CHANNEL_STATUS_ERROR) != 0)) {
+                if (chn_ctx->error_cb != NULL) {
+                    chn_ctx->error_cb(ptr, channel, chn_ctx->error_cb_data_ptr);
+                }
             }
-        }
-        if (((int_disable_mask & DMA_MGR_INTERRUPT_MASK_ABORT) == 0) && ((chn_int_stat & DMA_MGR_CHANNEL_STATUS_ABORT) != 0)) {
-            if (chn_ctx->abort_cb != NULL) {
-                chn_ctx->abort_cb(ptr, channel, chn_ctx->abort_cb_data_ptr);
+            if (((int_disable_mask & DMA_MGR_INTERRUPT_MASK_ABORT) == 0) && ((chn_int_stat & DMA_MGR_CHANNEL_STATUS_ABORT) != 0)) {
+                if (chn_ctx->abort_cb != NULL) {
+                    chn_ctx->abort_cb(ptr, channel, chn_ctx->abort_cb_data_ptr);
+                }
             }
         }
     }
 }
 
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
 #ifndef USE_DMA_DECLARE_EXT_ISR_M
 SDK_DECLARE_EXT_ISR_M(IRQn_HDMA, dma0_isr)
 #else
 RTT_DECLARE_EXT_ISR_M(IRQn_HDMA, dma0_isr)
-#endif
+#endif /* USE_DMA_DECLARE_EXT_ISR_M */
 void dma0_isr(void)
 {
     dma_mgr_isr_handler(HPM_HDMA, 0);
@@ -129,13 +137,13 @@ void dma0_isr(void)
 SDK_DECLARE_EXT_ISR_M(IRQn_XDMA, dma1_isr)
 #else
 RTT_DECLARE_EXT_ISR_M(IRQn_XDMA, dma1_isr)
-#endif
+#endif /* USE_DMA_DECLARE_EXT_ISR_M */
 void dma1_isr(void)
 {
     dma_mgr_isr_handler(HPM_XDMA, 1);
 }
-#endif
-
+#endif /* HPM_XDMA */
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 
 static uint32_t dma_mgr_enter_critical(void)
 {
@@ -151,9 +159,25 @@ void dma_mgr_init(void)
 {
     HPM_DMA_MGR->dma_instance[0].base = HPM_HDMA;
     HPM_DMA_MGR->dma_instance[0].irq_num = IRQn_HDMA;
+#ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+    dma_mgr_isr_param dma0_isr_param = {
+        .ptr = HPM_HDMA,
+        .instance = 0,
+    };
+    /* Register DMA MGR device to irq table */
+    rt_hw_interrupt_install(IRQn_HDMA, (rt_isr_handler_t)dma_mgr_isr_handler, &dma0_isr_param, "HPM_HDMA");
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 #ifdef HPM_XDMA
     HPM_DMA_MGR->dma_instance[1].base = HPM_XDMA;
     HPM_DMA_MGR->dma_instance[1].irq_num = IRQn_XDMA;
+#ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+    dma_mgr_isr_param dma1_isr_param = {
+        .ptr = HPM_XDMA,
+        .instance = 1,
+    };
+    /* Register DMA MGR device to irq table */
+    rt_hw_interrupt_install(IRQn_XDMA, (rt_isr_handler_t)dma_mgr_isr_handler, &dma1_isr_param, "HPM_XDMA");
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 #endif
 }
 
@@ -266,13 +290,16 @@ static dma_chn_context_t *dma_mgr_search_chn_context(const dma_resource_t *resou
 hpm_stat_t dma_mgr_release_resource(const dma_resource_t *resource)
 {
     hpm_stat_t status;
-
+    uint32_t dmamux_ch;
     dma_chn_context_t *chn_ctx = dma_mgr_search_chn_context(resource);
 
     if (chn_ctx == NULL) {
         status = status_invalid_argument;
     } else {
         uint32_t level = dma_mgr_enter_critical();
+        dma_mgr_disable_channel(resource);
+        dmamux_ch = DMA_SOC_CHN_TO_DMAMUX_CHN(resource->base, resource->channel);
+        dmamux_config(HPM_DMAMUX, dmamux_ch, 0, false);
         chn_ctx->is_allocated = false;
         chn_ctx->tc_cb_data_ptr = NULL;
         chn_ctx->half_tc_cb_data_ptr = NULL;

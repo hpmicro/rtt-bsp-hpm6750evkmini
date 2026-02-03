@@ -10,7 +10,7 @@ I2C component
 
   - 多实例支持
     - 支持多个I2C实例（如I2C0, I2C1等），每个实例都有独立的配置参数。
-    - 通过``hpm_i2c_context_t``结构体管理每个I2C实例的配置信息，比如地址模式、速度模式、主从机模式
+    - 通过 `hpm_i2c_context_t` 结构体管理每个I2C实例的配置信息，比如地址模式、速度模式、主从机模式
   - 阻塞与非阻塞读写操作接口
     - 支持主从机。
     - 提供了非阻塞式的读写函数。
@@ -104,13 +104,13 @@ I2C初始化
 
 - ``hpm_i2c_initialize`` API原型：
 
-    .. code-block:: c
+  .. code-block:: c
 
         void hpm_i2c_initialize(hpm_i2c_context_t *context);
 
 - **举例**: 实例化I2C0，设置I2C0为主机模式，1Mhz速度，7bit地址模式，地址寄存器传输采用大端模式。
 
-    .. code-block:: c
+  .. code-block:: c
 
         i2c_context.init_config.speed = i2c_speed_1Mhz;
         i2c_context.init_config.speed = i2c_master;
@@ -121,7 +121,7 @@ I2C初始化
 
 - **举例:** 实例化I2C0，设置I2C0为从机模式，1Mhz速度，10bit地址模式，从机设备地址为0x16。
 
-    .. code-block:: c
+  .. code-block:: c
 
         i2c_context.init_config.speed = i2c_speed_1Mhz;
         i2c_context.init_config.speed = i2c_slave;
@@ -139,13 +139,13 @@ DMA配置
 
 - ``hpm_i2c_dma_mgr_install_callback`` API原型：
 
-    .. code-block:: c
+  .. code-block:: c
 
         hpm_stat_t hpm_i2c_dma_mgr_install_callback(hpm_i2c_context_t *context, hpm_i2c_dma_complete_cb complete)
 
-    - 参数说明
+  - 参数说明
 
-        .. list-table::
+    .. list-table::
            :header-rows: 1
 
            * - 参数名
@@ -158,17 +158,17 @@ DMA配置
              - hpm_i2c_dma_complete_cb
              - DMA传输完成后的回调函数指针。当DMA传输结束时，这个回调函数会被调用。
 
-    - 返回值：
+  - 返回值：
 
-      - ``status_success``: 成功
+    - ``status_success``: 成功
 
-      - ``status_invalid_argument``: 无效参数
+    - ``status_invalid_argument``: 无效参数
 
-      - ``status_fail``: 其他错误
+    - ``status_fail``: 其他错误
 
 - **举例**: 如何使用 hpm_i2c_dma_mgr_install_callback 函数来注册回调函数
 
-    .. code-block:: c
+  .. code-block:: c
 
          /* 定义回调函数 */
         void my_dma_complete_callback(uint32_t channel) {
@@ -191,6 +191,11 @@ DMA配置
             /* TODO */
         }
 
+- **提示**:
+
+  - 如果需要使用自定义的DMA回调函数，可以使用 ``hpm_i2c_dma_mgr_install_custom_callback`` API。该API直接注册到DMA管理器，使用用户自定义的回调。
+
+
 读写操作
 ^^^^^^^^
 
@@ -201,7 +206,7 @@ DMA配置
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - **直接读写操作**：用于I2C主模式下的阻塞读写操作。它会一直等待直到数据传输完成或超时
-- 分为``hpm_i2c_master_write_blocking`` 和 ``hpm_i2c_master_read_blocking`` API
+- 分为 `hpm_i2c_master_write_blocking` 和 ``hpm_i2c_master_read_blocking`` API
 
   - ``hpm_i2c_master_write_blocking`` API函数原型:
 
@@ -211,7 +216,7 @@ DMA配置
 
     - 参数说明
 
-        .. list-table::
+      .. list-table::
            :header-rows: 1
 
            * - 参数名
@@ -281,7 +286,7 @@ DMA配置
 
     - 参数说明
 
-        .. list-table::
+      .. list-table::
            :header-rows: 1
 
            * - 参数名
@@ -345,8 +350,104 @@ DMA配置
             printf("Failed to read data from I2C slave. Error code: %d\n", result);
         }
 
+- hpm_i2c_master_seq_transfer_blocking 序列传输阻塞操作
+
+  - 支持在单次传输中执行多个读写操作，适用于需要连续读写多个寄存器的场景
+  - API函数原型:
+
+    .. code-block:: c
+
+        hpm_stat_t hpm_i2c_master_seq_transfer_blocking(hpm_i2c_context_t *context, uint16_t device_address, uint8_t flags, uint8_t *buf, uint32_t size, uint32_t timeout);
+
+  - 参数说明
+
+    .. list-table::
+           :header-rows: 1
+
+           * - 参数名
+             - 类型
+             - 描述
+           * - context
+             - hpm_i2c_context_t*
+             - 指向I2C上下文结构体的指针，包含I2C配置信息和状态
+           * - device_address
+             - uint16_t
+             - 要进行序列传输的目标从设备的地址。根据初始化配置中的is_10bit_addressing标志，这个值可以是7位或10位
+           * - flags
+             - uint8_t
+             - 传输标志，用于配置传输的行为。例如，是否使用重复起始条件、是否发送停止条件等
+           * - buf
+             - uint8_t*
+             - 指向包含要发送或接收数据的缓冲区的指针
+           * - size
+             - uint32_t
+             - 缓冲区中数据的字节数
+           * - timeout
+             - uint32_t
+             - 超时时间（单位为毫秒）。如果在这个时间内操作没有完成，函数将返回一个超时错误
+
+  - 返回值：
+
+    - ``status_success``: 如果序列传输成功完成。
+
+    - ``status_invalid_argument``: 如果提供的size超过了硬件支持的最大传输计数值
+
+    - ``status_timeout``: 如果在指定的timeout时间内未能完成操作
+
+    - ``status_i2c_no_addr_hit``: 如果目标地址上没有检测到设备响应
+
+    - ``status_i2c_transmit_not_completed``:  如果在传输结束前数据计数器与预期不符
+
+  - **举例**: 一个I2C主设备，通过I2C总线向从设备的读取某个寄存器地址的数据值
+
+    .. code-block:: c
+
+        /* 定义I2C上下文和设备地址 */
+        hpm_i2c_context_t i2c_context;
+        const uint16_t device_address = 0x3C; /* 示例从设备地址 */
+        /* 准备接收数据的缓冲区和其大小 */
+        uint8_t received_data[10]; /* 接收数据的缓冲区 */
+        uint32_t size = sizeof(received_data); /* 缓冲区大小 */
+        uint32_t timeout = 1000; /* 超时时间设置为1秒 */
+        uint16_t register_address = 0x01; /* 要读取的寄存器地址 */
+        uint8_t flags = I2C_WR | I2C_NO_STOP; /* 写入操作, 不发送停止条件 */
+        /* 初始化I2C上下文... 不做列举 */
+        /* 使用hpm_i2c_master_seq_transfer_blocking函数写入从设备的目标寄存器地址 */
+        hpm_stat_t result = hpm_i2c_master_seq_transfer_blocking(
+            &i2c_context,
+            device_address,
+            flags,
+            &register_address,
+            sizeof(register_address),
+            timeout
+        );
+
+        if (result == status_success) {
+            /* 读取成功 */
+            flags = I2C_RD; /* 读取操作 */
+            result = hpm_i2c_master_seq_transfer_blocking(
+                &i2c_context,
+                device_address,
+                flags,
+                received_data,
+                size,
+                timeout
+            );
+            if (result == status_success) {
+                /* 读取成功 */
+                printf("Data successfully read from I2C slave.\n");
+                /* 这里可以对received_data进行处理 */
+            } else {
+                /* 读取失败，处理错误情况 */
+                printf("Failed to read data from I2C slave. Error code: %d\n", result);
+            }
+        } else {
+            /* 读取失败，处理错误情况 */
+            printf("Failed to read data from I2C slave. Error code: %d\n", result);
+        }
+
 - **带地址寄存器读写操作**：用于I2C主模式下向从设备写入地址和数据的阻塞操作。它会等待直到地址和数据传输完成或超时
-- 分为``hpm_i2c_master_addr_write_blocking`` 和 ``hpm_i2c_master_addr_read_blocking`` API
+- 分为 ``hpm_i2c_master_addr_write_blocking`` 和 ``hpm_i2c_master_addr_read_blocking`` API
 
   - ``hpm_i2c_master_addr_write_blocking`` API函数原型:
 
@@ -357,7 +458,7 @@ DMA配置
 
     - 参数说明
 
-        .. list-table::
+      .. list-table::
            :header-rows: 1
 
            * - 参数名
@@ -433,7 +534,7 @@ DMA配置
 
     - 参数说明
 
-        .. list-table::
+      .. list-table::
            :header-rows: 1
 
            * - 参数名
@@ -511,11 +612,13 @@ DMA配置
             printf("Failed to read data from I2C slave. Error code: %d\n", result);
         }
 
+
+
 从机模式
 ^^^^^^^^
 
 - 用于I2C从模式下的阻塞读写操作。它会一直等待直到数据传输完成或超时
-- 分为``hpm_i2c_slave_write_blocking`` 和 ``hpm_i2c_slave_read_blocking`` API
+- 分为 ``hpm_i2c_slave_write_blocking`` 和 ``hpm_i2c_slave_read_blocking`` API
 
   - ``hpm_i2c_slave_write_blocking`` API函数原型:
 
@@ -525,7 +628,7 @@ DMA配置
 
     - 参数说明
 
-        .. list-table::
+      .. list-table::
            :header-rows: 1
 
            * - 参数名
@@ -577,7 +680,7 @@ DMA配置
 
     - 参数说明
 
-        .. list-table::
+      .. list-table::
            :header-rows: 1
 
            * - 参数名
@@ -630,7 +733,7 @@ DMA配置
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - **直接读写操作**：用于I2C主模式下的非阻塞读写操作
-- 分为``hpm_i2c_master_write_nonblocking`` 和 ``hpm_i2c_master_read_nonblocking`` API
+- 分为 ``hpm_i2c_master_write_nonblocking`` 和 ``hpm_i2c_master_read_nonblocking`` API
 
   - ``hpm_i2c_master_write_nonblocking`` API函数原型:
 
@@ -640,7 +743,7 @@ DMA配置
 
     - 参数说明
 
-        .. list-table::
+      .. list-table::
            :header-rows: 1
 
            * - 参数名
@@ -702,7 +805,7 @@ DMA配置
 
     - 参数说明
 
-        .. list-table::
+      .. list-table::
            :header-rows: 1
 
            * - 参数名
@@ -757,8 +860,94 @@ DMA配置
 
         /* TODO 由于是非阻塞操作，函数会立即返回，允许程序继续执行其他任务。比如等待此次传输完成 */
 
+- hpm_i2c_master_seq_transfer_nonblocking 序列传输非阻塞操作
+
+  - API函数原型:
+
+    .. code-block:: c
+
+        hpm_stat_t hpm_i2c_master_seq_transfer_nonblocking(hpm_i2c_context_t *context, uint16_t device_address, uint8_t flags, uint8_t *buf, uint32_t size);
+
+    - 参数说明
+
+      .. list-table::
+           :header-rows: 1
+
+           * - 参数名
+             - 类型
+             - 描述
+           * - context
+             - hpm_i2c_context_t*
+             - 指向I2C上下文结构体的指针，包含I2C配置信息和状态
+           * - device_address
+             - uint16_t
+             - 要进行序列传输的目标从设备的地址。根据初始化配置中的is_10bit_addressing标志，这个值可以是7位或10位
+           * - flags
+             - uint8_t
+             - 传输标志，用于配置传输的行为。例如，是否使用重复起始条件、是否发送停止条件等
+           * - buf
+             - uint8_t*
+             - 指向包含要发送或接收数据的缓冲区的指针
+           * - size
+             - uint32_t
+             - 缓冲区中数据的字节数
+
+    - 返回值：
+      - ``status_success``: 如果序列传输成功完成。
+
+      - ``status_invalid_argument``: 如果提供的size超过了硬件支持的最大传输计数值
+
+      - ``status_i2c_no_addr_hit``: 如果目标地址上没有检测到设备响应
+
+      - ``status_i2c_transmit_not_completed``:  如果在传输结束前数据计数器与预期不符
+
+    - **举例**: 一个I2C主设备，通过I2C总线向从设备的读取某个寄存器地址的数据值
+
+    .. code-block:: c
+
+        /* 定义I2C上下文和设备地址 */
+        hpm_i2c_context_t i2c_context;
+        const uint16_t device_address = 0x3C; /* 示例从设备地址 */
+        /* 准备接收数据的缓冲区和其大小 */
+        uint8_t received_data[10]; /* 接收数据的缓冲区 */
+        uint32_t size = sizeof(received_data); /* 缓冲区大小 */
+        uint16_t register_address = 0x01; /* 要读取的寄存器地址 */
+        uint8_t flags = I2C_WR | I2C_NO_STOP; /* 写入操作, 不发送停止条件 */
+        /* 初始化I2C上下文... 不做列举 */
+        /* 使用hpm_i2c_master_seq_transfer_nonblocking函数写入从设备的目标寄存器地址 */
+        hpm_stat_t result = hpm_i2c_master_seq_transfer_nonblocking(
+            &i2c_context,
+            device_address,
+            flags,
+            &register_address,
+            sizeof(register_address),
+        );
+
+        if (result == status_success) {
+            printf("Data transmission started successfully\n");
+            /* 非阻塞操作，函数会立即返回，允许程序继续执行其他任务。比如等待此次传输完成后执行下一段 */
+            while (!(i2c_get_status(i2c_context.base) & I2C_STATUS_CMPL_MASK)) {
+            };
+            flags = I2C_RD; /* 读取操作 */
+            result = hpm_i2c_master_seq_transfer_nonblocking(
+                &i2c_context,
+                device_address,
+                flags,
+                received_data,
+                size
+            );
+            if (result == status_success) {
+                printf("Data reception started successfully\n");
+            } else {
+                printf("Failed to start data reception. Error code: %d\n", result);
+            }
+        } else {
+            printf("Failed to start data transmission. Error code: %d\n", result);
+        }
+
+
 - **带地址寄存器读写操作**：用于I2C主模式下向从设备写入地址和数据的非阻塞操作
-- 分为``hpm_i2c_master_addr_write_nonblocking`` 和 ``hpm_i2c_master_addr_read_nonblocking`` API
+- 分为 ``hpm_i2c_master_addr_write_nonblocking`` 和 ``hpm_i2c_master_addr_read_nonblocking`` API
 
   - ``hpm_i2c_master_addr_write_nonblocking`` API函数原型:
 
@@ -768,7 +957,7 @@ DMA配置
 
     - 参数说明
 
-        .. list-table::
+      .. list-table::
            :header-rows: 1
 
            * - 参数名
@@ -838,7 +1027,7 @@ DMA配置
 
     - 参数说明
 
-        .. list-table::
+      .. list-table::
            :header-rows: 1
 
            * - 参数名
@@ -913,7 +1102,7 @@ DMA配置
 ^^^^^^^^
 
 - 用于I2C从模式下的阻塞读写操作。它会一直等待直到数据传输完成或超时
-- 分为``hpm_i2c_slave_write_nonblocking`` 和 ``hpm_i2c_slave_read_nonblocking`` API
+- 分为 ``hpm_i2c_slave_write_nonblocking`` 和 ``hpm_i2c_slave_read_nonblocking`` API
 
   - ``hpm_i2c_slave_write_nonblocking`` API函数原型:
 
@@ -923,7 +1112,7 @@ DMA配置
 
     - 参数说明
 
-        .. list-table::
+      .. list-table::
            :header-rows: 1
 
            * - 参数名
@@ -952,7 +1141,7 @@ DMA配置
         hpm_i2c_context_t context;
         /* 初始化I2C上下文... */
         uint8_t data_to_send[] = {0x01, 0x02, 0x03};
-        hpm_stat_t result = hpm_i2c_slave_write_nonblocking(&context, data_to_send, sizeof(data_to_send), 1000);
+        hpm_stat_t result = hpm_i2c_slave_write_nonblocking(&context, data_to_send, sizeof(data_to_send));
         if (result == status_success) {
              /* 成功处理写请求 */
         } else {
@@ -968,7 +1157,7 @@ DMA配置
 
     - 参数说明
 
-        .. list-table::
+      .. list-table::
            :header-rows: 1
 
            * - 参数名
@@ -997,7 +1186,7 @@ DMA配置
         hpm_i2c_context_t context;
         /* 初始化I2C上下文... */
         uint8_t received_data[10];
-        hpm_stat_t result = hpm_i2c_slave_read_nonblocking(&context, received_data, sizeof(received_data), 1000);
+        hpm_stat_t result = hpm_i2c_slave_read_nonblocking(&context, received_data, sizeof(received_data));
         if (result == status_success) {
              /* 成功处理写请求 */
         } else {
@@ -1011,11 +1200,11 @@ DMA配置
 - 由于I2C组件使用了DMA管理器组件，DMA的通道等配置由DMA管理器分配，在使用DMA时分配的DMA通道避免与I2C组件使用的DMA通道冲突。
 - I2C组件使用的DMA通道可以调用``hpm_i2c_get_dma_mgr_resource``API 获取。
 
-    - ``hpm_i2c_get_dma_mgr_resource`` API函数原型:
+  - ``hpm_i2c_get_dma_mgr_resource`` API函数原型:
 
-        .. code-block:: c
+    .. code-block:: c
 
-            dma_resource_t *hpm_i2c_get_dma_mgr_resource(hpm_i2c_context_t *context)
+        dma_resource_t *hpm_i2c_get_dma_mgr_resource(hpm_i2c_context_t *context)
 
 - **举例** : 如何使用 hpm_i2c_get_dma_mgr_resource 函数获取DMA通道资源以及获取到DMA通道资源后如何使用DMA通道资源
     .. code-block:: c

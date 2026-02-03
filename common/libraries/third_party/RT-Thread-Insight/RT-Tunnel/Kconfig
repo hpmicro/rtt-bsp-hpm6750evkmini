@@ -1,0 +1,17 @@
+
+# Kconfig file for RT-Tunnel
+menuconfig RT_USING_RT_TUNNEL
+    bool "RT-Tunnel: Auxiliary communication with RT-Trace tool and the target."
+    default n
+
+if RT_USING_RT_TUNNEL
+    config TUNNEL_NUM
+        int "Tunnel number"
+        default 3
+
+    config TUNNEL_BUFFER_SIZE
+        int "Tunnel buffer size (bytes)"
+        default 8192
+        help
+            Configure the buffer size for each tunnel.
+endif

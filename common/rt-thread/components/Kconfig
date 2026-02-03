@@ -25,14 +25,29 @@ config RT_USING_LEGACY
     bool "Support legacy version for compatibility"
     default n
 
-source "$RTT_DIR/components/finsh/Kconfig"
-source "$RTT_DIR/components/dfs/Kconfig"
-source "$RTT_DIR/components/fal/Kconfig"
-source "$RTT_DIR/components/lwp/Kconfig"
-source "$RTT_DIR/components/drivers/Kconfig"
-source "$RTT_DIR/components/libc/Kconfig"
-source "$RTT_DIR/components/net/Kconfig"
-source "$RTT_DIR/components/utilities/Kconfig"
-source "$RTT_DIR/components/vbus/Kconfig"
+if RT_USING_CONSOLE
+rsource "finsh/Kconfig"
+endif
+
+if !RT_USING_NANO
+rsource "dfs/Kconfig"
+rsource "fal/Kconfig"
+rsource "drivers/Kconfig"
+rsource "libc/Kconfig"
+rsource "net/Kconfig"
+rsource "mprotect/Kconfig"
+rsource "utilities/Kconfig"
+rsource "vbus/Kconfig"
+endif
+
+if ARCH_MM_MMU
+rsource "mm/Kconfig"
+endif
+
+if RT_USING_SMART
+rsource "lwp/Kconfig"
+endif
+
+rsource "legacy/Kconfig"
 
 endmenu

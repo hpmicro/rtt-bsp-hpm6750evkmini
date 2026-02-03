@@ -241,7 +241,6 @@ void hpm_sdmmc_isr(struct hpm_mmcsd *mmcsd)
 }
 
 #if defined(BSP_USING_SDXC0)
-void sdxc0_isr(void);
 /* Place the ADMA table to non-cacheable region */
 ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(8) static uint32_t s_sdxc0_adma_table[SDXC_ADMA_TABLE_WORDS];
 
@@ -308,15 +307,16 @@ static struct hpm_mmcsd s_hpm_sdxc0 =
     .data_buf_size = BSP_SDXC0_CACHEABLE_BUFFER_SIZE_IN_SECTOR * SDMMC_DEFAULT_SECTOR_SIZE,
 #endif
 };
-RTT_DECLARE_EXT_ISR_M(IRQn_SDXC0, sdxc0_isr);
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
 void sdxc0_isr(void)
 {
     hpm_sdmmc_isr(&s_hpm_sdxc0);
 }
+RTT_DECLARE_EXT_ISR_M(IRQn_SDXC0, sdxc0_isr);
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 #endif
 
 #if defined(BSP_USING_SDXC1)
-void sdxc1_isr(void);
 /* Place the ADMA table to non-cacheable region */
 ATTR_PLACE_AT_NONCACHEABLE_WITH_ALIGNMENT(8) static uint32_t s_sdxc1_adma_table[SDXC_ADMA_TABLE_WORDS];
 #if defined(BSP_SDXC1_NONCACHEABLE_BUFFER_SIZE_IN_SECTOR)
@@ -380,13 +380,21 @@ static struct hpm_mmcsd s_hpm_sdxc1 =
     .data_buf_size = BSP_SDXC1_CACHEABLE_BUFFER_SIZE_IN_SECTOR * SDMMC_DEFAULT_SECTOR_SIZE,
 #endif
 };
-RTT_DECLARE_EXT_ISR_M(IRQn_SDXC1, sdxc1_isr);
-
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
 void sdxc1_isr(void)
 {
     hpm_sdmmc_isr(&s_hpm_sdxc1);
 }
+RTT_DECLARE_EXT_ISR_M(IRQn_SDXC1, sdxc1_isr);
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 #endif
+
+#ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+void sdxc_isr(int vector, struct hpm_mmcsd *sdxc)
+{
+    hpm_sdmmc_isr(sdxc);
+}
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 
 static struct hpm_mmcsd *hpm_sdxcs[] =
 {
@@ -1163,6 +1171,11 @@ int rt_hw_sdio_init(void)
         intc_m_enable_irq_with_priority(mmcsd->irq_num, mmcsd->irq_priority);
 
         mmcsd_change(host);
+
+#ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+        /* Register SDXC device to irq table */
+        rt_hw_interrupt_install(mmcsd->irq_num, (rt_isr_handler_t)sdxc_isr, hpm_sdxcs[i], mmcsd->name);
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
     }
 
     if (err != RT_EOK)

@@ -2,10 +2,15 @@ from building import *
 
 cwd = GetCurrentDir()
 
-src = Glob('*.c')
+if not GetDepend('HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK'):
+    src = Glob('*.c')
+else:
+    src = Glob('*.c') + ['port_gcc.S']
 
 CPPPATH  = [cwd]
 
-group = DefineGroup('rtt_interrupt_util', src, depend = [''], CPPPATH = CPPPATH )
+CPPDEFINES=['RT_HW_ISR_NUM=HPM_SOC_ISR_NUM']
+
+group = DefineGroup('rtt_interrupt_util', src, depend = [''], CPPPATH = CPPPATH, CPPDEFINES = CPPDEFINES)
 
 Return('group')

@@ -8,7 +8,9 @@
 #include "hpm_common.h"
 #include "hpm_uart_drv.h"
 
+#ifndef HPM_UART_DRV_RETRY_COUNT
 #define HPM_UART_DRV_RETRY_COUNT (5000U)
+#endif
 #define HPM_UART_MINIMUM_BAUDRATE (200U)
 
 #ifndef HPM_UART_BAUDRATE_TOLERANCE
@@ -109,7 +111,6 @@ hpm_stat_t uart_init(UART_Type *ptr, uart_config_t *config)
     if (!uart_calculate_baudrate(config->src_freq_in_hz, config->baudrate, &div, &osc)) {
         return status_uart_no_suitable_baudrate_parameter_found;
     }
-
     ptr->OSCR = (ptr->OSCR & ~UART_OSCR_OSC_MASK)
         | UART_OSCR_OSC_SET(osc);
     ptr->DLL = UART_DLL_DLL_SET(div >> 0);

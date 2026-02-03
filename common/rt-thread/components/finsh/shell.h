@@ -57,6 +57,7 @@ enum input_stat
     WAIT_NORMAL,
     WAIT_SPEC_KEY,
     WAIT_FUNC_KEY,
+    WAIT_EXT_KEY,
 };
 struct finsh_shell
 {
@@ -66,7 +67,7 @@ struct finsh_shell
 
     rt_uint8_t echo_mode: 1;
     rt_uint8_t prompt_mode: 1;
-
+    rt_uint8_t overwrite_mode: 1;
 #ifdef FINSH_USING_HISTORY
     rt_uint16_t current_history;
     rt_uint16_t history_count;
@@ -101,5 +102,9 @@ void finsh_set_prompt_mode(rt_uint32_t prompt_mode);
     rt_err_t finsh_set_password(const char *password);
     const char *finsh_get_password(void);
 #endif
+
+#ifdef RT_USING_HOOK
+void finsh_thread_entry_sethook(void (*hook)(void));
+#endif /* RT_USING_HOOK */
 
 #endif

@@ -113,6 +113,9 @@ const uint16_t qdtable[256] = {
 #include "qdtable.cdat"
 };
 
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+RTT_DECLARE_EXT_ISR_M(BOARD_CAM_IRQ, isr_cam)
+#endif
 void isr_cam(void)
 {
     rt_base_t level;
@@ -134,8 +137,10 @@ void isr_cam(void)
     }
     rt_hw_interrupt_enable(level);
 }
-RTT_DECLARE_EXT_ISR_M(BOARD_CAM_IRQ, isr_cam)
 
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+RTT_DECLARE_EXT_ISR_M(IRQn_JPEG, isr_jpeg)
+#endif
 void isr_jpeg(void)
 {
     uint32_t status = jpeg_get_status(HPM_JPEG);
@@ -144,7 +149,6 @@ void isr_jpeg(void)
         rt_sem_release(cam_jpeg_sem);
     }
 }
-RTT_DECLARE_EXT_ISR_M(IRQn_JPEG, isr_jpeg)
 
 /*
  * sensor configuration
@@ -211,6 +215,11 @@ void init_cam(void)
     cam_init(BOARD_CAM, &cam_config);
     cam_enable_irq(BOARD_CAM, cam_irq_fb1_dma_transfer_done | cam_irq_fb2_dma_transfer_done);
     intc_m_enable_irq_with_priority(BOARD_CAM_IRQ, 4);
+#ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+    /* Register CAM device to irq table */
+    rt_hw_interrupt_install(BOARD_CAM_IRQ, (rt_isr_handler_t)isr_cam, NULL, "CAM");
+    rt_hw_interrupt_install(IRQn_JPEG, (rt_isr_handler_t)isr_jpeg, NULL, "JPEG");
+#endif
 }
 
 
@@ -343,6 +352,8 @@ int jepg_cam_init(void)
     cam_start(BOARD_CAM);
     rt_thread_mdelay(100);
     intc_m_enable_irq_with_priority(IRQn_JPEG, 2);
+    /* Register JPEG device to irq table */
+    rt_hw_interrupt_install(IRQn_JPEG, (rt_isr_handler_t)isr_jpeg, NULL, "JPEG");
     return 0;
 }
 

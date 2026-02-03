@@ -14,6 +14,7 @@
 #include "plic.h"
 #include <riscv_io.h>
 #include "encoding.h"
+#include <interrupt.h>
 
 #include <riscv.h>
 #include <string.h>
@@ -51,7 +52,7 @@ void plic_irq_enable(int irq)
 {
     int hart = __raw_hartid();
     *(uint32_t *)PLIC_ENABLE(hart) = ((*(uint32_t *)PLIC_ENABLE(hart)) | (1 << irq));
-#ifdef RISCV_S_MODE
+#ifdef RISCV_VIRT64_S_MODE
     set_csr(sie, read_csr(sie) | MIP_SEIP);
 #else
     set_csr(mie, read_csr(mie) | MIP_MEIP);
@@ -92,7 +93,7 @@ void plic_set_threshold(int threshold)
 int plic_claim(void)
 {
     int hart = __raw_hartid();
-    int irq = *(uint32_t *)PLIC_CLAIM(hart);
+    int irq = readl((uint32_t *)PLIC_CLAIM(hart));
     return irq;
 }
 
@@ -109,12 +110,12 @@ int plic_claim(void)
 void plic_complete(int irq)
 {
     int hart = __raw_hartid();
-    *(uint32_t *)PLIC_COMPLETE(hart) = irq;
+    writel(irq, (uint32_t *)PLIC_COMPLETE(hart));
 }
 
 void plic_set_ie(rt_uint32_t word_index, rt_uint32_t val)
 {
-    volatile void *plic_ie = (void *)(rt_size_t)(plic_base + PLIC_ENABLE_BASE + 0x80 + word_index * 4);
+    volatile void *plic_ie = (void *)(rt_ubase_t)(plic_base + PLIC_ENABLE_BASE + 0x80 + word_index * 4);
     writel(val, plic_ie);
 }
 
@@ -138,4 +139,18 @@ void plic_init()
 
     // in a single core system, only current context was set
     _set_sie(__raw_hartid());
+}
+
+extern struct rt_irq_desc irq_desc[MAX_HANDLERS];
+/*
+ * Handling an interrupt is a two-step process: first you claim the interrupt
+ * by reading the claim register, then you complete the interrupt by writing
+ * that source ID back to the same claim register.  This automatically enables
+ * and disables the interrupt, so there's nothing else to do.
+ */
+void plic_handle_irq(void)
+{
+    int plic_irq = plic_claim();
+    plic_complete(plic_irq);
+    irq_desc[plic_irq].handler(plic_irq, irq_desc[plic_irq].param);
 }

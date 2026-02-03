@@ -385,7 +385,17 @@ args:
 nmi_handler:
 1:    j 1b
 
-
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
 #include "./vectors.h"
+#else
+    .section .vector_table, "a"
+    .global __vector_table
+    .align 9
+
+__vector_table:
+    .rept RT_HW_ISR_NUM
+    .long handle_trap
+    .endr
+#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
 
 /*************************** End of file ****************************/

@@ -8,10 +8,5 @@
   "path": "/packages/iot/netutils", 
   "ver": "v1.3.3", 
   "name": "NETUTILS"
- }, 
- {
-  "path": "/packages/tools/cpu_usage", 
-  "ver": "latest", 
-  "name": "CPU_USAGE"
  }
 ]

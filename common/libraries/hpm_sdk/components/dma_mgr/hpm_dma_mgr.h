@@ -17,6 +17,7 @@
 #include "hpm_dma_drv.h"
 #endif
 #include "hpm_soc_feature.h"
+#include "rtconfig.h" 
 
 #ifdef HPMSOC_HAS_HPMSDK_DMAV2
 #define DMA_MGR_HAS_INFINITE_LOOP        (1U)
@@ -169,10 +170,21 @@ typedef struct hpm_dma_mgr_linked_descriptor {
     uint32_t descriptor[8];
 } dma_mgr_linked_descriptor_t;
 
+#ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
+typedef struct dma_mgr_isr_param_t {
+    DMA_Type *ptr;
+    uint32_t instance;
+} dma_mgr_isr_param;
+#endif
+
 /**
  * @brief DMA Manager ISR handler
  */
+#ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
 void dma_mgr_isr_handler(DMA_Type *ptr, uint32_t instance);
+#else
+void dma_mgr_isr_handler(int vector, dma_mgr_isr_param *param);
+#endif
 
 /**
  * @brief Initialize DMA Manager Context

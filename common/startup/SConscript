@@ -7,7 +7,12 @@ from building import *
 cwd = GetCurrentDir()
 objs = []
 
-objs = objs + SConscript(os.path.join(cwd, rtconfig.CHIP_NAME, 'SConscript'))
-ASFLAGS = ' -I' + cwd
+if GetDepend('HPM_BSP_USING_GENERIC_STARTUP'):
+    print("Build Startup: Using GENERIC implementation")
+    objs = objs + SConscript(os.path.join(cwd, 'generic', 'SConscript'))
+else:
+    print("Build Startup: Using LEGACY implementation for " + rtconfig.CHIP_NAME)
+    objs = objs + SConscript(os.path.join(cwd, rtconfig.CHIP_NAME, 'SConscript'))
 
+ASFLAGS = ' -I' + cwd
 Return('objs')

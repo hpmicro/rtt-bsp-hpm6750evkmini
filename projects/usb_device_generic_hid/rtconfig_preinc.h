@@ -9,6 +9,8 @@
 #define D45
 #define HPM6750
 #define HPM_SDK_L1C_NO_REENTRANT 1
+#define HPM_SOC_ISR_NUM 128
+#define RT_HW_ISR_NUM HPM_SOC_ISR_NUM
 #define RT_USING_LIBC
 #define RT_USING_NEWLIBC
 #define USE_DMA_DECLARE_EXT_ISR_M 1

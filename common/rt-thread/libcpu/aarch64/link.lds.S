@@ -20,6 +20,13 @@ OUTPUT_ARCH(aarch64)
 #define ARCH_RAM_OFFSET 0
 #endif
 
+PHDRS
+{
+    text PT_LOAD FLAGS(5);   /* PF_R(4) | PF_X(1) = 0x5 (RX) */
+    data PT_LOAD FLAGS(6);   /* PF_R(4) | PF_W(2) = 0x6 (RW) */
+    stack PT_LOAD FLAGS(6);  /* PF_R | PF_W */
+}
+
 SECTIONS
 {
     _text_offset = ARCH_TEXT_OFFSET;
@@ -81,8 +88,15 @@ SECTIONS
         PROVIDE(__rt_ofw_data_end = .);
         . = ALIGN(16);
 
+        /* section information for usb usbh_class_info */
+        . = ALIGN(4);
+        __usbh_class_info_start__ = .;
+        KEEP(*(.usbh_class_info))
+        . = ALIGN(4);
+        __usbh_class_info_end__ = .;
+
         PROVIDE(__text_end = .);
-    }
+    } :text
 
     .eh_frame_hdr :
     {
@@ -106,24 +120,24 @@ SECTIONS
         *(.sdata)
         *(.sdata.*)
         *(.rel.local)
-    }
+    } :data
 
     . = ALIGN(8);
     .ctors :
     {
-        PROVIDE(__ctors_start = .);
+        PROVIDE(__ctors_start__ = .);
         /* new GCC version uses .init_array */
         KEEP(*(SORT(.init_array.*)))
         KEEP(*(.init_array))
-        PROVIDE(__ctors_end = .);
+        PROVIDE(__ctors_end__ = .);
     }
 
     .dtors :
     {
-        PROVIDE(__dtors_start = .);
+        PROVIDE(__dtors_start__ = .);
         KEEP(*(SORT(.dtors.*)))
         KEEP(*(.dtors))
-        PROVIDE(__dtors_end = .);
+        PROVIDE(__dtors_end__ = .);
     }
 
     . = ALIGN(16);

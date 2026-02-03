@@ -12,6 +12,9 @@
  * 2021-08-15     Supperthomas fix the comment
  * 2022-01-07     Gabriel      Moving __on_rt_xxxxx_hook to irq.c
  * 2022-07-04     Yunjie       fix RT_DEBUG_LOG
+ * 2023-09-15     xqyjlj       perf rt_hw_interrupt_disable/enable
+ * 2024-01-05     Shell        Fixup of data racing in rt_interrupt_get_nest
+ * 2024-01-03     Shell        Support for interrupt context
  */
 
 #include <rthw.h>
@@ -21,20 +24,13 @@
 #define DBG_LVL           DBG_INFO
 #include <rtdbg.h>
 
-#ifndef __on_rt_interrupt_enter_hook
-    #define __on_rt_interrupt_enter_hook()          __ON_HOOK_ARGS(rt_interrupt_enter_hook, ())
-#endif
-#ifndef __on_rt_interrupt_leave_hook
-    #define __on_rt_interrupt_leave_hook()          __ON_HOOK_ARGS(rt_interrupt_leave_hook, ())
-#endif
-
 #if defined(RT_USING_HOOK) && defined(RT_HOOK_USING_FUNC_PTR)
 
 static void (*rt_interrupt_enter_hook)(void);
 static void (*rt_interrupt_leave_hook)(void);
 
 /**
- * @ingroup Hook
+ * @ingroup group_hook
  *
  * @brief This function set a hook function when the system enter a interrupt
  *
@@ -48,7 +44,7 @@ void rt_interrupt_enter_sethook(void (*hook)(void))
 }
 
 /**
- * @ingroup Hook
+ * @ingroup group_hook
  *
  * @brief This function set a hook function when the system exit a interrupt.
  *
@@ -63,7 +59,7 @@ void rt_interrupt_leave_sethook(void (*hook)(void))
 #endif /* RT_USING_HOOK */
 
 /**
- * @addtogroup Kernel
+ * @addtogroup group_kernel_core
  */
 
 /**@{*/
@@ -71,9 +67,28 @@ void rt_interrupt_leave_sethook(void (*hook)(void))
 #ifdef RT_USING_SMP
 #define rt_interrupt_nest rt_cpu_self()->irq_nest
 #else
-volatile rt_uint8_t rt_interrupt_nest = 0;
+volatile rt_atomic_t rt_interrupt_nest = 0;
 #endif /* RT_USING_SMP */
 
+#ifdef ARCH_USING_IRQ_CTX_LIST
+void rt_interrupt_context_push(rt_interrupt_context_t this_ctx)
+{
+    struct rt_cpu *this_cpu = rt_cpu_self();
+    rt_slist_insert(&this_cpu->irq_ctx_head, &this_ctx->node);
+}
+
+void rt_interrupt_context_pop(void)
+{
+    struct rt_cpu *this_cpu = rt_cpu_self();
+    rt_slist_pop(&this_cpu->irq_ctx_head);
+}
+
+void *rt_interrupt_context_get(void)
+{
+    struct rt_cpu *this_cpu = rt_cpu_self();
+    return rt_slist_first_entry(&this_cpu->irq_ctx_head, struct rt_interrupt_context, node)->context;
+}
+#endif /* ARCH_USING_IRQ_CTX_LIST */
 
 /**
  * @brief This function will be invoked by BSP, when enter interrupt service routine
@@ -84,15 +99,10 @@ volatile rt_uint8_t rt_interrupt_nest = 0;
  */
 rt_weak void rt_interrupt_enter(void)
 {
-    rt_base_t level;
-
-    level = rt_hw_interrupt_disable();
-    rt_interrupt_nest ++;
+    rt_atomic_add(&(rt_interrupt_nest), 1);
     RT_OBJECT_HOOK_CALL(rt_interrupt_enter_hook,());
-    rt_hw_interrupt_enable(level);
-
     LOG_D("irq has come..., irq current nest:%d",
-          (rt_int32_t)rt_interrupt_nest);
+          (rt_int32_t)rt_atomic_load(&(rt_interrupt_nest)));
 }
 RTM_EXPORT(rt_interrupt_enter);
 
@@ -106,15 +116,11 @@ RTM_EXPORT(rt_interrupt_enter);
  */
 rt_weak void rt_interrupt_leave(void)
 {
-    rt_base_t level;
-
     LOG_D("irq is going to leave, irq current nest:%d",
-                 (rt_int32_t)rt_interrupt_nest);
-
-    level = rt_hw_interrupt_disable();
+                 (rt_int32_t)rt_atomic_load(&(rt_interrupt_nest)));
     RT_OBJECT_HOOK_CALL(rt_interrupt_leave_hook,());
-    rt_interrupt_nest --;
-    rt_hw_interrupt_enable(level);
+    rt_atomic_sub(&(rt_interrupt_nest), 1);
+
 }
 RTM_EXPORT(rt_interrupt_leave);
 
@@ -132,9 +138,9 @@ rt_weak rt_uint8_t rt_interrupt_get_nest(void)
     rt_uint8_t ret;
     rt_base_t level;
 
-    level = rt_hw_interrupt_disable();
-    ret = rt_interrupt_nest;
-    rt_hw_interrupt_enable(level);
+    level = rt_hw_local_irq_disable();
+    ret = rt_atomic_load(&rt_interrupt_nest);
+    rt_hw_local_irq_enable(level);
     return ret;
 }
 RTM_EXPORT(rt_interrupt_get_nest);

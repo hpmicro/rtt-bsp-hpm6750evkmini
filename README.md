@@ -17,7 +17,7 @@ RT-Thread Studio BSP for HPM6750EVKMINI Board
 - rw007_wifi
 - sdcard_demo
 - timer_demo
-- uart_dma_demo
+- uart_interrupt_demo
 - usb_device_generic_hid
 - usb_host_msc_udisk
 - wifi_web_camera_demo
