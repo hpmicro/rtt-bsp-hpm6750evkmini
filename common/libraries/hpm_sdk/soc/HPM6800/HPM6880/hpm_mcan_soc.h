@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 HPMicro
+ * Copyright (c) 2023-2026 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -24,7 +24,7 @@ typedef struct {
 #define MCAN_SOC_TSU_SRC_TWO_STAGES     (1U)
 
 #define HPM_MCAN_EXT_TBSEL_NUM  (4U)
-#define HPM_MCAN_TBSEL_BASE (0xF02FF000UL)
+#define HPM_MCAN_TBSEL_BASE (HPM_PTPC_BASE + 0x3000UL)
 #define HPM_MCAN_TBSEL (*(volatile uint32_t *)HPM_MCAN_TBSEL_BASE)
 #define HPM_MCAN_TBSEL_BITWIDTH (6U)
 #define HPM_MCAN_TBSEL_MASK ((1UL << HPM_MCAN_TBSEL_BITWIDTH) - 1UL)

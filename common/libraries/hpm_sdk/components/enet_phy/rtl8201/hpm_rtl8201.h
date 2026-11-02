@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (c) 2021-2025 HPMicro
+ * Copyright (c) 2021-2026 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -122,7 +122,7 @@ bool rtl8201_basic_mode_init(ENET_Type *ptr, uint32_t phy_addr, rtl8201_config_t
  *          - Port speed (10 Mbps or 100 Mbps)
  *          - Duplex mode (half or full)
  */
-void rtl8201_get_phy_status(ENET_Type *ptr, uint32_t phy_addr, enet_phy_status_t *status);
+hpm_stat_t rtl8201_get_phy_status(ENET_Type *ptr, uint32_t phy_addr, enet_phy_status_t *status);
 
 /**
  * @brief Set RMII reference clock direction for RTL8201 PHY

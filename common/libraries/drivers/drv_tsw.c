@@ -16,7 +16,7 @@
 #include "hpm_rtt_interrupt_util.h"
 
 #if defined(BSP_USING_TSW_PHY_RTL8211)
-#include "hpm_rtl8211.h"
+#include "hpm_tsw_rtl8211.h"
 #endif
 
 ATTR_PLACE_AT_NONCACHEABLE_BSS_WITH_ALIGNMENT(TSW_SOC_DATA_BUS_WIDTH) uint8_t send_buff[TSW_SEND_DESC_COUNT][TSW_SEND_BUFF_LEN];

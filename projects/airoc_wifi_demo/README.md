@@ -1,28 +1,28 @@
 # 简介
 
-本示例演示了基于英飞凌AIROC™ WiFi+Bluetooch® Combo系列的 WiFi基本测试
+本示例演示了基于英飞凌AIROC™ WiFi+Bluetooth® Combo系列的 WiFi基本测试
 
 ## 如何配置WiFi-Host-Driver
 
-打开 `RT-Thread Settings`, 在右上角搜索`WiFi Host Driver(WHD)`, 在下拉框中选择所需要的`WiFi Host Driver(WHD) for RT-Thread`, 按作者给的介绍 __**[链接](https://github.com/Evlers/rt-thread_wifi-host-driver/blob/master/README_CN.md)**__ 来配置。
+打开 `RT-Thread Settings`, 在右上角搜索`WiFi Host Driver(WHD)`, 在下拉框中选择所需要的`WiFi Host Driver(WHD) for RT-Thread`, 按作者给的介绍 **[链接](https://github.com/Evlers/rt-thread_WiFi-host-driver/blob/master/README_CN.md)** 来配置。
 
-__测试过的WiFi模块列表__：
+**测试过的WiFi模块列表**：
 
-- CYWL6302 (WiFi芯片:CYW43012), 联系方式：新联鑫威（杭州）科技有限公司 (<xlx@xlxwlan.com>)
-- CYWL6208 (WiFi芯片:CYW43438), 联系方式：新联鑫威（杭州）科技有限公司 (<xlx@xlxwlan.com>)
+- CYWL6302 (WiFi芯片:CYW43012), 联系方式：新联鑫威（杭州）科技有限公司 (xlx@xlxwlan.com)
+- CYWL6208 (WiFi芯片:CYW43438), 联系方式：新联鑫威（杭州）科技有限公司 (xlx@xlxwlan.com)
 
-__注意事项__：
+**注意事项**：
 
-    1. 对于选项 `Select Chips`, 根据使用的模块，将下拉选项改为 `CYW43438`或 `CYW43012`
-    2. 对于选项 `Select the pin name or Number` ,将下拉选项改为 `Name`
-    3. 该驱动需要通WL_REG_ON 来控制模组的复位，对于选项 `Set the WiFi_REG ON pin` :
-      * 场景一：板级SD卡电路支持额外的电源引脚
+1. 对于选项 `Select Chips`, 根据使用的模块，将下拉选项改为 `CYW43438`或 `CYW43012`
+2. 对于选项 `Select the pin name or Number` ,将下拉选项改为 `Name`
+3. 该驱动需要通过WL_REG_ON来控制模组的复位，对于选项 `Set the WiFi_REG ON pin` :
+    - 场景一：板级SD卡电路支持额外的电源引脚
         - 该选项可以填`None`,模组的 `WL_REG_ON` 可以直接上拉
-      * 场景二：板级SD卡电路不支持额外的电源引脚
+    - 场景二：板级SD卡电路不支持额外的电源引脚
         - 需要将该引脚连接到板子上的GPIO引脚上，并在该选项处填上GPIO引脚的值，如`PD24`(位于P2-38)
-    4. 该驱动默认使用 `WL_HOST_WAKE` 引脚中断来触发WiFI的收发操作，对于选项 `Set the HOST_WAKE_IRQ pin`
-      - 请和板子上相应的GPIO相连，并将GPIO引脚的名称填入该选项，如`PD25`(位于P2-40)
-    5. 其他配置请保持默认值
+4. 该驱动默认使用 `WL_HOST_WAKE` 引脚中断来触发WiFi的收发操作，对于选项 `Set the HOST_WAKE_IRQ pin`
+    - 请和板子上相应的GPIO相连，并将GPIO引脚的名称填入该选项，如`PD25`(位于P2-40)
+5. 其他配置请保持默认值
 
 ## 支持的命令
 

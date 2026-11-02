@@ -7,9 +7,10 @@
 
 #include <string.h>
 #include "hpm_dma_mgr.h"
-#include "hpm_soc.h"
+#if defined(USE_DMA_DECLARE_EXT_ISR_M) || defined(HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK)
 #include "hpm_rtt_interrupt_util.h"
-
+#include <rthw.h>
+#endif
 /*****************************************************************************************************************
  *
  *  Definitions
@@ -81,7 +82,7 @@ ATTR_PLACE_AT_FAST_RAM_BSS static dma_mgr_context_t s_dma_mngr_ctx;
 ATTR_RAMFUNC void dma_mgr_isr_handler(DMA_Type *ptr, uint32_t instance)
 #else
 ATTR_RAMFUNC void dma_mgr_isr_handler(int vector, dma_mgr_isr_param *param)
-#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
+#endif
 {
     uint32_t int_disable_mask;
     uint32_t chn_int_stat;
@@ -89,7 +90,9 @@ ATTR_RAMFUNC void dma_mgr_isr_handler(int vector, dma_mgr_isr_param *param)
 #ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
     DMA_Type *ptr = param->ptr;
     uint32_t instance = param->instance;
-#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
+
+    (void)vector;
+#endif
 
     for (uint8_t channel = 0; channel < DMA_SOC_CHANNEL_NUM; channel++) {
         chn_ctx = &HPM_DMA_MGR->channels[instance][channel];
@@ -123,27 +126,28 @@ ATTR_RAMFUNC void dma_mgr_isr_handler(int vector, dma_mgr_isr_param *param)
 
 #ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
 #ifndef USE_DMA_DECLARE_EXT_ISR_M
-SDK_DECLARE_EXT_ISR_M(IRQn_HDMA, dma0_isr)
+SDK_DECLARE_EXT_ISR_M(DMA_MGR_IRQn_DMA0, dma0_isr)
 #else
-RTT_DECLARE_EXT_ISR_M(IRQn_HDMA, dma0_isr)
+RTT_DECLARE_EXT_ISR_M(DMA_MGR_IRQn_DMA0, dma0_isr)
 #endif /* USE_DMA_DECLARE_EXT_ISR_M */
 void dma0_isr(void)
 {
-    dma_mgr_isr_handler(HPM_HDMA, 0);
+    dma_mgr_isr_handler(DMA_MGR_DMA0, 0);
 }
 
-#ifdef HPM_XDMA
+#ifdef DMA_MGR_DMA1
 #ifndef USE_DMA_DECLARE_EXT_ISR_M
-SDK_DECLARE_EXT_ISR_M(IRQn_XDMA, dma1_isr)
+SDK_DECLARE_EXT_ISR_M(DMA_MGR_IRQn_DMA1, dma1_isr)
 #else
-RTT_DECLARE_EXT_ISR_M(IRQn_XDMA, dma1_isr)
+RTT_DECLARE_EXT_ISR_M(DMA_MGR_IRQn_DMA1, dma1_isr)
 #endif /* USE_DMA_DECLARE_EXT_ISR_M */
 void dma1_isr(void)
 {
-    dma_mgr_isr_handler(HPM_XDMA, 1);
+    dma_mgr_isr_handler(DMA_MGR_DMA1, 1);
 }
 #endif /* HPM_XDMA */
 #endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
+
 
 static uint32_t dma_mgr_enter_critical(void)
 {
@@ -157,27 +161,27 @@ static void dma_mgr_exit_critical(uint32_t level)
 
 void dma_mgr_init(void)
 {
-    HPM_DMA_MGR->dma_instance[0].base = HPM_HDMA;
-    HPM_DMA_MGR->dma_instance[0].irq_num = IRQn_HDMA;
+    HPM_DMA_MGR->dma_instance[0].base = DMA_MGR_DMA0;
+    HPM_DMA_MGR->dma_instance[0].irq_num = DMA_MGR_IRQn_DMA0;
 #ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
-    dma_mgr_isr_param dma0_isr_param = {
-        .ptr = HPM_HDMA,
+    /* Register the DMA0 ISR into the RT-Thread interrupt table.
+     * NOTE: only the address of the parameter is stored, so it must have a static storage duration */
+    static dma_mgr_isr_param dma0_isr_param = {
+        .ptr = DMA_MGR_DMA0,
         .instance = 0,
     };
-    /* Register DMA MGR device to irq table */
-    rt_hw_interrupt_install(IRQn_HDMA, (rt_isr_handler_t)dma_mgr_isr_handler, &dma0_isr_param, "HPM_HDMA");
-#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
-#ifdef HPM_XDMA
-    HPM_DMA_MGR->dma_instance[1].base = HPM_XDMA;
-    HPM_DMA_MGR->dma_instance[1].irq_num = IRQn_XDMA;
+    rt_hw_interrupt_install(DMA_MGR_IRQn_DMA0, (rt_isr_handler_t)dma_mgr_isr_handler, &dma0_isr_param, "DMA0");
+#endif
+#ifdef DMA_MGR_DMA1
+    HPM_DMA_MGR->dma_instance[1].base = DMA_MGR_DMA1;
+    HPM_DMA_MGR->dma_instance[1].irq_num = DMA_MGR_IRQn_DMA1;
 #ifdef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK
-    dma_mgr_isr_param dma1_isr_param = {
-        .ptr = HPM_XDMA,
+    static dma_mgr_isr_param dma1_isr_param = {
+        .ptr = DMA_MGR_DMA1,
         .instance = 1,
     };
-    /* Register DMA MGR device to irq table */
-    rt_hw_interrupt_install(IRQn_XDMA, (rt_isr_handler_t)dma_mgr_isr_handler, &dma1_isr_param, "HPM_XDMA");
-#endif /* HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK */
+    rt_hw_interrupt_install(DMA_MGR_IRQn_DMA1, (rt_isr_handler_t)dma_mgr_isr_handler, &dma1_isr_param, "DMA1");
+#endif
 #endif
 }
 

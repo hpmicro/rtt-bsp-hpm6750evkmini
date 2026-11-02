@@ -61,4 +61,4 @@ mmcsd_perf       - test emmc/sd read write speed
 
 ## 注意事项
 
-- SD/eMMC卡必须被格式化FAT32格式
+- SD/eMMC 卡必须格式化为 FAT32 格式

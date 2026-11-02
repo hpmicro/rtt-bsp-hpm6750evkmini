@@ -64,8 +64,8 @@ if RT_USING_SYSTEMVIEW
             ---help---
                 Max. number of up-buffers (T->H) available on this target
 
-        config RT_SEGGER_RTT_MAX_NUM_UP_BUFFERS
-            int "Max num of dowm buffer"
+        config RT_SEGGER_RTT_MAX_NUM_DOWN_BUFFERS
+            int "Max num of down buffer"
             default 3
             ---help---
                 Max. number of down-buffers (H->T) available on this target
@@ -132,7 +132,7 @@ if RT_USING_SYSTEMVIEW
 
         config RT_SEGGER_RTT_USE_RTT_ASM
             bool "Use RTT ASM"
-            default 64
+            default y
             ---help---
                 n:disable, y:Use assembler version of SEGGER_RTT.c
 

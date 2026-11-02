@@ -66,6 +66,109 @@
 
 #ifdef RT_SERIAL_USING_DMA
 
+/* ============================================================================
+ * Compile Time Configuration Checks
+ * ============================================================================
+ *
+ * The RX DMA ping-pong buffer is handed over to the serial framework and moved
+ * through its ring buffer, so the configured size has to match what the
+ * framework works with. Checking this at build time avoids the silent data
+ * loss of a runtime mismatch:
+ * - rt_ringbuffer_init() rounds the size down to RT_ALIGN_SIZE. A size which is
+ *   not a multiple of RT_ALIGN_SIZE makes the driver report more bytes than the
+ *   ring buffer can hold, the framework then clamps the length and logs
+ *   "The serial buffer (len %d) is overflow."
+ * - the framework raises a dma_ping_bufsz below RT_SERIAL_RX_MINBUFSZ / 2 when
+ *   the device is opened, so a smaller value desynchronizes the two sides
+ * - a whole ping-pong block is copied into the RX buffer at once, so the RX
+ *   buffer must not be smaller than the ping-pong buffer
+ * - the framework raises rx_bufsz below RT_SERIAL_RX_MINBUFSZ as well
+ */
+/* two level stringification, used to put the configured values into the
+ * compile time diagnostics */
+#define UART_CFG_STR(x)  #x
+#define UART_CFG_XSTR(x) UART_CFG_STR(x)
+
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
+#define UART_CFG_ASSERT(name, cond, msg) _Static_assert(cond, msg)
+#else
+#define UART_CFG_ASSERT(name, cond, msg) RT_STATIC_ASSERT(name, cond)
+#endif
+
+/* the diagnostic names both the failing UART and the failing constraint, and
+ * the message carries the configured values, so the build error points
+ * straight at the option to fix */
+#define UART_RX_DMA_BUF_CHECK(n)                                                                 \
+    UART_CFG_ASSERT(uart##n##_dma_pingpong_bufsize_multiple_of_rt_align_size,                    \
+        (BSP_UART##n##_DMA_PINGPONG_BUFSIZE % RT_ALIGN_SIZE) == 0,                               \
+        "uart" #n ": BSP_UART" #n "_DMA_PINGPONG_BUFSIZE="                                       \
+        UART_CFG_XSTR(BSP_UART##n##_DMA_PINGPONG_BUFSIZE)                                        \
+        " must be a multiple of RT_ALIGN_SIZE=" UART_CFG_XSTR(RT_ALIGN_SIZE));                    \
+    UART_CFG_ASSERT(uart##n##_dma_pingpong_bufsize_at_least_half_of_rt_serial_rx_minbufsz,       \
+        BSP_UART##n##_DMA_PINGPONG_BUFSIZE >= (RT_SERIAL_RX_MINBUFSZ / 2),                       \
+        "uart" #n ": BSP_UART" #n "_DMA_PINGPONG_BUFSIZE="                                       \
+        UART_CFG_XSTR(BSP_UART##n##_DMA_PINGPONG_BUFSIZE)                                        \
+        " must be at least RT_SERIAL_RX_MINBUFSZ/2=" UART_CFG_XSTR(RT_SERIAL_RX_MINBUFSZ) "/2");  \
+    UART_CFG_ASSERT(uart##n##_dma_pingpong_bufsize_not_exceed_rx_bufsize,                        \
+        BSP_UART##n##_DMA_PINGPONG_BUFSIZE <= BSP_UART##n##_RX_BUFSIZE,                          \
+        "uart" #n ": BSP_UART" #n "_DMA_PINGPONG_BUFSIZE="                                       \
+        UART_CFG_XSTR(BSP_UART##n##_DMA_PINGPONG_BUFSIZE)                                        \
+        " must be <= BSP_UART" #n "_RX_BUFSIZE=" UART_CFG_XSTR(BSP_UART##n##_RX_BUFSIZE));        \
+    UART_CFG_ASSERT(uart##n##_rx_bufsize_at_least_rt_serial_rx_minbufsz,                         \
+        BSP_UART##n##_RX_BUFSIZE >= RT_SERIAL_RX_MINBUFSZ,                                       \
+        "uart" #n ": BSP_UART" #n "_RX_BUFSIZE="                                                 \
+        UART_CFG_XSTR(BSP_UART##n##_RX_BUFSIZE)                                                  \
+        " must be at least RT_SERIAL_RX_MINBUFSZ=" UART_CFG_XSTR(RT_SERIAL_RX_MINBUFSZ))
+
+#if defined(BSP_UART0_RX_USING_DMA)
+UART_RX_DMA_BUF_CHECK(0);
+#endif
+#if defined(BSP_UART1_RX_USING_DMA)
+UART_RX_DMA_BUF_CHECK(1);
+#endif
+#if defined(BSP_UART2_RX_USING_DMA)
+UART_RX_DMA_BUF_CHECK(2);
+#endif
+#if defined(BSP_UART3_RX_USING_DMA)
+UART_RX_DMA_BUF_CHECK(3);
+#endif
+#if defined(BSP_UART4_RX_USING_DMA)
+UART_RX_DMA_BUF_CHECK(4);
+#endif
+#if defined(BSP_UART5_RX_USING_DMA)
+UART_RX_DMA_BUF_CHECK(5);
+#endif
+#if defined(BSP_UART6_RX_USING_DMA)
+UART_RX_DMA_BUF_CHECK(6);
+#endif
+#if defined(BSP_UART7_RX_USING_DMA)
+UART_RX_DMA_BUF_CHECK(7);
+#endif
+#if defined(BSP_UART8_RX_USING_DMA)
+UART_RX_DMA_BUF_CHECK(8);
+#endif
+#if defined(BSP_UART9_RX_USING_DMA)
+UART_RX_DMA_BUF_CHECK(9);
+#endif
+#if defined(BSP_UART10_RX_USING_DMA)
+UART_RX_DMA_BUF_CHECK(10);
+#endif
+#if defined(BSP_UART11_RX_USING_DMA)
+UART_RX_DMA_BUF_CHECK(11);
+#endif
+#if defined(BSP_UART12_RX_USING_DMA)
+UART_RX_DMA_BUF_CHECK(12);
+#endif
+#if defined(BSP_UART13_RX_USING_DMA)
+UART_RX_DMA_BUF_CHECK(13);
+#endif
+#if defined(BSP_UART14_RX_USING_DMA)
+UART_RX_DMA_BUF_CHECK(14);
+#endif
+#if defined(BSP_UART15_RX_USING_DMA)
+UART_RX_DMA_BUF_CHECK(15);
+#endif
+
 /* DMA hardware configuration */
 #define BOARD_UART_DMAMUX  HPM_DMAMUX        /* DMA multiplexer base address */
 #define UART_DMA_TRIGGER_LEVEL (1U)          /* DMA trigger level for UART operations */
@@ -678,8 +781,6 @@ static void uart_tx_done(struct rt_serial_device *serial)
  */
 static void uart_rx_done(struct rt_serial_device *serial)
 {
-    struct rt_serial_rx_fifo *rx_fifo;
-    rx_fifo = (struct rt_serial_rx_fifo *)serial->serial_rx;
 #if defined(HPM_IP_FEATURE_UART_RX_IDLE_DETECT) && (HPM_IP_FEATURE_UART_RX_IDLE_DETECT == 1) && defined(RT_SERIAL_USING_DMA)
     dma_recv_isr(serial, UART_RX_DMA_IT_TC_FLAG);
 #ifdef HPMSOC_HAS_HPMSDK_DMAV2
@@ -687,13 +788,17 @@ static void uart_rx_done(struct rt_serial_device *serial)
     return;
 #endif
 #else
-    if (l1c_dc_is_enabled()) {
-        uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)rx_fifo->rb.buffer_ptr);
-        uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)rx_fifo->rb.buffer_ptr + serial->config.rx_bufsz);
-        uint32_t aligned_size = aligned_end - aligned_start;
-        l1c_dc_invalidate(aligned_start, aligned_size);
+    /* The SoCs without the RX idle detect can only complete a fixed length transfer, so the
+     * length reported here is the block length (dma_ping_bufsz), never a partial block */
+    uint32_t block_size = serial->config.dma_ping_bufsz;
+    rt_uint8_t *ptr = NULL;
+    rt_hw_serial_control_isr(serial, RT_HW_SERIAL_CTRL_GET_DMA_PING_BUF, (void *)&ptr);
+    if (l1c_dc_is_enabled() && (block_size != 0)) {
+        uint32_t aligned_start = HPM_L1C_CACHELINE_ALIGN_DOWN((uint32_t)ptr);
+        uint32_t aligned_end = HPM_L1C_CACHELINE_ALIGN_UP((uint32_t)ptr + block_size);
+        l1c_dc_invalidate(aligned_start, aligned_end - aligned_start);
     }
-    rt_hw_serial_isr(serial, RT_SERIAL_EVENT_RX_DMADONE | (serial->config.rx_bufsz << 8));
+    rt_hw_serial_isr(serial, RT_SERIAL_EVENT_RX_DMADONE | (block_size << 8));
     /* prepare for next read */
 #endif
     hpm_uart_receive_dma_next(serial);
@@ -777,7 +882,7 @@ static void hpm_uart_isr(int vector, struct rt_serial_device *serial)
         uart->rx_fifo_index = 0;
     }
 
-    if ((irq_id & uart_intr_tx_slot_avail) && (stat & uart_stat_tx_slot_avail)) {
+    if ((irq_id == uart_intr_tx_slot_avail) && (stat & uart_stat_tx_slot_avail)) {
         /* UART in mode Transmitter */
         struct rt_serial_tx_fifo *tx_fifo;
         tx_fifo = (struct rt_serial_tx_fifo *) serial->serial_tx;
@@ -904,11 +1009,9 @@ static int hpm_uart_dma_config(struct rt_serial_device *serial, void *arg)
 {
     rt_ubase_t ctrl_arg = (rt_ubase_t) arg;
     struct hpm_uart *uart = (struct hpm_uart *)serial->parent.user_data;
-    struct rt_serial_rx_fifo *rx_fifo;
     dma_mgr_chn_conf_t chg_config;
     dma_mgr_get_default_chn_config(&chg_config);
     if (ctrl_arg == RT_DEVICE_FLAG_DMA_RX) {
-        rx_fifo = (struct rt_serial_rx_fifo *)serial->serial_rx;
         chg_config.dst_addr_ctrl = DMA_MGR_ADDRESS_CONTROL_INCREMENT;
         chg_config.dst_mode = DMA_MGR_HANDSHAKE_MODE_NORMAL;
         chg_config.dst_width = DMA_TRANSFER_WIDTH_BYTE;
@@ -929,8 +1032,14 @@ static int hpm_uart_dma_config(struct rt_serial_device *serial, void *arg)
         chg_config.dst_addr = (uint32_t)ptr;
         chg_config.size_in_byte = serial->config.dma_ping_bufsz;
 #else
-        chg_config.dst_addr = (uint32_t)rx_fifo->rb.buffer_ptr;
-        chg_config.size_in_byte = serial->config.rx_bufsz;
+        /* SoCs without the RX idle detect (e.g. HPM6300, HPM6700) can only complete a fixed
+         * length transfer: use the ping buffer of the serial framework with a block of
+         * dma_ping_bufsz bytes, so that a completion always reports a real block */
+        uart->dma_rx_remain_size = serial->config.dma_ping_bufsz;
+        rt_uint8_t *ptr = NULL;
+        rt_hw_serial_control_isr(serial, RT_HW_SERIAL_CTRL_GET_DMA_PING_BUF, (void *)&ptr);
+        chg_config.dst_addr = (uint32_t)ptr;
+        chg_config.size_in_byte = serial->config.dma_ping_bufsz;
 #endif
         if (status_success != dma_mgr_setup_channel(&uart->rx_chn_ctx.resource, &chg_config)) {
             return -RT_ERROR;
@@ -971,7 +1080,6 @@ static void hpm_uart_receive_dma_next(struct rt_serial_device *serial)
     uint32_t buf_addr;
     uint32_t buf_size;
     struct hpm_uart *uart = (struct hpm_uart *)serial->parent.user_data;
-    struct rt_serial_rx_fifo *rx_fifo = (struct rt_serial_rx_fifo *)serial->serial_rx;
 #if defined(HPM_IP_FEATURE_UART_RX_IDLE_DETECT) && (HPM_IP_FEATURE_UART_RX_IDLE_DETECT == 1)
         rt_uint8_t *ptr = NULL;
         uart->dma_rx_remain_size = serial->config.dma_ping_bufsz;
@@ -979,8 +1087,12 @@ static void hpm_uart_receive_dma_next(struct rt_serial_device *serial)
         buf_addr = (uint32_t)ptr;
         buf_size = serial->config.dma_ping_bufsz;
 #else
-        buf_addr = (uint32_t)rx_fifo->rb.buffer_ptr;
-        buf_size = serial->config.rx_bufsz;
+        /* re-arm the receive DMA on the ping buffer with a block of dma_ping_bufsz bytes */
+        rt_uint8_t *ptr = NULL;
+        uart->dma_rx_remain_size = serial->config.dma_ping_bufsz;
+        rt_hw_serial_control_isr(serial, RT_HW_SERIAL_CTRL_GET_DMA_PING_BUF, (void *)&ptr);
+        buf_addr = (uint32_t)ptr;
+        buf_size = serial->config.dma_ping_bufsz;
 #endif
     dma_mgr_set_chn_dst_addr(&uart->rx_chn_ctx.resource, buf_addr);
     dma_mgr_set_chn_transize(&uart->rx_chn_ctx.resource, buf_size);
@@ -1195,17 +1307,19 @@ static rt_err_t hpm_uart_control(struct rt_serial_device *serial, int cmd, void 
  *
  * @param serial Pointer to the serial device structure
  * @param ch Character to send
- * @return The character that was sent
+ * @return RT_EOK on success, -RT_ERROR on failure
  */
 static int hpm_uart_putc(struct rt_serial_device *serial, char ch)
 {
-    struct hpm_uart *uart  = (struct hpm_uart *)serial->parent.user_data;
+     hpm_stat_t stat;
+     struct hpm_uart *uart = (struct hpm_uart *)serial->parent.user_data;
 
-    /* Send the character and flush the UART buffer */
-    uart_send_byte(uart->uart_base, ch);
-    uart_flush(uart->uart_base);
-
-    return ch;
+     /* Send the character and flush the UART buffer */
+     stat = uart_send_byte(uart->uart_base, ch);
+     if (stat == status_success) {
+         stat = uart_flush(uart->uart_base);
+     }
+     return (stat == status_success) ? RT_EOK : -RT_ERROR;
 }
 
 /**

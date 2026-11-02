@@ -12,7 +12,7 @@
 #include <rtdevice.h>
 
 #if defined(BSP_USING_TSW_PHY_RTL8211)
-#include "hpm_rtl8211.h"
+#include "hpm_tsw_rtl8211.h"
 #endif
 
 #ifndef PHY_MDIO_CLK_FREQ

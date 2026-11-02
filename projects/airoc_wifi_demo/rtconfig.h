@@ -307,16 +307,40 @@
 /* IoT - internet of things */
 
 #define PKG_USING_WIFI_HOST_DRIVER
-#define WHD_USING_CHIP_CYW43438
+
+/* WHD Configuration */
+
+#define CY_WIFI_USING_THREAD_INIT
+#define CY_WIFI_INIT_THREAD_PRIORITY 10
+#define CY_WIFI_INIT_THREAD_STACK_SIZE 2048
+
+/* WHD Thread Configuration */
+
 #define CY_WIFI_WHD_THREAD_PRIORITY 8
 #define CY_WIFI_WHD_THREAD_STACK_SIZE 5120
+/* end of WHD Thread Configuration */
+
+/* WHD Resources Configuration */
+
+#define WHD_RESOURCES_BLOCK_SIZE 1024
+/* end of WHD Resources Configuration */
+/* end of WHD Configuration */
+
+/* Hardware Configuration */
+
+#define WHD_USING_CHIP_CYW43438
+#define WHD_USING_WIFI5
+
+/* Pin Configuration */
+
 #define CYBSP_USING_PIN_NAME
+#define CYBSP_USING_OOB_INTR
 #define CYBSP_REG_ON_PIN_NAME "PD24"
 #define CYBSP_HOST_WAKE_IRQ_PIN_NAME "PD25"
 #define CYBSP_HOST_WAKE_IRQ_EVENT_FALL
 #define CYBSP_OOB_INTR_PRIORITY 2
-#define CY_WIFI_USING_THREAD_INIT
-#define CY_WIFI_INIT_THREAD_STACK_SIZE 2048
+/* end of Pin Configuration */
+/* end of Hardware Configuration */
 #define CY_WIFI_LOG_LEVEL_INFO
 #define PKG_USING_WIFI_HOST_DRIVER_V121
 #define PKG_WIFI_HOST_DRIVER_VER_NUM 0x10201
@@ -426,6 +450,10 @@
 
 /* end of Kendryte SDK */
 
+/* MM32 HAL & SDK Drivers */
+
+/* end of MM32 HAL & SDK Drivers */
+
 /* WCH HAL & SDK Drivers */
 
 /* end of WCH HAL & SDK Drivers */
@@ -453,6 +481,22 @@
 /* HPMicro SDK */
 
 /* end of HPMicro SDK */
+
+/* FM33 Drivers */
+
+/* end of FM33 Drivers */
+
+/* FT32 HAL & SDK Drivers */
+
+/* end of FT32 HAL & SDK Drivers */
+
+/* NOVOSNS Drivers */
+
+/* end of NOVOSNS Drivers */
+
+/* N32 Drivers */
+
+/* end of N32 Drivers */
 /* end of HAL & SDK Drivers */
 
 /* sensors drivers */

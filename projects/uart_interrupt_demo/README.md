@@ -1,9 +1,9 @@
 # 简介
 
-- 本示例演示了基于RT-Thread 串口V2驱动框架的串口的的数据发送和接收。
+- 本示例演示了基于RT-Thread 串口V2驱动框架的串口的数据发送和接收。
 
 ## 提示
-- 该例程中的串口波特率使用rtthread默认115200
+- 该例程中的串口波特率使用RT-Thread默认115200
 - 本示例使用硬件FIFO+中断方式(不使用DMA)进行数据收发
   - **架构**: 应用层 ↔ 软件Ring Buffer ↔ 硬件FIFO ↔ UART物理层
   - **发送**: 中断服务程序自动从Ring Buffer批量填充硬件FIFO,直至数据发送完成
@@ -16,7 +16,7 @@
 - 串口的发送和接收，串口接收到的PC串口助手的数据会返回给PC串口助手。
 
 ## 硬件设置
-* 使用USB转TTL模块连接到开发板对应的串口引脚
+- 使用USB转TTL模块连接到开发板对应的串口引脚
 
 | 功能       | 位置   |  引脚  |
 | ----------| ------ | ------ |
@@ -27,7 +27,7 @@
 
 ```console
 RT-Thread shell commands:
-uart_dma_sample  - uart device dma sample
+uart_interrupt_sample  - uart device interrupt sample
 reset            - reset the board
 clear            - clear the terminal screen
 version          - show RT-Thread version information
@@ -38,7 +38,7 @@ free             - Show the memory usage in the system.
 pin              - pin [option]
 date             - get date and time or set (local timezone) [year month day hour min sec]
 ```
-测试时请使用 `uart_dma_sample` 命令
+测试时请使用 `uart_interrupt_sample` 命令
 
 ## 运行现象
 ```console
@@ -49,13 +49,13 @@ date             - get date and time or set (local timezone) [year month day hou
 msh >
 msh >
 msh >
-msh >uart_dma_sample
+msh >uart_interrupt_sample
 msh >
 ```
 
 ## 注意
 
-- 该例程中的串口波特率使用rtthread默认115200
+- 该例程中的串口波特率使用RT-Thread默认115200
 - 对于RT_DEVICE_FLAG_RX_NON_BLOCKING，使用DMA接收，但只能定长接收，定长长度取决于BSP_UART13_RX_BUFSIZE，需要开启BSP_UART13_RX_USING_DMA
 - 对于RT_DEVICE_FLAG_RX_BLOCKING，使用硬件FIFO接收并使用超时机制，可以不定长接收，最大接收长度取决于BSP_UART13_RX_BUFSIZE，需要关闭BSP_UART13_RX_USING_DMA
 

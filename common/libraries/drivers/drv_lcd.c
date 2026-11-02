@@ -109,6 +109,7 @@ static rt_err_t hpm_lcd_control(struct rt_device *device, int cmd, void *args)
     hpm_panel_t *panel = hpm_panel_find_device_default();
     struct rt_device_graphic_info *info = RT_NULL;
     uint32_t buffer;
+    rt_err_t err = RT_EOK;
 
     switch (cmd)
     {
@@ -117,7 +118,7 @@ static rt_err_t hpm_lcd_control(struct rt_device *device, int cmd, void *args)
         rt_sem_trytake(&lcd->lcd_lock);
         lcdc_disable_interrupt(lcd->lcd_base, LCDC_INT_EN_VSYNC_MASK);
         rt_thread_delay(10);
-        hpm_lcdc_init(lcd, info);
+        err = hpm_lcdc_init(lcd, info);
         break;
 
     case RTGRAPHIC_CTRL_RECT_UPDATE:
@@ -170,6 +171,7 @@ static rt_err_t hpm_lcd_control(struct rt_device *device, int cmd, void *args)
     default:
         break;
     }
+    return err;
 }
 
 static int hpm_lcdc_init(struct hpm_lcd *lcd, struct rt_device_graphic_info *info)

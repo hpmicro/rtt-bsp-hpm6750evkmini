@@ -36,9 +36,19 @@
 /* HPM SDK includes */
 #include "drv_hwtimer.h"
 #include "board.h"
-#include "hpm_gptmr_drv.h"
 #include "hpm_rtt_interrupt_util.h"
 #include "hpm_clock_drv.h"
+
+#ifdef BSP_USING_GPTMRV2
+#include "hpm_gptmrv2_drv.h"
+
+#ifndef GPTMRV2_DEFAULT_FREQ
+#define GPTMRV2_DEFAULT_FREQ         (100000UL) /* 100KHz */
+#endif
+
+#else
+#include "hpm_gptmr_drv.h"
+#endif
 
 /* ============================================================================
  * Configuration Macros
@@ -164,6 +174,7 @@ typedef struct _hpm_gptimer
     clock_name_t clock_name;             /**< GPTMR clock source name */
     int32_t irq_num;                     /**< GPTMR interrupt number */
     uint8_t irq_priority;                /**< GPTMR interrupt priority */
+    gptmr_channel_config_t config;       /**< GPTMR config */
 } hpm_gptimer_t;
 
 /* ============================================================================
@@ -237,7 +248,11 @@ static const struct rt_hwtimer_ops hpm_hwtimer_ops = {
 static const struct rt_hwtimer_info hpm_hwtimer_info = {
         .maxfreq = 100000000UL,           /* Maximum frequency: 100 MHz */
         .minfreq = 93750UL,               /* Minimum frequency: ~93.75 kHz */
+#ifdef BSP_USING_GPTMRV2
+        .maxcnt = 0xFFFFFFUL,             /* Maximum count value: 24-bit */
+#else
         .maxcnt = 0xFFFFFFFFUL,           /* Maximum count value: 32-bit */
+#endif
         .cntmode = HWTIMER_CNTMODE_UP     /* Counter mode: count up */
 };
 
@@ -421,7 +436,6 @@ static void hpm_hwtmr_isr(int vector, hpm_gptimer_t *timer)
 static void hpm_hwtimer_init(rt_hwtimer_t *timer, rt_uint32_t state)
 {
     GPTMR_GET_CTX(timer);
-    gptmr_channel_config_t config;
 
     if (state == 1)
     {
@@ -432,10 +446,14 @@ static void hpm_hwtimer_init(rt_hwtimer_t *timer, rt_uint32_t state)
         hpm_gptmr->timer.freq = clock_get_frequency(hpm_gptmr->clock_name);
 
         /* Get default channel configuration */
-        gptmr_channel_get_default_config(base, &config);
-
+        gptmr_channel_get_default_config(base, &hpm_gptmr->config);
+#ifdef BSP_USING_GPTMRV2
+        rt_uint32_t gptmr_freq =  clock_get_frequency(hpm_gptmr->clock_name);
+        hpm_gptmr->timer.freq = GPTMRV2_DEFAULT_FREQ;
+        hpm_gptmr->config.prescaler = gptmr_freq / hpm_gptmr->timer.freq;
+#endif
         /* Configure the GPTMR channel (without starting) */
-        gptmr_channel_config(base, hpm_gptmr->channel, &config, false);
+        gptmr_channel_config(base, hpm_gptmr->channel, &hpm_gptmr->config, false);
     }
 }
 
@@ -455,19 +473,15 @@ static rt_err_t hpm_hwtimer_start(rt_hwtimer_t *timer, rt_uint32_t cnt, rt_hwtim
 {
     GPTMR_GET_CTX(timer);
 
-    /* Get default channel configuration */
-    gptmr_channel_config_t config;
-    gptmr_channel_get_default_config(base, &config);
-
     /* Configure timer parameters */
-    config.cmp[0] = 0;           /* Compare value (not used in this mode) */
-    config.reload = cnt;         /* Reload value (timer count) */
+    hpm_gptmr->config.cmp[0] = 0;           /* Compare value (not used in this mode) */
+    hpm_gptmr->config.reload = cnt;         /* Reload value (timer count) */
 
     /* Store timer mode */
     timer->mode = mode;
 
     /* Configure the GPTMR channel and start it */
-    gptmr_channel_config(base, hpm_gptmr->channel, &config, true);
+    gptmr_channel_config(base, hpm_gptmr->channel, &hpm_gptmr->config, true);
 
     /* Clear any pending interrupt status */
     gptmr_clear_status(base, 0xFU);
@@ -538,17 +552,35 @@ static rt_err_t hpm_hwtimer_control(rt_hwtimer_t *timer, rt_uint32_t cmd, void *
     switch (cmd)
     {
     case HWTIMER_CTRL_FREQ_SET:
+#ifdef BSP_USING_GPTMRV2
+        rt_uint32_t gptmr_freq =  clock_get_frequency(hpm_gptmr->clock_name);
+        if ((args == RT_NULL) || (*(rt_uint32_t *)args == 0U))
+        {
+            return -RT_EINVAL;
+        }
+        hpm_gptmr->timer.freq = *(rt_uint32_t*)args;
+        hpm_gptmr->config.prescaler = gptmr_freq / hpm_gptmr->timer.freq;
+#else
         /* Frequency setting is not supported (frequency is fixed by clock source) */
         err = -RT_ERROR;
+#endif
         break;
 
     case HWTIMER_CTRL_INFO_GET:
         /* Return timer information structure */
+        if (args == RT_NULL)
+        {
+            return -RT_EINVAL;
+        }
         *(rt_hwtimer_t*)args = hpm_gptmr->timer;
         break;
 
     case HWTIMER_CTRL_MODE_SET:
         /* Set timer mode (one-shot or periodic) */
+        if (args == RT_NULL)
+        {
+            return -RT_EINVAL;
+        }
         hpm_gptmr->timer.mode = *(rt_uint32_t*)args;
         break;
 
@@ -556,6 +588,9 @@ static rt_err_t hpm_hwtimer_control(rt_hwtimer_t *timer, rt_uint32_t cmd, void *
         /* Stop the timer counter */
         gptmr_stop_counter(base, hpm_gptmr->channel);
         break;
+
+    default:
+        return -RT_EINVAL;
     }
 
     return err;

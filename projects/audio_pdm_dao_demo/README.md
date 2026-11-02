@@ -22,7 +22,7 @@ msh />sd0 mounted to /
 
 ## 注意事项
 
-- SD/eMMC卡必须被格式化FAT32格式
+- SD/eMMC 卡必须格式化为 FAT32 格式
 
 ## 已知问题
 
@@ -61,7 +61,7 @@ date             - get date and time or set (local timezone) [year month day hou
 ```
 
 ## 运行现象
-使用`pdm_recordwav /sample.wav`命令, 对着开发板mic发声，会录制一段音频以wav格式保存在SD卡中
+使用`pdm_recordwav /sample.wav`命令， 对着开发板mic发声，会录制一段音频以wav格式保存在SD卡中
 ```console
 msh />pdm_recordwav /sample.wav
 record 10s audio data to wav file:
@@ -69,7 +69,7 @@ samplerate: 16000
 samplebits: 32
 channel number: 1
 ```
-使用`dao_playwav /sample.wav`命令, 播放sd卡中的wav，通过喇叭可听到声音
+使用`dao_playwav /sample.wav`命令， 播放 SD 卡中的 WAV，通过喇叭可听到声音
 ```console
 msh />dao_playwav /sample.wav
 wav information:

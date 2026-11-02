@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 HPMicro
+ * Copyright (c) 2026 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -63,7 +63,7 @@ void pdgo_get_pcnt_defconfig(PDGO_Type *ptr, dgo_pcnt_num_t num, dgo_pcnt_cfg_t 
     cfg->z_sel = dgo_wuio_pin_2;
     cfg->h_sel = dgo_wuio_pin_3;
     cfg->decode_mode = dgo_pcnt_ab_4x;
-    cfg->resolution = 1000;
+    cfg->total_lines = 1000;
     cfg->z_mode = dgo_pcnt_z_disable;
     cfg->z_state.state = 1;
     cfg->h_mode = dgo_pcnt_h_disable;
@@ -72,25 +72,61 @@ void pdgo_get_pcnt_defconfig(PDGO_Type *ptr, dgo_pcnt_num_t num, dgo_pcnt_cfg_t 
     cfg->dump_state.state = 0;
     cfg->tacho_mode = dgo_pcnt_tacho_disable;
     cfg->tacho_len = 0;
-    cfg->cmp0_mode = dgo_pcnt_cmp_disable;
+    cfg->match0_mode = dgo_pcnt_match_disable;
     cfg->range_cmp_src = dgo_pcnt_cmp_src_line_phase;
     cfg->cmp0_value = 0;
     cfg->cmp1_value = 0;
 }
 
+static uint8_t pdgo_get_pcnt_phase_bits(dgo_pcnt_decode_mode_t mode)
+{
+    uint8_t phase_bits;
+
+    switch (mode) {
+    case dgo_pcnt_ab_1x:
+    case dgo_pcnt_pd_1x:
+    case dgo_pcnt_pd_f_1x:
+    case dgo_pcnt_ud_1x:
+    case dgo_pcnt_ud_f_1x:
+        phase_bits = 0;
+        break;
+
+    case dgo_pcnt_ab_2x:
+    case dgo_pcnt_pd_2x:
+    case dgo_pcnt_pd_f_2x:
+    case dgo_pcnt_ud_2x:
+    case dgo_pcnt_ud_f_2x:
+        phase_bits = 1;
+        break;
+
+    case dgo_pcnt_ab_4x:
+        phase_bits = 2;
+        break;
+
+    case dgo_pcnt_ud_uvw_6x:
+    case dgo_pcnt_ud_uvw_6y:
+        phase_bits = 3;
+        break;
+
+    default:
+        phase_bits = 0;
+        break;
+    }
+
+    return phase_bits;
+}
+
 void pdgo_config_pcnt(PDGO_Type *ptr, dgo_pcnt_num_t num, dgo_pcnt_cfg_t *cfg)
 {
-    assert(cfg->resolution > 0);
+    assert(cfg->total_lines > 1);
 
     uint32_t tmp;
+    uint8_t phase_bits;
 
     ptr->PCNT[num].CNT_CFG &= ~PDGO_PCNT_CNT_CFG_EN_MASK;
 
-    if (cfg->resolution != 0xFFFFFFFF) {
-        ptr->PCNT[num].RESOLUTION = (cfg->resolution - 1);
-    } else {
-        ptr->PCNT[num].RESOLUTION = 0xFFFFFFFF;
-    }
+    phase_bits = pdgo_get_pcnt_phase_bits(cfg->decode_mode);
+    ptr->PCNT[num].RESOLUTION = (cfg->total_lines - 1) << phase_bits;
 
     tmp = PDGO_PCNT_CALIB_CFG_ZMODE_SET(cfg->z_mode)
         | PDGO_PCNT_CALIB_CFG_ZSTATE_SET(cfg->z_state.state)
@@ -104,7 +140,7 @@ void pdgo_config_pcnt(PDGO_Type *ptr, dgo_pcnt_num_t num, dgo_pcnt_cfg_t *cfg)
         | PDGO_PCNT_HOMING_CFG_HSTATE_SET(cfg->h_state.state)
         | PDGO_PCNT_HOMING_CFG_DMODE_SET(cfg->dump_mode)
         | PDGO_PCNT_HOMING_CFG_DSTATE_SET(cfg->dump_state.state)
-        | PDGO_PCNT_HOMING_CFG_CMP0_MODE_SET(cfg->cmp0_mode)
+        | PDGO_PCNT_HOMING_CFG_MATCH0_MODE_SET(cfg->match0_mode)
         | PDGO_PCNT_HOMING_CFG_RNG_CMP_SRC_SET(cfg->range_cmp_src);
     ptr->PCNT[num].HOMING_CFG = tmp;
 
@@ -141,37 +177,7 @@ void pdgo_get_pcnt_counter(PDGO_Type *ptr, dgo_pcnt_num_t num, dgo_pcnt_counter_
     uint8_t line_bits;
     uint8_t rev_bits;
 
-    switch (mode) {
-    case dgo_pcnt_ab_1x:
-    case dgo_pcnt_pd_1x:
-    case dgo_pcnt_pd_f_1x:
-    case dgo_pcnt_ud_1x:
-    case dgo_pcnt_ud_f_1x:
-        phase_bits = 0;
-        break;
-
-    case dgo_pcnt_ab_2x:
-    case dgo_pcnt_pd_2x:
-    case dgo_pcnt_pd_f_2x:
-    case dgo_pcnt_ud_2x:
-    case dgo_pcnt_ud_f_2x:
-        phase_bits = 1;
-        break;
-
-    case dgo_pcnt_ab_4x:
-        phase_bits = 2;
-        break;
-
-    case dgo_pcnt_ud_uvw_6x:
-    case dgo_pcnt_ud_uvw_6y:
-        phase_bits = 3;
-        break;
-
-    default:
-        phase_bits = 0;
-        break;
-    }
-
+    phase_bits = pdgo_get_pcnt_phase_bits(mode);
     target_lines = resolution >> phase_bits;
     line_bits = get_first_set_bit_from_msb(target_lines) + 1u;
     rev_bits = 32 - line_bits - phase_bits;
@@ -191,37 +197,7 @@ uint32_t pdgo_convert_pcnt_counter(PDGO_Type *ptr, dgo_pcnt_num_t num, dgo_pcnt_
     uint8_t line_bits;
     uint8_t rev_bits;
 
-    switch (mode) {
-    case dgo_pcnt_ab_1x:
-    case dgo_pcnt_pd_1x:
-    case dgo_pcnt_pd_f_1x:
-    case dgo_pcnt_ud_1x:
-    case dgo_pcnt_ud_f_1x:
-        phase_bits = 0;
-        break;
-
-    case dgo_pcnt_ab_2x:
-    case dgo_pcnt_pd_2x:
-    case dgo_pcnt_pd_f_2x:
-    case dgo_pcnt_ud_2x:
-    case dgo_pcnt_ud_f_2x:
-        phase_bits = 1;
-        break;
-
-    case dgo_pcnt_ab_4x:
-        phase_bits = 2;
-        break;
-
-    case dgo_pcnt_ud_uvw_6x:
-    case dgo_pcnt_ud_uvw_6y:
-        phase_bits = 3;
-        break;
-
-    default:
-        phase_bits = 0;
-        break;
-    }
-
+    phase_bits = pdgo_get_pcnt_phase_bits(mode);
     target_lines = resolution >> phase_bits;
     line_bits = get_first_set_bit_from_msb(target_lines) + 1u;
     rev_bits = 32 - line_bits - phase_bits;
@@ -235,10 +211,10 @@ uint32_t pdgo_convert_pcnt_counter(PDGO_Type *ptr, dgo_pcnt_num_t num, dgo_pcnt_
 
 void pdgo_config_pcnt_range_compare(PDGO_Type *ptr, dgo_pcnt_num_t num, uint32_t cmp0, uint32_t  cmp1)
 {
-    pdgo_set_pcnt_cmp_mode(ptr, num, dgo_pcnt_cmp_disable);
+    pdgo_set_pcnt_cmp_mode(ptr, num, dgo_pcnt_match_disable);
     pdgo_set_pcnt_cmp0_value(ptr, num, cmp0);
     pdgo_set_pcnt_cmp1_value(ptr, num, cmp1);
-    pdgo_set_pcnt_cmp_mode(ptr, num, dgo_pcnt_cmp_range_match_mode);
+    pdgo_set_pcnt_cmp_mode(ptr, num, dgo_pcnt_match_range_cmp0_cmp1_mode);
 }
 
 float pdgo_calc_pcnt_tacho_cycles_per_line(PDGO_Type *ptr, dgo_pcnt_num_t num)

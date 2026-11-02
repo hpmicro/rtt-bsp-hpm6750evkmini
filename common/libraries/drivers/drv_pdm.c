@@ -126,7 +126,10 @@ static rt_err_t hpm_pdm_set_channels(uint32_t channel)
         pdm_software_reset(HPM_PDM);
         i2s_disable(PDM_I2S);
         i2s_disable_rx_dma_request(PDM_I2S);
-        i2s_reset_rx(PDM_I2S);
+        if (status_success != i2s_reset_rx(PDM_I2S)) {
+            LOG_E("pdm_i2s reset rx failed\n");
+            return -RT_ERROR;
+        }
     }
     if (status_success != i2s_config_rx(PDM_I2S, mclk_hz, &transfer))
     {
@@ -169,6 +172,7 @@ static rt_err_t hpm_pdm_configure(struct rt_audio_device* audio, struct rt_audio
                     result = -RT_ERROR;
                     break;
             }
+            break;
         }
 
         default:
@@ -192,7 +196,10 @@ static rt_err_t hpm_pdm_init(struct rt_audio_device* audio)
 
     i2s_get_default_config(PDM_I2S, &i2s_config);
     i2s_enable_rx_dma_request(PDM_I2S);
-    i2s_init(PDM_I2S, &i2s_config);
+    if (status_success != i2s_init(PDM_I2S, &i2s_config)) {
+        LOG_E("pdm_i2s init failed\n");
+        return -RT_ERROR;
+    }
 
     i2s_get_default_transfer_config_for_pdm(&transfer);
     transfer.data_line = PDM_I2S_DATA_LINE;
@@ -240,11 +247,14 @@ static rt_err_t hpm_pdm_start(struct rt_audio_device* audio, int stream)
             return -RT_ERROR;
         }
 
-        i2s_reset_rx(PDM_I2S);
+        if (status_success != i2s_reset_rx(PDM_I2S)) {
+            LOG_E("pdm_i2s reset rx failed\n");
+            return -RT_ERROR;
+        }
+        i2s_enable_rx_line(PDM_I2S, PDM_I2S_DATA_LINE);
         if (RT_EOK != hpm_pdm_dma_transmit()) {
             return -RT_ERROR;
         }
-
         pdm_start(HPM_PDM);
         i2s_enable_rx_dma_request(PDM_I2S);
         i2s_start(PDM_I2S);

@@ -506,14 +506,20 @@ static rt_err_t hpm_spi_configure(struct rt_spi_device *device, struct rt_spi_co
     spi_timing_config_t timing_config = { 0 };
     spi_format_config_t format_config = { 0 };
     struct hpm_spi *spi = RT_NULL;
+    struct rt_spi_configuration *spi_cfg = RT_NULL;
     hpm_stat_t stat = status_success;
     spi = (struct hpm_spi *)(device->bus->parent.user_data);
     RT_ASSERT(spi != RT_NULL);
+#ifdef RT_USING_QSPI
+    struct rt_qspi_device *qspi_dev = (struct rt_qspi_device *)device;
+    spi_cfg = (struct rt_spi_configuration *)&qspi_dev->config.parent;
+    RT_ASSERT((spi_cfg->data_width > 0) && (spi_cfg->data_width <= 32));
+#else
     /* hpm spi data width support 1 ~ 32 */
     RT_ASSERT((cfg->data_width > 0) && (cfg->data_width <= 32));
-
+    spi_cfg = cfg;
+#endif
     spi->spi_pins_init(spi->spi_base);
-    struct rt_spi_configuration *spi_cfg = cfg;
 
     if (spi_cfg->mode & RT_SPI_SLAVE) {
         spi_slave_get_default_format_config(&format_config);
@@ -539,11 +545,11 @@ static rt_err_t hpm_spi_configure(struct rt_spi_device *device, struct rt_spi_co
         }
     }
 
-    format_config.common_config.data_len_in_bits = cfg->data_width;
-    format_config.common_config.cpha = (cfg->mode & RT_SPI_CPHA) ? spi_sclk_sampling_even_clk_edges : spi_sclk_sampling_odd_clk_edges;
-    format_config.common_config.cpol = (cfg->mode & RT_SPI_CPOL) ? spi_sclk_high_idle : spi_sclk_low_idle;
-    format_config.common_config.lsb  = (cfg->mode & RT_SPI_MSB) ? false : true;
-    format_config.common_config.mosi_bidir = cfg->mode & RT_SPI_3WIRE ? true : false;
+    format_config.common_config.data_len_in_bits = spi_cfg->data_width;
+    format_config.common_config.cpha = (spi_cfg->mode & RT_SPI_CPHA) ? spi_sclk_sampling_even_clk_edges : spi_sclk_sampling_odd_clk_edges;
+    format_config.common_config.cpol = (spi_cfg->mode & RT_SPI_CPOL) ? spi_sclk_high_idle : spi_sclk_low_idle;
+    format_config.common_config.lsb  = (spi_cfg->mode & RT_SPI_MSB) ? false : true;
+    format_config.common_config.mosi_bidir = spi_cfg->mode & RT_SPI_3WIRE ? true : false;
     spi_format_init(spi->spi_base, &format_config);
 
 
@@ -610,47 +616,59 @@ static rt_err_t hpm_spi_check_params(struct rt_spi_device *device, struct rt_spi
             return -RT_EINVAL;
         }
 
-        if (qspi_cfg->qspi_dl_width != 0) {
-            switch (qspi_cfg->qspi_dl_width)
+        if (qspi_msg->qspi_data_lines != 0) {
+            if ((qspi_msg->qspi_data_lines != 1) && (qspi_msg->qspi_data_lines != 2) && (qspi_msg->qspi_data_lines != 4)) {
+                LOG_E("dspi/qspi only support data phase qspi lines 1/2/4 for master\n");
+                return -RT_EINVAL;
+            }
+            if ((qspi_cfg->qspi_dl_width != 0) && (qspi_msg->qspi_data_lines > qspi_cfg->qspi_dl_width)) {
+                LOG_E("msg data_lines must not exceed qspi_dl_width, qspi_dl_width=%d, data_lines=%d\n",
+                      qspi_cfg->qspi_dl_width, qspi_msg->qspi_data_lines);
+                return -RT_EINVAL;
+            }
+        }
+
+        if ((qspi_cfg->qspi_dl_width != 0) && (qspi_msg->address.qspi_lines > qspi_cfg->qspi_dl_width)) {
+            LOG_E("msg address_lines must not exceed qspi_dl_width, qspi_dl_width=%d, address_lines=%d\n",
+                  qspi_cfg->qspi_dl_width, qspi_msg->address.qspi_lines);
+            return -RT_EINVAL;
+        }
+
+        if (qspi_msg->dummy_cycles != 0) {
+            switch (qspi_msg->qspi_data_lines)
             {
             case 1:
-                if (qspi_msg->dummy_cycles != 0) {
-                    if ((qspi_msg->dummy_cycles > (4 * 8))) {
-                        LOG_E("spi only support dummy phase cycles < 32 for master\n");
-                        return -RT_EINVAL;
-                    }
-                    if ((qspi_msg->dummy_cycles != 0) && (qspi_msg->dummy_cycles % 8)) {
-                        LOG_E("The number of cycles should be an integer multiple of 8 for spi master\n");
-                        return -RT_EINVAL;
-                    }
+                if ((qspi_msg->dummy_cycles > (4 * 8))) {
+                    LOG_E("spi only support dummy phase cycles < 32 for master\n");
+                    return -RT_EINVAL;
+                }
+                if (qspi_msg->dummy_cycles % 8) {
+                    LOG_E("The number of cycles should be an integer multiple of 8 for spi master\n");
+                    return -RT_EINVAL;
                 }
                 break;
             case 2:
-                if (qspi_msg->dummy_cycles != 0) {
-                    if (qspi_msg->dummy_cycles > (4 * 4)) {
-                        LOG_E("dspi only support dummy phase cycles < 16 for master\n");
-                        return -RT_EINVAL;
-                    }
-                    if (qspi_msg->dummy_cycles % 4) {
-                        LOG_E("The number of cycles should be an integer multiple of 4 for spi master\n");
-                        return -RT_EINVAL;
-                    }
+                if (qspi_msg->dummy_cycles > (4 * 4)) {
+                    LOG_E("dspi only support dummy phase cycles < 16 for master\n");
+                    return -RT_EINVAL;
+                }
+                if (qspi_msg->dummy_cycles % 4) {
+                    LOG_E("The number of cycles should be an integer multiple of 4 for spi master\n");
+                    return -RT_EINVAL;
                 }
                 break;
             case 4:
-                if (qspi_msg->dummy_cycles != 0) {
-                    if (qspi_msg->dummy_cycles > (4 * 2)) {
-                        LOG_E("qspi only support dummy phase cycles < 8 for master\n");
-                        return -RT_EINVAL;
-                    }
-                    if (qspi_msg->dummy_cycles % 2) {
-                        LOG_E("The number of cycles should be an integer multiple of 2 for spi master\n");
-                        return -RT_EINVAL;
-                    }
+                if (qspi_msg->dummy_cycles > (4 * 2)) {
+                    LOG_E("qspi only support dummy phase cycles < 8 for master\n");
+                    return -RT_EINVAL;
+                }
+                if (qspi_msg->dummy_cycles % 2) {
+                    LOG_E("The number of cycles should be an integer multiple of 2 for spi master\n");
+                    return -RT_EINVAL;
                 }
                 break;
             default:
-                LOG_E("spi only support data phase qspi lines 1/2/4 for master\n");
+                LOG_E("dummy phase requires data phase qspi lines 1/2/4 for master\n");
                 return -RT_EINVAL;
             }
         }
@@ -667,8 +685,6 @@ bool hpm_qspi_parse_phase_message(struct rt_spi_device *device, struct rt_qspi_m
     struct hpm_spi *spi = (struct hpm_spi *)(device->bus->parent.user_data);
 #ifdef RT_USING_QSPI
     struct rt_qspi_message *qspi_msg = (struct rt_qspi_message *)msg;
-    struct rt_qspi_device *qspi_dev = (struct rt_qspi_device *)device;
-    struct rt_qspi_configuration *qspi_cfg = (struct rt_qspi_configuration *)&qspi_dev->config;
     if ((device->bus->mode == RT_SPI_BUS_MODE_QSPI) && ((device->config.mode & RT_SPI_MASTER) == RT_SPI_MASTER)) {
         if (msg->instruction.qspi_lines == 1) {
             (*cmd) = msg->instruction.content;
@@ -752,32 +768,19 @@ bool hpm_qspi_parse_phase_message(struct rt_spi_device *device, struct rt_qspi_m
                     break;
             }
         }
-        if (qspi_cfg->qspi_dl_width == 1) {
-            if (msg->qspi_data_lines == 1) {
-                spi->control_config.common_config.data_phase_fmt = spi_single_io_mode;
-            } else {
-                LOG_E("msg data_lines must be 1  when qspi_dl_width is 1, but msg data_lines is %d\n", msg->qspi_data_lines);
-            }
-        } else if (qspi_cfg->qspi_dl_width == 2) {
-            if (msg->qspi_data_lines == 1) {
-                spi->control_config.common_config.data_phase_fmt = spi_dual_io_mode;
-            } else if (msg->qspi_data_lines == 2) {
-                spi->control_config.common_config.data_phase_fmt = spi_quad_io_mode;
-            } else {
-                LOG_E("msg data_lines must be 1 or 2 when qspi_dl_width is 2, but msg data_lines is %d\n", msg->qspi_data_lines);
-            }
-        } else if (qspi_cfg->qspi_dl_width == 4) {
-            if (msg->qspi_data_lines == 1) {
-                spi->control_config.common_config.data_phase_fmt = spi_single_io_mode;
-            } else if (msg->qspi_data_lines == 2) {
-                spi->control_config.common_config.data_phase_fmt = spi_dual_io_mode;
-            } else if (msg->qspi_data_lines == 4) {
-                spi->control_config.common_config.data_phase_fmt = spi_quad_io_mode;
-            } else {
-                spi->control_config.common_config.data_phase_fmt = spi_single_io_mode;
-            }
-        } else {
-            spi->control_config.common_config.data_phase_fmt = spi_single_io_mode;
+        switch (qspi_msg->qspi_data_lines) {
+        case 1:
+            control_config->common_config.data_phase_fmt = spi_single_io_mode;
+            break;
+        case 2:
+            control_config->common_config.data_phase_fmt = spi_dual_io_mode;
+            break;
+        case 4:
+            control_config->common_config.data_phase_fmt = spi_quad_io_mode;
+            break;
+        default:
+            control_config->common_config.data_phase_fmt = spi_single_io_mode;
+            break;
         }
     }
 #endif
@@ -989,9 +992,6 @@ static hpm_stat_t hpm_spi_rx_dma_start(struct rt_spi_device *device)
 
 static void hpm_spi_transfer_data_cache_handle(struct rt_spi_message *msg, spi_dma_buf_ctx_t *ctx, rt_uint32_t len)
 {
-    rt_uint32_t transfer_len;
-    rt_uint8_t *tx_buf = RT_NULL;
-    rt_uint8_t *rx_buf = RT_NULL;
     uint32_t aligned_start = 0;
     uint32_t aligned_end = 0;
     uint32_t aligned_size = 0;
@@ -1042,21 +1042,26 @@ static hpm_stat_t hpm_spi_transmit_use_fifo(struct rt_spi_device *device, struct
 {
     hpm_stat_t stat = status_fail;
     struct hpm_spi *spi = (struct hpm_spi *)(device->bus->parent.user_data);
-    if (((*remaining_size) <= SPI_SOC_FIFO_DEPTH) && ((device->config.mode & RT_SPI_MASTER) == RT_SPI_MASTER)
+    uint8_t data_len_in_bytes = spi_get_data_length_in_bytes(spi->spi_base);
+    rt_uint32_t transfer_count = (*remaining_size) / data_len_in_bytes;
+
+    if ((transfer_count <= SPI_SOC_FIFO_DEPTH) && ((device->config.mode & RT_SPI_MASTER) == RT_SPI_MASTER)
     && (msg->send_buf != NULL) && (msg->recv_buf == NULL)) {
+        /* Clear the semaphore */
+        while (rt_sem_take(spi->spi_xfer_done_sem, 0) == RT_EOK) {
+        }
         spi_enable_interrupt(spi->spi_base, spi_end_int);
         if ((*need_dummy) == RT_TRUE) {
             spi->control_config.common_config.trans_mode = spi_trans_dummy_write;
         } else {
             spi->control_config.common_config.trans_mode = spi_trans_write_only;
         }
-        stat = spi_control_init(spi->spi_base, &spi->control_config, (*remaining_size), 0);
+        stat = spi_control_init(spi->spi_base, &spi->control_config, transfer_count, 0);
         if (stat != status_success) {
             return stat;
         }
-        uint8_t data_len_in_bytes = spi_get_data_length_in_bytes(spi->spi_base);
         if (msg->send_buf != NULL) {
-            for (uint8_t j = 0; j < (*remaining_size); j++) {
+            for (uint8_t j = 0; j < transfer_count; j++) {
                 switch (data_len_in_bytes) {
                 case 1:
                     spi->spi_base->DATA = *(uint8_t *)msg->send_buf;
@@ -1083,24 +1088,24 @@ static rt_ssize_t hpm_spi_xfer_dma(struct rt_spi_device *device, struct rt_spi_m
 {
     spi_dma_buf_ctx_t dma_buf_ctx = {0};
     rt_uint8_t cmd = 0;
-    rt_uint32_t addr = 0, aligned_len = 0;
+    rt_uint32_t addr = 0;
     rt_uint32_t remaining_size = msg->length;
     rt_uint32_t transfer_len;
     rt_uint8_t *tx_buf = RT_NULL;
     rt_uint8_t *rx_buf = RT_NULL;
-    uint32_t aligned_start = 0;
-    uint32_t aligned_end = 0;
-    uint32_t aligned_size = 0;
     rt_ssize_t actual_len = 0;
     bool need_dummy = RT_FALSE;
     hpm_stat_t stat = status_success;
     rt_uint32_t index;
     struct rt_spi_message *_msg = (struct rt_spi_message *)msg;
-    struct rt_spi_message *spi_msg = (struct rt_spi_message *)_msg;
 #ifdef RT_USING_QSPI
     struct rt_qspi_message *qspi_msg = RT_NULL;
 #endif
     struct hpm_spi *spi = (struct hpm_spi *)(device->bus->parent.user_data);
+    uint8_t data_len_in_bytes = spi_get_data_length_in_bytes(spi->spi_base);
+    /* Clear the semaphore */
+    while (rt_sem_take(spi->spi_xfer_done_sem, 0) == RT_EOK) {
+    }
     spi_enable_interrupt(spi->spi_base, spi_end_int);
     while (_msg != RT_NULL) {
         index = 0;
@@ -1123,7 +1128,7 @@ static rt_ssize_t hpm_spi_xfer_dma(struct rt_spi_device *device, struct rt_spi_m
                     _msg = _msg->next;
                     continue;
                 }
-                hpm_spi_transfer_data_cache_handle(_msg, &dma_buf_ctx, msg->length);
+                hpm_spi_transfer_data_cache_handle(_msg, &dma_buf_ctx, _msg->length);
                 tx_buf = dma_buf_ctx.aligned_tx_buf;
                 rx_buf = dma_buf_ctx.aligned_rx_buf;
                 dma_mgr_disable_chn_irq(&spi->rx_dma, DMA_MGR_INTERRUPT_MASK_TC);
@@ -1131,7 +1136,7 @@ static rt_ssize_t hpm_spi_xfer_dma(struct rt_spi_device *device, struct rt_spi_m
             }
         }
         while (remaining_size > 0) {
-            transfer_len = MIN(SPI_SOC_TRANSFER_COUNT_MAX, remaining_size);
+            transfer_len = MIN(SPI_SOC_TRANSFER_COUNT_MAX * data_len_in_bytes, remaining_size);
             /* Next sub-packet: Disable CMD and ADDR phase for the following packet */
             if (index > 0) {
                 spi->control_config.master_config.cmd_enable = RT_FALSE;
@@ -1159,7 +1164,7 @@ static rt_ssize_t hpm_spi_xfer_dma(struct rt_spi_device *device, struct rt_spi_m
                     break;
                 }
                 /* third: config spi */
-                stat = spi_control_init(spi->spi_base, &spi->control_config, transfer_len, transfer_len);
+                stat = spi_control_init(spi->spi_base, &spi->control_config, transfer_len / data_len_in_bytes, transfer_len / data_len_in_bytes);
                 if (stat != status_success) {
                     break;
                 }
@@ -1190,7 +1195,7 @@ static rt_ssize_t hpm_spi_xfer_dma(struct rt_spi_device *device, struct rt_spi_m
                 } else {
                     spi->control_config.common_config.trans_mode = spi_trans_write_only;
                 }
-                stat = spi_setup_dma_transfer(spi->spi_base, &spi->control_config, &cmd, &addr, transfer_len, RT_NULL);
+                stat = spi_setup_dma_transfer(spi->spi_base, &spi->control_config, &cmd, &addr, transfer_len / data_len_in_bytes, RT_NULL);
                 if (stat != status_success) {
                     break;
                 }
@@ -1222,7 +1227,7 @@ static rt_ssize_t hpm_spi_xfer_dma(struct rt_spi_device *device, struct rt_spi_m
                 if (stat != status_success) {
                     break;
                 }
-                stat = spi_setup_dma_transfer(spi->spi_base, &spi->control_config, &cmd, &addr, RT_NULL, transfer_len);
+                stat = spi_setup_dma_transfer(spi->spi_base, &spi->control_config, &cmd, &addr, RT_NULL, transfer_len / data_len_in_bytes);
                 if (stat != status_success) {
                     break;
                 }
@@ -1241,7 +1246,7 @@ static rt_ssize_t hpm_spi_xfer_dma(struct rt_spi_device *device, struct rt_spi_m
             index++;
         }
         if (l1c_dc_is_enabled() && (_msg->length > 0)) {
-            if (((rt_uint32_t)msg->send_buf % HPM_L1C_CACHELINE_SIZE) || (_msg->length % HPM_L1C_CACHELINE_SIZE)) {
+            if (((rt_uint32_t)_msg->send_buf % HPM_L1C_CACHELINE_SIZE) || (_msg->length % HPM_L1C_CACHELINE_SIZE)) {
                 if (dma_buf_ctx.aligned_tx_buf != RT_NULL) {
                     rt_free_align(dma_buf_ctx.raw_alloc_tx_buf);
                     dma_buf_ctx.raw_alloc_tx_buf = RT_NULL;
@@ -1250,7 +1255,7 @@ static rt_ssize_t hpm_spi_xfer_dma(struct rt_spi_device *device, struct rt_spi_m
             }
             if ((l1c_dc_is_enabled() == true) && (_msg->recv_buf != RT_NULL) && (dma_buf_ctx.aligned_rx_buf != RT_NULL)) {
                 l1c_dc_invalidate((uint32_t) dma_buf_ctx.aligned_rx_buf, dma_buf_ctx.aligned_size);
-                if (((rt_uint32_t)msg->recv_buf % HPM_L1C_CACHELINE_SIZE) || (_msg->length % HPM_L1C_CACHELINE_SIZE)) {
+                if (((rt_uint32_t)_msg->recv_buf % HPM_L1C_CACHELINE_SIZE) || (_msg->length % HPM_L1C_CACHELINE_SIZE)) {
                     rt_memcpy(_msg->recv_buf, dma_buf_ctx.aligned_rx_buf, _msg->length);
                     rt_free_align(dma_buf_ctx.raw_alloc_rx_buf);
                     dma_buf_ctx.raw_alloc_rx_buf = RT_NULL;
@@ -1340,9 +1345,10 @@ rt_err_t rt_hw_spi_device_attach(const char *bus_name, const char *device_name, 
 #ifdef RT_USING_QSPI
     struct rt_qspi_device *qspi_dev;
     qspi_dev = (struct rt_qspi_device *) rt_malloc(sizeof(struct rt_qspi_device));
+    RT_ASSERT(qspi_dev != RT_NULL);
+    rt_memset(qspi_dev, 0, sizeof(struct rt_qspi_device));
     qspi_dev->enter_qspi_mode = enter_qspi_mode;
     qspi_dev->exit_qspi_mode = exit_qspi_mode;
-    RT_ASSERT(qspi_dev != RT_NULL);
     result = rt_spi_bus_attach_device(&qspi_dev->parent, device_name, bus_name, (void*)callback);
     RT_ASSERT(result == RT_EOK);
     struct hpm_spi *spi = RT_NULL;
@@ -1404,8 +1410,18 @@ int rt_hw_spi_init(void)
             chg_config.dst_addr = (uint32_t)&spi->spi_base->DATA;
             chg_config.en_dmamux = true;
             chg_config.dmamux_src = spi->tx_dmamux;
-            dma_mgr_setup_channel(&spi->tx_dma, &chg_config);
-            dma_mgr_install_chn_tc_callback(&spi->tx_dma, spi_dma_channel_tc_callback, (void *)&hpm_spis[i]);
+            stat = dma_mgr_setup_channel(&spi->tx_dma, &chg_config);
+            if (stat != status_success)
+            {
+                LOG_E("[spi%d]tx dma setup channel failed\n", i);
+                return -RT_ERROR;
+            }
+            stat = dma_mgr_install_chn_tc_callback(&spi->tx_dma, spi_dma_channel_tc_callback, (void *)&hpm_spis[i]);
+            if (stat != status_success)
+            {
+                LOG_E("[spi%d]tx dma install callback failed\n", i);
+                return -RT_ERROR;
+            }
             /* spi rx dma config */
             stat = dma_mgr_request_resource(&spi->rx_dma);
             if (stat != status_success) {
@@ -1419,8 +1435,18 @@ int rt_hw_spi_init(void)
             chg_config.dst_addr_ctrl = DMA_MGR_ADDRESS_CONTROL_INCREMENT;
             chg_config.en_dmamux = true;
             chg_config.dmamux_src = spi->rx_dmamux;
-            dma_mgr_setup_channel(&spi->rx_dma, &chg_config);
-            dma_mgr_install_chn_tc_callback(&spi->rx_dma, spi_dma_channel_tc_callback, (void *)&hpm_spis[i]);
+            stat = dma_mgr_setup_channel(&spi->rx_dma, &chg_config);
+            if (stat != status_success)
+            {
+                LOG_E("[spi%d]rx dma setup channel failed\n", i);
+                return -RT_ERROR;
+            }
+            stat = dma_mgr_install_chn_tc_callback(&spi->rx_dma, spi_dma_channel_tc_callback, (void *)&hpm_spis[i]);
+            if (stat != status_success)
+            {
+                LOG_E("[spi%d]rx dma install callback failed\n", i);
+                return -RT_ERROR;
+            }
 
             intc_m_enable_irq_with_priority(hpm_spis[i].spi_irq, hpm_spis[i].spi_irq_priority);
             dma_mgr_enable_dma_irq_with_priority(&spi->tx_dma, 1);
@@ -1441,7 +1467,7 @@ int rt_hw_spi_init(void)
         hpm_spis[i].xfer_sem = rt_sem_create(sem_name, 0, RT_IPC_FLAG_PRIO);
         if (hpm_spis[i].xfer_sem == RT_NULL)
         {
-            ret = RT_ENOMEM;
+            ret = -RT_ENOMEM;
             break;
         }
 
@@ -1449,7 +1475,7 @@ int rt_hw_spi_init(void)
         hpm_spis[i].spi_xfer_done_sem = rt_sem_create(sem_name, 0, RT_IPC_FLAG_PRIO);
         if (hpm_spis[i].spi_xfer_done_sem == RT_NULL)
         {
-            ret = RT_ENOMEM;
+            ret = -RT_ENOMEM;
             break;
         }
 
@@ -1457,7 +1483,7 @@ int rt_hw_spi_init(void)
         hpm_spis[i].rxdma_xfer_done_sem = rt_sem_create(sem_name, 0, RT_IPC_FLAG_PRIO);
         if (hpm_spis[i].rxdma_xfer_done_sem == RT_NULL)
         {
-            ret = RT_ENOMEM;
+            ret = -RT_ENOMEM;
             break;
         }
 
@@ -1465,7 +1491,7 @@ int rt_hw_spi_init(void)
         hpm_spis[i].txdma_xfer_done_sem = rt_sem_create(sem_name, 0, RT_IPC_FLAG_PRIO);
         if (hpm_spis[i].txdma_xfer_done_sem == RT_NULL)
         {
-            ret = RT_ENOMEM;
+            ret = -RT_ENOMEM;
             break;
         }
 

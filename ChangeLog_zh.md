@@ -1,4 +1,29 @@
 # 更新
+## v1.13.0
+
+- 整合了 hpm_sdk v1.13.0
+
+- 更新：
+  - UART：为所有 UART 补齐 DMA ping-pong 缓冲大小选项并说明约束
+  - ADC：增强健壮性（通道配置校验、错误上报）
+  - PWM：驱动按“每通道状态缓存”重构，新增周期、脉宽、死区、相位、重载中断等细粒度控制命令，增加共享计数器与互补对校验，并修正运行时更新与 PWMv2 通道关闭行为
+  - ENET：通过 ENET API 配置硬件校验和，并与 RT_LWIP_USING_HW_CHECKSUM 对齐
+  - ENET：适配新版 hpm_sdk 的 PHY 接口，中断处理与 hpm_sdk 对齐
+  - Kconfig：外设选项与 hpm_sdk IP 支持对齐
+
+- 修复：
+  - 链接脚本：修正 flash 脚本 __fast_load_addr__ 的计算
+  - ENET：上报 link-up 前先等待 speed_valid，避免链路状态误报
+  - ENET：修复 PTP 配置空指针崩溃，以及 LWIP_PTP 下发送变慢的问题
+  - SPI：修复 QSPI 数据线映射错误，以及 DMA 路径下字节/元素单位混淆
+  - I2C：修复 DMA 传输同步与轮询传输消息计数
+  - MCAN：修复扩展帧 ID 掩码位宽与滤波器掩码溢出
+  - I2S：修复 reset 后未重新使能 TX/RX
+  - 修正板级元数据与文档
+
+- 新增：
+  - ENET 硬件时间戳，支持 PTP 同步
+
 ## v1.11.0
 
 - 整合了hpm_sdk v1.11.0

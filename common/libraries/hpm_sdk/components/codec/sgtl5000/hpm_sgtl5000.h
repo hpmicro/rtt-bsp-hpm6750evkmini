@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
  * Copyright 2016-2019 NXP
- * Copyright (c) 2021 HPMicro
+ * Copyright (c) 2021,2026 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -11,6 +11,7 @@
 #define _HPM_SGTL5000_H_
 
 #include "hpm_i2c_drv.h"
+#include "hpm_codec_control.h"
 
 /*!
  * @addtogroup sgtl5000
@@ -842,10 +843,6 @@ typedef struct _sgtl_config {
     sgtl_lrclk_polarity_t lrclk_polarity; /*!< LRCLK polarity for Philips/Left Justified/Right Justified protocol */
 } sgtl_config_t;
 
-typedef struct {
-    I2C_Type *ptr;                     /*!< sgtl I2C pointer */
-    uint8_t slave_address;             /*!< code device slave address */
-} sgtl_context_t;
 
 /*******************************************************************************
  * API
@@ -853,6 +850,23 @@ typedef struct {
 #if defined(__cplusplus)
 extern "C" {
 #endif
+
+/*!
+ * @brief Get default configuration for sgtl5000.
+ *
+ * This function initializes the configuration structure with default values.
+ * The default configuration:
+ * - route: sgtl_route_playback_record
+ * - bus: sgtl_bus_left_justified
+ * - master: false (slave mode)
+ * - sample_rate: 48000 Hz
+ * - bit_width: 32 bits
+ * - sclk_edge: sgtl_sclk_valid_edge_rising
+ * - lrclk_polarity: sgtl_lrclk_polarity_low_for_left_channel
+ *
+ * @param config Pointer to sgtl5000 configuration structure.
+ */
+void sgtl_get_default_config(sgtl_config_t *config);
 
 /*!
  * @brief sgtl5000 initialize function.
@@ -874,7 +888,7 @@ extern "C" {
  * it means using the default configuration.
  * @return Initialization status
  */
-hpm_stat_t sgtl_init(sgtl_context_t *context, sgtl_config_t *config);
+hpm_stat_t sgtl_init(codec_control_t *context, sgtl_config_t *config);
 
 /*!
  * @brief Set audio data route in sgtl5000.
@@ -886,7 +900,7 @@ hpm_stat_t sgtl_init(sgtl_context_t *context, sgtl_config_t *config);
  * @param context Sgtl5000 context structure.
  * @param route Audio data route in sgtl5000.
  */
-hpm_stat_t sgtl_set_data_route(sgtl_context_t *context, sgtl_route_t route);
+hpm_stat_t sgtl_set_data_route(codec_control_t *context, sgtl_route_t route);
 
 /*!
  * @brief Set the audio transfer protocol.
@@ -895,7 +909,7 @@ hpm_stat_t sgtl_set_data_route(sgtl_context_t *context, sgtl_route_t route);
  * @param context Sgtl5000 context structure.
  * @param protocol Audio data transfer protocol.
  */
-hpm_stat_t sgtl_set_protocol(sgtl_context_t *context, sgtl_protocol_t protocol);
+hpm_stat_t sgtl_set_protocol(codec_control_t *context, sgtl_protocol_t protocol);
 
 /*!
  * @brief Invert LRCLK polarity.
@@ -903,7 +917,7 @@ hpm_stat_t sgtl_set_protocol(sgtl_context_t *context, sgtl_protocol_t protocol);
  * @param context Sgtl5000 context structure.
  * @param invert true for invert LRCLK polarity.
  */
-hpm_stat_t sgtl_invert_lrclk_polarity(sgtl_context_t *context, bool invert);
+hpm_stat_t sgtl_invert_lrclk_polarity(codec_control_t *context, bool invert);
 
 /*!
  * @brief Set sgtl5000 as master or slave.
@@ -911,7 +925,7 @@ hpm_stat_t sgtl_invert_lrclk_polarity(sgtl_context_t *context, bool invert);
  * @param context Sgtl5000 context structure.
  * @param master 1 represent master, 0 represent slave.
  */
-void sgtl_set_master_mode(sgtl_context_t *context, bool master);
+void sgtl_set_master_mode(codec_control_t *context, bool master);
 
 /*!
  * @brief Set the volume of different modules in sgtl5000.
@@ -928,7 +942,82 @@ void sgtl_set_master_mode(sgtl_context_t *context, bool master);
  * @param module Sgtl5000 module, such as DAC, ADC and etc.
  * @param volume Volume value need to be set. The value is the exact value in register.
  */
-hpm_stat_t sgtl_set_volume(sgtl_context_t *context, sgtl_module_t module, uint32_t volume);
+hpm_stat_t sgtl_set_volume(codec_control_t *context, sgtl_module_t module, uint32_t volume);
+
+/*!
+ * @brief Get the valid volume range in dB for the specified module.
+ *
+ * This function returns the minimum and maximum volume in dB that the specified module accepts.
+ *
+ * sgtl_module_adc volume range:     0dB to +22.5dB (1.5dB per step).
+ * sgtl_module_dac volume range:     -90dB to 0dB (0.5dB per step).
+ * sgtl_module_hp volume range:      -51.5dB to +12dB (0.5dB per step).
+ * sgtl_module_lineout volume range: -8dB to +7.5dB (0.5dB per step). 0dB is the full-scale
+ *                                    setting of LO_VOL (0x0F), valid when VAG_VAL equals
+ *                                    LO_VAGCNTRL (both reset to 0.8V and kept unchanged).
+ *
+ * @param module Module to get the volume range for, it can be ADC, DAC, HP and lineout.
+ * @param min_db Pointer to store the minimum volume in dB.
+ * @param max_db Pointer to store the maximum volume in dB.
+ * @return status_success if successful, status_invalid_argument if module is invalid.
+ */
+hpm_stat_t sgtl_get_volume_db_range(sgtl_module_t module, float *min_db, float *max_db);
+
+/*!
+ * @brief Set the volume of different modules in sgtl5000, in decibels.
+ *
+ * This function converts the target volume in dB to the register value according
+ * to the datasheet, then sets the volume for the specified module.
+ * The function assumes that left channel and right channel have the same volume.
+ *
+ * sgtl_module_adc volume range:     0dB to +22.5dB (1.5dB per step).
+ * sgtl_module_dac volume range:     -90dB to 0dB (0.5dB per step).
+ * sgtl_module_hp volume range:      -51.5dB to +12dB (0.5dB per step).
+ * sgtl_module_lineout volume range: -8dB to +7.5dB (0.5dB per step). 0dB is the full-scale
+ *                                    setting of LO_VOL (0x0F), valid when VAG_VAL equals
+ *                                    LO_VAGCNTRL (both reset to 0.8V and kept unchanged).
+ *
+ * @param context Sgtl5000 context structure.
+ * @param module Module to set volume, it can be ADC, DAC, HP and lineout.
+ * @param volume_db Target volume in dB.
+ * @return status_success if successful, status_invalid_argument if module is invalid or volume_db is out of range.
+ */
+hpm_stat_t sgtl_set_volume_db(codec_control_t *context, sgtl_module_t module, float volume_db);
+
+/*!
+ * @brief Clamp the volume in dB to the valid range of the specified module.
+ *
+ * This function limits the input volume in dB to the valid range of the specified
+ * module and stores the clamped value via clamped_db. A typical usage is to clamp
+ * a desired volume before passing it to sgtl_set_volume_db().
+ *
+ * @param module Module to clamp the volume for, it can be ADC, DAC, HP and lineout.
+ * @param volume_db Desired volume in dB.
+ * @param clamped_db Pointer to store the volume in dB clamped to the valid range of the module.
+ * @return status_success if successful, status_invalid_argument if module is invalid.
+ */
+hpm_stat_t sgtl_clamp_volume_db(sgtl_module_t module, float volume_db, float *clamped_db);
+
+/*!
+ * @brief Set the volume of different modules in sgtl5000, in percent of the full volume range.
+ *
+ * This function converts the volume percent to the register value and sets the
+ * volume for the specified module. The percent maps linearly onto the module's
+ * full dB range: 0 percent is the minimum volume (not mute) and 100 percent is
+ * the maximum volume of the module. Use sgtl_set_mute() to mute a module.
+ * The function assumes that left channel and right channel have the same volume.
+ *
+ * sgtl_module_adc volume range:     0dB to +22.5dB (1.5dB per step).
+ * sgtl_module_dac volume range:     -90dB to 0dB (0.5dB per step).
+ * sgtl_module_hp volume range:      -51.5dB to +12dB (0.5dB per step).
+ * sgtl_module_lineout volume range: -8dB to +7.5dB (0.5dB per step).
+ *
+ * @param context Sgtl5000 context structure.
+ * @param module Module to set volume, it can be ADC, DAC, HP and lineout.
+ * @param volume_percent Volume in percent of the full volume range, valid range: 0 to 100.
+ * @return status_success if successful, status_invalid_argument if module is invalid or volume_percent is out of range.
+ */
+hpm_stat_t sgtl_set_volume_percent(codec_control_t *context, sgtl_module_t module, int8_t volume_percent);
 
 /*!
  * @brief Get the volume of different modules in sgtl5000.
@@ -939,7 +1028,7 @@ hpm_stat_t sgtl_set_volume(sgtl_context_t *context, sgtl_module_t module, uint32
  * @param module Sgtl5000 module, such as DAC, ADC and etc.
  * @return Module value, the value is exact value in register.
  */
-uint32_t sgtl_get_volume(sgtl_context_t *context, sgtl_module_t module);
+uint32_t sgtl_get_volume(codec_control_t *context, sgtl_module_t module);
 
 /*!
  * @brief Mute/unmute modules in sgtl5000.
@@ -948,27 +1037,27 @@ uint32_t sgtl_get_volume(sgtl_context_t *context, sgtl_module_t module);
  * @param module Sgtl5000 module, such as DAC, ADC and etc.
  * @param mute True means mute, and false means unmute.
  */
-hpm_stat_t sgtl_set_mute(sgtl_context_t *context, sgtl_module_t module, bool mute);
+hpm_stat_t sgtl_set_mute(codec_control_t *context, sgtl_module_t module, bool mute);
 
 /*!
  * @brief Enable expected devices.
  * @param context Sgtl5000 context structure.
  * @param module Module expected to enable.
  */
-hpm_stat_t sgtl_enable_module(sgtl_context_t *context, sgtl_module_t module);
+hpm_stat_t sgtl_enable_module(codec_control_t *context, sgtl_module_t module);
 
 /*!
  * @brief Disable expected devices.
  * @param context Sgtl5000 context structure.
  * @param module Module expected to enable.
  */
-hpm_stat_t sgtl_disable_module(sgtl_context_t *context, sgtl_module_t module);
+hpm_stat_t sgtl_disable_module(codec_control_t *context, sgtl_module_t module);
 
 /*!
  * @brief Deinit the sgtl5000 codec. Shut down Sgtl5000 modules.
  * @param context Sgtl5000 context structure pointer.
  */
-hpm_stat_t sgtl_deint(sgtl_context_t *context);
+hpm_stat_t sgtl_deint(codec_control_t *context);
 
 /*!
  * @brief Configure the data format of audio data.
@@ -981,7 +1070,7 @@ hpm_stat_t sgtl_deint(sgtl_context_t *context);
  * @param bits Bit depth of audio file (Sgtl5000 only supports 16bit, 20bit, 24bit
  * and 32 bit in HW).
  */
-hpm_stat_t sgtl_config_data_format(sgtl_context_t *context, uint32_t mclk, uint32_t sample_rate, uint32_t bits);
+hpm_stat_t sgtl_config_data_format(codec_control_t *context, uint32_t mclk, uint32_t sample_rate, uint32_t bits);
 
 /*!
  * @brief select SGTL codec play source.
@@ -991,7 +1080,7 @@ hpm_stat_t sgtl_config_data_format(sgtl_context_t *context, uint32_t mclk, uint3
  *
  * @return kStatus_Success, else failed.
  */
-hpm_stat_t sgtl_set_play(sgtl_context_t *context, uint32_t playSource);
+hpm_stat_t sgtl_set_play(codec_control_t *context, uint32_t playSource);
 
 /*!
  * @brief select SGTL codec record source.
@@ -1001,7 +1090,7 @@ hpm_stat_t sgtl_set_play(sgtl_context_t *context, uint32_t playSource);
  *
  * @return kStatus_Success, else failed.
  */
-hpm_stat_t sgtl_set_record(sgtl_context_t *context, uint32_t recordSource);
+hpm_stat_t sgtl_set_record(codec_control_t *context, uint32_t recordSource);
 
 /*!
  * @brief Write register to sgtl using I2C.
@@ -1009,7 +1098,7 @@ hpm_stat_t sgtl_set_record(sgtl_context_t *context, uint32_t recordSource);
  * @param reg The register address in sgtl.
  * @param val Value needs to write into the register.
  */
-hpm_stat_t sgtl_write_reg(sgtl_context_t *context, uint16_t reg, uint16_t val);
+hpm_stat_t sgtl_write_reg(codec_control_t *context, uint16_t reg, uint16_t val);
 
 /*!
  * @brief Read register from sgtl using I2C.
@@ -1017,7 +1106,7 @@ hpm_stat_t sgtl_write_reg(sgtl_context_t *context, uint16_t reg, uint16_t val);
  * @param reg The register address in sgtl.
  * @param val Value written to.
  */
-hpm_stat_t sgtl_read_reg(sgtl_context_t *context, uint16_t reg, uint16_t *val);
+hpm_stat_t sgtl_read_reg(codec_control_t *context, uint16_t reg, uint16_t *val);
 
 /*!
  * @brief Modify some bits in the register using I2C.
@@ -1026,7 +1115,7 @@ hpm_stat_t sgtl_read_reg(sgtl_context_t *context, uint16_t reg, uint16_t *val);
  * @param clr_mask The mask code for the bits want to write. The bit you want to write should be 0.
  * @param val Value needs to write into the register.
  */
-hpm_stat_t sgtl_modify_reg(sgtl_context_t *context, uint16_t reg, uint16_t clr_mask, uint16_t val);
+hpm_stat_t sgtl_modify_reg(codec_control_t *context, uint16_t reg, uint16_t clr_mask, uint16_t val);
 
 #if defined(__cplusplus)
 }

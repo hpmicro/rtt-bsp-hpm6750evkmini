@@ -16,6 +16,7 @@
  * 2021-09-07     Grissiom     fix eth_tx_msg ack bug
  * 2022-02-22     xiangxistu   integrate v1.4.1 v2.0.3 and v2.1.2 porting layer
  * 2024-09-12     Evlers       add support for independent dns services for multiple network devices
+ * 2026-07-20     Jiading      clear IPv4 addr on link down when DHCP is enabled
  */
 
 /*
@@ -79,6 +80,10 @@
 
 #define netifapi_netif_set_link_up(n)      netifapi_netif_common(n, netif_set_link_up, NULL)
 #define netifapi_netif_set_link_down(n)    netifapi_netif_common(n, netif_set_link_down, NULL)
+#if defined(RT_USING_NETDEV) && LWIP_DHCP && LWIP_IPV4
+#define netifapi_clear_ipv4_addr_on_link_down(n) \
+    netifapi_netif_common(n, lwip_clear_ipv4_addr_on_link_down, NULL)
+#endif
 
 #ifndef RT_LWIP_ETHTHREAD_PRIORITY
 #define RT_ETHERNETIF_THREAD_PREORITY   0x90
@@ -126,6 +131,9 @@ static char eth_rx_thread_stack[RT_LWIP_ETHTHREAD_STACKSIZE];
 #include "lwip/init.h"
 #include "lwip/netdb.h"
 #include <netdev.h>
+#if LWIP_IPV4
+#include "lwip/ip4_addr.h"
+#endif
 
 static int lwip_netdev_set_up(struct netdev *netif)
 {
@@ -447,6 +455,51 @@ static void netdev_del(struct netif *lwip_netif)
     rt_free(netdev);
 }
 #endif /* RT_USING_NETDEV */
+
+#if defined(RT_USING_NETDEV) && LWIP_DHCP && LWIP_IPV4
+/**
+ * Clear lwIP/netdev IPv4 address and DNS on link down for DHCP interfaces.
+ * Keeps the DHCP client running so link up can restart discover via dhcp_network_changed().
+ */
+static void lwip_clear_ipv4_addr_on_link_down(struct netif *netif)
+{
+    struct netdev *netdev;
+    int i;
+    rt_bool_t need_clear = RT_FALSE;
+
+    netdev = netdev_get_by_name(netif->name);
+    if (netdev == RT_NULL || !netdev_is_dhcp_enabled(netdev))
+    {
+        return;
+    }
+
+    if (!ip4_addr_isany(netif_ip4_addr(netif)) ||
+        !ip4_addr_isany(netif_ip4_gw(netif)) ||
+        !ip4_addr_isany(netif_ip4_netmask(netif)))
+    {
+        need_clear = RT_TRUE;
+    }
+
+    for (i = 0; i < NETDEV_DNS_SERVERS_NUM; i++)
+    {
+        if (!ip_addr_isany(&netdev->dns_servers[i]))
+        {
+            need_clear = RT_TRUE;
+            break;
+        }
+    }
+
+    if (need_clear)
+    {
+        netif_set_addr(netif, IP4_ADDR_ANY4, IP4_ADDR_ANY4, IP4_ADDR_ANY4);
+        for (i = 0; i < NETDEV_DNS_SERVERS_NUM; i++)
+        {
+            ip_addr_set_zero(&netdev->dns_servers[i]);
+        }
+    }
+}
+
+#endif /* defined(RT_USING_NETDEV) && LWIP_DHCP && LWIP_IPV4 */
 
 static err_t ethernetif_linkoutput(struct netif *netif, struct pbuf *p)
 {
@@ -868,7 +921,12 @@ rt_err_t eth_device_linkchange(struct eth_device* dev, rt_bool_t up)
     if (up == RT_TRUE)
         netifapi_netif_set_link_up(dev->netif);
     else
+    {
         netifapi_netif_set_link_down(dev->netif);
+#if defined(RT_USING_NETDEV) && LWIP_DHCP && LWIP_IPV4
+        netifapi_clear_ipv4_addr_on_link_down(dev->netif);
+#endif
+    }
 
     return RT_EOK;
 }
@@ -932,7 +990,12 @@ static void eth_rx_thread_entry(void* parameter)
                 if (status)
                     netifapi_netif_set_link_up(device->netif);
                 else
+                {
                     netifapi_netif_set_link_down(device->netif);
+#if defined(RT_USING_NETDEV) && LWIP_DHCP && LWIP_IPV4
+                    netifapi_clear_ipv4_addr_on_link_down(device->netif);
+#endif
+                }
             }
 
             level = rt_spin_lock_irqsave(&(device->spinlock));

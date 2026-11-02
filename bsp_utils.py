@@ -224,7 +224,7 @@ def list_supported_examples():
         'Basic Examples': ['blink_led', 'timer_demo', 'uart_dma_demo'],
         'Communication': ['i2c_demo', 'can_example', 'mcan_example'],
         'Audio': ['audio_i2s_demo', 'audio_pdm_dao_demo'],
-        'Storage': ['sdcard_demo', 'flashdb_demo'],
+        'Storage': ['sdcard_demo', 'flashdb_demo', 'spi_nor_flash_fs_demo'],
         'USB': ['usb_device_generic_hid', 'usb_host_msc_udisk', 'usb_host_nic'],
         'Display': ['lv_demo_widgets'],
         'Networking': ['airoc_wifi_demo', 'rw007_wifi', 'ethernet_demo', 'ethernet_ptp_master_demo', 'ethernet_ptp_slave_demo',

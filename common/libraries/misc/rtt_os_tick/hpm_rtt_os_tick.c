@@ -19,7 +19,11 @@
 #include <rtdevice.h>
 #include "hpm_rtt_interrupt_util.h"
 #include "hpm_rtt_os_tick.h"
+#ifdef HPMSOC_HAS_HPMSDK_GPTMRV2
+#include "hpm_gptmrv2_drv.h"
+#else
 #include "hpm_gptmr_drv.h"
+#endif
 #else
 #include "hpm_mchtmr_drv.h"
 #endif

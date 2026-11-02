@@ -32,7 +32,7 @@ if GetDepend('BSP_USING_SDXC'):
 if GetDepend('BSP_USING_PWM') or GetDepend('BSP_USING_PWMV2'):
     src += ['drv_pwm.c']
 
-if GetDepend('BSP_USING_GPTMR'):
+if GetDepend('BSP_USING_GPTMR') or GetDepend('BSP_USING_GPTMRV2'):
     src += ['drv_hwtimer.c']
 
 if GetDepend('BSP_USING_CAN'):

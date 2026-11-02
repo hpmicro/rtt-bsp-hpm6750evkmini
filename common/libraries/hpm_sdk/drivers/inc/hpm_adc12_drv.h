@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025 HPMicro
+ * Copyright (c) 2021-2026 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -127,6 +127,9 @@ typedef struct {
     uint32_t adc_clk_div;
     bool wait_dis;
     bool sel_sync_ahb;
+    /**
+     * @deprecated Since HPM SDK v1.12.0. Ignored: @ref adc12_init sets ADC_CFG0 ADC_AHB_EN from @c conv_mode (enabled for sequence and preemption, disabled for oneshot and period).
+     */
     bool adc_ahb_en;
 } adc12_config_t;
 
@@ -136,6 +139,7 @@ typedef struct {
    uint8_t diff_sel;
    uint16_t thshdh;
    uint16_t thshdl;
+  /** If true, threshold/sample are applied for watchdog. When ADC12_SOC_WDOG_INT_EN_DEFERRED is set for the SoC, INT_EN is not set in adc12_init_channel. Call adc12_enable_wdog_interrupt() after in-window conversion(s). */
    bool wdog_int_en;
    uint8_t sample_cycle_shift;
    uint32_t sample_cycle;
@@ -148,7 +152,7 @@ typedef struct {
    uint16_t thshdl;
 } adc12_channel_threshold_t;
 
-/** @brief ADC12 DMA configuration struct. */
+/** @brief ADC12 DMA configuration struct (@c stop_pos and @c stop_en apply independently in @c adc12_init_seq_dma). */
 typedef struct {
     uint32_t *start_addr;
     uint32_t buff_len_in_4bytes;
@@ -246,7 +250,7 @@ hpm_stat_t adc12_deinit(ADC12_Type *ptr);
  * @brief Initialize an ADC12 instance.
  *
  * @param[in] ptr An ADC12 peripheral base address.
- * @param[in] config A pointer to the configuration struct of @ref adc12_config_t.
+ * @param[in] config A pointer to the configuration struct of @ref adc12_config_t. @ref adc12_init programs ADC_AHB_EN from @c conv_mode; the struct field @c adc_ahb_en is deprecated and ignored.
  * @return A result of initializing an ADC12 instance.
  * @retval status_success Initialize an ADC12 instance successfully. Please refer to @ref hpm_stat_t.
  * @retval status_invalid_argument Initialize an ADC12 instance unsuccessfully due to passing one or more invalid arguments. Please refer to @ref hpm_stat_t.
@@ -486,6 +490,24 @@ static inline void adc12_disable_interrupts(ADC12_Type *ptr, uint32_t mask)
     ptr->INT_EN &= ~mask;
 }
 
+/**
+ * @brief Enable watchdog interrupt after a valid in-window conversion has completed (per User Manual/silicon).
+ *
+ * @param[in] ptr An ADC12 peripheral base address.
+ * @param[in] wdog_ch_mask Bit mask of physical channel indices (bits 0..15); each bit is INT_STS/INT_EN WDOG for that channel.
+ *
+ * @note Call only after the corresponding channel(s) have completed a conversion with the result
+ *       inside the programmed threshold window; otherwise RW1C clear of WDOG in INT_STS may not
+ *       clear the latched state. Typical use: one call per channel bit after priming conversions.
+ */
+static inline void adc12_enable_wdog_interrupt(ADC12_Type *ptr, uint32_t wdog_ch_mask)
+{
+    uint32_t m = wdog_ch_mask & ADC12_INT_STS_WDOG_MASK;
+
+    ptr->INT_STS = m;
+    ptr->INT_EN |= m;
+}
+
 /** @} */
 
 /**
@@ -537,6 +559,62 @@ hpm_stat_t adc12_get_oneshot_result(ADC12_Type *ptr, uint8_t ch, uint16_t *resul
  * @retval status_invalid_argument Get the result of an ADC12 conversion in the period mode unsuccessfully due to passing invalid arguments. Please refer to @ref hpm_stat_t.
  */
 hpm_stat_t adc12_get_prd_result(ADC12_Type *ptr, uint8_t ch, uint16_t *result);
+
+/**
+ * @brief Calculate an ADC12 clock divider so conversion clock is at most target_conv_hz.
+ *
+ * Selects the smallest divider in [1, 16] such that input_hz / div <= target_conv_hz.
+ * Does not change CPU/AHB or analog source clocks.
+ *
+ * @param[in] input_hz Input clock in Hz.
+ * @param[in] target_conv_hz Conversion-clock ceiling in Hz.
+ * @param[out] div Calculated divider.
+ * @retval status_success A legal divider was found.
+ * @retval status_invalid_argument No divider in 1-16 can meet the ceiling.
+ */
+hpm_stat_t adc12_calc_clock_divider(uint32_t input_hz, uint32_t target_conv_hz, uint32_t *div);
+
+/**
+ * @brief Calculate period-mode prescale and period_count for a target period.
+ *
+ * Period is (2^prescale) * (period_count + 1) conversion clocks. period_count is
+ * kept in 1-255 so a zero PRD field is not used. Target is nanoseconds. Actual
+ * time is ticks split by adc_clk_hz so ticks * 1e9 does not overflow. The
+ * period timer only hits discrete steps, so actual may differ from target. A 5
+ * percent check uses |actual_ns - target_period_ns|.
+ *
+ * @param[in] adc_clk_hz Conversion clock in Hz (after adc_clk_div).
+ * @param[in] target_period_ns Target period in nanoseconds.
+ * @param[out] cfg Period config. ch is left unchanged.
+ * @retval status_success A period setting within 5 percent was found.
+ * @retval status_invalid_argument Arguments are invalid or the error exceeds 5 percent.
+ */
+hpm_stat_t adc12_calc_prd_config(uint32_t adc_clk_hz, uint64_t target_period_ns, adc12_prd_config_t *cfg);
+
+/**
+ * @brief Get ADC12 conversion clocks for one sample from the resolution setting.
+ *
+ * Hardware CONVERT_CLOCK_NUMBER is (2 * res + 7); one conversion uses that plus 1.
+ * 12-bit is 14 clocks.
+ *
+ * @param[in] res Resolution enum value of @ref adc12_resolution_t.
+ * @return Conversion clocks for one sample.
+ */
+uint32_t adc12_get_convert_cycles(uint8_t res);
+
+/**
+ * @brief Calculate sample rate from init conversion clock and per-sample cycles.
+ *
+ * fs = conv_hz / (sample_cycle + convert_cycles).
+ *
+ * @param[in] conv_hz Conversion clock in Hz (after adc_clk_div).
+ * @param[in] sample_cycle SAMPLE_CFG sample_cycle (shift already applied).
+ * @param[in] convert_cycles Conversion clocks for one sample.
+ * @param[out] fs_hz Calculated sample rate in Hz.
+ * @retval status_success Sample rate was calculated.
+ * @retval status_invalid_argument One or more arguments are invalid.
+ */
+hpm_stat_t adc12_calc_sample_rate(uint32_t conv_hz, uint32_t sample_cycle, uint32_t convert_cycles, uint32_t *fs_hz);
 
 /** @} */
 

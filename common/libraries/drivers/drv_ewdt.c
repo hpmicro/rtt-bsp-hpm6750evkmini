@@ -198,7 +198,10 @@ static rt_err_t hpm_wdog_control(rt_watchdog_t *wdt, int cmd, void *args)
     switch (cmd)
     {
     case RT_DEVICE_CTRL_WDT_SET_TIMEOUT:
-        RT_ASSERT(*(uint32_t *)args != 0);
+        if ((args == RT_NULL) || (*(uint32_t *)args == 0U))
+        {
+            return -RT_EINVAL;
+        }
         temp = *(uint32_t *)args;
         temp *= 1000000U; /* Convert to microseconds */
 
@@ -225,17 +228,17 @@ static rt_err_t hpm_wdog_control(rt_watchdog_t *wdt, int cmd, void *args)
         hpm_wdog_refresh(wdt);
         break;
     case RT_DEVICE_CTRL_WDT_START:
-        hpm_wdog_open(wdt, *(uint16_t*)args);
+        hpm_wdog_open(wdt, 0);
         break;
     case RT_DEVICE_CTRL_WDT_STOP:
         hpm_wdog_close(wdt);
         break;
     default:
-        ret = RT_EINVAL;
+        ret = -RT_EINVAL;
         break;
     }
 
-    return RT_EOK;
+    return ret;
 }
 
 #ifndef HPM_USING_RTTHREAD_INTERRUPT_FRAMEWORK

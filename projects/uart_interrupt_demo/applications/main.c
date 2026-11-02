@@ -73,7 +73,7 @@ static void serial_thread_entry(void *parameter)
     }
 }
 
-static int uart_dma_sample(int argc, char *argv[])
+static int uart_interrupt_sample(int argc, char *argv[])
 {
     rt_err_t ret = RT_EOK;
     char uart_name[RT_NAME_MAX];
@@ -81,7 +81,7 @@ static int uart_dma_sample(int argc, char *argv[])
     __attribute__((section(".noncacheable.init"), aligned(4))) static char str[] = "hello RT-Thread!\r\n";
 
     if (uart_thread) {
-        rt_kprintf("uart_dma_sample thread already exists!\n");
+        rt_kprintf("uart_interrupt_sample thread already exists!\n");
         return ret;
     }
 
@@ -131,7 +131,7 @@ static int uart_dma_sample(int argc, char *argv[])
     return ret;
 }
 /* 导出到 msh 命令列表中 */
-MSH_CMD_EXPORT(uart_dma_sample, uart device dma sample);
+MSH_CMD_EXPORT(uart_interrupt_sample, uart device interrupt sample);
 
 
 int main(void)

@@ -62,7 +62,6 @@
       gdb_server_reset_command="reset halt"
       gdb_server_type="Custom"
       gdb_server_command_line="openocd -f $(ProjectDir)/board/debug_scripts/openocd/probes/ft2232.cfg -f $(ProjectDir)/board/debug_scripts/openocd/soc/hpm6750-single-core.cfg -f $(ProjectDir)/board/debug_scripts/openocd/boards/hpm6750evkmini.cfg"
-      rv_arch_ext="_xv5"
       project_directory=""
       project_type="Executable"
       rv_abi="ilp32"

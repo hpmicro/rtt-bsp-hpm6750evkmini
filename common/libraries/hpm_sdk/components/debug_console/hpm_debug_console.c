@@ -219,7 +219,7 @@ __attribute__((weak, used)) int __SEGGER_RTL_X_file_read(__SEGGER_RTL_FILE *file
     return 1;
 }
 
-__attribute__((weak, used)) int __SEGGER_RTL_X_file_stat(__SEGGER_RTL_FILE *stream)
+__attribute__((used)) int __SEGGER_RTL_X_file_stat(__SEGGER_RTL_FILE *stream)
 {
     (void) stream;
     return 0;
@@ -231,14 +231,14 @@ __attribute__((used)) int __SEGGER_RTL_X_file_bufsize(__SEGGER_RTL_FILE *stream)
     return 1;
 }
 
-__attribute__((weak, used)) int __SEGGER_RTL_X_file_unget(__SEGGER_RTL_FILE *stream, int c)
+__attribute__((used)) int __SEGGER_RTL_X_file_unget(__SEGGER_RTL_FILE *stream, int c)
 {
     (void) stream;
     (void) c;
     return EOF;
 }
 
-__attribute__((weak, used)) int  __SEGGER_RTL_X_file_flush(__SEGGER_RTL_FILE *__stream)
+__attribute__((used)) int  __SEGGER_RTL_X_file_flush(__SEGGER_RTL_FILE *__stream)
 {
     (void) __stream;
     return 1;

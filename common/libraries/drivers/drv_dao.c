@@ -146,6 +146,7 @@ static rt_err_t hpm_dao_configure(struct rt_audio_device* audio, struct rt_audio
                     result = -RT_ERROR;
                     break;
             }
+            break;
         }
 
         default:
@@ -167,7 +168,10 @@ static rt_err_t hpm_dao_init(struct rt_audio_device* audio)
     board_init_dao_clock();
 
     i2s_get_default_config(DAO_I2S, &i2s_config);
-    i2s_init(DAO_I2S, &i2s_config);
+    if (status_success != i2s_init(DAO_I2S, &i2s_config)) {
+        LOG_E("dao_i2s init failed\n");
+        return -RT_ERROR;
+    }
     i2s_enable_tx_dma_request(DAO_I2S);
 
     mclk_hz = clock_get_frequency(clock_i2s1);
@@ -214,7 +218,11 @@ static rt_err_t hpm_dao_start(struct rt_audio_device* audio, int stream)
     }
 
     /* fill 2 dummy data, it is suitable for 1/2 channel of audio */
-    i2s_reset_tx(DAO_I2S);
+    if (status_success != i2s_reset_tx(DAO_I2S)) {
+        LOG_E("dao_i2s reset tx failed\n");
+        return -RT_ERROR;
+    }
+    i2s_enable_tx_line(DAO_I2S, DAO_I2S_DATA_LINE);
     if (i2s_fill_tx_dummy_data(DAO_I2S, DAO_I2S_DATA_LINE, 2) != status_success) {
         return -RT_ERROR;
     }

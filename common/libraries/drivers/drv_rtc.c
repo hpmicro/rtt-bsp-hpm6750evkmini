@@ -139,6 +139,11 @@ static rt_err_t hpm_rtc_control(rt_device_t dev, int cmd, void *args)
 
     struct timeval tv;
 
+    if (args == RT_NULL)
+    {
+        return -RT_EINVAL;
+    }
+
     switch(cmd) {
         case RT_DEVICE_CTRL_RTC_GET_TIME:
             if (sizeof(uint32_t) == sizeof(time_t)) {
@@ -165,7 +170,7 @@ static rt_err_t hpm_rtc_control(rt_device_t dev, int cmd, void *args)
             err = hpm_rtc_get_alarm((struct rt_rtc_wkalarm *)args);
             break;
         default:
-            err = RT_EINVAL;
+            err = -RT_EINVAL;
             break;
     }
 
@@ -210,13 +215,13 @@ static int hpm_rtc_set_alarm(struct rt_rtc_wkalarm *alarm)
 #endif
         now = rtc_get_time(HPM_RTC);
         if (alarm_time <= now) {
-            return RT_ERROR;
+            return -RT_ERROR;
         }
         config.period = alarm_time;
         config.type = RTC_ALARM_TYPE_ABSOLUTE_TIME_ONE_SHOT;
         config.index = 0;
         if (rtc_config_alarm(HPM_RTC, &config) != status_success) {
-            return RT_ERROR;
+            return -RT_ERROR;
         }
         rtc_enable_alarm_interrupt(HPM_RTC, 0, true);
         intc_m_enable_irq_with_priority(IRQn_RTC, 1);
@@ -226,7 +231,7 @@ static int hpm_rtc_set_alarm(struct rt_rtc_wkalarm *alarm)
     }
     return RT_EOK;
 #else
-    return RT_EINVAL;
+    return -RT_EINVAL;
 #endif
 }
 
@@ -254,7 +259,7 @@ static int hpm_rtc_get_alarm(struct rt_rtc_wkalarm *alarm)
     alarm->tm_year = alarm_tm.tm_year;
     return RT_EOK;
 #else
-    return RT_EINVAL;
+    return -RT_EINVAL;
 #endif
 }
 

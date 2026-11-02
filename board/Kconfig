@@ -54,6 +54,8 @@ menu "On-chip Peripheral Drivers"
                         bool "Enable UART0 RX DMA"
                         depends on BSP_USING_UART0 && RT_SERIAL_USING_DMA
                         default n
+                        help
+                          The RX DMA only supports fixed-length reception on this SoC.
                     config BSP_UART0_TX_USING_DMA
                         bool "Enable UART0 TX DMA"
                         depends on BSP_USING_UART0 && RT_SERIAL_USING_DMA
@@ -63,6 +65,9 @@ menu "On-chip Peripheral Drivers"
                         range 64 65535
                         depends on RT_USING_SERIAL_V2
                         default 128
+                        help
+                          When the RX DMA is used, it must be no smaller than the DMA
+                          ping-pong buffer size; 32-byte alignment is recommended.
                     config BSP_UART0_TX_BUFSIZE
                         int "Set UART0 TX buffer size"
                         range 0 65535
@@ -72,6 +77,14 @@ menu "On-chip Peripheral Drivers"
                         int "UART0 Interrupt Priority"
                         range 1 7
                         default 1
+                    config BSP_UART0_DMA_PINGPONG_BUFSIZE
+                        int "Set UART0 RX DMA ping-pong buffer size"
+                        range 32 8192
+                        depends on RT_USING_SERIAL_V2 && BSP_UART0_RX_USING_DMA
+                        default 128
+                        help
+                          RT-Thread requires the size to be aligned to RT_ALIGN_SIZE
+                          (8 bytes by default).
                 endif
             menuconfig BSP_USING_UART1
                 bool "Enable UART1"
@@ -81,6 +94,8 @@ menu "On-chip Peripheral Drivers"
                         bool "Enable UART1 RX DMA"
                         depends on BSP_USING_UART1 && RT_SERIAL_USING_DMA
                         default n
+                        help
+                          The RX DMA only supports fixed-length reception on this SoC.
                     config BSP_UART1_TX_USING_DMA
                         bool "Enable UART1 TX DMA"
                         depends on BSP_USING_UART1 && RT_SERIAL_USING_DMA
@@ -90,6 +105,9 @@ menu "On-chip Peripheral Drivers"
                         range 64 65535
                         depends on RT_USING_SERIAL_V2
                         default 128
+                        help
+                          When the RX DMA is used, it must be no smaller than the DMA
+                          ping-pong buffer size; 32-byte alignment is recommended.
                     config BSP_UART1_TX_BUFSIZE
                         int "Set UART1 TX buffer size"
                         range 0 65535
@@ -99,6 +117,14 @@ menu "On-chip Peripheral Drivers"
                         int "UART1 Interrupt Priority"
                         range 1 7
                         default 1
+                    config BSP_UART1_DMA_PINGPONG_BUFSIZE
+                        int "Set UART1 RX DMA ping-pong buffer size"
+                        range 32 8192
+                        depends on RT_USING_SERIAL_V2 && BSP_UART1_RX_USING_DMA
+                        default 128
+                        help
+                          RT-Thread requires the size to be aligned to RT_ALIGN_SIZE
+                          (8 bytes by default).
                 endif
             menuconfig BSP_USING_UART2
                 bool "Enable UART2"
@@ -108,6 +134,8 @@ menu "On-chip Peripheral Drivers"
                         bool "Enable UART2 RX DMA"
                         depends on BSP_USING_UART2 && RT_SERIAL_USING_DMA
                         default n
+                        help
+                          The RX DMA only supports fixed-length reception on this SoC.
                     config BSP_UART2_TX_USING_DMA
                         bool "Enable UART2 TX DMA"
                         depends on BSP_USING_UART2 && RT_SERIAL_USING_DMA
@@ -117,6 +145,9 @@ menu "On-chip Peripheral Drivers"
                         range 64 65535
                         depends on RT_USING_SERIAL_V2
                         default 128
+                        help
+                          When the RX DMA is used, it must be no smaller than the DMA
+                          ping-pong buffer size; 32-byte alignment is recommended.
                     config BSP_UART2_TX_BUFSIZE
                         int "Set UART2 TX buffer size"
                         range 0 65535
@@ -126,6 +157,14 @@ menu "On-chip Peripheral Drivers"
                         int "UART2 Interrupt Priority"
                         range 1 7
                         default 1
+                    config BSP_UART2_DMA_PINGPONG_BUFSIZE
+                        int "Set UART2 RX DMA ping-pong buffer size"
+                        range 32 8192
+                        depends on RT_USING_SERIAL_V2 && BSP_UART2_RX_USING_DMA
+                        default 128
+                        help
+                          RT-Thread requires the size to be aligned to RT_ALIGN_SIZE
+                          (8 bytes by default).
                 endif
             menuconfig BSP_USING_UART3
                 bool "Enable UART3"
@@ -135,6 +174,8 @@ menu "On-chip Peripheral Drivers"
                         bool "Enable UART3 RX DMA"
                         depends on BSP_USING_UART3 && RT_SERIAL_USING_DMA
                         default n
+                        help
+                          The RX DMA only supports fixed-length reception on this SoC.
                     config BSP_UART3_TX_USING_DMA
                         bool "Enable UART3 TX DMA"
                         depends on BSP_USING_UART3 && RT_SERIAL_USING_DMA
@@ -144,6 +185,9 @@ menu "On-chip Peripheral Drivers"
                         range 64 65535
                         depends on RT_USING_SERIAL_V2
                         default 128
+                        help
+                          When the RX DMA is used, it must be no smaller than the DMA
+                          ping-pong buffer size; 32-byte alignment is recommended.
                     config BSP_UART3_TX_BUFSIZE
                         int "Set UART3 TX buffer size"
                         range 0 65535
@@ -153,6 +197,14 @@ menu "On-chip Peripheral Drivers"
                         int "UART3 Interrupt Priority"
                         range 1 7
                         default 1
+                    config BSP_UART3_DMA_PINGPONG_BUFSIZE
+                        int "Set UART3 RX DMA ping-pong buffer size"
+                        range 32 8192
+                        depends on RT_USING_SERIAL_V2 && BSP_UART3_RX_USING_DMA
+                        default 128
+                        help
+                          RT-Thread requires the size to be aligned to RT_ALIGN_SIZE
+                          (8 bytes by default).
                 endif
             menuconfig BSP_USING_UART4
                 bool "Enable UART4"
@@ -162,6 +214,8 @@ menu "On-chip Peripheral Drivers"
                         bool "Enable UART4 RX DMA"
                         depends on BSP_USING_UART4 && RT_SERIAL_USING_DMA
                         default n
+                        help
+                          The RX DMA only supports fixed-length reception on this SoC.
                     config BSP_UART4_TX_USING_DMA
                         bool "Enable UART4 TX DMA"
                         depends on BSP_USING_UART4 && RT_SERIAL_USING_DMA
@@ -171,6 +225,9 @@ menu "On-chip Peripheral Drivers"
                         range 64 65535
                         depends on RT_USING_SERIAL_V2
                         default 128
+                        help
+                          When the RX DMA is used, it must be no smaller than the DMA
+                          ping-pong buffer size; 32-byte alignment is recommended.
                     config BSP_UART4_TX_BUFSIZE
                         int "Set UART4 TX buffer size"
                         range 0 65535
@@ -180,6 +237,14 @@ menu "On-chip Peripheral Drivers"
                         int "UART4 Interrupt Priority"
                         range 1 7
                         default 1
+                    config BSP_UART4_DMA_PINGPONG_BUFSIZE
+                        int "Set UART4 RX DMA ping-pong buffer size"
+                        range 32 8192
+                        depends on RT_USING_SERIAL_V2 && BSP_UART4_RX_USING_DMA
+                        default 128
+                        help
+                          RT-Thread requires the size to be aligned to RT_ALIGN_SIZE
+                          (8 bytes by default).
                 endif
             menuconfig BSP_USING_UART5
                 bool "Enable UART5"
@@ -189,6 +254,8 @@ menu "On-chip Peripheral Drivers"
                         bool "Enable UART5 RX DMA"
                         depends on BSP_USING_UART5 && RT_SERIAL_USING_DMA
                         default n
+                        help
+                          The RX DMA only supports fixed-length reception on this SoC.
                     config BSP_UART5_TX_USING_DMA
                         bool "Enable UART5 TX DMA"
                         depends on BSP_USING_UART5 && RT_SERIAL_USING_DMA
@@ -198,6 +265,9 @@ menu "On-chip Peripheral Drivers"
                         range 64 65535
                         depends on RT_USING_SERIAL_V2
                         default 128
+                        help
+                          When the RX DMA is used, it must be no smaller than the DMA
+                          ping-pong buffer size; 32-byte alignment is recommended.
                     config BSP_UART5_TX_BUFSIZE
                         int "Set UART5 TX buffer size"
                         range 0 65535
@@ -207,6 +277,14 @@ menu "On-chip Peripheral Drivers"
                         int "UART5 Interrupt Priority"
                         range 1 7
                         default 1
+                    config BSP_UART5_DMA_PINGPONG_BUFSIZE
+                        int "Set UART5 RX DMA ping-pong buffer size"
+                        range 32 8192
+                        depends on RT_USING_SERIAL_V2 && BSP_UART5_RX_USING_DMA
+                        default 128
+                        help
+                          RT-Thread requires the size to be aligned to RT_ALIGN_SIZE
+                          (8 bytes by default).
                 endif
             menuconfig BSP_USING_UART6
                 bool "Enable UART6"
@@ -216,6 +294,8 @@ menu "On-chip Peripheral Drivers"
                         bool "Enable UART6 RX DMA"
                         depends on BSP_USING_UART6 && RT_SERIAL_USING_DMA
                         default n
+                        help
+                          The RX DMA only supports fixed-length reception on this SoC.
                     config BSP_UART6_TX_USING_DMA
                         bool "Enable UART6 TX DMA"
                         depends on BSP_USING_UART6 && RT_SERIAL_USING_DMA
@@ -225,6 +305,9 @@ menu "On-chip Peripheral Drivers"
                         range 64 65535
                         depends on RT_USING_SERIAL_V2
                         default 128
+                        help
+                          When the RX DMA is used, it must be no smaller than the DMA
+                          ping-pong buffer size; 32-byte alignment is recommended.
                     config BSP_UART6_TX_BUFSIZE
                         int "Set UART6 TX buffer size"
                         range 0 65535
@@ -234,6 +317,14 @@ menu "On-chip Peripheral Drivers"
                         int "UART6 Interrupt Priority"
                         range 1 7
                         default 1
+                    config BSP_UART6_DMA_PINGPONG_BUFSIZE
+                        int "Set UART6 RX DMA ping-pong buffer size"
+                        range 32 8192
+                        depends on RT_USING_SERIAL_V2 && BSP_UART6_RX_USING_DMA
+                        default 128
+                        help
+                          RT-Thread requires the size to be aligned to RT_ALIGN_SIZE
+                          (8 bytes by default).
                 endif
             menuconfig BSP_USING_UART7
                 bool "Enable UART7"
@@ -243,6 +334,8 @@ menu "On-chip Peripheral Drivers"
                         bool "Enable UART7 RX DMA"
                         depends on BSP_USING_UART7 && RT_SERIAL_USING_DMA
                         default n
+                        help
+                          The RX DMA only supports fixed-length reception on this SoC.
                     config BSP_UART7_TX_USING_DMA
                         bool "Enable UART7 TX DMA"
                         depends on BSP_USING_UART7 && RT_SERIAL_USING_DMA
@@ -252,6 +345,9 @@ menu "On-chip Peripheral Drivers"
                         range 64 65535
                         depends on RT_USING_SERIAL_V2
                         default 128
+                        help
+                          When the RX DMA is used, it must be no smaller than the DMA
+                          ping-pong buffer size; 32-byte alignment is recommended.
                     config BSP_UART7_TX_BUFSIZE
                         int "Set UART7 TX buffer size"
                         range 0 65535
@@ -261,6 +357,14 @@ menu "On-chip Peripheral Drivers"
                         int "UART7 Interrupt Priority"
                         range 1 7
                         default 1
+                    config BSP_UART7_DMA_PINGPONG_BUFSIZE
+                        int "Set UART7 RX DMA ping-pong buffer size"
+                        range 32 8192
+                        depends on RT_USING_SERIAL_V2 && BSP_UART7_RX_USING_DMA
+                        default 128
+                        help
+                          RT-Thread requires the size to be aligned to RT_ALIGN_SIZE
+                          (8 bytes by default).
                 endif
             menuconfig BSP_USING_UART8
                 bool "Enable UART8"
@@ -270,6 +374,8 @@ menu "On-chip Peripheral Drivers"
                         bool "Enable UART8 RX DMA"
                         depends on BSP_USING_UART8 && RT_SERIAL_USING_DMA
                         default n
+                        help
+                          The RX DMA only supports fixed-length reception on this SoC.
                     config BSP_UART8_TX_USING_DMA
                         bool "Enable UART8 TX DMA"
                         depends on BSP_USING_UART8 && RT_SERIAL_USING_DMA
@@ -279,6 +385,9 @@ menu "On-chip Peripheral Drivers"
                         range 64 65535
                         depends on RT_USING_SERIAL_V2
                         default 128
+                        help
+                          When the RX DMA is used, it must be no smaller than the DMA
+                          ping-pong buffer size; 32-byte alignment is recommended.
                     config BSP_UART8_TX_BUFSIZE
                         int "Set UART8 TX buffer size"
                         range 0 65535
@@ -288,6 +397,14 @@ menu "On-chip Peripheral Drivers"
                         int "UART8 Interrupt Priority"
                         range 1 7
                         default 1
+                    config BSP_UART8_DMA_PINGPONG_BUFSIZE
+                        int "Set UART8 RX DMA ping-pong buffer size"
+                        range 32 8192
+                        depends on RT_USING_SERIAL_V2 && BSP_UART8_RX_USING_DMA
+                        default 128
+                        help
+                          RT-Thread requires the size to be aligned to RT_ALIGN_SIZE
+                          (8 bytes by default).
                 endif
             menuconfig BSP_USING_UART9
                 bool "Enable UART9"
@@ -297,6 +414,8 @@ menu "On-chip Peripheral Drivers"
                         bool "Enable UART9 RX DMA"
                         depends on BSP_USING_UART9 && RT_SERIAL_USING_DMA
                         default n
+                        help
+                          The RX DMA only supports fixed-length reception on this SoC.
                     config BSP_UART9_TX_USING_DMA
                         bool "Enable UART9 TX DMA"
                         depends on BSP_USING_UART9 && RT_SERIAL_USING_DMA
@@ -306,6 +425,9 @@ menu "On-chip Peripheral Drivers"
                         range 64 65535
                         depends on RT_USING_SERIAL_V2
                         default 128
+                        help
+                          When the RX DMA is used, it must be no smaller than the DMA
+                          ping-pong buffer size; 32-byte alignment is recommended.
                     config BSP_UART9_TX_BUFSIZE
                         int "Set UART9 TX buffer size"
                         range 0 65535
@@ -315,6 +437,14 @@ menu "On-chip Peripheral Drivers"
                         int "UART9 Interrupt Priority"
                         range 1 7
                         default 1
+                    config BSP_UART9_DMA_PINGPONG_BUFSIZE
+                        int "Set UART9 RX DMA ping-pong buffer size"
+                        range 32 8192
+                        depends on RT_USING_SERIAL_V2 && BSP_UART9_RX_USING_DMA
+                        default 128
+                        help
+                          RT-Thread requires the size to be aligned to RT_ALIGN_SIZE
+                          (8 bytes by default).
                 endif
             menuconfig BSP_USING_UART10
                 bool "Enable UART10"
@@ -324,6 +454,8 @@ menu "On-chip Peripheral Drivers"
                         bool "Enable UART10 RX DMA"
                         depends on BSP_USING_UART10 && RT_SERIAL_USING_DMA
                         default n
+                        help
+                          The RX DMA only supports fixed-length reception on this SoC.
                     config BSP_UART10_TX_USING_DMA
                         bool "Enable UART10 TX DMA"
                         depends on BSP_USING_UART10 && RT_SERIAL_USING_DMA
@@ -333,6 +465,9 @@ menu "On-chip Peripheral Drivers"
                         range 64 65535
                         depends on RT_USING_SERIAL_V2
                         default 128
+                        help
+                          When the RX DMA is used, it must be no smaller than the DMA
+                          ping-pong buffer size; 32-byte alignment is recommended.
                     config BSP_UART10_TX_BUFSIZE
                         int "Set UART10 TX buffer size"
                         range 0 65535
@@ -342,6 +477,14 @@ menu "On-chip Peripheral Drivers"
                         int "UART10 Interrupt Priority"
                         range 1 7
                         default 1
+                    config BSP_UART10_DMA_PINGPONG_BUFSIZE
+                        int "Set UART10 RX DMA ping-pong buffer size"
+                        range 32 8192
+                        depends on RT_USING_SERIAL_V2 && BSP_UART10_RX_USING_DMA
+                        default 128
+                        help
+                          RT-Thread requires the size to be aligned to RT_ALIGN_SIZE
+                          (8 bytes by default).
                 endif
             menuconfig BSP_USING_UART11
                 bool "Enable UART11"
@@ -351,6 +494,8 @@ menu "On-chip Peripheral Drivers"
                         bool "Enable UART11 RX DMA"
                         depends on BSP_USING_UART11 && RT_SERIAL_USING_DMA
                         default n
+                        help
+                          The RX DMA only supports fixed-length reception on this SoC.
                     config BSP_UART11_TX_USING_DMA
                         bool "Enable UART11 TX DMA"
                         depends on BSP_USING_UART11 && RT_SERIAL_USING_DMA
@@ -360,6 +505,9 @@ menu "On-chip Peripheral Drivers"
                         range 64 65535
                         depends on RT_USING_SERIAL_V2
                         default 128
+                        help
+                          When the RX DMA is used, it must be no smaller than the DMA
+                          ping-pong buffer size; 32-byte alignment is recommended.
                     config BSP_UART11_TX_BUFSIZE
                         int "Set UART11 TX buffer size"
                         range 0 65535
@@ -369,6 +517,14 @@ menu "On-chip Peripheral Drivers"
                         int "UART11 Interrupt Priority"
                         range 1 7
                         default 1
+                    config BSP_UART11_DMA_PINGPONG_BUFSIZE
+                        int "Set UART11 RX DMA ping-pong buffer size"
+                        range 32 8192
+                        depends on RT_USING_SERIAL_V2 && BSP_UART11_RX_USING_DMA
+                        default 128
+                        help
+                          RT-Thread requires the size to be aligned to RT_ALIGN_SIZE
+                          (8 bytes by default).
                 endif
             menuconfig BSP_USING_UART12
                 bool "Enable UART12"
@@ -378,6 +534,8 @@ menu "On-chip Peripheral Drivers"
                         bool "Enable UART12 RX DMA"
                         depends on BSP_USING_UART12 && RT_SERIAL_USING_DMA
                         default n
+                        help
+                          The RX DMA only supports fixed-length reception on this SoC.
                     config BSP_UART12_TX_USING_DMA
                         bool "Enable UART12 TX DMA"
                         depends on BSP_USING_UART12 && RT_SERIAL_USING_DMA
@@ -387,6 +545,9 @@ menu "On-chip Peripheral Drivers"
                         range 64 65535
                         depends on RT_USING_SERIAL_V2
                         default 128
+                        help
+                          When the RX DMA is used, it must be no smaller than the DMA
+                          ping-pong buffer size; 32-byte alignment is recommended.
                     config BSP_UART12_TX_BUFSIZE
                         int "Set UART12 TX buffer size"
                         range 0 65535
@@ -396,6 +557,14 @@ menu "On-chip Peripheral Drivers"
                         int "UART12 Interrupt Priority"
                         range 1 7
                         default 1
+                    config BSP_UART12_DMA_PINGPONG_BUFSIZE
+                        int "Set UART12 RX DMA ping-pong buffer size"
+                        range 32 8192
+                        depends on RT_USING_SERIAL_V2 && BSP_UART12_RX_USING_DMA
+                        default 128
+                        help
+                          RT-Thread requires the size to be aligned to RT_ALIGN_SIZE
+                          (8 bytes by default).
                 endif
             menuconfig BSP_USING_UART13
                 bool "Enable UART13"
@@ -405,6 +574,8 @@ menu "On-chip Peripheral Drivers"
                         bool "Enable UART13 RX DMA"
                         depends on BSP_USING_UART13 && RT_SERIAL_USING_DMA
                         default n
+                        help
+                          The RX DMA only supports fixed-length reception on this SoC.
                     config BSP_UART13_TX_USING_DMA
                         bool "Enable UART13 TX DMA"
                         depends on BSP_USING_UART13 && RT_SERIAL_USING_DMA
@@ -414,6 +585,9 @@ menu "On-chip Peripheral Drivers"
                         range 64 65535
                         depends on RT_USING_SERIAL_V2
                         default 128
+                        help
+                          When the RX DMA is used, it must be no smaller than the DMA
+                          ping-pong buffer size; 32-byte alignment is recommended.
                     config BSP_UART13_TX_BUFSIZE
                         int "Set UART13 TX buffer size"
                         range 0 65535
@@ -423,6 +597,14 @@ menu "On-chip Peripheral Drivers"
                         int "UART13 Interrupt Priority"
                         range 1 7
                         default 1
+                    config BSP_UART13_DMA_PINGPONG_BUFSIZE
+                        int "Set UART13 RX DMA ping-pong buffer size"
+                        range 32 8192
+                        depends on RT_USING_SERIAL_V2 && BSP_UART13_RX_USING_DMA
+                        default 128
+                        help
+                          RT-Thread requires the size to be aligned to RT_ALIGN_SIZE
+                          (8 bytes by default).
                 endif
             menuconfig BSP_USING_UART14
                 bool "Enable UART14"
@@ -432,6 +614,8 @@ menu "On-chip Peripheral Drivers"
                         bool "Enable UART14 RX DMA"
                         depends on BSP_USING_UART14 && RT_SERIAL_USING_DMA
                         default n
+                        help
+                          The RX DMA only supports fixed-length reception on this SoC.
                     config BSP_UART14_TX_USING_DMA
                         bool "Enable UART14 TX DMA"
                         depends on BSP_USING_UART14 && RT_SERIAL_USING_DMA
@@ -441,6 +625,9 @@ menu "On-chip Peripheral Drivers"
                         range 64 65535
                         depends on RT_USING_SERIAL_V2
                         default 128
+                        help
+                          When the RX DMA is used, it must be no smaller than the DMA
+                          ping-pong buffer size; 32-byte alignment is recommended.
                     config BSP_UART14_TX_BUFSIZE
                         int "Set UART14 TX buffer size"
                         range 0 65535
@@ -450,6 +637,14 @@ menu "On-chip Peripheral Drivers"
                         int "UART14 Interrupt Priority"
                         range 1 7
                         default 1
+                    config BSP_UART14_DMA_PINGPONG_BUFSIZE
+                        int "Set UART14 RX DMA ping-pong buffer size"
+                        range 32 8192
+                        depends on RT_USING_SERIAL_V2 && BSP_UART14_RX_USING_DMA
+                        default 128
+                        help
+                          RT-Thread requires the size to be aligned to RT_ALIGN_SIZE
+                          (8 bytes by default).
                 endif
             menuconfig BSP_USING_UART15
                 bool "Enable UART15"
@@ -459,6 +654,8 @@ menu "On-chip Peripheral Drivers"
                         bool "Enable UART15 RX DMA"
                         depends on BSP_USING_UART15 && RT_SERIAL_USING_DMA
                         default n
+                        help
+                          The RX DMA only supports fixed-length reception on this SoC.
                     config BSP_UART15_TX_USING_DMA
                         bool "Enable UART15 TX DMA"
                         depends on BSP_USING_UART15 && RT_SERIAL_USING_DMA
@@ -468,6 +665,9 @@ menu "On-chip Peripheral Drivers"
                         range 64 65535
                         depends on RT_USING_SERIAL_V2
                         default 128
+                        help
+                          When the RX DMA is used, it must be no smaller than the DMA
+                          ping-pong buffer size; 32-byte alignment is recommended.
                     config BSP_UART15_TX_BUFSIZE
                         int "Set UART15 TX buffer size"
                         range 0 65535
@@ -477,6 +677,14 @@ menu "On-chip Peripheral Drivers"
                         int "UART15 Interrupt Priority"
                         range 1 7
                         default 1
+                    config BSP_UART15_DMA_PINGPONG_BUFSIZE
+                        int "Set UART15 RX DMA ping-pong buffer size"
+                        range 32 8192
+                        depends on RT_USING_SERIAL_V2 && BSP_UART15_RX_USING_DMA
+                        default 128
+                        help
+                          RT-Thread requires the size to be aligned to RT_ALIGN_SIZE
+                          (8 bytes by default).
                 endif
             menuconfig BSP_USING_PUART
                 bool "Enable PUART"
@@ -968,7 +1176,7 @@ menu "On-chip Peripheral Drivers"
     menuconfig BSP_USING_PWM
         bool "Enable PWM"
         default n
-        select RT_USING_PWM if BSP_USING_PWM
+        select RT_USING_PWM
 
     menuconfig BSP_USING_DAO
         bool "Enable Audio DAO play"
@@ -1070,7 +1278,7 @@ menu "On-chip Peripheral Drivers"
     menuconfig BSP_USING_ADC
         bool "Enable ADC"
         default n
-        select RT_USING_ADC if BSP_USING_ADC
+        select RT_USING_ADC
         if BSP_USING_ADC
             menuconfig BSP_USING_ADC12
                 bool "Enable ADC12"
@@ -1141,16 +1349,8 @@ menu "On-chip Peripheral Drivers"
                 default 1
         endif
 
-    menuconfig BSP_USING_TSNS
-        bool "Enable TSNS (Temperature Sensor)"
-        default n
-
     menuconfig BSP_USING_ACMP
         bool "Enable ACMP (Analog Comparator)"
-        default n
-
-    menuconfig BSP_USING_DAC
-        bool "Enable DAC"
         default n
 
     menuconfig BSP_USING_QEI
@@ -1167,10 +1367,6 @@ menu "On-chip Peripheral Drivers"
 
     menuconfig BSP_USING_SDP
         bool "Enable SDP (Secure Data Processing)"
-        default n
-
-    menuconfig BSP_USING_FFA
-        bool "Enable FFA"
         default n
 
     menuconfig BSP_USING_TAMP

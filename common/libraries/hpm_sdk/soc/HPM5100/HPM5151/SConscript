@@ -1,0 +1,27 @@
+import os
+import sys
+Import('rtconfig')
+from building import *
+
+#get current directory
+cwd = GetCurrentDir()
+
+# Update include path
+path = [ cwd, cwd + '/boot', os.path.join(cwd, "..", "ip") ]
+
+CPPDEFINES=['HPM_SOC_ISR_NUM=59']
+
+# The set of source files associated with this SConscript file.
+src = Split('''
+    system.c
+    hpm_sysctl_drv.c
+    hpm_clock_drv.c
+    hpm_otp_drv.c
+    hpm_pdgo_drv.c
+    boot/hpm_bootheader.c
+''')
+
+
+group = DefineGroup('SoC', src, depend = [''], CPPPATH = path, CPPDEFINES = CPPDEFINES)
+
+Return ('group')

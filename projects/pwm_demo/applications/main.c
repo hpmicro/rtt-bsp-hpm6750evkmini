@@ -28,6 +28,10 @@ int main(void)
 static int pwm_sample(int argc, char *argv[])
 {
     rt_uint32_t period, pulse, dir;
+    rt_err_t ret;
+
+    RT_UNUSED(argc);
+    RT_UNUSED(argv);
 
     period = PWM_PERIOD;
     dir = 1;
@@ -37,11 +41,23 @@ static int pwm_sample(int argc, char *argv[])
     if (pwm_dev == RT_NULL)
     {
         rt_kprintf("pwm sample run failed! can't find %s device!\n", PWM_DEV_NAME);
-        return RT_ERROR;
+        return -RT_ERROR;
     }
-    rt_pwm_set(pwm_dev, PWM_DEV_CHANNEL, period, pulse);
+    ret = rt_pwm_set(pwm_dev, PWM_DEV_CHANNEL, period, pulse);
+    if (ret != RT_EOK)
+    {
+        rt_kprintf("pwm sample run failed! can't configure %s channel %d!\n",
+                   PWM_DEV_NAME, PWM_DEV_CHANNEL);
+        return ret;
+    }
 
-    rt_pwm_enable(pwm_dev, PWM_DEV_CHANNEL);
+    ret = rt_pwm_enable(pwm_dev, PWM_DEV_CHANNEL);
+    if (ret != RT_EOK)
+    {
+        rt_kprintf("pwm sample run failed! can't enable %s channel %d!\n",
+                   PWM_DEV_NAME, PWM_DEV_CHANNEL);
+        return ret;
+    }
 
     while (1)
     {
@@ -63,7 +79,14 @@ static int pwm_sample(int argc, char *argv[])
             dir = 1;
         }
 
-        rt_pwm_set(pwm_dev, PWM_DEV_CHANNEL, period, pulse);
+        ret = rt_pwm_set(pwm_dev, PWM_DEV_CHANNEL, period, pulse);
+        if (ret != RT_EOK)
+        {
+            rt_kprintf("pwm sample run failed! can't update %s channel %d!\n",
+                       PWM_DEV_NAME, PWM_DEV_CHANNEL);
+            (void)rt_pwm_disable(pwm_dev, PWM_DEV_CHANNEL);
+            return ret;
+        }
     }
 }
 

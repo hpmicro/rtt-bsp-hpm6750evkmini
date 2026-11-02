@@ -467,6 +467,7 @@ static rt_err_t hpm_uart_configure(struct rt_serial_device *serial, struct seria
     RT_ASSERT(cfg != RT_NULL);
 
     uart_config_t uart_config;
+    hpm_stat_t stat;
     struct hpm_uart *uart  = (struct hpm_uart *)serial->parent.user_data;
 
     init_uart_pins(uart->uart_base);
@@ -478,10 +479,13 @@ static rt_err_t hpm_uart_configure(struct rt_serial_device *serial, struct seria
     uart_config.parity = cfg->parity;
 
     uart_config.word_length = cfg->data_bits - DATA_BITS_5;
+    stat = uart_init(uart->uart_base, &uart_config);
+    if (stat != status_success)
+    {
+        return -RT_ERROR;
+    }
 
-    uart_init(uart->uart_base, &uart_config);
-
-    hpm_uart_control(serial, RT_DEVICE_CTRL_SET_INT, NULL);
+    return hpm_uart_control(serial, RT_DEVICE_CTRL_SET_INT, NULL);
 }
 
 

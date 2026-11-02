@@ -315,11 +315,18 @@ int rt_vsnprintf(char *buf, rt_size_t size, const char *fmt, va_list args)
     str = buf;
     end = buf + size;
 
-    /* Make sure end is always >= buf */
-    if (end < buf)
+    /*
+     * Limit size before calculating the end address.
+     * rt_vsprintf() may pass (rt_size_t)-1.
+     */
     {
-        end  = ((char *) - 1);
-        size = end - buf;
+        rt_ubase_t start_addr = (rt_ubase_t)buf;
+        rt_ubase_t max_size = (rt_ubase_t)(-1) - start_addr;
+        if (size > max_size)
+        {
+            size = (rt_size_t)max_size;
+        }
+        end = (char *)(start_addr + size);
     }
 
     for (; *fmt ; ++fmt)

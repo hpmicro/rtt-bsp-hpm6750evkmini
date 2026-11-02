@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
  * Copyright 2016-2021 NXP
- * Copyright (c) 2022 HPMicro
+ * Copyright (c) 2022,2026 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -24,7 +24,26 @@ static const uint16_t wm8960_default_reg_val[WM8960_REG_NUM] = {
 /* store reg value */
 static uint16_t wm8960_reg_val[WM8960_REG_NUM];
 
-hpm_stat_t wm8960_init(wm8960_control_t *control, wm8960_config_t *config)
+void wm8960_get_default_config(wm8960_config_t *config)
+{
+    assert(config != NULL);
+
+    /* Initializes the configure structure to zero. */
+    memset(config, 0, sizeof(*config));
+
+    config->route = wm8960_route_playback_and_record;
+    config->bus = wm8960_bus_left_justified;
+    config->enable_speaker = false;
+    config->left_input = wm8960_input_closed;
+    config->right_input = wm8960_input_differential_mic_input2;
+    config->play_source = wm8960_play_source_dac;
+    config->format.mclk_hz = 0U;
+    config->format.sample_rate = 48000U;
+    config->format.bit_width = 32U;
+    config->lrclk_polarity = wm8960_lrclk_polarity_low_for_left_channel;
+}
+
+hpm_stat_t wm8960_init(codec_control_t *control, wm8960_config_t *config)
 {
     assert(control != NULL);
     assert(config != NULL);
@@ -82,11 +101,13 @@ hpm_stat_t wm8960_init(wm8960_control_t *control, wm8960_config_t *config)
     HPM_CHECK_RET(wm8960_write_reg(control, WM8960_LOUT1, 0x17F));
     HPM_CHECK_RET(wm8960_write_reg(control, WM8960_ROUT1, 0x17F));
 
-    /* speaker volume 6dB */
-    HPM_CHECK_RET(wm8960_write_reg(control, WM8960_LOUT2, 0x1ff));
-    HPM_CHECK_RET(wm8960_write_reg(control, WM8960_ROUT2, 0x1ff));
-    /* enable class D output */
-    HPM_CHECK_RET(wm8960_write_reg(control, WM8960_CLASSD1, 0xf7));
+    if (config->enable_speaker) {
+        /* speaker volume 6dB */
+        HPM_CHECK_RET(wm8960_write_reg(control, WM8960_LOUT2, 0x1ff));
+        HPM_CHECK_RET(wm8960_write_reg(control, WM8960_ROUT2, 0x1ff));
+        /* enable class D output */
+        HPM_CHECK_RET(wm8960_write_reg(control, WM8960_CLASSD1, 0xf7));
+    }
 
     /* Unmute DAC. */
     HPM_CHECK_RET(wm8960_write_reg(control, WM8960_DACCTL1, 0x0000));
@@ -101,7 +122,7 @@ hpm_stat_t wm8960_init(wm8960_control_t *control, wm8960_config_t *config)
     return status_success;
 }
 
-hpm_stat_t wm8960_deinit(wm8960_control_t *control)
+hpm_stat_t wm8960_deinit(codec_control_t *control)
 {
     hpm_stat_t stat = status_success;
 
@@ -113,12 +134,12 @@ hpm_stat_t wm8960_deinit(wm8960_control_t *control)
     return status_success;
 }
 
-hpm_stat_t wm8960_set_protocol(wm8960_control_t *control, wm8960_protocol_t protocol)
+hpm_stat_t wm8960_set_protocol(codec_control_t *control, wm8960_protocol_t protocol)
 {
     return wm8960_modify_reg(control, WM8960_IFACE1, (WM8960_IFACE1_FORMAT_MASK | WM8960_IFACE1_LRP_MASK), (uint16_t)protocol);
 }
 
-hpm_stat_t wm8960_invert_lrclk_polarity(wm8960_control_t *control, bool invert)
+hpm_stat_t wm8960_invert_lrclk_polarity(codec_control_t *control, bool invert)
 {
     if (invert) {
         return wm8960_modify_reg(control, WM8960_IFACE1, WM8960_IFACE1_LRP_MASK, WM8960_IFACE1_LRP_MASK);
@@ -127,7 +148,7 @@ hpm_stat_t wm8960_invert_lrclk_polarity(wm8960_control_t *control, bool invert)
     }
 }
 
-hpm_stat_t wm8960_set_module(wm8960_control_t *control, wm8960_module_t module, bool enable)
+hpm_stat_t wm8960_set_module(codec_control_t *control, wm8960_module_t module, bool enable)
 {
     hpm_stat_t stat = status_success;
     switch (module) {
@@ -187,7 +208,7 @@ hpm_stat_t wm8960_set_module(wm8960_control_t *control, wm8960_module_t module, 
     return stat;
 }
 
-hpm_stat_t wm8960_set_data_route(wm8960_control_t *control, wm8960_config_t *config)
+hpm_stat_t wm8960_set_data_route(codec_control_t *control, wm8960_config_t *config)
 {
     hpm_stat_t stat = status_success;
 
@@ -238,7 +259,7 @@ hpm_stat_t wm8960_set_data_route(wm8960_control_t *control, wm8960_config_t *con
     return stat;
 }
 
-hpm_stat_t wm8960_set_left_input(wm8960_control_t *control, wm8960_input_t input)
+hpm_stat_t wm8960_set_left_input(codec_control_t *control, wm8960_input_t input)
 {
     hpm_stat_t stat = status_success;
     uint16_t val = 0;
@@ -295,7 +316,7 @@ hpm_stat_t wm8960_set_left_input(wm8960_control_t *control, wm8960_input_t input
     return stat;
 }
 
-hpm_stat_t wm8960_set_right_input(wm8960_control_t *control, wm8960_input_t input)
+hpm_stat_t wm8960_set_right_input(codec_control_t *control, wm8960_input_t input)
 {
     hpm_stat_t stat = status_success;
     uint16_t val = 0;
@@ -352,7 +373,7 @@ hpm_stat_t wm8960_set_right_input(wm8960_control_t *control, wm8960_input_t inpu
     return stat;
 }
 
-hpm_stat_t wm8960_set_volume(wm8960_control_t *control, wm8960_module_t module, uint32_t volume)
+hpm_stat_t wm8960_set_volume(codec_control_t *control, wm8960_module_t module, uint32_t volume)
 {
     uint16_t vol = 0;
     hpm_stat_t stat = status_success;
@@ -425,6 +446,143 @@ hpm_stat_t wm8960_set_volume(wm8960_control_t *control, wm8960_module_t module, 
     return stat;
 }
 
+hpm_stat_t wm8960_get_volume_db_range(wm8960_module_t module, float *min_db, float *max_db)
+{
+    assert((min_db != NULL) && (max_db != NULL));
+
+    switch (module) {
+    case wm8960_module_adc:
+        /* LADCVOL: 0x01 = -97dB to 0xFF = +30dB, 0.5dB per step */
+        *min_db = -97.0f;
+        *max_db = 30.0f;
+        return status_success;
+    case wm8960_module_dac:
+        /* LDACVOL: 0x01 = -127dB to 0xFF = 0dB, 0.5dB per step */
+        *min_db = -127.0f;
+        *max_db = 0.0f;
+        return status_success;
+    case wm8960_module_headphone:
+    case wm8960_module_speaker:
+        /* HPVOL/SPKVOL: 0x30 = -73dB to 0x7F = +6dB, 1dB per step; values below 0x30 are analogue mute */
+        *min_db = -73.0f;
+        *max_db = 6.0f;
+        return status_success;
+    case wm8960_module_ana_in:
+        /* LINVOL: 0x00 = -17.25dB to 0x3F = +30dB, 0.75dB per step */
+        *min_db = -17.25f;
+        *max_db = 30.0f;
+        return status_success;
+    default:
+        return status_invalid_argument;
+    }
+}
+
+hpm_stat_t wm8960_set_volume_db(codec_control_t *control, wm8960_module_t module, float volume_db)
+{
+    uint32_t volume;
+    float min_db;
+    float max_db;
+
+    if (wm8960_get_volume_db_range(module, &min_db, &max_db) != status_success) {
+        return status_invalid_argument;
+    }
+    if ((volume_db < min_db) || (volume_db > max_db)) {
+        return status_invalid_argument;
+    }
+
+    switch (module) {
+    case wm8960_module_adc:
+        /* LADCVOL: 0x01 = -97dB, 0.5dB per step, 0xC3 = 0dB, 0xFF = +30dB, rounded to nearest step */
+        volume = (uint32_t) (volume_db * 2.0f + 195.0f + 0.5f);
+        break;
+    case wm8960_module_dac:
+        /* LDACVOL: 0x01 = -127dB, 0.5dB per step, 0xFF = 0dB, rounded to nearest step */
+        volume = (uint32_t) (volume_db * 2.0f + 255.0f + 0.5f);
+        break;
+    case wm8960_module_headphone:
+    case wm8960_module_speaker:
+        /* HPVOL/SPKVOL: 0x30 = -73dB, 1dB per step, 0x7F = +6dB, values below 0x30 are analogue mute */
+        volume = (uint32_t) (volume_db + 121.0f + 0.5f);
+        break;
+    case wm8960_module_ana_in:
+        /* LINVOL: 0x00 = -17.25dB, 0.75dB per step, 0x17 = 0dB, 0x3F = +30dB, rounded to nearest step */
+        volume = (uint32_t) ((volume_db * 4.0f + 69.0f) / 3.0f + 0.5f);
+        break;
+    default:
+        return status_invalid_argument;
+    }
+
+    return wm8960_set_volume(control, module, volume);
+}
+
+hpm_stat_t wm8960_clamp_volume_db(wm8960_module_t module, float volume_db, float *clamped_db)
+{
+    hpm_stat_t stat = status_success;
+    float min_db;
+    float max_db;
+
+    assert(clamped_db != NULL);
+
+    HPM_CHECK_RET(wm8960_get_volume_db_range(module, &min_db, &max_db));
+
+    if (volume_db < min_db) {
+        *clamped_db = min_db;
+    } else if (volume_db > max_db) {
+        *clamped_db = max_db;
+    } else {
+        *clamped_db = volume_db;
+    }
+    return stat;
+}
+
+hpm_stat_t wm8960_set_volume_percent(codec_control_t *control, wm8960_module_t module, int8_t volume_percent)
+{
+    uint32_t volume;
+
+    if ((volume_percent < 0) || (volume_percent > 100)) {
+        return status_invalid_argument;
+    }
+
+    switch (module) {
+    case wm8960_module_adc:
+        /* LADCVOL: 0x01 = -97dB (minimum) to 0xFF = +30dB (maximum), 0.5dB per step */
+        volume = 1U + (254U * (uint32_t) volume_percent + 50U) / 100U;
+        break;
+    case wm8960_module_dac:
+        /* LDACVOL: 0x01 = -127dB (minimum) to 0xFF = 0dB (maximum), 0.5dB per step */
+        volume = 1U + (254U * (uint32_t) volume_percent + 50U) / 100U;
+        break;
+    case wm8960_module_headphone:
+    case wm8960_module_speaker:
+        /* HPVOL/SPKVOL: 0x30 = -73dB (minimum) to 0x7F = +6dB (maximum), 1dB per step */
+        volume = 48U + (79U * (uint32_t) volume_percent + 50U) / 100U;
+        break;
+    case wm8960_module_ana_in:
+        /* LINVOL: 0x00 = -17.25dB (minimum) to 0x3F = +30dB (maximum), 0.75dB per step */
+        volume = (63U * (uint32_t) volume_percent + 50U) / 100U;
+        break;
+    default:
+        return status_invalid_argument;
+    }
+
+    return wm8960_set_volume(control, module, volume);
+}
+
+hpm_stat_t wm8960_mute(codec_control_t *control, wm8960_module_t module)
+{
+    switch (module) {
+    case wm8960_module_adc:
+    case wm8960_module_dac:
+    case wm8960_module_headphone:
+    case wm8960_module_speaker:
+        /* Volume 0 is mute: digital mute for ADC/DAC, analogue mute for headphone/speaker */
+        return wm8960_set_volume(control, module, 0U);
+    default:
+        /* wm8960_module_ana_in is excluded: its volume 0 (-17.25dB) is a valid volume, not mute */
+        return status_invalid_argument;
+    }
+}
+
 static bool wm8960_check_clock_tolerance(uint32_t source, uint32_t target)
 {
     uint32_t delta = (source >= target) ? (source - target) : (target - source);
@@ -434,7 +592,7 @@ static bool wm8960_check_clock_tolerance(uint32_t source, uint32_t target)
     return false;
 }
 
-hpm_stat_t wm8960_set_data_format(wm8960_control_t *control, uint32_t sysclk, uint32_t sample_rate, uint32_t bits)
+hpm_stat_t wm8960_set_data_format(codec_control_t *control, uint32_t sysclk, uint32_t sample_rate, uint32_t bits)
 {
     hpm_stat_t stat = status_success;
     uint16_t val = 0;
@@ -481,7 +639,7 @@ hpm_stat_t wm8960_set_data_format(wm8960_control_t *control, uint32_t sysclk, ui
     return stat;
 }
 
-hpm_stat_t wm8960_config_input_to_output_mixer(wm8960_control_t *control, uint32_t play_source)
+hpm_stat_t wm8960_config_input_to_output_mixer(codec_control_t *control, uint32_t play_source)
 {
     hpm_stat_t stat = status_success;
 
@@ -510,7 +668,7 @@ hpm_stat_t wm8960_config_input_to_output_mixer(wm8960_control_t *control, uint32
 }
 
 
-hpm_stat_t wm8960_write_reg(wm8960_control_t *control, uint8_t reg, uint16_t val)
+hpm_stat_t wm8960_write_reg(codec_control_t *control, uint8_t reg, uint16_t val)
 {
     uint8_t buff[2];
     /* The first 7 bits (B15 to B9) are address bits that select which control register */
@@ -534,7 +692,7 @@ hpm_stat_t wm8960_read_reg(uint8_t reg, uint16_t *val)
     return status_success;
 }
 
-hpm_stat_t wm8960_modify_reg(wm8960_control_t *control, uint8_t reg, uint16_t mask, uint16_t val)
+hpm_stat_t wm8960_modify_reg(codec_control_t *control, uint8_t reg, uint16_t mask, uint16_t val)
 {
     hpm_stat_t stat = 0;
     uint16_t reg_val;

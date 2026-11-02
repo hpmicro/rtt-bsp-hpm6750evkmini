@@ -11,6 +11,10 @@
  #include <rtthread.h>
 
  #include <ctype.h>
+ #include <stdio.h>
+#include "__SEGGER_RTL_Int.h"
+static int _stdin_ungot  = EOF;
+
  __attribute__((used)) int _impure_ptr; /* Workaround for fixing compiling error with SES */
  /* Workaround for fixing compiling error that the _ctype_ array is missing in SES toolchain */
  const char _ctype_[] = { 00,
@@ -37,7 +41,7 @@ void __SEGGER_RTL_free(void *ptr)
 
 void * __SEGGER_RTL_aligned_alloc(size_t align, size_t sz)
 {
-    return rt_malloc_align(align, sz);
+    return rt_malloc_align(sz, align);
 }
 
 void * __SEGGER_RTL_realloc(void *ptr, size_t sz)
@@ -52,11 +56,46 @@ void * __SEGGER_RTL_realloc(void *ptr, size_t sz)
 #if defined(RT_USING_CONSOLE) && defined(RT_USING_DEVICE)
     rt_device_t console_device = rt_console_get_device();
     if (console_device != RT_NULL) {
-        rt_device_write(console_device, 0, data, size);
+        unsigned int count;
+        for (count = 0; count < size; count++) {
+            if (data[count] == '\n') {
+                rt_device_write(console_device, 0, "\r", 1);
+            }
+            rt_device_write(console_device, 0, &data[count], 1);
+        }
     }
 #endif
     return size;
 }
+__attribute__((used)) int __SEGGER_RTL_X_file_read(__SEGGER_RTL_FILE *file, char *s, unsigned int size)
+{
+    if (size == 0) {
+        return 0;
+    }
+
+    if (file != stdin || s == RT_NULL) {
+        return EOF;
+    }
+
+    /* Return the character saved by file_unget first. */
+    if (_stdin_ungot != EOF) {
+        s[0] = (char)_stdin_ungot;
+        _stdin_ungot = EOF;
+        return 1;
+    }
+
+#if defined(RT_USING_CONSOLE) && defined(RT_USING_DEVICE)
+    rt_device_t console_device = rt_console_get_device();
+
+    if (console_device != RT_NULL) {
+        rt_ssize_t count = rt_device_read(console_device, 0, s, size);
+        return count < 0 ? EOF : (int)count;
+    }
+#endif
+
+    return 0;
+}
+
 #endif
 #else
 #include <stdio.h>

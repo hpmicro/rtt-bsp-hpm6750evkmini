@@ -157,7 +157,10 @@ static rt_err_t hpm_i2s_init(struct rt_audio_device* audio)
 
     i2s_get_default_config(hpm_audio->base, &i2s_config);
     i2s_config.enable_mclk_out = true;
-    i2s_init(hpm_audio->base, &i2s_config);
+    if (status_success != i2s_init(hpm_audio->base, &i2s_config)) {
+        LOG_E("%s init failed.\n", hpm_audio->dev_name);
+        return -RT_ERROR;
+    }
 
     mclk_hz = clock_get_frequency(hpm_audio->clk_name);
     i2s_get_default_transfer_config(&transfer);
@@ -414,7 +417,10 @@ static rt_err_t hpm_i2s_configure(struct rt_audio_device* audio, struct rt_audio
     /* Stop I2S transfer if the I2S needs to be re-configured */
     bool is_enabled = i2s_is_enabled(hpm_audio->base);
     i2s_disable(hpm_audio->base);
-    i2s_reset_tx_rx(hpm_audio->base);
+    if (status_success != i2s_reset_tx_rx(hpm_audio->base)) {
+        LOG_E("%s reset tx_rx failed.\n", hpm_audio->dev_name);
+        return -RT_ERROR;
+    }
     if (is_enabled)
     {
         if (hpm_audio->i2s_state == hpm_i2s_state_read)
@@ -469,9 +475,13 @@ static rt_err_t hpm_i2s_start(struct rt_audio_device* audio, int stream)
             LOG_E("no dma resource available for I2S TX transfer.\n");
             return -RT_ERROR;
         }
-        i2s_reset_tx(hpm_audio->base); /* disable and reset tx */
+        if (status_success != i2s_reset_tx(hpm_audio->base)) { /* disable and reset tx */
+            LOG_E("%s reset tx failed.\n", hpm_audio->dev_name);
+            return -RT_ERROR;
+        }
+        i2s_enable_tx_line(hpm_audio->base, hpm_audio->transfer.data_line);
         /* fill 2 dummy data, it is suitable for 1/2 channel of audio */
-        if (i2s_fill_tx_dummy_data(hpm_audio->base, hpm_audio->transfer.data_line , 2) != status_success) {
+        if (i2s_fill_tx_dummy_data(hpm_audio->base, hpm_audio->transfer.data_line, 2) != status_success) {
             return -RT_ERROR;
         }
         rt_audio_tx_complete(audio);
@@ -491,7 +501,11 @@ static rt_err_t hpm_i2s_start(struct rt_audio_device* audio, int stream)
             LOG_E("no dma resource available for I2S RX transfer.\n");
             return -RT_ERROR;
         }
-        i2s_reset_rx(hpm_audio->base); /* disable and reset rx */
+        if (status_success != i2s_reset_rx(hpm_audio->base)) { /* disable and reset rx */
+            LOG_E("%s reset rx failed.\n", hpm_audio->dev_name);
+            return -RT_ERROR;
+        }
+        i2s_enable_rx_line(hpm_audio->base, hpm_audio->transfer.data_line);
         if (I2S_FIFO_SIZE != hpm_i2s_transmit(&hpm_audio->audio, NULL, hpm_audio->rx_buff, I2S_FIFO_SIZE)) {
             return -RT_ERROR;
         }

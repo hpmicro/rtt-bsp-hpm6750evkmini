@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
  * Copyright 2016-2019 NXP
- * Copyright (c) 2021 HPMicro
+ * Copyright (c) 2021,2026 HPMicro
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -13,7 +13,24 @@
 #define HPM_SGTL5000_MCLK_TOLERANCE (4U)
 #endif
 
-hpm_stat_t sgtl_init(sgtl_context_t *context, sgtl_config_t *config)
+void sgtl_get_default_config(sgtl_config_t *config)
+{
+    assert(config != NULL);
+
+    /* Initializes the configure structure to zero. */
+    memset(config, 0, sizeof(*config));
+
+    config->route = sgtl_route_playback_record;
+    config->bus = sgtl_bus_left_justified;
+    config->lrclk_polarity = sgtl_lrclk_polarity_low_for_left_channel;
+    config->master = false;
+    config->format.mclk_hz = 0U;
+    config->format.sample_rate = 48000U;
+    config->format.bit_width = 32U;
+    config->format.sclk_edge = sgtl_sclk_valid_edge_rising;
+}
+
+hpm_stat_t sgtl_init(codec_control_t *context, sgtl_config_t *config)
 {
     assert(context != NULL);
     assert(config != NULL);
@@ -130,7 +147,7 @@ hpm_stat_t sgtl_init(sgtl_context_t *context, sgtl_config_t *config)
     return status_success;
 }
 
-hpm_stat_t sgtl_deinit(sgtl_context_t *context)
+hpm_stat_t sgtl_deinit(codec_control_t *context)
 {
     hpm_stat_t stat = status_success;
 
@@ -144,7 +161,7 @@ hpm_stat_t sgtl_deinit(sgtl_context_t *context)
     return stat;
 }
 
-void sgtl_set_master_mode(sgtl_context_t *context, bool master)
+void sgtl_set_master_mode(codec_control_t *context, bool master)
 {
     if (master == true) {
         (void)sgtl_modify_reg(context, CHIP_I2S_CTRL, SGTL5000_I2S_MS_CLR_MASK, SGTL5000_I2S_MASTER);
@@ -153,7 +170,7 @@ void sgtl_set_master_mode(sgtl_context_t *context, bool master)
     }
 }
 
-hpm_stat_t sgtl_enable_module(sgtl_context_t *context, sgtl_module_t module)
+hpm_stat_t sgtl_enable_module(codec_control_t *context, sgtl_module_t module)
 {
     hpm_stat_t stat = status_success;
     switch (module) {
@@ -198,7 +215,7 @@ hpm_stat_t sgtl_enable_module(sgtl_context_t *context, sgtl_module_t module)
     return stat;
 }
 
-hpm_stat_t sgtl_disable_module(sgtl_context_t *context, sgtl_module_t module)
+hpm_stat_t sgtl_disable_module(codec_control_t *context, sgtl_module_t module)
 {
     hpm_stat_t stat = status_success;
     switch (module) {
@@ -243,7 +260,7 @@ hpm_stat_t sgtl_disable_module(sgtl_context_t *context, sgtl_module_t module)
     return stat;
 }
 
-hpm_stat_t sgtl_set_data_route(sgtl_context_t *context, sgtl_route_t route)
+hpm_stat_t sgtl_set_data_route(codec_control_t *context, sgtl_route_t route)
 {
     hpm_stat_t stat = status_success;
     switch (route) {
@@ -312,7 +329,7 @@ hpm_stat_t sgtl_set_data_route(sgtl_context_t *context, sgtl_route_t route)
     return stat;
 }
 
-hpm_stat_t sgtl_set_protocol(sgtl_context_t *context, sgtl_protocol_t protocol)
+hpm_stat_t sgtl_set_protocol(codec_control_t *context, sgtl_protocol_t protocol)
 {
     hpm_stat_t stat = status_success;
     switch (protocol) {
@@ -347,7 +364,7 @@ hpm_stat_t sgtl_set_protocol(sgtl_context_t *context, sgtl_protocol_t protocol)
     return stat;
 }
 
-hpm_stat_t sgtl_invert_lrclk_polarity(sgtl_context_t *context, bool invert)
+hpm_stat_t sgtl_invert_lrclk_polarity(codec_control_t *context, bool invert)
 {
     if (invert) {
         return sgtl_modify_reg(context, CHIP_I2S_CTRL, SGTL5000_I2S_LRPOL_CLR_MASK, SGTL5000_I2S_LRPOL_GET_MASK);
@@ -356,7 +373,7 @@ hpm_stat_t sgtl_invert_lrclk_polarity(sgtl_context_t *context, bool invert)
     }
 }
 
-hpm_stat_t sgtl_set_volume(sgtl_context_t *context, sgtl_module_t module, uint32_t volume)
+hpm_stat_t sgtl_set_volume(codec_control_t *context, sgtl_module_t module, uint32_t volume)
 {
     uint16_t vol = 0;
     hpm_stat_t stat = status_success;
@@ -398,7 +415,130 @@ hpm_stat_t sgtl_set_volume(sgtl_context_t *context, sgtl_module_t module, uint32
     return stat;
 }
 
-uint32_t sgtl_get_volume(sgtl_context_t *context, sgtl_module_t module)
+hpm_stat_t sgtl_get_volume_db_range(sgtl_module_t module, float *min_db, float *max_db)
+{
+    assert((min_db != NULL) && (max_db != NULL));
+
+    switch (module) {
+    case sgtl_module_adc:
+        /* ADC_VOL: 0x0 = 0dB to 0xF = +22.5dB, 1.5dB per step */
+        *min_db = 0.0f;
+        *max_db = 22.5f;
+        return status_success;
+    case sgtl_module_dac:
+        /* DAC_VOL: 0x3C = 0dB to 0xF0 = -90dB, 0.5dB per step; codes below 0x3C are reserved */
+        *min_db = -90.0f;
+        *max_db = 0.0f;
+        return status_success;
+    case sgtl_module_hp:
+        /* HP_VOL: 0x00 = +12dB to 0x7F = -51.5dB, 0.5dB per step */
+        *min_db = -51.5f;
+        *max_db = 12.0f;
+        return status_success;
+    case sgtl_module_lineout:
+        /*
+         * LO_VOL: 0.5dB per step, higher codes have more attenuation. Per datasheet the
+         * full-scale (0dB) reference code is 40*log(VAG_VAL/LO_VAGCNTRL) + 15; VAG_VAL and
+         * LO_VAGCNTRL both reset to 0.8V and are never changed by this driver, so it is 0x0F.
+         */
+        *min_db = -8.0f;
+        *max_db = 7.5f;
+        return status_success;
+    default:
+        return status_invalid_argument;
+    }
+}
+
+hpm_stat_t sgtl_set_volume_db(codec_control_t *context, sgtl_module_t module, float volume_db)
+{
+    uint32_t volume;
+    float min_db;
+    float max_db;
+
+    if (sgtl_get_volume_db_range(module, &min_db, &max_db) != status_success) {
+        return status_invalid_argument;
+    }
+    if ((volume_db < min_db) || (volume_db > max_db)) {
+        return status_invalid_argument;
+    }
+
+    switch (module) {
+    case sgtl_module_adc:
+        /* ADC_VOL: 0x0 = 0dB to 0xF = +22.5dB, 1.5dB per step, rounded to nearest step */
+        volume = (uint32_t) (volume_db / 1.5f + 0.5f);
+        break;
+    case sgtl_module_dac:
+        /* DAC_VOL: 0x3C = 0dB, 0.5dB attenuation per code step, 0xF0 = -90dB; codes below 0x3C are reserved */
+        volume = (uint32_t) (SGTL5000_DAC_MIN_VOLUME_VALUE - 2.0f * volume_db + 0.5f);
+        break;
+    case sgtl_module_hp:
+        /* HP_VOL: 0x00 = +12dB to 0x7F = -51.5dB, 0.5dB per step */
+        volume = (uint32_t) (24.0f - 2.0f * volume_db + 0.5f);
+        break;
+    case sgtl_module_lineout:
+        /* LO_VOL: 0.5dB per step, higher codes have more attenuation, 0x0F = 0dB */
+        volume = (uint32_t) (15.0f - 2.0f * volume_db + 0.5f);
+        break;
+    default:
+        return status_invalid_argument;
+    }
+
+    return sgtl_set_volume(context, module, volume);
+}
+
+hpm_stat_t sgtl_clamp_volume_db(sgtl_module_t module, float volume_db, float *clamped_db)
+{
+    hpm_stat_t stat = status_success;
+    float min_db;
+    float max_db;
+
+    assert(clamped_db != NULL);
+
+    HPM_CHECK_RET(sgtl_get_volume_db_range(module, &min_db, &max_db));
+
+    if (volume_db < min_db) {
+        *clamped_db = min_db;
+    } else if (volume_db > max_db) {
+        *clamped_db = max_db;
+    } else {
+        *clamped_db = volume_db;
+    }
+    return stat;
+}
+
+hpm_stat_t sgtl_set_volume_percent(codec_control_t *context, sgtl_module_t module, int8_t volume_percent)
+{
+    uint32_t volume;
+
+    if ((volume_percent < 0) || (volume_percent > 100)) {
+        return status_invalid_argument;
+    }
+
+    switch (module) {
+    case sgtl_module_adc:
+        /* ADC_VOL: 0x0 = 0dB (minimum) to 0xF = +22.5dB (maximum), 1.5dB per step */
+        volume = (15U * (uint32_t) volume_percent + 50U) / 100U;
+        break;
+    case sgtl_module_dac:
+        /* DAC_VOL: 0xF0 = -90dB (minimum) to 0x3C = 0dB (maximum), 0.5dB per step, higher codes have more attenuation */
+        volume = 240U - (180U * (uint32_t) volume_percent + 50U) / 100U;
+        break;
+    case sgtl_module_hp:
+        /* HP_VOL: 0x7F = -51.5dB (minimum) to 0x00 = +12dB (maximum), 0.5dB per step, higher codes have more attenuation */
+        volume = 127U - (127U * (uint32_t) volume_percent + 50U) / 100U;
+        break;
+    case sgtl_module_lineout:
+        /* LO_VOL: 0x1F = -8dB (minimum) to 0x00 = +7.5dB (maximum), 0.5dB per step, higher codes have more attenuation */
+        volume = 31U - (31U * (uint32_t) volume_percent + 50U) / 100U;
+        break;
+    default:
+        return status_invalid_argument;
+    }
+
+    return sgtl_set_volume(context, module, volume);
+}
+
+uint32_t sgtl_get_volume(codec_control_t *context, sgtl_module_t module)
 {
     uint16_t vol = 0;
     hpm_stat_t stat = status_success;
@@ -427,7 +567,7 @@ uint32_t sgtl_get_volume(sgtl_context_t *context, sgtl_module_t module)
     return stat == status_success ? vol : 0U;
 }
 
-hpm_stat_t sgtl_set_mute(sgtl_context_t *context, sgtl_module_t module, bool mute)
+hpm_stat_t sgtl_set_mute(codec_control_t *context, sgtl_module_t module, bool mute)
 {
     hpm_stat_t stat = status_success;
     switch (module) {
@@ -467,7 +607,7 @@ static bool sgtl_check_clock_tolerance(uint32_t source, uint32_t target)
     return false;
 }
 
-hpm_stat_t sgtl_config_data_format(sgtl_context_t *context, uint32_t mclk, uint32_t sample_rate, uint32_t bits)
+hpm_stat_t sgtl_config_data_format(codec_control_t *context, uint32_t mclk, uint32_t sample_rate, uint32_t bits)
 {
     uint16_t val     = 0;
     uint16_t regVal  = 0;
@@ -598,7 +738,7 @@ hpm_stat_t sgtl_config_data_format(sgtl_context_t *context, uint32_t mclk, uint3
     return stat;
 }
 
-hpm_stat_t sgtl_set_pay(sgtl_context_t *context, uint32_t playSource)
+hpm_stat_t sgtl_set_pay(codec_control_t *context, uint32_t playSource)
 {
     uint16_t regValue = 0U, regBitMask = 0x40U;
 
@@ -613,7 +753,7 @@ hpm_stat_t sgtl_set_pay(sgtl_context_t *context, uint32_t playSource)
     return sgtl_modify_reg(context, CHIP_ANA_CTRL, regBitMask, regValue);
 }
 
-hpm_stat_t sgtl_set_record(sgtl_context_t *context, uint32_t recordSource)
+hpm_stat_t sgtl_set_record(codec_control_t *context, uint32_t recordSource)
 {
     uint16_t regValue = 0U, regBitMask = 0x4U;
 
@@ -628,7 +768,7 @@ hpm_stat_t sgtl_set_record(sgtl_context_t *context, uint32_t recordSource)
     return sgtl_modify_reg(context, CHIP_ANA_CTRL, regBitMask, regValue);
 }
 
-hpm_stat_t sgtl_write_reg(sgtl_context_t *context, uint16_t reg, uint16_t val)
+hpm_stat_t sgtl_write_reg(codec_control_t *context, uint16_t reg, uint16_t val)
 {
     uint8_t r[2];
     uint8_t d[2];
@@ -640,7 +780,7 @@ hpm_stat_t sgtl_write_reg(sgtl_context_t *context, uint16_t reg, uint16_t val)
     return i2c_master_address_write(context->ptr, context->slave_address, r, 2U, d, 2U);
 }
 
-hpm_stat_t sgtl_read_reg(sgtl_context_t *context, uint16_t reg, uint16_t *val)
+hpm_stat_t sgtl_read_reg(codec_control_t *context, uint16_t reg, uint16_t *val)
 {
     hpm_stat_t stat = status_success;
     uint8_t r[2];
@@ -655,7 +795,7 @@ hpm_stat_t sgtl_read_reg(sgtl_context_t *context, uint16_t reg, uint16_t *val)
     return stat;
 }
 
-hpm_stat_t sgtl_modify_reg(sgtl_context_t *context, uint16_t reg, uint16_t clr_mask, uint16_t val)
+hpm_stat_t sgtl_modify_reg(codec_control_t *context, uint16_t reg, uint16_t clr_mask, uint16_t val)
 {
     hpm_stat_t retval = 0;
     uint16_t reg_val;

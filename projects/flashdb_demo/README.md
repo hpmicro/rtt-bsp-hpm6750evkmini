@@ -4,7 +4,7 @@
 
 ## 分区
 
-本例程将FLASH分为4个分区：
+本例程将Flash分为4个分区：
 
 - app
 - easyflash

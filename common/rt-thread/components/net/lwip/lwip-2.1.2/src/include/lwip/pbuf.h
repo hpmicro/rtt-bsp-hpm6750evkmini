@@ -219,6 +219,13 @@ struct pbuf {
 
   /** For incoming packets, this contains the input netif's index */
   u8_t if_idx;
+
+#if defined(LWIP_PTP) && LWIP_PTP
+  /** PTP timestamp seconds from ENET hardware */
+  u32_t time_sec;
+  /** PTP timestamp nanoseconds from ENET hardware */
+  u32_t time_nsec;
+#endif
 };
 
 

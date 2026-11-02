@@ -42,8 +42,23 @@ void thread_entry(void *arg);
 
 void beep_on(void)
 {
+    rt_err_t ret;
+
     pwm_dev = (struct rt_device_pwm *)rt_device_find(PWM_DEV_NAME);
-    rt_pwm_enable(pwm_dev, BOARD_BEEP_PWM_OUT);
+    if (pwm_dev == RT_NULL) {
+        rt_kprintf("cannot find pwm device %s\n", PWM_DEV_NAME);
+        return;
+    }
+
+    /* The PWM driver requires the channel to be configured before it can be enabled.
+     * Use 1kHz / 0% as the initial configuration (silent), beep_set() updates it later. */
+    rt_pwm_set(pwm_dev, BOARD_BEEP_PWM_OUT, 1000000, 0);
+
+    ret = rt_pwm_enable(pwm_dev, BOARD_BEEP_PWM_OUT);
+    if (ret != RT_EOK) {
+        rt_kprintf("enable %s channel %d failed, ret=%d\n",
+                   PWM_DEV_NAME, BOARD_BEEP_PWM_OUT, (int)ret);
+    }
 }
 
 void beep_off(void)

@@ -55,6 +55,9 @@
 #define CAN_STD_FILTER_NUM_MAX (128U)  /* std Filter number */
 #define CAN_EXT_FILTER_NUM_MAX (64U)   /* ext Filter number */
 
+#define CAN_STD_ID_MASK      (0x7FFU)
+#define CAN_EXT_ID_MASK      (0x1FFFFFFFUL)
+
 /* ============================================================================
  * IRQ Priority Configuration Macros
  * ============================================================================ */
@@ -599,6 +602,10 @@ static rt_err_t hpm_mcan_configure(struct rt_can_device *can, struct can_configu
 #ifdef RT_CAN_USING_CANFD
     /* Configure CAN-FD settings if supported */
     drv_can->can_config.enable_canfd = (cfg->enable_canfd != 0) ? true : false;
+    /* Keep the existing MCAN config, only rebuild the RAM layout for current frame format. */
+    mcan_get_default_ram_config(drv_can->can_base,
+                                &drv_can->can_config.ram_config,
+                                drv_can->can_config.enable_canfd);
 
     /* Configure bit timing parameters if custom timing is used */
     if (cfg->use_bit_timing != 0U) {
@@ -652,7 +659,7 @@ static rt_err_t hpm_mcan_configure(struct rt_can_device *can, struct can_configu
     drv_can->can_config.all_filters_config.std_id_filter_list.mcan_filter_elem_count = drv_can->std_filter_num;
     drv_can->can_config.all_filters_config.ext_id_filter_list.filter_elem_list = &drv_can->ext_can_filters[0];
     drv_can->can_config.all_filters_config.ext_id_filter_list.mcan_filter_elem_count = drv_can->ext_filter_num;
-    drv_can->can_config.all_filters_config.ext_id_mask = (1UL << 30) - 1UL;
+    drv_can->can_config.all_filters_config.ext_id_mask = (1UL << 29) - 1UL;
     drv_can->can_config.txbuf_trans_interrupt_mask = ~0UL;
 
     /* Initialize MCAN hardware with configuration */
@@ -760,22 +767,28 @@ static rt_err_t hpm_mcan_control(struct rt_can_device *can, int cmd, void *arg)
             for (uint32_t i = 0; i < filter->count; i++) {
                 if (filter->items[i].ide != 0) {
                     /* Configure extended ID filter */
+                    if (drv_can->ext_filter_num >= CAN_EXT_FILTER_NUM_MAX) {
+                        return -RT_EFULL;
+                    }
+                    filter->items[i].mask &= CAN_EXT_ID_MASK; /* Ensure mask is within valid range */
                     drv_can->ext_can_filters[drv_can->ext_filter_num].filter_type = MCAN_FILTER_TYPE_CLASSIC_FILTER;
                     drv_can->ext_can_filters[drv_can->ext_filter_num].filter_config = MCAN_FILTER_ELEM_CFG_STORE_IN_RX_FIFO0_IF_MATCH;
                     drv_can->ext_can_filters[drv_can->ext_filter_num].can_id_type = MCAN_CAN_ID_TYPE_EXTENDED;
                     drv_can->ext_can_filters[drv_can->ext_filter_num].filter_id = filter->items[i].id;
                     drv_can->ext_can_filters[drv_can->ext_filter_num].filter_mask = filter->items[i].mask;
                     drv_can->ext_filter_num++;
-                    RT_ASSERT(drv_can->ext_filter_num <= CAN_EXT_FILTER_NUM_MAX);
                 } else {
                     /* Configure standard ID filter */
+                    if (drv_can->std_filter_num >= CAN_STD_FILTER_NUM_MAX) {
+                        return -RT_EFULL;
+                    }
+                    filter->items[i].mask &= CAN_STD_ID_MASK; /* Ensure mask is within valid range */
                     drv_can->std_can_filters[drv_can->std_filter_num].filter_type = MCAN_FILTER_TYPE_CLASSIC_FILTER;
                     drv_can->std_can_filters[drv_can->std_filter_num].filter_config = MCAN_FILTER_ELEM_CFG_STORE_IN_RX_FIFO0_IF_MATCH;
                     drv_can->std_can_filters[drv_can->std_filter_num].can_id_type = MCAN_CAN_ID_TYPE_STANDARD;
                     drv_can->std_can_filters[drv_can->std_filter_num].filter_id = filter->items[i].id;
                     drv_can->std_can_filters[drv_can->std_filter_num].filter_mask = filter->items[i].mask;
                     drv_can->std_filter_num++;
-                    RT_ASSERT(drv_can->std_filter_num <= CAN_STD_FILTER_NUM_MAX);
                 }
                 /* Handle RTR (Remote Transmission Request) frame filtering */
                 if (filter->items[i].rtr != 0) {
@@ -842,6 +855,9 @@ static rt_err_t hpm_mcan_control(struct rt_can_device *can, int cmd, void *arg)
     case RT_CAN_CMD_SET_BAUD:
         /* Set CAN baud rate */
         arg_val = (uint32_t)arg;
+#ifdef RT_CAN_USING_CANFD
+        drv_can->can_dev.config.use_bit_timing = 0U;
+#endif
         if (arg_val != drv_can->can_dev.config.baud_rate) {
             drv_can->can_dev.config.baud_rate = arg_val;
         }
@@ -860,6 +876,7 @@ static rt_err_t hpm_mcan_control(struct rt_can_device *can, int cmd, void *arg)
     case RT_CAN_CMD_SET_BAUD_FD:
         /* Set CAN-FD data phase baud rate */
         arg_val = (uint32_t)arg;
+        drv_can->can_dev.config.use_bit_timing = 0U;
         if (arg_val != drv_can->can_dev.config.baud_rate_fd) {
             drv_can->can_dev.config.baud_rate_fd = arg_val;
             err = hpm_mcan_configure(can, &drv_can->can_dev.config);
@@ -873,6 +890,7 @@ static rt_err_t hpm_mcan_control(struct rt_can_device *can, int cmd, void *arg)
             return -RT_ERROR;
         }
 
+        drv_can->can_dev.config.use_bit_timing = 1U;
         /* Configure classic CAN timing (first item) */
         if (timing_configs->count != 0U) {
             drv_can->can_dev.config.can_timing = timing_configs->items[0];
@@ -1022,8 +1040,8 @@ static rt_ssize_t hpm_mcan_sendmsg(struct rt_can_device *can, const void *buf, r
         }
     }
 
-    /* Transmit the frame */
-    hpm_stat_t status = mcan_transmit_via_txbuf_nonblocking(drv_can->can_base, 0, &tx_frame);
+    /* Transmit through TX FIFO to avoid overwriting a still-pending dedicated buffer. */
+    hpm_stat_t status = mcan_transmit_via_txfifo_nonblocking(drv_can->can_base, &tx_frame, &drv_can->can_tx_fifo_index);
     if (status != status_success) {
         return -RT_EFULL;
     }
@@ -1051,7 +1069,7 @@ static rt_ssize_t hpm_mcan_recvmsg(struct rt_can_device *can, void *buf, rt_uint
     RT_ASSERT(drv_can);
 
     rt_can_msg_t can_msg = (rt_can_msg_t)buf;
-    mcan_rx_message_t rx_buf;
+    mcan_rx_message_t rx_buf = { 0 };
 
     /* Read message from RX FIFO */
     hpm_stat_t status = mcan_read_rxfifo(drv_can->can_base, 0, &rx_buf);
@@ -1081,6 +1099,7 @@ static rt_ssize_t hpm_mcan_recvmsg(struct rt_can_device *can, void *buf, rt_uint
         /* Extract message length and data */
         can_msg->len = rx_buf.dlc;
         uint32_t msg_len = mcan_get_message_size_from_dlc(can_msg->len);
+        memset(can_msg->data, 0, sizeof(can_msg->data));
         for (uint32_t i = 0; i < msg_len; i++) {
             can_msg->data[i] = rx_buf.data_8[i];
         }

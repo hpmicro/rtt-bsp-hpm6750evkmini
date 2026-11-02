@@ -202,7 +202,7 @@ if PLATFORM == 'gcc':
     ARCH_ABI = ' -mcmodel=medlow -march=' + RV_ARCH + ' -mabi=' + RV_ABI + ' '
 
 
-    DEVICE = ARCH_ABI  + ' -DUSE_NONVECTOR_MODE=1  -DLWIP_SUPPORT_CUSTOM_PBUF=1 -DMAC0_ADDR5=0x18 -DMAC1_ADDR5=0x28 -DCONFIG_NDEBUG_CONSOLE=1 ' + ' -ffunction-sections -fdata-sections -fno-common -fno-omit-frame-pointer'
+    DEVICE = ARCH_ABI  + ' -DUSE_NONVECTOR_MODE=1  -DLWIP_SUPPORT_CUSTOM_PBUF=1 -DLWIP_PTP=1 -DMAC0_ADDR5=0x18 -DMAC1_ADDR5=0x28 -DCONFIG_NDEBUG_CONSOLE=1 ' + ' -ffunction-sections -fdata-sections -fno-common -fno-omit-frame-pointer'
     CFLAGS = DEVICE
     AFLAGS = CFLAGS
     CFLAGS += ' -Wno-incompatible-pointer-types '
@@ -273,7 +273,7 @@ elif PLATFORM == 'zcc':
     STRIP = 'llvm-strip'
 
     ARCH_ABI = ' --target=riscv32-unknown-elf -march=' + RV_ARCH + ' -mabi=' + RV_ABI + ' '
-    DEVICE = ARCH_ABI  + ' -DUSE_NONVECTOR_MODE=1  -DLWIP_SUPPORT_CUSTOM_PBUF=1 -DMAC0_ADDR5=0x18 -DMAC1_ADDR5=0x28 -DCONFIG_NDEBUG_CONSOLE=1 ' + ' -mtune=andes-d45-series  -Wall -Wno-undef -Wno-unused-variable -Wno-format -Wno-ignored-attributes -fno-builtin -ffunction-sections -fdata-sections  -Wno-implicit-function-declaration -Wno-incompatible-function-pointer-types '
+    DEVICE = ARCH_ABI  + ' -DUSE_NONVECTOR_MODE=1  -DLWIP_SUPPORT_CUSTOM_PBUF=1 -DLWIP_PTP=1 -DMAC0_ADDR5=0x18 -DMAC1_ADDR5=0x28 -DCONFIG_NDEBUG_CONSOLE=1 ' + ' -mtune=andes-d45-series  -Wall -Wno-undef -Wno-unused-variable -Wno-format -Wno-ignored-attributes -fno-builtin -ffunction-sections -fdata-sections  -Wno-implicit-function-declaration -Wno-incompatible-function-pointer-types '
     CFLAGS = DEVICE
     AFLAGS = CFLAGS
     if NO_OMIT_FRAME_POINTER:
@@ -336,7 +336,7 @@ elif PLATFORM == 'segger':
     STRIP = ''
 
     ARCH_ABI = ' --target=riscv32-unknown-elf -march=' + RV_ARCH + ' -mabi=' + RV_ABI + ' '
-    DEVICE = ARCH_ABI  + ' -DUSE_NONVECTOR_MODE=1  -DMAIN_ENTRY=entry  -DLWIP_SUPPORT_CUSTOM_PBUF=1 -DMAC0_ADDR5=0x18 -DMAC1_ADDR5=0x28 -DCONFIG_NDEBUG_CONSOLE=1 ' + ' -mtune=andes-d45-series -Wall -Wundef -Wno-format -Wno-ignored-attributes -fomit-frame-pointer -fno-builtin -ffunction-sections -fdata-sections  '
+    DEVICE = ARCH_ABI  + ' -DUSE_NONVECTOR_MODE=1  -DMAIN_ENTRY=entry  -DLWIP_SUPPORT_CUSTOM_PBUF=1 -DLWIP_PTP=1 -DMAC0_ADDR5=0x18 -DMAC1_ADDR5=0x28 -DCONFIG_NDEBUG_CONSOLE=1 ' + ' -mtune=andes-d45-series -Wall -Wundef -Wno-format -Wno-ignored-attributes -fomit-frame-pointer -fno-builtin -ffunction-sections -fdata-sections  '
     CFLAGS = DEVICE
     AFLAGS = CFLAGS
     LFLAGS  = ARCH_ABI + ' -u _printf_float -u _scanf_float -static -nostartfiles -Wl,-Map=rtthread.map,--gc-sections,--orphan-handling=place,-print-memory-usage '

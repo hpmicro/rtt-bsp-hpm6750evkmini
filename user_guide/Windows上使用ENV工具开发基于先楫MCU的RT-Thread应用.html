@@ -25,7 +25,7 @@
 <h2 id="前言" ebook-toc-level-2="" heading="前言 ">前言 </h2>
 <ul>
 <li>Env 是 RT-Thread 推出的开发辅助工具，针对基于 RT-Thread 操作系统的项目工程，提供编译构建环境、图形化系统配置及软件包管理功能。其内置的 menuconfig 提供了简单易用的配置剪裁工具，可对<code>内核</code>、<code>组件</code>和<code>软件包</code>进行自由裁剪，使系统以搭积木的方式进行构建。</li>
-<li>先楫 RT-Thread BSP v1.11.0不仅支持基于RT-Thread Studio的应用开发，也支持通过RT-Thread ENV来生成不同工具链和IDE进行应用开发。</li>
+<li>先楫 RT-Thread BSP v1.13.0-rc1.1不仅支持基于RT-Thread Studio的应用开发，也支持通过RT-Thread ENV来生成不同工具链和IDE进行应用开发。</li>
 <li>本文介绍如何在Windows上基于RT-Thread ENV使用如下工具链来开发RT-Thread应用。包括：
 <ul>
 <li>使用RT-Thread ENV生成gcc工具链编译工程</li>
@@ -46,7 +46,7 @@
 <li>
 <p>按照 <code>https://www.rt-thread.org/document/site/#/development-tools/env/env</code> 搭建安装RT-Thread ENV，推荐阅读<code>Env 的使用方法</code>中的<code>在文件夹中通过右键菜单打开 Env 控制台</code>的部分。</p>
 <ul>
-<li>注意：先楫 RT-Thread BSP v1.11是基于RT-Thread v5.2.2开发的，必须使用RT-Thread Env v2.0.0来开发。下载RT-Thread官方env_release网盘时需要选择<code>env-windows-v2.0.0.7z</code></li>
+<li>注意：先楫 RT-Thread BSP v1.13.0-rc1.1是基于RT-Thread v5.2.2开发的，必须使用RT-Thread Env v2.0.0来开发。下载RT-Thread官方env_release网盘时需要选择<code>env-windows-v2.0.0.7z</code></li>
 </ul>
 </li>
 </ul>
@@ -119,44 +119,52 @@
 </thead>
 <tbody>
 <tr>
+<td>hpm5100evk</td>
+<td><a href="https://github.com/hpmicro/rtt-bsp-hpm5100evk/archive/v1.13.0-rc1.1.zip">https://github.com/hpmicro/rtt-bsp-hpm5100evk/archive/v1.13.0-rc1.1.zip</a></td>
+</tr>
+<tr>
+<td>hpm6750evk</td>
+<td><a href="https://github.com/hpmicro/rtt-bsp-hpm6750evk/archive/v1.13.0-rc1.1.zip">https://github.com/hpmicro/rtt-bsp-hpm6750evk/archive/v1.13.0-rc1.1.zip</a></td>
+</tr>
+<tr>
 <td>hpm6750evkmini</td>
-<td><a href="https://github.com/hpmicro/rtt-bsp-hpm6750evkmini/archive/v1.11.0.zip">https://github.com/hpmicro/rtt-bsp-hpm6750evkmini/archive/v1.11.0.zip</a></td>
+<td><a href="https://github.com/hpmicro/rtt-bsp-hpm6750evkmini/archive/v1.13.0-rc1.1.zip">https://github.com/hpmicro/rtt-bsp-hpm6750evkmini/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 <tr>
 <td>hpm6750evk2</td>
-<td><a href="https://github.com/hpmicro/rtt-bsp-hpm6750evk2/archive/v1.11.0.zip">https://github.com/hpmicro/rtt-bsp-hpm6750evk2/archive/v1.11.0.zip</a></td>
+<td><a href="https://github.com/hpmicro/rtt-bsp-hpm6750evk2/archive/v1.13.0-rc1.1.zip">https://github.com/hpmicro/rtt-bsp-hpm6750evk2/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 <tr>
 <td>hpm6300evk</td>
-<td><a href="https://github.com/hpmicro/rtt-bsp-hpm6300evk/archive/v1.11.0.zip">https://github.com/hpmicro/rtt-bsp-hpm6300evk/archive/v1.11.0.zip</a></td>
+<td><a href="https://github.com/hpmicro/rtt-bsp-hpm6300evk/archive/v1.13.0-rc1.1.zip">https://github.com/hpmicro/rtt-bsp-hpm6300evk/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 <tr>
 <td>hpm6200evk</td>
-<td><a href="https://github.com/hpmicro/rtt-bsp-hpm6200evk/archive/v1.11.0.zip">https://github.com/hpmicro/rtt-bsp-hpm6200evk/archive/v1.11.0.zip</a></td>
+<td><a href="https://github.com/hpmicro/rtt-bsp-hpm6200evk/archive/v1.13.0-rc1.1.zip">https://github.com/hpmicro/rtt-bsp-hpm6200evk/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 <tr>
 <td>hpm5300evk</td>
-<td><a href="https://github.com/hpmicro/rtt-bsp-hpm5300evk/archive/v1.11.0.zip">https://github.com/hpmicro/rtt-bsp-hpm5300evk/archive/v1.11.0.zip</a></td>
+<td><a href="https://github.com/hpmicro/rtt-bsp-hpm5300evk/archive/v1.13.0-rc1.1.zip">https://github.com/hpmicro/rtt-bsp-hpm5300evk/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 <tr>
 <td>hpm5301evklite</td>
-<td><a href="https://github.com/hpmicro/rtt-bsp-hpm5301evklite/archive/v1.11.0.zip">https://github.com/hpmicro/rtt-bsp-hpm5301evklite/archive/v1.11.0.zip</a></td>
+<td><a href="https://github.com/hpmicro/rtt-bsp-hpm5301evklite/archive/v1.13.0-rc1.1.zip">https://github.com/hpmicro/rtt-bsp-hpm5301evklite/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 <tr>
 <td>hpm6800evk</td>
-<td><a href="https://github.com/hpmicro/rtt-bsp-hpm6800evk/archive/v1.11.0.zip">https://github.com/hpmicro/rtt-bsp-hpm6800evk/archive/v1.11.0.zip</a></td>
+<td><a href="https://github.com/hpmicro/rtt-bsp-hpm6800evk/archive/v1.13.0-rc1.1.zip">https://github.com/hpmicro/rtt-bsp-hpm6800evk/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 <tr>
 <td>hpm6e00evk</td>
-<td><a href="https://github.com/hpmicro/rtt-bsp-hpm6e00evk/archive/v1.11.0.zip">https://github.com/hpmicro/rtt-bsp-hpm6e00evk/archive/v1.11.0.zip</a></td>
+<td><a href="https://github.com/hpmicro/rtt-bsp-hpm6e00evk/archive/v1.13.0-rc1.1.zip">https://github.com/hpmicro/rtt-bsp-hpm6e00evk/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 <tr>
 <td>hpm6p00evk</td>
-<td><a href="https://github.com/hpmicro/rtt-bsp-hpm6p00evk/archive/v1.11.0.zip">https://github.com/hpmicro/rtt-bsp-hpm6p00evk/archive/v1.11.0.zip</a></td>
+<td><a href="https://github.com/hpmicro/rtt-bsp-hpm6p00evk/archive/v1.13.0-rc1.1.zip">https://github.com/hpmicro/rtt-bsp-hpm6p00evk/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 <tr>
 <td>hpm5e00evk</td>
-<td><a href="https://github.com/hpmicro/rtt-bsp-hpm5e00evk/archive/v1.11.0.zip">https://github.com/hpmicro/rtt-bsp-hpm5e00evk/archive/v1.11.0.zip</a></td>
+<td><a href="https://github.com/hpmicro/rtt-bsp-hpm5e00evk/archive/v1.13.0-rc1.1.zip">https://github.com/hpmicro/rtt-bsp-hpm5e00evk/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 </tbody>
 </table>
@@ -178,14 +186,14 @@
 </li>
 <li>
 <p>以<code>blink_led</code>例程为例，假定需要导出的路径为<code>D:\rtt_proj</code>，可通过如下命令导出该例程。</p>
-<pre data-role="codeBlock" data-info="console" class="language-console console"><code>python .\bsp_utils.py -e --project_name=blink_led --output=D:\rtt_proj
+<pre data-role="codeBlock" data-info="console" class="language-console console"><code>python .\bsp_utils.py -e --project_name=blink_led --output_dir=D:\rtt_proj
 </code></pre><ul>
 <li>
 <p>当导出成功后，会提示以下，并且在<code>D:\rtt_proj</code>目录下生成一个<code>blink_led</code>目录，该目录下就是导出的工程。</p>
 <pre data-role="codeBlock" data-info="console" class="language-console console"><code>    Successfully exported project 'blink_led' to 'D:\rtt_proj\blink_led'
 </code></pre></li>
 <li>
-<p>注意：确保导出的路径存在。</p>
+<p>注意：若导出路径不存在，脚本会自动创建。</p>
 </li>
 </ul>
 </li>

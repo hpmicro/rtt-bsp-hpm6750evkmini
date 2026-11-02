@@ -1,4 +1,4 @@
-# Copyright (c) 2024 HPMicro
+# Copyright (c) 2024,2026 HPMicro
 # SPDX-License-Identifier: BSD-3-Clause
 
 sdk_inc(toolchains)
@@ -47,13 +47,17 @@ sdk_zcc_compile_options(-mtune=andes-d45-series)
 sdk_zcc_ld_options(-mtune=andes-d45-series)
 
 if(NOT HPM_SOC_DISABLE_B_EXT)
-    get_toolchain_gcc_spec(spec)
-    if(spec GREATER_EQUAL 20191213)
+    check_march_ext_supported(b_ext_supported "_zba_zbb_zbc_zbs")
+    if(b_ext_supported)
         set(RV_ARCH "${RV_ARCH}_zba_zbb_zbc_zbs" PARENT_SCOPE)
     endif()
+    unset(b_ext_supported)
 endif()
 
 set(SOC_LINKER_SCRIPT "" PARENT_SCOPE)
+
+set(DEFAULT_NONCACHABLE_RAM_SIZE 64K)
+
 if(NOT DEFINED USE_CUSTOM_LINKER)
     if(${LINK_TO_FLASH})
         if(${INCLUDE_BOOTHEADER})
@@ -67,6 +71,8 @@ if(NOT DEFINED USE_CUSTOM_LINKER)
         else()
             if(${FLASH_UF2})
                 set(SOC_LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/toolchains/gcc/flash_uf2.ld PARENT_SCOPE)
+            elseif(${FLASH_DFU})
+                set(SOC_LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/toolchains/gcc/flash_dfu.ld PARENT_SCOPE)
             else()
                 set(SOC_LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/toolchains/gcc/flash.ld PARENT_SCOPE)
             endif()
@@ -74,9 +80,10 @@ if(NOT DEFINED USE_CUSTOM_LINKER)
     else()
         set(SOC_LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/toolchains/gcc/ram.ld PARENT_SCOPE)
     endif()
-    if(DEFINED NONCACHEABLE_RAM_SIZE)
-        sdk_linker_global_symbols("_noncacheable_size=${NONCACHEABLE_RAM_SIZE}")
-    else()
-        sdk_linker_global_symbols("_noncacheable_size=64K")
-    endif()
+endif()
+
+if(DEFINED NONCACHEABLE_RAM_SIZE)
+    sdk_linker_global_symbols("_noncacheable_size=${NONCACHEABLE_RAM_SIZE}")
+else()
+    sdk_linker_global_symbols("_noncacheable_size=${DEFAULT_NONCACHABLE_RAM_SIZE}")
 endif()

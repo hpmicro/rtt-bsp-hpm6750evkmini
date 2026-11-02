@@ -24,8 +24,8 @@
 <h1 id="在ubuntu上开发基于先楫mcu的rt-thread应用指南" ebook-toc-level-1="" heading="在Ubuntu上开发基于先楫MCU的RT-Thread应用指南 ">在Ubuntu上开发基于先楫MCU的RT-Thread应用指南 </h1>
 <h2 id="1-前言" ebook-toc-level-2="" heading="1. 前言 ">1. 前言 </h2>
 <p><code>RT-Thread Env</code> 是 <code>RT-Thread</code> 推出的开发辅助工具，针对基于 <code>RT-Thread</code> 操作系统的项目工程，提供<code>编译构建环境</code>、<code>图形化系统配置</code> 及<code>软件包管理</code>功能。其内置的 <code>menuconfig</code> 提供了简单易用的<code>配置剪裁工具</code>，可对<code>内核</code>、<code>组件</code>和<code>软件包</code>进行<code>自由裁剪</code>，使系统以搭积木的方式进行构建。</p>
-<p>先楫新发布的<code>RT-Thread BSP v1.11</code>也支持通过<code>RT-Thread Env</code> 来方便的图形化的配置和裁剪应用、完成编译、生成<code>cmake</code>工程和<code>Segger Embedded Studio</code>工程等操作。</p>
-<p>本文从介绍基于<code>Ubuntu</code>的<code>RT-Thread</code>开发环境的搭建开始，结合<code>先楫</code>RT-Thread BSP v1.11的新特性，介绍利用<code>RT-Thread Env</code>如何使用如下工具链来开发RT-Thread应用。</p>
+<p>先楫新发布的<code>RT-Thread BSP v1.13.0-rc1.1</code>也支持通过<code>RT-Thread Env</code> 来方便的图形化的配置和裁剪应用、完成编译、生成<code>cmake</code>工程和<code>Segger Embedded Studio</code>工程等操作。</p>
+<p>本文从介绍基于<code>Ubuntu</code>的<code>RT-Thread</code>开发环境的搭建开始，结合<code>先楫</code>RT-Thread BSP v1.13.0-rc1.1的新特性，介绍利用<code>RT-Thread Env</code>如何使用如下工具链来开发RT-Thread应用。</p>
 <ul>
 <li>gcc</li>
 <li>zcc (测试版本为4.1.5)</li>
@@ -53,7 +53,7 @@
 <ul>
 <li>版本匹配要求：
 <ul>
-<li>先楫 <code>RT-Thread BSP v1.11</code>是基于<code>RT-Thread</code> <code>v5.2.2</code>开发的，必须使用<code>RT-Thread Env v2.0</code>来开发。</li>
+<li>先楫 <code>RT-Thread BSP v1.13.0-rc1.1</code>是基于<code>RT-Thread</code> <code>v5.2.2</code>开发的，必须使用<code>RT-Thread Env v2.0</code>来开发。</li>
 </ul>
 </li>
 <li>环境配置问题解决方案：
@@ -200,44 +200,52 @@ sudo ./install_segger_embedded_studio
 </thead>
 <tbody>
 <tr>
+<td>hpm5100evk</td>
+<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm5100evk/archive/v1.13.0-rc1.1.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm5100evk/archive/v1.13.0-rc1.1.zip</a></td>
+</tr>
+<tr>
+<td>hpm6750evk</td>
+<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6750evk/archive/v1.13.0-rc1.1.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6750evk/archive/v1.13.0-rc1.1.zip</a></td>
+</tr>
+<tr>
 <td>hpm6750evkmini</td>
-<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6750evkmini/archive/v1.11.0.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6750evkmini/archive/v1.11.0.zip</a></td>
+<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6750evkmini/archive/v1.13.0-rc1.1.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6750evkmini/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 <tr>
 <td>hpm6750evk2</td>
-<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6750evk2/archive/v1.11.0.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6750evk2/archive/v1.11.0.zip</a></td>
+<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6750evk2/archive/v1.13.0-rc1.1.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6750evk2/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 <tr>
 <td>hpm6300evk</td>
-<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6300evk/archive/v1.11.0.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6300evk/archive/v1.11.0.zip</a></td>
+<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6300evk/archive/v1.13.0-rc1.1.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6300evk/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 <tr>
 <td>hpm6200evk</td>
-<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6200evk/archive/v1.11.0.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6200evk/archive/v1.11.0.zip</a></td>
+<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6200evk/archive/v1.13.0-rc1.1.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6200evk/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 <tr>
 <td>hpm5300evk</td>
-<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm5300evk/archive/v1.11.0.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm5300evk/archive/v1.11.0.zip</a></td>
+<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm5300evk/archive/v1.13.0-rc1.1.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm5300evk/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 <tr>
 <td>hpm5301evklite</td>
-<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm5301evklite/archive/v1.11.0.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm5301evklite/archive/v1.11.0.zip</a></td>
+<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm5301evklite/archive/v1.13.0-rc1.1.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm5301evklite/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 <tr>
 <td>hpm6800evk</td>
-<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6800evk/archive/v1.11.0.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6800evk/archive/v1.11.0.zip</a></td>
+<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6800evk/archive/v1.13.0-rc1.1.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6800evk/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 <tr>
 <td>hpm6e00evk</td>
-<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6e00evk/archive/v1.11.0.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6e00evk/archive/v1.11.0.zip</a></td>
+<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6e00evk/archive/v1.13.0-rc1.1.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6e00evk/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 <tr>
 <td>hpm6p00evk</td>
-<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6p00evk/archive/v1.11.0.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6p00evk/archive/v1.11.0.zip</a></td>
+<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6p00evk/archive/v1.13.0-rc1.1.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm6p00evk/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 <tr>
 <td>hpm5e00evk</td>
-<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm5e00evk/archive/v1.11.0.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm5e00evk/archive/v1.11.0.zip</a></td>
+<td><a href="https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm5e00evk/archive/v1.13.0-rc1.1.zip">https://git-mirror.rt-thread.com:12236/hpmicro/rtt-bsp-hpm5e00evk/archive/v1.13.0-rc1.1.zip</a></td>
 </tr>
 </tbody>
 </table>

@@ -4,7 +4,7 @@
 
 ## 支持的功能
 
-本例程提供wifi联网和常见的网络命令。
+本例程提供WiFi联网和常见的网络命令。
 
 ## 支持的命令
 
@@ -47,7 +47,7 @@ rw007_update     - rw007_update
 
 其中，如下命令与网络相关：
 
-- wifi 命令用于WIFI相关的操作
+- WiFi 命令用于WIFI相关的操作
 - ifconfig 显示网络相关的信息
 - dns
 - ping
@@ -57,7 +57,7 @@ rw007_update     - rw007_update
 
 ## 完整的测试步骤
 
-- wifi 联网
+- WiFi 联网
 
 ```console
 wifi join <SSID> <PASSWORD>

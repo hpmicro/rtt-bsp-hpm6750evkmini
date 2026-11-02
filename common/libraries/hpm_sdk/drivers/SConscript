@@ -1,3 +1,4 @@
+import os
 Import('rtconfig')
 from building import *
 
@@ -11,6 +12,11 @@ path = [ cwd + "/inc" ]
 src = []
 
 CPPDEFINES=[]
+
+# The path to the soc directory and the list of soc modules for the current SOC family and chip.
+_soc_dir = os.path.join(cwd, '..', 'soc', rtconfig.SOC_FAMILY, rtconfig.CHIP_NAME)
+_list = os.path.join(_soc_dir, 'soc_modules.list')
+_soc_gptmr_v2 = False
 
 src += ['src/hpm_pmp_drv.c']
 src += ['src/hpm_pcfg_drv.c']
@@ -71,9 +77,19 @@ if GetDepend(['BSP_USING_SDXC']):
 if GetDepend(['BSP_USING_LCD']):
     src += ['src/hpm_lcdc_drv.c']
 
-if GetDepend(['BSP_USING_GPTMR']) or GetDepend('HPM_USING_VECTOR_PREEMPTED_MODE'):
-    src += ['src/hpm_gptmr_drv.c']
-    CPPDEFINES += ['NO_BOARD_TIMER_SUPPORT=1']
+if os.path.isfile(_list):
+    with open(_list) as _f:
+        _soc_gptmr_v2 = 'HPMSOC_HAS_HPMSDK_GPTMRV2=y' in _f.read()
+
+if _soc_gptmr_v2:
+    CPPDEFINES += ['HPMSOC_HAS_HPMSDK_GPTMRV2']
+    if GetDepend(['BSP_USING_GPTMRV2']) or GetDepend('HPM_USING_VECTOR_PREEMPTED_MODE'):
+        src += ['src/hpm_gptmrv2_drv.c']
+        CPPDEFINES += ['NO_BOARD_TIMER_SUPPORT=1']
+else:
+    if GetDepend(['BSP_USING_GPTMR']) or GetDepend('HPM_USING_VECTOR_PREEMPTED_MODE'):
+        src += ['src/hpm_gptmr_drv.c']
+        CPPDEFINES += ['NO_BOARD_TIMER_SUPPORT=1']
 
 if GetDepend(['BSP_USING_FEMC']):
     src += ['src/hpm_femc_drv.c']
@@ -93,10 +109,14 @@ if GetDepend(['BSP_USING_I2S']):
 if GetDepend(['BSP_USING_PDM']):
     src += ['src/hpm_pdm_drv.c']
     src += ['src/hpm_i2s_drv.c']
+    # The I2S helper for PDM is compiled only when the PDM module is declared
+    CPPDEFINES += ['HPMSOC_HAS_HPMSDK_PDM']
 
 if GetDepend(['BSP_USING_DAO']):
     src += ['src/hpm_dao_drv.c']
     src += ['src/hpm_i2s_drv.c']
+    # The I2S helper for DAO is compiled only when the DAO module is declared
+    CPPDEFINES += ['HPMSOC_HAS_HPMSDK_DAO']
 
 if GetDepend(['BSP_USING_PDMA']):
     src += ['src/hpm_pdma_drv.c']
@@ -197,6 +217,9 @@ if GetDepend(['BSP_USING_SDP']):
 
 if GetDepend(['BSP_USING_SDM']):
     src += ['src/hpm_sdm_drv.c']
+
+if GetDepend(['BSP_USING_DHC']):
+    src += ['src/hpm_dhc_drv.c']
 
 if GetDepend(['BSP_USING_MMC']):
     src += ['src/hpm_mmc_drv.c']

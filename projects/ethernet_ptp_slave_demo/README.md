@@ -8,119 +8,106 @@
 
 ## 硬件设置
 
-* 使用USB Type-C线缆连接PC USB端口和PWR DEBUG端口
-* 使用以太网线缆连接开发板RGMII或者RMII端口和另一个块开发板的RGMII或RMII端口
+- 使用USB Type-C线缆连接PC USB端口和PWR DEBUG端口（板载 FT2232，不支持外接 J-Link 烧录）
+- 使用以太网线缆连接开发板RGMII或者RMII端口和另一块开发板的RGMII或RMII端口
 
 ## 编译设置
 
-* 在双网口的开发板上，默认支持的是RGMII接口
-* 在双网口的开发板上，仅支持一个网口，若需要使用另一个网口，可以通过如下两种方式之一：
-    * RT-Thread Settings->硬件->芯片设备驱动->Enable Ethernet
-    * menuconfig->Hardware Drivers Config->On-chip Peripheral Drivers->Enable Ethernet
-    
+- 在双网口的开发板上，默认支持的是RGMII接口
+- 在双网口的开发板上，仅支持一个网口，若需要使用另一个网口，可以通过如下两种方式之一：
+    - RT-Thread Settings->硬件->芯片设备驱动->Enable Ethernet
+    - menuconfig->Hardware Drivers Config->On-chip Peripheral Drivers->Enable Ethernet
+
 ## 运行示例
 
-* 编译下载程序
-* 串口终端显示
+- 编译下载程序（OpenOCD + 板载 FT2232）
+- 串口终端显示（Slave 与 Master 直连以太网，使能 `LWIP_PTP` 硬件时间戳后）
 
 ```console
  \ | /
 - RT -     Thread Operating System
- / | \     5.0.1 build Jul 26 2023 09:20:43
- 2006 - 2022 Copyright by RT-Thread team
+ / | \     5.2.2 build Jul 18 2026 13:51:46
+ 2006 - 2024 Copyright by RT-Thread team
 lwIP-2.1.2 initialized!
-[15] I/sal.skt: Socket Abstraction Layer initialize success.
-(D 0.006532950) event POWER UP
-(D 0.009440910) initClock
-(D 0.011833750) state PTP_INITIALIZING
-(D 0.013588990) manufacturerIdentity: PTPd;1.0.1
-(D 0.015774790) netShutdown
-(D 0.023853030) netInit
-(D 0.025080450) initData
-(D 0.026240430) initTimer
-(D 0.027421070) initClock
-(D 0.028616910) sync message interval: 4000
-(D 0.030585670) clock identifier: DFLT
-(D 0.032332170) 256*log2(clock variance): -4000
-(D 0.034470150) clock stratum: 255
-(D 0.036040910) clock preferred?: no
-(D 0.037699890) bound interface name:
-(D 0.039446270) communication technology: 1
-(D 0.041409710) uuid: 0hx:0hx:0hx:0hx:0hx:0hx
-(D 0.043461610) PTP subdomain name: _DFLT
-(D 0.045338350) subdomain address: 224.0.1.129
-(D 0.047433430) event port address: hx hx
-(D 0.049330250) general port address: hx hx
-(D 0.051296110) initClock
-(D 0.052480050) state PTP_LISTENING
-(D 0.054098030) initClock
-(D 0.055277250) state PTP_SLAVE
-msh />[2118] I/NO_TAG: PHY Status: Link up
-[2122] I/NO_TAG: PHY Speed: 100Mbps
-[2126] I/NO_TAG: PHY Duplex: full duplex
+[4] I/sal.skt: Socket Abstraction Layer initialize success.
+(D 0.006485300) event POWER UP
+(D 0.009334940) initClock
+(D 0.011726300) state PTP_INITIALIZING
+(D 0.015248740) manufacturerIdentity: PTPd;1.0.1
+(D 0.019641780) netShutdown
+(D 0.022191860) netInit
+(D 0.024589900) initData
+(D 0.026906500) initTimer
+(D 0.029282100) initClock
+(D 0.031667780) sync message interval: 1000
+(D 0.035617300) clock identifier: DFLT
+(D 0.039124340) 256*log2(clock variance): -4000
+(D 0.043418780) clock stratum: 255
+(D 0.046576340) clock preferred?: no
+(D 0.049911700) bound interface name:
+(D 0.053418420) communication technology: 1
+(D 0.057362140) uuid: 98:2c:bc:b1:9f:28
+(D 0.060963300) PTP subdomain name: _DFLT
+(D 0.064735460) subdomain address: 224.0.1.129
+(D 0.068946900) event port address: 3f 1
+(D 0.072628300) general port address: 40 1
+(D 0.076487220) initClock
+(D 0.078852940) state PTP_LISTENING
+(D 0.082097940) initClock
+(D 0.084466100) state PTP_SLAVE
+msh />
+[2093] I/NO_TAG: ENET1
+[2096] I/NO_TAG: PHY Status: Link up
+[2100] I/NO_TAG: PHY Speed: 100Mbps
+[2104] I/NO_TAG: PHY Duplex: full duplex
 
-(D 2.802780510) addForeign: new record (0,1) 1 1 0hx:0hx:0hx:0hx:0hx:0hx
-(D 2.806070330) event MASTER_CLOCK_CHANGED
-(D 2.807996890) state PTP_UNCALIBRATED
-(D 2.809746910) toState: Q = 0, R = 5
-(D 4.803559730) updateOffset
-(D 4.804896850) updateClock seconds
-(D 6.081331250) setTime: resetting system clock to 6s 81331110ns
-(D 6.084218510) initClock
-(D 6.085406310) one-way delay:           0s          0ns
-(D 6.087941810) offset from master:      -1s -274817140ns
-(D 6.090516470) observed drift:          0
-(D 8.079369490) updateOffset
-(D 8.080712410) one-way delay:           0s          0ns
-(D 8.083246140) offset from master:      0s     103520ns
-(D 8.085776460) observed drift:          1725
-(D 10.079879940) updateOffset
-(D 10.081262300) one-way delay:           0s          0ns
-(D 10.083849210) offset from master:      0s     -97545ns
-(D 10.086424400) observed drift:          100
-(D 12.080866000) updateOffset
-(D 12.082244270) one-way delay:           0s          0ns
-(D 12.084819130) offset from master:      0s    -164298ns
-(D 12.087393750) observed drift:          -2638
-(D 14.081810370) handleSync: Q = 0, R = 7
-(D 14.083733900) updateOffset
-(D 14.085106490) one-way delay:           0s          0ns
-(D 14.087681920) offset from master:      0s    -177979ns
-(D 14.090257250) observed drift:          -5604
-(D 16.083137760) updateOffset
-(D 16.084516780) one-way delay:           0s          0ns
-(D 16.087094130) offset from master:      0s    -121674ns
-(D 16.089670050) observed drift:          -7631
-(D 18.083978180) updateOffset
-(D 18.085359030) one-way delay:           0s          0ns
-(D 18.087938040) offset from master:      0s    -119872ns
-(D 18.090512600) observed drift:          -9628
-(D 20.084961650) updateOffset
-(D 20.086339420) one-way delay:           0s          0ns
-(D 20.088915490) offset from master:      0s      -3436ns
-(D 20.091491130) observed drift:          -9685
-(D 20.093910900) event MASTER_CLOCK_SELECTED
-(D 20.095921700) state PTP_SLAVE
-(D 22.086235170) updateOffset
-(D 22.087617360) one-way delay:           0s          0ns
-(D 22.090194610) offset from master:      0s     -11668ns
-(D 22.092768540) observed drift:          -9879
-(D 24.088011820) updateOffset
-(D 24.089389560) one-way delay:           0s          0ns
-(D 24.091965620) offset from master:      0s     172641ns
-(D 24.094539580) observed drift:          -7002
-(D 26.089021210) updateOffset
-(D 26.090403550) one-way delay:           0s          0ns
-(D 26.092979720) offset from master:      0s      66990ns
-(D 26.095554170) observed drift:          -5886
-(D 28.090828770) handleSync: Q = 0, R = 7
-(D 28.092855330) updateOffset
-(D 28.094237900) one-way delay:           0s          0ns
-(D 28.096816940) offset from master:      0s      49325ns
-(D 28.099391060) observed drift:          -5064
-(D 28.101558180) updateDelay
-(D 30.092235300) updateOffset
-(D 30.093614680) one-way delay:           0s     160300ns
-(D 30.096192050) offset from master:      0s       2808ns
-
+(D 2.631078580) addForeign: new record (0,1) 1 1 98:2c:bc:b1:9f:17
+(D 2.637123700) event MASTER_CLOCK_CHANGED
+(D 2.640988980) state PTP_UNCALIBRATED
+(D 2.644496740) toState: Q = 0, R = 4
+(D 87.137507140) updateOffset
+(D 87.140260880) one-way delay:           0s       1113ns
+(D 87.145443800) offset from master:      0s         99ns
+(D 87.150618160) observed drift:          -38351
+(D 88.141966080) updateOffset
+(D 88.144711660) one-way delay:           0s       1113ns
+(D 88.149886380) offset from master:      0s         73ns
+(D 88.155055820) observed drift:          -38347
+(D 89.138221220) updateOffset
+(D 89.140966760) one-way delay:           0s       1113ns
+(D 89.146148720) offset from master:      0s         60ns
+(D 89.151320640) observed drift:          -38343
+(D 90.142464880) updateOffset
+(D 90.145208840) one-way delay:           0s       1113ns
+(D 90.150384740) offset from master:      0s         94ns
+(D 90.155561140) observed drift:          -38337
+(D 91.138767800) updateOffset
+(D 91.141518220) one-way delay:           0s       1114ns
+(D 91.146689380) offset from master:      0s         90ns
+(D 91.151860060) observed drift:          -38331
+(D 92.143111000) updateOffset
+(D 92.145870640) one-way delay:           0s       1114ns
+(D 92.151048780) offset from master:      0s         88ns
+(D 92.156222780) observed drift:          -38326
+(D 93.139447060) updateOffset
+(D 93.142198980) one-way delay:           0s       1114ns
+(D 93.147376620) offset from master:      0s         77ns
+(D 93.152547320) observed drift:          -38321
+(D 94.143741560) updateOffset
+(D 94.146493420) one-way delay:           0s       1114ns
+(D 94.151667180) offset from master:      0s         51ns
+(D 94.156837020) observed drift:          -38318
+(D 95.140068740) updateOffset
+(D 95.142834780) one-way delay:           0s       1113ns
+(D 95.148010500) offset from master:      0s         59ns
+(D 95.153180960) observed drift:          -38315
+(D 96.144453200) updateOffset
+(D 96.147207860) one-way delay:           0s       1113ns
+(D 96.152381140) offset from master:      0s         53ns
+(D 96.157551660) observed drift:          -38312
+(D 97.140796380) updateOffset
+(D 97.143553620) one-way delay:           0s       1114ns
+(D 97.148729000) offset from master:      0s         70ns
 ```
+
+同步稳定后，`offset from master` 可收敛并维持在约 ±100ns 以内（上例连续多次采样均在 100ns 内）。
